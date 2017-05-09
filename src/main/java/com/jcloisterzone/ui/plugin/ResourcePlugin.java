@@ -37,6 +37,7 @@ import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.resources.AreaRotationScaling;
@@ -109,8 +110,8 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             value = XMLUtils.childValue(tiles, "image-ratio-x");
             if (value != null) {
                 imageRatioX = Integer.parseInt(value);
-				if (imageRatioX == 0)
-					imageRatioX = 1;
+                if (imageRatioX == 0)
+                    imageRatioX = 1;
             }
             value = XMLUtils.childValue(tiles, "image-ratio-y");
             if (value != null) {
@@ -206,22 +207,22 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         }
         return point;
     }
-    
+
     private FeatureArea applyRotationScaling(Tile tile, ThemeGeometry geom, FeatureArea area) {
-    	if (area == null) return null;
-    	/* rectangular tiles can have noScale direction to keep one dimension unchanged by rotation */
-        AreaRotationScaling ars = area.getRotationScaling(); 
-        if (ars != AreaRotationScaling.NORMAL)  {        	
-        	Rotation rot = tile.getRotation();
-        	if (rot == Rotation.R90 || rot == Rotation.R270) {
-        		AffineTransform t = new AffineTransform();        		
-        		if (ars == AreaRotationScaling.NO_SCALE_HEIGHT) {
-        			ars.concatAffineTransform(t, geom.getImageSizeRatio());
-        		} else {
-        			ars.concatAffineTransform(t, 1.0 / geom.getImageSizeRatio());
-        		}
-        		area = area.transform(t);     		        		        	
-        	}        	
+        if (area == null) return null;
+        /* rectangular tiles can have noScale direction to keep one dimension unchanged by rotation */
+        AreaRotationScaling ars = area.getRotationScaling();
+        if (ars != AreaRotationScaling.NORMAL)  {
+            Rotation rot = tile.getRotation();
+            if (rot == Rotation.R90 || rot == Rotation.R270) {
+                AffineTransform t = new AffineTransform();
+                if (ars == AreaRotationScaling.NO_SCALE_HEIGHT) {
+                    ars.concatAffineTransform(t, geom.getImageSizeRatio());
+                } else {
+                    ars.concatAffineTransform(t, 1.0 / geom.getImageSizeRatio());
+                }
+                area = area.transform(t);
+            }
         }
         return area;
     }
@@ -232,23 +233,23 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             featureClass = City.class;
         }
         ThemeGeometry source = null;
-        FeatureArea area = pluginGeometry.getArea(tile, featureClass, loc);        
+        FeatureArea area = pluginGeometry.getArea(tile, featureClass, loc);
         if (area == null) {
             area = adaptDefaultGeometry(defaultGeometry.getArea(tile, featureClass, loc));
             if (area == null) {
                 logger.error("No shape defined for <" + (new FeatureDescriptor(tile, featureClass, loc)) + ">");
                 return new FeatureArea(new Area(), 0);
             } else {
-            	source = defaultGeometry;
-            }            
+                source = defaultGeometry;
+            }
         } else {
-        	source = pluginGeometry;
+            source = pluginGeometry;
         }
-        
+
         area = applyRotationScaling(tile, source, area);
-        AffineTransform t = new AffineTransform();         
+        AffineTransform t = new AffineTransform();
         t.concatenate(tile.getRotation().getAffineTransform(NORMALIZED_SIZE, (int) (NORMALIZED_SIZE * getImageSizeRatio())));
-        area = area.transform(t);               
+        area = area.transform(t);
         return area;
     }
 
@@ -258,25 +259,25 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
              area = new Area();
 
         if (d != null) {
-        	area.add(adaptDefaultGeometry(d));
+            area.add(adaptDefaultGeometry(d));
         }
         if (p != null) {
-        	//HACK always area rotation scale as not scale in both width and height
-        	//it's what is required for ROAD subtraction but it's possible in future it will be needed scale area too.
-        	Rotation rot = tile.getRotation();
-        	if (rot == Rotation.R90 || rot == Rotation.R270) {
-        		AffineTransform t = new AffineTransform();        		        		
-        		AreaRotationScaling.NO_SCALE_HEIGHT.concatAffineTransform(t, getImageSizeRatio());        		
-        		AreaRotationScaling.NO_SCALE_WIDTH.concatAffineTransform(t, 1.0 / getImageSizeRatio());        		
-        		p = p.createTransformedArea(t);     		        		        	
-        	}       
-        	
-        	area.add(p);
+            //HACK always area rotation scale as not scale in both width and height
+            //it's what is required for ROAD subtraction but it's possible in future it will be needed scale area too.
+            Rotation rot = tile.getRotation();
+            if (rot == Rotation.R90 || rot == Rotation.R270) {
+                AffineTransform t = new AffineTransform();
+                AreaRotationScaling.NO_SCALE_HEIGHT.concatAffineTransform(t, getImageSizeRatio());
+                AreaRotationScaling.NO_SCALE_WIDTH.concatAffineTransform(t, 1.0 / getImageSizeRatio());
+                p = p.createTransformedArea(t);
+            }
+
+            area.add(p);
         }
-        
-        AffineTransform t = new AffineTransform();         
+
+        AffineTransform t = new AffineTransform();
         t.concatenate(tile.getRotation().getAffineTransform(NORMALIZED_SIZE, (int) (NORMALIZED_SIZE * getImageSizeRatio())));
-        area.transform(t);        
+        area.transform(t);
         return area;
     }
 
@@ -285,25 +286,27 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (defaultGeometry.isFarmComplement(tile, loc)) return true;
         return false;
     }
-    
+
     private FeatureArea adaptDefaultGeometry(FeatureArea fa) {
-    	if (fa == null) return null;
-    	return fa.transform(AffineTransform.getScaleInstance(1.0, getImageSizeRatio()));    		
+        if (fa == null) return null;
+        return fa.transform(AffineTransform.getScaleInstance(1.0, getImageSizeRatio()));
     }
-    
+
     private Area adaptDefaultGeometry(Area a) {
-    	if (a == null) return null;
-    	if (imageRatioX != imageRatioY) {
-    		return a.createTransformedArea(
-    			AffineTransform.getScaleInstance(1.0, getImageSizeRatio())
-    		);
-    	} 
-    	return a;
+        if (a == null) return null;
+        if (imageRatioX != imageRatioY) {
+            return a.createTransformedArea(
+                AffineTransform.getScaleInstance(1.0, getImageSizeRatio())
+            );
+        }
+        return a;
     }
 
     @Override
     public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
         if (!containsTile(tile.getId())) return null;
+        // dirty hack to not handle quarter locations
+        if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
         Map<Location, FeatureArea> areas = new HashMap<>();
         Area subsBridge = getBaseRoadAndCitySubstractions(tile);
@@ -346,20 +349,20 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         double ratioX;
         double ratioY;
         Rotation rot = tile.getRotation();
-        if (rot == Rotation.R90 || rot  == Rotation.R270) {          	
-        	ratioX = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
-        	ratioY = (double) width / NORMALIZED_SIZE;
+        if (rot == Rotation.R90 || rot  == Rotation.R270) {
+            ratioX = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
+            ratioY = (double) width / NORMALIZED_SIZE;
         } else {
-        	ratioX = (double) width / NORMALIZED_SIZE;
-        	ratioY = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
+            ratioX = (double) width / NORMALIZED_SIZE;
+            ratioY = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
         }
         AffineTransform resize = AffineTransform.getScaleInstance(ratioX, ratioY);
-        
+
         areas.forEach((key, fa) -> {
-        	Area a = fa.getTrackingArea();
+            Area a = fa.getTrackingArea();
             a = a.createTransformedArea(resize);
             fa.setTrackingArea(a);
-        });        
+        });
 
         return areas;
     }
@@ -429,14 +432,14 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         sub.add(getSubstractionArea(tile, true));
         return sub;
     }
-    
+
     private Rectangle getFullRectangle(Tile tile) {
-    	Rotation rot = tile.getRotation();
-    	if (rot == Rotation.R90 || rot == Rotation.R270) {
-    		return new Rectangle(0,0, (int) (NORMALIZED_SIZE * getImageSizeRatio()), NORMALIZED_SIZE-1);
-    	} else {
-    		return new Rectangle(0,0, NORMALIZED_SIZE-1, (int) (NORMALIZED_SIZE * getImageSizeRatio()));
-    	}
+        Rotation rot = tile.getRotation();
+        if (rot == Rotation.R90 || rot == Rotation.R270) {
+            return new Rectangle(0,0, (int) (NORMALIZED_SIZE * getImageSizeRatio()), NORMALIZED_SIZE-1);
+        } else {
+            return new Rectangle(0,0, NORMALIZED_SIZE-1, (int) (NORMALIZED_SIZE * getImageSizeRatio()));
+        }
     }
 
     private FeatureArea getFarmArea(Location farm, Tile tile, Area sub) {

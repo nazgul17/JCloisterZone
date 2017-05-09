@@ -43,6 +43,7 @@ import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
+import com.jcloisterzone.ui.resources.DefaultResourceManager;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
 public class MeepleLayer extends AbstractGridLayer {
@@ -57,18 +58,6 @@ public class MeepleLayer extends AbstractGridLayer {
     private PositionedFigureImage fairyOnFeature = null;
     //TODO own layer ???
     private List<PositionedImage> permanentImages = new ArrayList<>();
-
-    public static final Map<Location, ImmutablePoint> COUNT_OFFSETS;
-
-    static {
-        COUNT_OFFSETS = new ImmutableMap.Builder<Location, ImmutablePoint>()
-         .put(Location.QUARTER_CASTLE, new ImmutablePoint(40, -40))
-         .put(Location.QUARTER_MARKET, new ImmutablePoint(100, 50))
-         .put(Location.QUARTER_BLACKSMITH, new ImmutablePoint(60, 130))
-         .put(Location.QUARTER_CATHEDRAL, new ImmutablePoint(-80, 5))
-         .build();
-    }
-
 
     public MeepleLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -201,7 +190,7 @@ public class MeepleLayer extends AbstractGridLayer {
             fp = mptr.asFeaturePointer();
         }
         if (count) {
-            offset = COUNT_OFFSETS.get(fp.getLocation());
+            offset = DefaultResourceManager.COUNT_OFFSETS.get(fp.getLocation());
         } else if (fp != null) {
             Feature feature = getGame().getBoard().get(fp);
             bridgePlacement = feature instanceof Bridge;

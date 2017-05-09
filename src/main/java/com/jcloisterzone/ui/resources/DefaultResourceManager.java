@@ -14,11 +14,13 @@ import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableMap;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.ImmutablePoint;
 
 public class DefaultResourceManager implements ResourceManager {
@@ -26,6 +28,17 @@ public class DefaultResourceManager implements ResourceManager {
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private final ImageLoader imgLoader;
+
+    public static final Map<Location, ImmutablePoint> COUNT_OFFSETS;
+
+    static {
+        COUNT_OFFSETS = new ImmutableMap.Builder<Location, ImmutablePoint>()
+         .put(Location.QUARTER_CASTLE, new ImmutablePoint(40, -40))
+         .put(Location.QUARTER_MARKET, new ImmutablePoint(100, 50))
+         .put(Location.QUARTER_BLACKSMITH, new ImmutablePoint(60, 130))
+         .put(Location.QUARTER_CATHEDRAL, new ImmutablePoint(-80, 5))
+         .build();
+    }
 
     public DefaultResourceManager() {
         ImageLoader imgLoader = null;
@@ -107,6 +120,17 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
+        if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) {
+            Map<Location, FeatureArea> areas = new HashMap<>();
+            double rx = width * 0.6;
+            double ry = height * 0.6;
+            for (Location loc : locations) {
+                ImmutablePoint offset = COUNT_OFFSETS.get(loc);
+                Area a = new Area(new Ellipse2D.Double(-rx+offset.getX(),-ry+offset.getY(),2*rx,2*ry));
+                areas.put(loc, new FeatureArea(a, FeatureArea.DEFAULT_STRUCTURE_ZINDEX));
+            }
+            return areas;
+        }
         return null;
     }
 }

@@ -18,6 +18,7 @@ import com.jcloisterzone.game.Game;
 
 public class CountCapability extends Capability {
 
+    public static String QUARTER_ACTION_TILE_ID = "CO.7";
     private static final String[] FORBIDDEN_TILES = new String[] { "CO.6", "CO.7" };
 
     private Count count;
@@ -55,7 +56,7 @@ public class CountCapability extends Capability {
 
     private void tilePlaced(TileEvent ev) {
         Tile tile = ev.getTile();
-        if (ev.getType() == TileEvent.PLACEMENT && "CO.7".equals(tile.getId())) {
+        if (ev.getType() == TileEvent.PLACEMENT && QUARTER_ACTION_TILE_ID.equals(tile.getId())) {
             quarterPosition = tile.getPosition();
             count.deploy(new FeaturePointer(quarterPosition, Location.QUARTER_CASTLE));
         }
