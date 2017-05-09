@@ -1,9 +1,15 @@
 package com.jcloisterzone.game.capability;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Location;
+import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
+import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Count;
@@ -15,6 +21,8 @@ public class CountCapability extends Capability {
     private static final String[] FORBIDDEN_TILES = new String[] { "CO.6", "CO.7" };
 
     private Count count;
+    private final Map<Player, Integer> receivedPoints = new HashMap<>();
+    private Position quarterPosition;
 
     public CountCapability(Game game) {
         super(game);
@@ -40,12 +48,45 @@ public class CountCapability extends Capability {
        if (event instanceof TileEvent) {
            tilePlaced((TileEvent) event);
        }
+       if (event instanceof ScoreEvent) {
+           scoreAssigned((ScoreEvent) event);
+       }
     }
 
     private void tilePlaced(TileEvent ev) {
         Tile tile = ev.getTile();
         if (ev.getType() == TileEvent.PLACEMENT && "CO.7".equals(tile.getId())) {
-            count.deploy(new FeaturePointer(tile.getPosition(), Location.QUARTER_CASTLE));
+            quarterPosition = tile.getPosition();
+            count.deploy(new FeaturePointer(quarterPosition, Location.QUARTER_CASTLE));
         }
+    }
+
+    private void scoreAssigned(ScoreEvent ev) {
+        if (ev.getCategory().hasLandscapeSource()) {
+            Player p = ev.getTargetPlayer();
+            int points = ev.getPoints();
+            if (receivedPoints.containsKey(p)) {
+                receivedPoints.put(p, receivedPoints.get(p) + points);
+            } else {
+                receivedPoints.put(p, points);
+            }
+        }
+    }
+
+    public boolean didReceivePoints(Player p) {
+        Integer pts = receivedPoints.get(p);
+        if (pts == null) {
+            return false;
+        }
+        return pts > 0; //undo can cause 0 in map!
+    }
+
+    @Override
+    public void turnPartCleanUp() {
+        receivedPoints.clear();
+    }
+
+    public Position getQuarterPosition() {
+        return quarterPosition;
     }
 }

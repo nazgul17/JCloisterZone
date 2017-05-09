@@ -142,7 +142,6 @@ public abstract class Capability {
     public void turnPartCleanUp() {
     }
 
-
     public void finalScoring(ScoringStrategy strategy) {
     }
 
