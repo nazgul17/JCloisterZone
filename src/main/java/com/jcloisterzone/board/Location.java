@@ -95,6 +95,11 @@ public class Location implements Serializable {
     public static final Location TOWER = new Location("TOWER", 1 << 20);
     /** Flier location - follower can be placed here just for moment, before dice roll  */
     public static final Location FLIER = new Location("FLIER", 1 << 21);
+    /** City of Carcassonne specials (Count) */
+    public static final Location QUARTER_CASTLE = new Location("QUARTER_CASTLE", 1 << 22);
+    public static final Location QUARTER_MARKET = new Location("QUARTER_MARKET", 1 << 23);
+    public static final Location QUARTER_BLACKSMITH = new Location("QUARTER_BLACKSMITH", 1 << 24);
+    public static final Location QUARTER_CATHEDRAL = new Location("QUARTER_CATHEDRAL", 1 << 25);
 
     // --- farm locations ---
 

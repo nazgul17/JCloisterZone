@@ -11,7 +11,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
@@ -32,6 +34,7 @@ import com.jcloisterzone.figure.Figure;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
+import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.Mage;
@@ -54,6 +57,17 @@ public class MeepleLayer extends AbstractGridLayer {
     private PositionedFigureImage fairyOnFeature = null;
     //TODO own layer ???
     private List<PositionedImage> permanentImages = new ArrayList<>();
+
+    public static final Map<Location, ImmutablePoint> COUNT_OFFSETS;
+
+    static {
+        COUNT_OFFSETS = new ImmutableMap.Builder<Location, ImmutablePoint>()
+         .put(Location.QUARTER_CASTLE, new ImmutablePoint(40, -40))
+         .put(Location.QUARTER_MARKET, new ImmutablePoint(100, 50))
+         .put(Location.QUARTER_BLACKSMITH, new ImmutablePoint(60, 130))
+         .put(Location.QUARTER_CATHEDRAL, new ImmutablePoint(-80, 5))
+         .build();
+    }
 
 
     public MeepleLayer(GridPanel gridPanel, GameController gc) {
@@ -173,6 +187,8 @@ public class MeepleLayer extends AbstractGridLayer {
     }
 
     private PositionedFigureImage createNeutralFigureImage(NeutralFigure fig, BoardPointer ptr) {
+        final boolean mageOrWitch = fig instanceof Mage || fig instanceof Witch;
+        final boolean count = fig instanceof Count;
         boolean bridgePlacement = false;
         ImmutablePoint offset;
         FeaturePointer fp = null;
@@ -184,7 +200,9 @@ public class MeepleLayer extends AbstractGridLayer {
             nextToMeeple = mptr.getMeepleId();
             fp = mptr.asFeaturePointer();
         }
-        if (fp != null) {
+        if (count) {
+            offset = COUNT_OFFSETS.get(fp.getLocation());
+        } else if (fp != null) {
             Feature feature = getGame().getBoard().get(fp);
             bridgePlacement = feature instanceof Bridge;
             offset = rm.getMeeplePlacement(feature.getTile(), SmallFollower.class, fp.getLocation());
@@ -201,7 +219,7 @@ public class MeepleLayer extends AbstractGridLayer {
             }
         }
         Image image = rm.getImage("neutral/"+fig.getClass().getSimpleName().toLowerCase());
-        boolean mageOrWitch = fig instanceof Mage || fig instanceof Witch;
+
         if (mageOrWitch) {
             offset = offset.translate(0, -10);
         }
@@ -211,7 +229,7 @@ public class MeepleLayer extends AbstractGridLayer {
             pfi.sizeRatio = 1.0;
         }
 
-        if (mageOrWitch) {
+        if (mageOrWitch || count) {
             pfi.xScaleFactor = pfi.yScaleFactor = 1.2;
         }
         if (nextToMeeple != null) {
