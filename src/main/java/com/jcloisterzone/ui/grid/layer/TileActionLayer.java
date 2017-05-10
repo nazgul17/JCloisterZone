@@ -11,6 +11,7 @@ import com.jcloisterzone.action.TowerPieceAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.ActionLayer;
+import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
 
@@ -23,6 +24,12 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
 
     public TileActionLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
+    }
+
+    @Override
+    public void onShow() {
+        super.onShow();
+        attachMouseInputListener(new GridMouseAdapter(gridPanel, this));
     }
 
     @Override
@@ -46,7 +53,7 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
     }
 
     @Override
-	public void paint(Graphics2D g2) {
+    public void paint(Graphics2D g2) {
         int imgSize = gridDecoration.getWidth(null);
         for (Position pos : action.getOptions()) {
             g2.drawImage(gridDecoration, getAffineTransform(imgSize, imgSize, pos), null);

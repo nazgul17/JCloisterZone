@@ -163,8 +163,10 @@ public class LittleBuildingActionLayer extends AbstractTileLayer implements Acti
     }
 
     @Override
-    protected GridMouseAdapter createGridMouserAdapter(GridMouseListener listener) {
-        return new MoveTrackingGridMouseAdapter(gridPanel, listener);
+    public void onShow() {
+        super.onShow();
+        //TODO extract listenr from this
+        attachMouseInputListener(new MoveTrackingGridMouseAdapter(gridPanel, this));
     }
 
     @Override

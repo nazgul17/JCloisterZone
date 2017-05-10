@@ -9,6 +9,7 @@ import java.util.Set;
 
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
 
@@ -44,6 +45,12 @@ public abstract class AbstractTilePlacementLayer extends AbstractGridLayer imple
 
 
     abstract protected void drawPreviewIcon(Graphics2D g2, Position pos);
+
+    @Override
+    public void onShow() {
+        super.onShow();
+        attachMouseInputListener(new GridMouseAdapter(gridPanel, this));
+    }
 
     @Override
     public void onHide() {

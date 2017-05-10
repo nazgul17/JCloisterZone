@@ -390,13 +390,15 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     }
 
     public void showLayer(GridLayer layer) {
-        layer.onShow();
-        repaint();
+        if (!layer.isVisible()) {
+            layer.onShow();
+            repaint();
+        }
     }
 
     public void showLayer(Class<? extends GridLayer> layerType) {
         for (GridLayer layer : layers) {
-            if (layerType.isInstance(layer)) {
+            if (layerType.isInstance(layer) && !layer.isVisible()) {
                 layer.onShow();
             }
         }
@@ -404,13 +406,15 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     }
 
     public void hideLayer(GridLayer layer) {
-        layer.onHide();
-        repaint();
+        if (layer.isVisible()) {
+            layer.onHide();
+            repaint();
+        }
     }
 
     public void hideLayer(Class<? extends GridLayer> layerType) {
         for (GridLayer layer : layers) {
-            if (layerType.isInstance(layer)) {
+            if (layerType.isInstance(layer) && layer.isVisible()) {
                 layer.onHide();
             }
         }

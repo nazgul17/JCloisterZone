@@ -14,6 +14,7 @@ import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
+import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
 
@@ -33,13 +34,19 @@ public class DragonLayer extends AbstractGridLayer implements GridMouseListener 
     }
 
     @Override
+    public void onShow() {
+        super.onShow();
+        attachMouseInputListener(new GridMouseAdapter(gridPanel, this));
+    }
+
+    @Override
     public void paint(Graphics2D g2) {
 
         if (dragonPosition == null || movesLeft == 0) return;
 
         // paint available moves
         if (availablePositions != null) {
-        	Image availableDragonMove = rm.getImage("decorations/dragon");
+            Image availableDragonMove = rm.getImage("decorations/dragon");
             for (Position pos : availablePositions) {
                 g2.drawImage(availableDragonMove, getOffsetX(pos), getOffsetY(pos), getTileWidth(), getTileHeight(), null);
             }
@@ -52,11 +59,11 @@ public class DragonLayer extends AbstractGridLayer implements GridMouseListener 
 
     @Subscribe
     public void onSelectDragonMoveEvent(SelectDragonMoveEvent ev) {
-	if (ev.getTargetPlayer().isLocalHuman()) {
-	    availablePositions = ev.getPositions();
-	} else {
-	    availablePositions = null;
-	}
+    if (ev.getTargetPlayer().isLocalHuman()) {
+        availablePositions = ev.getPositions();
+    } else {
+        availablePositions = null;
+    }
 
         movesLeft = ev.getMovesLeft();
 
@@ -80,21 +87,21 @@ public class DragonLayer extends AbstractGridLayer implements GridMouseListener 
     }
 
     private void toggleVisibility() {
-	if (dragonPosition == null || movesLeft == 0) {
-	    onHide();
-	} else {
-	    onShow();
-	}
+    if (dragonPosition == null || movesLeft == 0) {
+        onHide();
+    } else {
+        onShow();
+    }
     }
 
     @Override
     public void squareEntered(MouseEvent e, Position p) {
-	// useless
+    // useless
     }
 
     @Override
     public void squareExited(MouseEvent e, Position p) {
-	// useless
+    // useless
     }
 
     @Override
