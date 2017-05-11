@@ -1,6 +1,7 @@
 package com.jcloisterzone.game;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -75,6 +76,10 @@ public abstract class Capability {
     }
 
     public void initFeature(Tile tile, Feature feature, Element xml) {
+    }
+
+    public List<Feature> extendFeatures(Tile tile) {
+        return Collections.emptyList();
     }
 
     public String getTileGroup(Tile tile) {

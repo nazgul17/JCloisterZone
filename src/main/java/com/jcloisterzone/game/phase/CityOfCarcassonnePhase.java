@@ -1,12 +1,10 @@
 package com.jcloisterzone.game.phase;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MeepleAction;
@@ -17,12 +15,12 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Mayor;
+import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
-import com.jcloisterzone.ui.ImmutablePoint;
 
 public class CityOfCarcassonnePhase extends Phase {
 
@@ -100,6 +98,19 @@ public class CityOfCarcassonnePhase extends Phase {
 
     @Override
     public void pass() {
+        next();
+    }
+
+    @Override
+    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+        if (!fp.getLocation().isCityOfCarcassonneQuarter()) {
+            throw new IllegalArgumentException("Only deplpy to the City of Carcassone is allowed");
+        }
+        if (!fp.getPosition().equals(countCap.getQuarterPosition())) {
+            throw new IllegalArgumentException("Illegal position");
+        }
+        Meeple m = getActivePlayer().getMeepleFromSupply(meepleType);
+        m.deploy(fp);
         next();
     }
 }

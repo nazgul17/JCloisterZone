@@ -31,6 +31,7 @@ public class DefaultResourceManager implements ResourceManager {
 
     public static final Map<Location, ImmutablePoint> COUNT_OFFSETS;
 
+    //TODO use point def instead
     static {
         COUNT_OFFSETS = new ImmutableMap.Builder<Location, ImmutablePoint>()
          .put(Location.QUARTER_CASTLE, new ImmutablePoint(40, -40))

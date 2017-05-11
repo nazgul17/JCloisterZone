@@ -549,4 +549,17 @@
     <point feature="TOWER" cx="415" cy="415">
         <apply>TO.CFR TOWER</apply>
     </point>
+
+    <point feature="QUARTER" cx="400" cy="-400">
+        <apply>CO.7 QUARTER_CASTLE</apply>
+    </point>
+    <point feature="QUARTER" cx="1000" cy="500">
+        <apply>CO.7 QUARTER_MARKET</apply>
+    </point>
+    <point feature="QUARTER" cx="600" cy="1300">
+        <apply>CO.7 QUARTER_BLACKSMITH</apply>
+    </point>
+    <point feature="QUARTER" cx="-800" cy="50">
+        <apply>CO.7 QUARTER_CATHEDRAL</apply>
+    </point>
 </points>

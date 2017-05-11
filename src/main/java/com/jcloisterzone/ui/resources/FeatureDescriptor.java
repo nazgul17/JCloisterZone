@@ -10,6 +10,7 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.Tower;
+import com.jcloisterzone.feature.Quarter;
 
 public class FeatureDescriptor {
 
@@ -53,6 +54,7 @@ public class FeatureDescriptor {
         case "TOWER": featureType = Tower.class; break;
         case "CASTLE": featureType = Castle.class; break;
         case "BRIDGE": featureType = Bridge.class; break;
+        case "QUARTER": featureType = Quarter.class; break;
         case "@": featureType = null; break;
         default: throw new IllegalArgumentException("Unsupported feature "+featureName);
         }

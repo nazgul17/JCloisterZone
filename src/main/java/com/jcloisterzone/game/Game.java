@@ -176,10 +176,10 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public void undo() {
-    	if (!isUndoAllowed()) {
-    		logger.warn("Undo is not allowed");
-    		return;
-    	}
+        if (!isUndoAllowed()) {
+            logger.warn("Undo is not allowed");
+            return;
+        }
         for (int i = lastUndoable.size()-1; i >= 0; i--) {
             Undoable ev = lastUndoable.get(i);
             Event inverse = ev.getInverseEvent();
@@ -465,6 +465,20 @@ public class Game extends GameSettings implements EventProxy {
         for (Capability cap: capabilities) {
             cap.initFeature(tile, feature, xml);
         }
+    }
+
+    public List<Feature> extendFeatures(Tile tile) {
+        List<Feature> result = null;
+        for (Capability cap: capabilities) {
+            List<Feature> list = cap.extendFeatures(tile);
+            if (!list.isEmpty()) {
+                if (result == null) {
+                    result = new ArrayList<>();
+                }
+                result.addAll(list);
+            }
+        }
+        return result == null ? Collections.emptyList() : result;
     }
 
     public void initPlayer(Player player) {

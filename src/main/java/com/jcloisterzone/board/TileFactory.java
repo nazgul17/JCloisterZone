@@ -72,6 +72,13 @@ public class TileFactory {
         for (int i = 0; i < nl.getLength(); i++) {
             processTowerElement((Element) nl.item(i));
         }
+        for (Feature f : game.extendFeatures(tile)) {
+            TileFeature tileFeature = (TileFeature) f;
+            tileFeature.setId(game.idSequnceNextVal());
+            tileFeature.setTile(tile);
+            features.add(tileFeature);
+        }
+
 
         tile.setFeatures(features);
 

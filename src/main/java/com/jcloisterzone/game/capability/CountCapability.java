@@ -1,7 +1,11 @@
 package com.jcloisterzone.game.capability;
 
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Location;
@@ -11,6 +15,8 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Quarter;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.game.Capability;
@@ -29,6 +35,18 @@ public class CountCapability extends Capability {
         super(game);
         count = new Count(game);
         game.getNeutralFigures().add(count);
+    }
+
+    @Override
+    public List<Feature> extendFeatures(Tile tile) {
+        if (QUARTER_ACTION_TILE_ID.equals(tile.getId())) {
+            return Arrays.stream(Location.quarters()).map(location -> {
+                Quarter q = new Quarter();
+                q.setLocation(location);
+                return q;
+            }).collect(Collectors.toList());
+        }
+        return Collections.emptyList();
     }
 
     public static boolean isTileForbidden(Tile tile) {
@@ -89,5 +107,9 @@ public class CountCapability extends Capability {
 
     public Position getQuarterPosition() {
         return quarterPosition;
+    }
+
+    public Quarter getQuarter(Location loc) {
+        return (Quarter) game.getBoard().get(quarterPosition).getFeature(loc);
     }
 }

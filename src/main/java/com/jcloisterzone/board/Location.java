@@ -129,6 +129,7 @@ public class Location implements Serializable {
     private static final Location[] SIDES = {N, E, S, W};
     private static final Location[] DIAGONAL_SIDES = {NE, SE, SW, NW};
     private static final Location[] FARM_SIDES = {NL, NR, EL, ER, SL, SR, WL, WR};
+    private static final Location[] QUARTERS = {QUARTER_CASTLE, QUARTER_MARKET, QUARTER_BLACKSMITH, QUARTER_CATHEDRAL};
 
 
     @Override
@@ -209,6 +210,11 @@ public class Location implements Serializable {
     public static Location[] sidesDiagonal() {
         return DIAGONAL_SIDES;
     }
+
+    public static Location[] quarters() {
+        return QUARTERS;
+    }
+
 
     public Location getLeftFarm() {
         assert isEdgeLocation();
