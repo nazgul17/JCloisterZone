@@ -105,6 +105,10 @@ public class CountCapability extends Capability {
         receivedPoints.clear();
     }
 
+    public Count getCount() {
+        return count;
+    }
+
     public Position getQuarterPosition() {
         return quarterPosition;
     }

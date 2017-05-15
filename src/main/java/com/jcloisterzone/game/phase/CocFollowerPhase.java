@@ -22,11 +22,11 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
 
-public class CityOfCarcassonnePhase extends Phase {
+public class CocFollowerPhase extends Phase {
 
     private final CountCapability countCap;
 
-    public CityOfCarcassonnePhase(Game game) {
+    public CocFollowerPhase(Game game) {
         super(game);
         countCap = game.getCapability(CountCapability.class);
     }
@@ -111,6 +111,6 @@ public class CityOfCarcassonnePhase extends Phase {
         }
         Meeple m = getActivePlayer().getMeepleFromSupply(meepleType);
         m.deploy(fp);
-        next();
+        next(CocCountPhase.class);
     }
 }

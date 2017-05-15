@@ -114,7 +114,8 @@ public class CreateGamePhase extends ServerAwarePhase {
             next = addPhase(next, new DragonPhase(game));
         }
 
-        next = addPhase(next, new CityOfCarcassonnePhase(game));
+               addPhase(next, new CocCountPhase(game));
+        next = addPhase(next, new CocFollowerPhase(game));
         next = addPhase(next, new WagonPhase(game, gc));
         next = addPhase(next, new ScorePhase(game, gc));
         next = addPhase(next, new CastlePhase(game));
