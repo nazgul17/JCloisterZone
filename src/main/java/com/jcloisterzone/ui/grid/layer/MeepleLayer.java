@@ -377,12 +377,13 @@ public class MeepleLayer extends AbstractGridLayer {
         public ImageData getScaledImageData(int squareSize) {
             if (scaledImageData == null) {
 
-            int boxSize = (int) (getTileWidth() * sizeRatio * gridPanel.getMeepleScaleFactor()); //TODO no resize - direct image resize???
+                int boxSize = (int) (getTileWidth() * sizeRatio * gridPanel.getMeepleScaleFactor()); //TODO no resize - direct image resize???
 
-            ImmutablePoint scaledOffset = getScaledOffset(boxSize);
+                ImmutablePoint scaledOffset = getScaledOffset(boxSize);
 
                 int width = (int) (boxSize * xScaleFactor);
-                int height = (int) (heightWidthRatio * width * yScaleFactor);
+                int height = (int) (heightWidthRatio * boxSize * yScaleFactor);
+
                 Image scaledImage = sourceImage.getScaledInstance(width, height, Image.SCALE_SMOOTH);
 
                 scaledImageData = new ImageData(scaledImage, scaledOffset, boxSize);
