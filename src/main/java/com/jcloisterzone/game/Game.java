@@ -256,9 +256,6 @@ public class Game extends GameSettings implements EventProxy {
     }
 
 
-    /**
-     * Ends turn of current active player and make active the next.
-     */
     public Player getNextPlayer() {
         return getNextPlayer(turnPlayer);
     }

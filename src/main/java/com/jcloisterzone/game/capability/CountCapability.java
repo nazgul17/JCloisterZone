@@ -15,8 +15,12 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.feature.City;
+import com.jcloisterzone.feature.Cloister;
+import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Quarter;
+import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.game.Capability;
@@ -30,6 +34,9 @@ public class CountCapability extends Capability {
     private Count count;
     private final Map<Player, Integer> receivedPoints = new HashMap<>();
     private Position quarterPosition;
+
+    // active player for pre score phase
+    private Player moveOutPlayer;
 
     public CountCapability(Game game) {
         super(game);
@@ -115,5 +122,21 @@ public class CountCapability extends Capability {
 
     public Quarter getQuarter(Location loc) {
         return (Quarter) game.getBoard().get(quarterPosition).getFeature(loc);
+    }
+
+    public Quarter getQuarterFor(Feature f) {
+        if (f instanceof City) return getQuarter(Location.QUARTER_CASTLE);
+        if (f instanceof Road) return getQuarter(Location.QUARTER_BLACKSMITH);
+        if (f instanceof Cloister) return getQuarter(Location.QUARTER_CATHEDRAL);
+        if (f instanceof Farm) return getQuarter(Location.QUARTER_MARKET);
+        throw new IllegalArgumentException("Illegal feature " + f);
+    }
+
+    public Player getMoveOutPlayer() {
+        return moveOutPlayer;
+    }
+
+    public void setMoveOutPlayer(Player moveOutPlayer) {
+        this.moveOutPlayer = moveOutPlayer;
     }
 }
