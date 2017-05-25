@@ -431,7 +431,7 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleClockMessage(ClockMessage msg) {
         Game game = getGame(msg);
-        Player[] players = game.getAllPlayers();
+        Player[] players = game.getAllPlayers().toJavaArray(Player.class);
         Player runningClockPlayer = msg.getRunning() == null ? null : players[msg.getRunning()];
         for (int i = 0; i < players.length; i++) {
             PlayerClock clock = players[i].getClock();

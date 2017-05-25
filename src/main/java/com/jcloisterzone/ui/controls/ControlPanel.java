@@ -125,7 +125,7 @@ public class ControlPanel extends JPanel {
             add(bazaarSupplyPanel, "wrap, growx, gapbottom 12, h 40, hidemode 3");
         }
 
-        Player[] players = game.getAllPlayers();
+        Player[] players = game.getAllPlayers().toJavaArray(Player.class);
         PlayerPanelImageCache cache = new PlayerPanelImageCache(client, game);
         playerPanels = new PlayerPanel[players.length];
 
@@ -342,7 +342,7 @@ public class ControlPanel extends JPanel {
                     projectedPointsValid = true;
 
                     for (PlayerPanel playerPanel : playerPanels) {
-                        playerPanel.setPotentialPoints(playerPanel.getPlayer().getPoints());
+                        playerPanel.setPotentialPoints(playerPanel.getPlayer().getPoints(game.getState()));
                     }
 
                     PotentialPointScoringStrategy strategy = new PotentialPointScoringStrategy();

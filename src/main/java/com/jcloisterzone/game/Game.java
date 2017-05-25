@@ -57,6 +57,9 @@ import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.immutable.GameState;
+
+import io.vavr.collection.Array;
 
 
 /**
@@ -67,6 +70,9 @@ public class Game extends GameSettings implements EventProxy {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
+    private GameState state;
+
+
     /** pack of remaining tiles */
     private TilePack tilePack;
     /** pack of remaining tiles */
@@ -74,13 +80,9 @@ public class Game extends GameSettings implements EventProxy {
     /** game board, contains placed tiles */
     private Board board;
 
-    /** list of players in game */
-    private Player[] plist;
 
     private final List<NeutralFigure> neutralFigures = new ArrayList<>();
 
-    /** player in turn */
-    private Player turnPlayer;
 
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
     private Phase phase;
@@ -111,6 +113,10 @@ public class Game extends GameSettings implements EventProxy {
         super(gameId);
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
+    }
+
+    public GameState getState() {
+    		return state;
     }
 
     @Override
@@ -227,18 +233,18 @@ public class Game extends GameSettings implements EventProxy {
 
     public Iterable<Meeple> getDeployedMeeples() {
         Iterable<Meeple> iter = Collections.emptyList();
-        for (Player player : plist) {
+        for (Player player : state.getPlayers()) {
             iter = Iterables.concat(iter, player.getFollowers(), player.getSpecialMeeples());
         }
         return Iterables.filter(iter, MeeplePredicates.deployed());
     }
 
     public Player getTurnPlayer() {
-        return turnPlayer;
+        return state.getTurnPlayer();
     }
 
     public void setTurnPlayer(Player turnPlayer) {
-        this.turnPlayer = turnPlayer;
+        state = state.setTurnPlayer(turnPlayer);
         post(new PlayerTurnEvent(turnPlayer));
     }
 
@@ -257,18 +263,18 @@ public class Game extends GameSettings implements EventProxy {
 
 
     public Player getNextPlayer() {
-        return getNextPlayer(turnPlayer);
+        return getNextPlayer(getTurnPlayer());
     }
 
     public Player getNextPlayer(Player p) {
         int playerIndex = p.getIndex();
-        int nextPlayerIndex = playerIndex == (plist.length - 1) ? 0 : playerIndex + 1;
+        int nextPlayerIndex = playerIndex == (getAllPlayers().length() - 1) ? 0 : playerIndex + 1;
         return getPlayer(nextPlayerIndex);
     }
 
     public Player getPrevPlayer(Player p) {
         int playerIndex = p.getIndex();
-        int prevPlayerIndex = playerIndex == 0 ? plist.length - 1 : playerIndex - 1;
+        int prevPlayerIndex = playerIndex == 0 ? getAllPlayers().length() - 1 : playerIndex - 1;
         return getPlayer(prevPlayerIndex);
     }
 
@@ -279,15 +285,15 @@ public class Game extends GameSettings implements EventProxy {
      * @return demand player
      */
     public Player getPlayer(int i) {
-        return plist[i];
+        return state.getPlayers().get(i);
     }
 
     /**
      * Returns whole player list
      * @return player list
      */
-    public Player[] getAllPlayers() {
-        return plist;
+    public Array<Player> getAllPlayers() {
+        return state.getPlayers();
     }
 
     public TilePack getTilePack() {
@@ -325,8 +331,7 @@ public class Game extends GameSettings implements EventProxy {
 
     public void setPlayers(List<Player> players, int turnPlayer) {
         Player[] plist = players.toArray(new Player[players.size()]);
-        this.plist = plist;
-        this.turnPlayer = getPlayer(turnPlayer);
+        this.state = new GameState(plist);
     }
 
     private void createCapabilityInstance(Class<? extends Capability> clazz) {
@@ -396,7 +401,7 @@ public class Game extends GameSettings implements EventProxy {
 
     public void scoreFeature(int points, ScoreContext ctx, Player p) {
         PointCategory pointCategory = ctx.getMasterFeature().getPointCategory();
-        p.addPoints(points, pointCategory);
+        addPoints(p, points, pointCategory);
         Follower follower = ctx.getSampleFollower(p);
         boolean isFinalScoring = getPhase() instanceof GameOverPhase;
         ScoreEvent scoreEvent;
@@ -410,7 +415,7 @@ public class Game extends GameSettings implements EventProxy {
             }
         }
         if (isFairyScore) {
-            p.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
+        		addPoints(p, FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
             scoreEvent = new ScoreEvent(follower.getFeature(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
             scoreEvent.setLabel(points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT);
         } else {
@@ -435,7 +440,7 @@ public class Game extends GameSettings implements EventProxy {
                     && !fairyPlayersWithoutMayority.contains(owner)) {
                     fairyPlayersWithoutMayority.add(owner);
 
-                    owner.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
+                    addPoints(owner, FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
                     post(new ScoreEvent(f.getFeature(), FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY, f));
                 }
             }
@@ -572,5 +577,11 @@ public class Game extends GameSettings implements EventProxy {
     @Override
     public String toString() {
         return "Game in " + phase.getClass().getSimpleName() + " phase.";
+    }
+
+    // state proxy
+
+    public void addPoints(Player p, int points, PointCategory category) {
+    		state = state.addPoints(p, points, category);
     }
 }

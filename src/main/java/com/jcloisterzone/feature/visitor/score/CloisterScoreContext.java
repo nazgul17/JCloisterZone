@@ -98,7 +98,7 @@ public class CloisterScoreContext extends AbstractScoreContext implements Comple
         if (size == 1) return Collections.singleton(followers.iterator().next().getPlayer());
 
         //rare case - more then one follower placed on cloister (possible by Flier expansion)
-        int[] power = new int[game.getAllPlayers().length];
+        int[] power = new int[game.getAllPlayers().length()];
         for (Follower f : followers) {
             power[f.getPlayer().getIndex()] += f.getPower();
         }
@@ -106,7 +106,7 @@ public class CloisterScoreContext extends AbstractScoreContext implements Comple
         Set<Player> owners = new HashSet<>();
         for (int i = 0; i < power.length; i++) {
             if (power[i] == maxPower) {
-                owners.add(game.getAllPlayers()[i]);
+                owners.add(game.getAllPlayers().get(i));
             }
         }
         return owners;

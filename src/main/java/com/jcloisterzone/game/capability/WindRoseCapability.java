@@ -47,7 +47,7 @@ public class WindRoseCapability extends Capability {
             rose = rose.rotateCW(roseRotation);
             if (isInProperQuadrant(rose, tile.getPosition())) {
                 Player p = game.getActivePlayer();
-                p.addPoints(WIND_ROSE_POINTS, PointCategory.WIND_ROSE);
+                game.addPoints(p, WIND_ROSE_POINTS, PointCategory.WIND_ROSE);
                 game.post(new ScoreEvent(tile.getPosition(), p, WIND_ROSE_POINTS, PointCategory.WIND_ROSE));
             }
         }

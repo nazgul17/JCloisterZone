@@ -80,7 +80,7 @@ public class LegacyRanking implements GameRanking {
 
     protected void initVars(Game game) {
         packSize = game.getTilePack().totalSize();
-        enemyPlayers = game.getAllPlayers().length - 1;
+        enemyPlayers = game.getAllPlayers().length() - 1;
         myTurnsLeft = ((packSize-1) / (enemyPlayers+1)) + 1;
     }
 
@@ -145,9 +145,9 @@ public class LegacyRanking implements GameRanking {
         if (pattern != null && pattern.wildcardSize() < 2) {
             int remains = game.getTilePack().getSizeForEdgePattern(pattern);
             if (remains == 0) return 0.0;
-            if (remains < game.getAllPlayers().length) {
+            if (remains < game.getAllPlayers().length()) {
                 if (remains == 0) return 0.0;
-                return 1.0 - Math.pow(1.0 - 1.0 / (game.getAllPlayers().length), remains);
+                return 1.0 - Math.pow(1.0 - 1.0 / (game.getAllPlayers().length()), remains);
             }
         }
         return 1.0;
@@ -290,7 +290,7 @@ public class LegacyRanking implements GameRanking {
         double rating = 0;
 
         for (Player p : game.getAllPlayers()) {
-            rating += reducePoints(p.getPoints(), p);
+            rating += reducePoints(p.getPoints(game.getState()), p);
         }
 
         ScoreAllFeatureFinder scoreAll = new ScoreAllFeatureFinder();

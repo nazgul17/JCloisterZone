@@ -34,7 +34,7 @@ public class FairyPhase extends Phase {
                             m.at(fp.getPosition()) :
                             m.at(fp) && m == fairyCap.getFairy().getNextTo();
                     if (match) {
-                        m.getPlayer().addPoints(FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN, PointCategory.FAIRY);
+                        game.addPoints(m.getPlayer(), FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN, PointCategory.FAIRY);
                         //don't bind score event with exact feature
                         //score box should be always draw in the center of tile to not hide followers - propagate just position even fairy stands next to a follower
                         game.post(new ScoreEvent(m.getPosition(), m.getPlayer(), FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN, PointCategory.FAIRY));

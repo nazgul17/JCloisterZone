@@ -49,6 +49,7 @@ import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.immutable.GameState;
 
 
 public class Snapshot implements Serializable {
@@ -143,17 +144,18 @@ public class Snapshot implements Serializable {
         Element parent = doc.createElement("players");
         parent.setAttribute("turn", "" + game.getTurnPlayer().getIndex());
         root.appendChild(parent);
+        GameState state = game.getState();
         for (Player p : game.getAllPlayers()) {
             Element el = doc.createElement("player");
             el.setAttribute("name", p.getNick());
-            el.setAttribute("points", "" + p.getPoints());
+            el.setAttribute("points", "" + p.getPoints(state));
             el.setAttribute("slot", "" + p.getSlot().getNumber());
             el.setAttribute("clientId", p.getSlot().getClientId());
             if (p.getSlot().isAi()) {
                 el.setAttribute("ai-class", p.getSlot().getAiClassName());
             }
             for (PointCategory cat : PointCategory.values()) {
-                int points = p.getPointsInCategory(cat);
+                int points = p.getPointsInCategory(state, cat);
                 if (points != 0) { //can be <0 (ransom)
                     Element catEl = doc.createElement("point-category");
                     catEl.setAttribute("name", cat.name());

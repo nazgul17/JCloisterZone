@@ -212,7 +212,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         drawDelimiter(DELIMITER_Y);
 
         g2.setFont(FONT_POINTS);
-        drawTextShadow(""+player.getPoints(), PADDING_L, 27);
+        drawTextShadow(""+player.getPoints(game.getState()), PADDING_L, 27);
 
 
         //TODO cache ref (also would be fine to cache capabilities above)

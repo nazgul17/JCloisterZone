@@ -80,10 +80,10 @@ public class ScoreEvent extends PlayEvent implements Undoable {
     public void undo(Game game) {
         if (label != null && label.contains(" + ")) {
             //HACK: nasty hack, fairy finished object fires score event as one, but points are in two categories
-            getTargetPlayer().addPoints(-FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-            getTargetPlayer().addPoints(-points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, category);
+            game.addPoints(getTargetPlayer(), -FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
+            game.addPoints(getTargetPlayer(), -points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, category);
         } else {
-            getTargetPlayer().addPoints(-points, category);
+            game.addPoints(getTargetPlayer(), -points, category);
         }
     }
 

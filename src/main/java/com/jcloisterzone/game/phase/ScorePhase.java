@@ -212,7 +212,7 @@ public class ScorePhase extends ServerAwarePhase {
         List<Meeple> meeples = castle.getMeeples();
         if (meeples.isEmpty()) meeples = castle.getSecondFeature().getMeeples();
         Meeple m = meeples.get(0); //all meeples must share same owner
-        m.getPlayer().addPoints(points, PointCategory.CASTLE);
+        game.addPoints(m.getPlayer(), points, PointCategory.CASTLE);
         if (gldCap != null) {
             gldCap.castleCompleted(castle, m.getPlayer());
         }

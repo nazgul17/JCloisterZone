@@ -69,7 +69,7 @@ public class PlacementHistory extends AbstractGridLayer {
     	}
 
     	if (limit == 0) {
-    		limit = getGame().getAllPlayers().length;
+    		limit = getGame().getAllPlayers().length();
     	}
 
     	visibleEntries = entries.subList(0, Math.min(entries.size(), limit));

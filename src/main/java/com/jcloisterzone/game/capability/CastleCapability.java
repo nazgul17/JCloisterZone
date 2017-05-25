@@ -82,7 +82,7 @@ public class CastleCapability extends Capability {
 
     @Override
     public void initPlayer(Player player) {
-        int players = game.getAllPlayers().length;
+        int players = game.getAllPlayers().length();
         if (players < 5) {
             castles.put(player, 3);
         } else {

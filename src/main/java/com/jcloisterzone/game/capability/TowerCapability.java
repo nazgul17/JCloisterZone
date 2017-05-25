@@ -110,7 +110,7 @@ public final class TowerCapability extends Capability {
     @Override
     public void initPlayer(Player player) {
         int pieces = 0;
-        switch(game.getAllPlayers().length) {
+        switch(game.getAllPlayers().length()) {
         case 1:
         case 2: pieces = 10; break;
         case 3: pieces = 9; break;
@@ -232,7 +232,7 @@ public final class TowerCapability extends Capability {
         if (ransomPaidThisTurn) {
             throw new IllegalStateException("Ransom alreasy paid this turn");
         }
-        Player opponent = game.getAllPlayers()[playerIndexToPay];
+        Player opponent = game.getAllPlayers().get(playerIndexToPay);
 
         Iterator<Follower> i = prisoners.get(opponent).iterator();
         while (i.hasNext()) {
@@ -240,9 +240,9 @@ public final class TowerCapability extends Capability {
             if (meepleType.isInstance(meeple)) {
                 i.remove();
                 meeple.setInPrison(false);
-                opponent.addPoints(RANSOM_POINTS, PointCategory.TOWER_RANSOM);
+                game.addPoints(opponent, RANSOM_POINTS, PointCategory.TOWER_RANSOM);
                 ransomPaidThisTurn = true;
-                game.getActivePlayer().addPoints(-RANSOM_POINTS, PointCategory.TOWER_RANSOM);
+                game.addPoints(game.getActivePlayer(), -RANSOM_POINTS, PointCategory.TOWER_RANSOM);
                 game.post(new MeeplePrisonEvent(meeple, opponent, null));
                 game.getPhase().notifyRansomPaid();
                 return;

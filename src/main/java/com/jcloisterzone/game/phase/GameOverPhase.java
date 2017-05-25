@@ -65,7 +65,7 @@ public class GameOverPhase extends ServerAwarePhase implements ScoreAllCallback,
     @Override
     public void scoreBarn(FarmScoreContext ctx, Barn meeple) {
         int points = ctx.getBarnPoints();
-        meeple.getPlayer().addPoints(points, PointCategory.FARM);
+        game.addPoints(meeple.getPlayer(), points, PointCategory.FARM);
         ScoreEvent ev = new ScoreEvent(meeple.getFeature(), points, PointCategory.FARM, meeple);
         ev.setFinal(true);
         game.post(ev);
@@ -94,7 +94,7 @@ public class GameOverPhase extends ServerAwarePhase implements ScoreAllCallback,
 
     @Override
     public void addPoints(Player player, int points, PointCategory category) {
-        player.addPoints(points, category);
+        game.addPoints(player, points, category);
     }
 
 }

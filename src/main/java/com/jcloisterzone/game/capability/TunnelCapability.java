@@ -75,7 +75,7 @@ public final class TunnelCapability extends Capability {
     @Override
     public void initPlayer(Player player) {
         tunnelTokensA.put(player, 2);
-        tunnelTokensB.put(player, game.getAllPlayers().length <= 2 ? 2 : 0);
+        tunnelTokensB.put(player, game.getAllPlayers().length() <= 2 ? 2 : 0);
     }
 
     @Override

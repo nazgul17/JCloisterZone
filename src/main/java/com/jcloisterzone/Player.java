@@ -3,9 +3,7 @@ package com.jcloisterzone;
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.google.common.base.Predicates;
@@ -16,7 +14,11 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.PlayerSlot;
+import com.jcloisterzone.immutable.GameState;
+import com.jcloisterzone.immutable.Immutable;
 import com.jcloisterzone.ui.PlayerColor;
+
+import io.vavr.control.Option;
 
 
 /**
@@ -28,9 +30,6 @@ import com.jcloisterzone.ui.PlayerColor;
 public class Player implements Serializable {
 
     private static final long serialVersionUID = -7276471952562769832L;
-
-    private int points;
-    private final Map<PointCategory, Integer> pointStats = new HashMap<>();
 
     private final List<Follower> followers = new ArrayList<Follower>(SmallFollower.QUANTITY + 3);
     private final List<Special> specialMeeples = new ArrayList<Special>(3);
@@ -88,17 +87,8 @@ public class Player implements Serializable {
         return Iterables.find(collection, Predicates.and(MeeplePredicates.inSupply(), MeeplePredicates.type(clazz)));
     }
 
-    public void addPoints(int points, PointCategory category) {
-        this.points += points;
-        if (pointStats.containsKey(category)) {
-            pointStats.put(category, pointStats.get(category) + points);
-        } else {
-            pointStats.put(category, points);
-        }
-    }
-
-    public int getPoints() {
-        return points;
+    public int getPoints(GameState state) {
+        return state.getScore(this).getPoints();
     }
 
     public String getNick() {
@@ -107,7 +97,7 @@ public class Player implements Serializable {
 
     @Override
     public String toString() {
-        return nick + " " + points;
+        return nick;
     }
 
     public int getIndex() {
@@ -145,18 +135,9 @@ public class Player implements Serializable {
         return Objects.hash(index, nick);
     }
 
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
-
-    public int getPointsInCategory(PointCategory cat) {
-        Integer points = pointStats.get(cat);
-        return points == null ? 0 : points;
-    }
-
-    public void setPointsInCategory(PointCategory category, int points) {
-        pointStats.put(category, points);
+    public int getPointsInCategory(GameState state, PointCategory cat) {
+    		Option<Integer> value = state.getScore(this).getStats().get(cat);
+        return value.isEmpty() ? 0 : value.get();
     }
 
     public boolean isLocalHuman() {

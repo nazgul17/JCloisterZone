@@ -59,7 +59,7 @@ public class LittleBuildingsCapability extends Capability {
 
     @Override
     public void initPlayer(Player player) {
-        int playerCount = game.getAllPlayers().length;
+        int playerCount = game.getAllPlayers().length();
         for (int i = 0; i < buildings.length; i++) {
             buildings[i].put(player, 6 / playerCount);
         }
