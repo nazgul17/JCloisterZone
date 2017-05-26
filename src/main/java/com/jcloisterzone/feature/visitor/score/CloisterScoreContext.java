@@ -38,12 +38,12 @@ public class CloisterScoreContext extends AbstractScoreContext implements Comple
 
     @Override
     public int getPoints() {
-    	int tilePoints;
-    	if (cloister.isYagaHut()) {
-    		tilePoints = 9 - neigbouringTilesCount;
-    	} else {
-    		tilePoints = neigbouringTilesCount + 1;
-    	}
+        int tilePoints;
+        if (cloister.isYagaHut()) {
+            tilePoints = 9 - neigbouringTilesCount;
+        } else {
+            tilePoints = neigbouringTilesCount + 1;
+        }
         return tilePoints + getLittleBuildingPoints();
     }
 
@@ -74,10 +74,10 @@ public class CloisterScoreContext extends AbstractScoreContext implements Comple
         List<Tile> neigbouringTiles = game.getBoard().getAdjacentAndDiagonalTiles(pos);
         neigbouringTilesCount = neigbouringTiles.size();
         if (lbCap != null) {
-        	collectLittleBuildings(cloister.getTile().getPosition());
-        	for (Tile tile : neigbouringTiles) {
-        		collectLittleBuildings(tile.getPosition());
-        	}
+            collectLittleBuildings(cloister.getTile().getPosition());
+            for (Tile tile : neigbouringTiles) {
+                collectLittleBuildings(tile.getPosition());
+            }
         }
         return VisitResult.CONTINUE;
     }
@@ -98,7 +98,7 @@ public class CloisterScoreContext extends AbstractScoreContext implements Comple
         if (size == 1) return Collections.singleton(followers.iterator().next().getPlayer());
 
         //rare case - more then one follower placed on cloister (possible by Flier expansion)
-        int[] power = new int[game.getAllPlayers().length];
+        int[] power = new int[game.getAllPlayers().length()];
         for (Follower f : followers) {
             power[f.getPlayer().getIndex()] += f.getPower();
         }
@@ -106,14 +106,14 @@ public class CloisterScoreContext extends AbstractScoreContext implements Comple
         Set<Player> owners = new HashSet<>();
         for (int i = 0; i < power.length; i++) {
             if (power[i] == maxPower) {
-                owners.add(game.getAllPlayers()[i]);
+                owners.add(game.getAllPlayers().get(i));
             }
         }
         return owners;
     }
 
     @Override
-	public Map<Player, Integer> getPowers() {
+    public Map<Player, Integer> getPowers() {
         Collection<Follower> followers = getFollowers();
         int size = followers.size();
         if (size == 0) return Collections.emptyMap();

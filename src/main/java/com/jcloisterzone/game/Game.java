@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,7 +23,9 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.hash.HashCode;
 import com.jcloisterzone.EventBusExceptionHandler;
 import com.jcloisterzone.EventProxy;
+import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
@@ -58,6 +61,8 @@ import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
 
+import io.vavr.collection.Array;
+
 
 /**
  * Other information than board needs in game. Contains players with their
@@ -67,6 +72,14 @@ public class Game extends GameSettings implements EventProxy {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
+    // -- new --
+
+    private GameState state;
+    private Array<Player> players;
+
+
+    // -- old --
+
     /** pack of remaining tiles */
     private TilePack tilePack;
     /** pack of remaining tiles */
@@ -74,13 +87,7 @@ public class Game extends GameSettings implements EventProxy {
     /** game board, contains placed tiles */
     private Board board;
 
-    /** list of players in game */
-    private Player[] plist;
-
     private final List<NeutralFigure> neutralFigures = new ArrayList<>();
-
-    /** player in turn */
-    private Player turnPlayer;
 
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
     private Phase phase;
@@ -112,6 +119,16 @@ public class Game extends GameSettings implements EventProxy {
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
     }
+
+    public GameState getState() {
+        return state;
+    }
+
+
+    public void replaceState(Function<GameState, GameState> f) {
+        this.state = f.apply(this.state);
+    }
+
 
     @Override
     public EventBus getEventBus() {
@@ -227,19 +244,19 @@ public class Game extends GameSettings implements EventProxy {
 
     public Iterable<Meeple> getDeployedMeeples() {
         Iterable<Meeple> iter = Collections.emptyList();
-        for (Player player : plist) {
+        for (Player player : players) {
             iter = Iterables.concat(iter, player.getFollowers(), player.getSpecialMeeples());
         }
         return Iterables.filter(iter, MeeplePredicates.deployed());
     }
 
     public Player getTurnPlayer() {
-        return turnPlayer;
+        return players.get(state.getTurnPlayer());
     }
 
-    public void setTurnPlayer(Player turnPlayer) {
-        this.turnPlayer = turnPlayer;
-        post(new PlayerTurnEvent(turnPlayer));
+    public void setTurnPlayer(IPlayer player) {
+        this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
+        post(new PlayerTurnEvent(getTurnPlayer()));
     }
 
     /**
@@ -255,39 +272,38 @@ public class Game extends GameSettings implements EventProxy {
         return neutralFigures;
     }
 
-
     public Player getNextPlayer() {
-        return getNextPlayer(turnPlayer);
+        return getNextPlayer(getTurnPlayer());
     }
 
-    public Player getNextPlayer(Player p) {
+    public Player getNextPlayer(IPlayer p) {
         int playerIndex = p.getIndex();
-        int nextPlayerIndex = playerIndex == (plist.length - 1) ? 0 : playerIndex + 1;
+        int nextPlayerIndex = playerIndex == (players.length() - 1) ? 0 : playerIndex + 1;
         return getPlayer(nextPlayerIndex);
     }
 
-    public Player getPrevPlayer(Player p) {
+    public Player getPrevPlayer(IPlayer p) {
         int playerIndex = p.getIndex();
-        int prevPlayerIndex = playerIndex == 0 ? plist.length - 1 : playerIndex - 1;
+        int prevPlayerIndex = playerIndex == 0 ? players.length() - 1 : playerIndex - 1;
         return getPlayer(prevPlayerIndex);
     }
 
 
     /**
      * Return player with the given index.
-     * @param i player index
+     * @param index player index
      * @return demand player
      */
-    public Player getPlayer(int i) {
-        return plist[i];
+    public Player getPlayer(int index) {
+        return players.get(index);
     }
 
     /**
      * Returns whole player list
      * @return player list
      */
-    public Player[] getAllPlayers() {
-        return plist;
+    public Array<Player> getAllPlayers() {
+        return players;
     }
 
     public TilePack getTilePack() {
@@ -322,11 +338,13 @@ public class Game extends GameSettings implements EventProxy {
         return null;
     }
 
-
-    public void setPlayers(List<Player> players, int turnPlayer) {
-        Player[] plist = players.toArray(new Player[players.size()]);
-        this.plist = plist;
-        this.turnPlayer = getPlayer(turnPlayer);
+    // TODO rename
+    public void setPlayers(Array<PlayerAttributes> players, int turnPlayer) {
+//        Player[] plist = players.toArray(new Player[players.size()]);
+//        this.plist = plist;
+//        this.turnPlayer = getPlayer(turnPlayer);
+        state = GameState.createInitial(players, turnPlayer);
+        this.players = players.map(p -> new Player(this, p));
     }
 
     private void createCapabilityInstance(Class<? extends Capability> clazz) {

@@ -37,107 +37,107 @@ public class PlacementHistory extends AbstractGridLayer {
 
     @Subscribe
     public void handleTileEvent(TileEvent ev) {
-    	if (TileEvent.PLACEMENT == ev.getType()) {
-    		entries.addFirst(createPlacementHistoryEntry(ev));
-    	} else if (TileEvent.REMOVE == ev.getType()) {
-    		entries.remove(createPlacementHistoryEntry(ev));
-    	}
+        if (TileEvent.PLACEMENT == ev.getType()) {
+            entries.addFirst(createPlacementHistoryEntry(ev));
+        } else if (TileEvent.REMOVE == ev.getType()) {
+            entries.remove(createPlacementHistoryEntry(ev));
+        }
 
-    	int limit = 0;
-    	int ndx = 0;
-    	Player lastPlayer = null;
-    	Player previousPlayer = null;
-    	for (PlacementHistoryEntry entry : entries) {
+        int limit = 0;
+        int ndx = 0;
+        Player lastPlayer = null;
+        Player previousPlayer = null;
+        for (PlacementHistoryEntry entry : entries) {
 
-    		if (ndx == 0) {
-    			lastPlayer = previousPlayer = entry.player;
-    		}
+            if (ndx == 0) {
+                lastPlayer = previousPlayer = entry.player;
+            }
 
-    		if (lastPlayer == null) {
-    			// player can be null (load, river-end)
-    			break;
-    		}
+            if (lastPlayer == null) {
+                // player can be null (load, river-end)
+                break;
+            }
 
-    		if (previousPlayer != entry.player && lastPlayer == entry.player) {
-    			// complete round
-    			limit = ndx;
-    			break;
-    		}
+            if (previousPlayer != entry.player && lastPlayer == entry.player) {
+                // complete round
+                limit = ndx;
+                break;
+            }
 
-    		previousPlayer = entry.player;
-    		ndx++;
-    	}
+            previousPlayer = entry.player;
+            ndx++;
+        }
 
-    	if (limit == 0) {
-    		limit = getGame().getAllPlayers().length;
-    	}
+        if (limit == 0) {
+            limit = getGame().getAllPlayers().length();
+        }
 
-    	visibleEntries = entries.subList(0, Math.min(entries.size(), limit));
+        visibleEntries = entries.subList(0, Math.min(entries.size(), limit));
     }
 
     @Override
     public void paint(Graphics2D g) {
 
-    	if (visibleEntries == null) {
-    		return;
-    	}
+        if (visibleEntries == null) {
+            return;
+        }
 
-    	Composite oldComposite = g.getComposite();
+        Composite oldComposite = g.getComposite();
         g.setComposite(ALPHA_COMPOSITE);
 
         int counter = 0;
-    	for (PlacementHistoryEntry entry : visibleEntries) {
-    		String text = String.valueOf(++counter);
-    		Color color = entry.player != null ?  entry.player.getColors().getFontColor() : DEFAULT_COLOR;
+        for (PlacementHistoryEntry entry : visibleEntries) {
+            String text = String.valueOf(++counter);
+            Color color = entry.player != null ?  entry.player.getColors().getFontColor() : DEFAULT_COLOR;
 
-    		BufferedImage buf = UiUtils.newTransparentImage(getTileWidth(), getTileHeight());
-    		Graphics2D gb = (Graphics2D) buf.getGraphics();
-    		drawAntialiasedTextCentered(gb, text, 80, ZERO, POINT, color, null);
-    		gb.setComposite(AlphaComposite.DstOver);
-    		drawAntialiasedTextCentered(gb, text, 80, ZERO, SHADOW_POINT, Color.GRAY, null);
-    		g.drawImage(buf, null, getOffsetX(entry.position), getOffsetY(entry.position));
-    	}
+            BufferedImage buf = UiUtils.newTransparentImage(getTileWidth(), getTileHeight());
+            Graphics2D gb = (Graphics2D) buf.getGraphics();
+            drawAntialiasedTextCentered(gb, text, 80, ZERO, POINT, color, null);
+            gb.setComposite(AlphaComposite.DstOver);
+            drawAntialiasedTextCentered(gb, text, 80, ZERO, SHADOW_POINT, Color.GRAY, null);
+            g.drawImage(buf, null, getOffsetX(entry.position), getOffsetY(entry.position));
+        }
 
-    	g.setComposite(oldComposite);
+        g.setComposite(oldComposite);
     }
 
     private PlacementHistoryEntry createPlacementHistoryEntry(TileEvent tileEvent) {
-    	return new PlacementHistoryEntry(tileEvent.getTriggeringPlayer(), tileEvent.getPosition());
+        return new PlacementHistoryEntry(tileEvent.getTriggeringPlayer(), tileEvent.getPosition());
     }
 
-	private class PlacementHistoryEntry {
-		private final Player player;
-		private final Position position;
+    private class PlacementHistoryEntry {
+        private final Player player;
+        private final Position position;
 
-		public PlacementHistoryEntry(Player player, Position position) {
-			this.player = player;
-			this.position = position;
-		}
+        public PlacementHistoryEntry(Player player, Position position) {
+            this.player = player;
+            this.position = position;
+        }
 
-		private PlacementHistory getOuterType() {
-			return PlacementHistory.this;
-		}
+        private PlacementHistory getOuterType() {
+            return PlacementHistory.this;
+        }
 
-		@Override
-		public int hashCode() {
-			return Objects.hashCode(getOuterType(), player, position);
-		}
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(getOuterType(), player, position);
+        }
 
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj)
+                return true;
+            if (obj == null)
+                return false;
+            if (getClass() != obj.getClass())
+                return false;
 
-			PlacementHistoryEntry that = (PlacementHistoryEntry) obj;
+            PlacementHistoryEntry that = (PlacementHistoryEntry) obj;
 
-			return Objects.equal(this.getOuterType(), that.getOuterType())
-					&& Objects.equal(this.player, that.player)
-					&& Objects.equal(this.position, that.position);
-		}
+            return Objects.equal(this.getOuterType(), that.getOuterType())
+                    && Objects.equal(this.player, that.player)
+                    && Objects.equal(this.position, that.position);
+        }
 
-	}
+    }
 }

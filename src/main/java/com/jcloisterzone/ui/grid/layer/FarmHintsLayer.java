@@ -136,7 +136,7 @@ public class FarmHintsLayer extends AbstractGridLayer {
                     int y = Integer.MAX_VALUE;
                     int size = 0;
                     boolean hasCity = false;
-                    int[] power = new int[getGame().getAllPlayers().length];
+                    int[] power = new int[getGame().getAllPlayers().length()];
 
                     @Override
                     public VisitResult visit(Feature feature) {

@@ -170,7 +170,7 @@ public class GameOverPanel extends JPanel {
                 add(new JLabel(_("Wind rose")), getLegendSpec(0, gridy++));
             }
 
-            Player[] players = getSortedPlayers().toArray(new Player[game.getAllPlayers().length]);
+            Player[] players = getSortedPlayers().toArray(new Player[game.getAllPlayers().length()]);
             for (Player player : players) {
                 gridy = 0;
                 Color color = player.getColors().getMeepleColor();
@@ -239,7 +239,7 @@ public class GameOverPanel extends JPanel {
         }
 
         private List<Player> getSortedPlayers() {
-            List<Player> players = new ArrayList<>(Arrays.asList(game.getAllPlayers()));
+            List<Player> players = game.getAllPlayers().toJavaList();
             Collections.sort(players, new Comparator<Player>() {
                 @Override
                 public int compare(Player o1, Player o2) {

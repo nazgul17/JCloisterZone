@@ -59,7 +59,7 @@ public class LittleBuildingsCapability extends Capability {
 
     @Override
     public void initPlayer(Player player) {
-        int playerCount = game.getAllPlayers().length;
+        int playerCount = game.getAllPlayers().length();
         for (int i = 0; i < buildings.length; i++) {
             buildings[i].put(player, 6 / playerCount);
         }
@@ -85,7 +85,7 @@ public class LittleBuildingsCapability extends Capability {
     }
 
     public LittleBuilding getPlacedLittleBuilding(Position pos) {
-    	return placedBuildings.get(pos);
+        return placedBuildings.get(pos);
     }
 
     @Override
@@ -129,15 +129,15 @@ public class LittleBuildingsCapability extends Capability {
 
     @Override
     public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
-    	LittleBuilding lb = placedBuildings.get(tile.getPosition());
-    	if (lb != null) {
-    		tileNode.setAttribute("littleBuilding", lb.name());
-    	}
+        LittleBuilding lb = placedBuildings.get(tile.getPosition());
+        if (lb != null) {
+            tileNode.setAttribute("littleBuilding", lb.name());
+        }
     }
 
     @Override
     public void loadTileFromSnapshot(Tile tile, Element tileNode) {
-    	if (tileNode.hasAttribute("littleBuilding")) {
+        if (tileNode.hasAttribute("littleBuilding")) {
             LittleBuilding lb =  LittleBuilding.valueOf(tileNode.getAttribute("littleBuilding"));
             placedBuildings.put(tile.getPosition(), lb);
         }

@@ -80,12 +80,12 @@ public class LegacyRanking implements GameRanking {
 
     protected void initVars(Game game) {
         packSize = game.getTilePack().totalSize();
-        enemyPlayers = game.getAllPlayers().length - 1;
+        enemyPlayers = game.getAllPlayers().length() - 1;
         myTurnsLeft = ((packSize-1) / (enemyPlayers+1)) + 1;
     }
 
     @Override
-	public double getPartialAfterTilePlacement(Game game, Tile tile) {
+    public double getPartialAfterTilePlacement(Game game, Tile tile) {
         Position pos = tile.getPosition();
         //return 0.001 * game.getBoard().getAdjacentAndDiagonalTiles(pos).size();
         return 0.001 * game.getBoard().getAdjacentTilesMap(pos).size(); //adjacent only is better
@@ -145,9 +145,9 @@ public class LegacyRanking implements GameRanking {
         if (pattern != null && pattern.wildcardSize() < 2) {
             int remains = game.getTilePack().getSizeForEdgePattern(pattern);
             if (remains == 0) return 0.0;
-            if (remains < game.getAllPlayers().length) {
+            if (remains < game.getAllPlayers().length()) {
                 if (remains == 0) return 0.0;
-                return 1.0 - Math.pow(1.0 - 1.0 / (game.getAllPlayers().length), remains);
+                return 1.0 - Math.pow(1.0 - 1.0 / (game.getAllPlayers().length()), remains);
             }
         }
         return 1.0;
@@ -170,10 +170,10 @@ public class LegacyRanking implements GameRanking {
             rating += reducePoints(meeplePoints, p);
 
             if (p.equals(aiPlayer.getPlayer())) {
-            	for (Follower f : p.getFollowers()) {
-                	if (f.getLocation() == Location.TOWER) {
-                		rating -= 9.0;
-                	}
+                for (Follower f : p.getFollowers()) {
+                    if (f.getLocation() == Location.TOWER) {
+                        rating -= 9.0;
+                    }
                 }
             }
         }
@@ -193,24 +193,24 @@ public class LegacyRanking implements GameRanking {
             this.game = game;
             TowerCapability towerCap = game.getCapability(TowerCapability.class);
             if (towerCap != null) {
-            	//TODO ignore if opponents has no tower tokens
-            	int pieces = 0;
-            	for (Player p : game.getAllPlayers()) {
-            		if (p.equals(aiPlayer.getPlayer())) continue;
-            		pieces += towerCap.getTowerPieces(p);
-            	}
-            	if (pieces > 0) {
-	                for (Position towerPos : towerCap.getTowers()) {
-	                    int dangerDistance = 1 + game.getBoard().get(towerPos).getTower().getHeight();
-	                    towerDanger.add(towerPos);
-	                    for (int i = 1; i < dangerDistance; i++) {
-	                        towerDanger.add(towerPos.add(new Position(i, 0)));
-	                        towerDanger.add(towerPos.add(new Position(-i, 0)));
-	                        towerDanger.add(towerPos.add(new Position(0, i)));
-	                        towerDanger.add(towerPos.add(new Position(0, -i)));
-	                    }
-	                }
-            	}
+                //TODO ignore if opponents has no tower tokens
+                int pieces = 0;
+                for (Player p : game.getAllPlayers()) {
+                    if (p.equals(aiPlayer.getPlayer())) continue;
+                    pieces += towerCap.getTowerPieces(p);
+                }
+                if (pieces > 0) {
+                    for (Position towerPos : towerCap.getTowers()) {
+                        int dangerDistance = 1 + game.getBoard().get(towerPos).getTower().getHeight();
+                        towerDanger.add(towerPos);
+                        for (int i = 1; i < dangerDistance; i++) {
+                            towerDanger.add(towerPos.add(new Position(i, 0)));
+                            towerDanger.add(towerPos.add(new Position(-i, 0)));
+                            towerDanger.add(towerPos.add(new Position(0, i)));
+                            towerDanger.add(towerPos.add(new Position(0, -i)));
+                        }
+                    }
+                }
             }
         }
 
@@ -275,8 +275,8 @@ public class LegacyRanking implements GameRanking {
             }
             rank += rankTrappedMeeples((LegacyAiScoreContext) ctx);
             if (!isInTowerDanger(ctx)) {
-            	rank += rankUnfishedCompletable(ctx.getMasterFeature(), (LegacyAiScoreContext) ctx);
-            	rank += rankSpecialFigures(game, (LegacyAiScoreContext) ctx);
+                rank += rankUnfishedCompletable(ctx.getMasterFeature(), (LegacyAiScoreContext) ctx);
+                rank += rankSpecialFigures(game, (LegacyAiScoreContext) ctx);
             }
         }
 

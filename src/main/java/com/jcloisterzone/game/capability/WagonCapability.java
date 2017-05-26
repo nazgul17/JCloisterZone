@@ -105,11 +105,11 @@ public class WagonCapability extends Capability {
     public Player getWagonPlayer() {
         if (scoredWagons.isEmpty()) return null;
         int pi = game.getTurnPlayer().getIndex();
-        while (!scoredWagons.containsKey(game.getAllPlayers()[pi])) {
+        while (!scoredWagons.containsKey(game.getAllPlayers().get(pi))) {
             pi++;
-            if (pi == game.getAllPlayers().length) pi = 0;
+            if (pi == game.getAllPlayers().length()) pi = 0;
         }
-        return game.getAllPlayers()[pi];
+        return game.getAllPlayers().get(pi);
     }
 
     private Set<FeaturePointer> filterWagonLocations(Set<FeaturePointer> followerOptions) {

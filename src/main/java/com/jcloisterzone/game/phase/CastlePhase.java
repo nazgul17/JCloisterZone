@@ -76,15 +76,15 @@ public class CastlePhase extends Phase {
             return;
         }
         int pi = game.getTurnPlayer().getIndex();
-        while (!currentTileCastleBases.containsKey(game.getAllPlayers()[pi])) {
+        while (!currentTileCastleBases.containsKey(game.getAllPlayers().get(pi))) {
             pi++;
-            if (pi == game.getAllPlayers().length) pi = 0;
+            if (pi == game.getAllPlayers().length()) pi = 0;
         }
-        Player player = game.getAllPlayers()[pi];
+        Player player = game.getAllPlayers().get(pi);
         castleCap.setCastlePlayer(player);
         CastleAction action = new CastleAction();
         for (Location loc: currentTileCastleBases.remove(player)) {
-        	action.add(new FeaturePointer(getTile().getPosition(), loc));
+            action.add(new FeaturePointer(getTile().getPosition(), loc));
         }
         game.post(new SelectActionEvent(player, action, true));
     }
@@ -127,7 +127,7 @@ public class CastlePhase extends Phase {
         }
 
         @Override
-		public Player getResult() {
+        public Player getResult() {
             if (!castleBase || size != 2) return null;
             //check single owner only - flier can cause that more followers of different players can be placed on city
             Player owner = null;

@@ -51,7 +51,7 @@ public class BridgeCapability extends Capability {
 
     @Override
     public void initPlayer(Player player) {
-        int players = game.getAllPlayers().length;
+        int players = game.getAllPlayers().length();
         if (players < 5) {
             bridges.put(player, 3);
         } else {

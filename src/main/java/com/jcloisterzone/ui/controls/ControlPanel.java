@@ -56,6 +56,8 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
 
+import io.vavr.collection.Array;
+
 public class ControlPanel extends JPanel {
 
     private static Font FONT_PACK_SIZE = new Font(null, Font.PLAIN, 20);
@@ -125,12 +127,12 @@ public class ControlPanel extends JPanel {
             add(bazaarSupplyPanel, "wrap, growx, gapbottom 12, h 40, hidemode 3");
         }
 
-        Player[] players = game.getAllPlayers();
+        Array<Player> players = game.getAllPlayers();
         PlayerPanelImageCache cache = new PlayerPanelImageCache(client, game);
-        playerPanels = new PlayerPanel[players.length];
+        playerPanels = new PlayerPanel[players.length()];
 
-        for (int i = 0; i < players.length; i++) {
-            playerPanels[i] = new PlayerPanel(client, gameView, players[i], cache);
+        for (int i = 0; i < players.length(); i++) {
+            playerPanels[i] = new PlayerPanel(client, gameView, players.get(i), cache);
             add(playerPanels[i], "wrap, growx, gapleft 35, gapbottom 12, h pref");
         }
 

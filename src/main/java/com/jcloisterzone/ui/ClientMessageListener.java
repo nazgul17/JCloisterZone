@@ -75,6 +75,8 @@ import com.jcloisterzone.wsio.message.WsInGameMessage;
 import com.jcloisterzone.wsio.message.WsMessage;
 import com.jcloisterzone.wsio.server.RemoteClient;
 
+import io.vavr.collection.Array;
+
 
 public class ClientMessageListener implements MessageListener {
 
@@ -129,9 +131,9 @@ public class ClientMessageListener implements MessageListener {
 
     @Override
     public void onWebsocketClose(int code, String reason, boolean remote) {
-    	channelControllers.clear();
-    	gameControllers.clear();
-    	client.onWebsocketClose(code, reason, remote);
+        channelControllers.clear();
+        gameControllers.clear();
+        client.onWebsocketClose(code, reason, remote);
     }
 
     @Override
@@ -227,10 +229,10 @@ public class ClientMessageListener implements MessageListener {
         gc.setChannel(msg.getChannel());
         gc.setPasswordProtected(msg.isPasswordProtected());
         if (msg instanceof ChannelMessageGame) {
-	        for (RemoteClient client : ((ChannelMessageGame)msg).getClients()) {
-	        	if (client.getState() == null) client.setState(ClientState.ACTIVE);
-	        	gc.getRemoteClients().add(client);
-	        }
+            for (RemoteClient client : ((ChannelMessageGame)msg).getClients()) {
+                if (client.getState() == null) client.setState(ClientState.ACTIVE);
+                gc.getRemoteClients().add(client);
+            }
         }
         game.getPhases().put(phase.getClass(), phase);
         game.setPhase(phase);
@@ -316,12 +318,12 @@ public class ClientMessageListener implements MessageListener {
             createGameSlots(gc, msg);
             CreateGamePhase phase = null;
             if (!gc.getGame().isStarted()) {
-            	phase = (CreateGamePhase)gc.getGame().getPhase();
+                phase = (CreateGamePhase)gc.getGame().getPhase();
             }
             for (SlotMessage slotMsg : msg.getSlots()) {
                 handleSlot(slotMsg);
                 if (phase != null) {
-                	phase.handleSlotMessage(slotMsg);
+                    phase.handleSlotMessage(slotMsg);
                 }
             }
         }
@@ -431,12 +433,12 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleClockMessage(ClockMessage msg) {
         Game game = getGame(msg);
-        Player[] players = game.getAllPlayers();
-        Player runningClockPlayer = msg.getRunning() == null ? null : players[msg.getRunning()];
-        for (int i = 0; i < players.length; i++) {
-            PlayerClock clock = players[i].getClock();
-            clock.setTime(msg.getClocks()[i]);
-            clock.setRunning(runningClockPlayer == players[i]);
+        Array<Player> players = game.getAllPlayers();
+        Player runningClockPlayer = msg.getRunning() == null ? null : players.get(msg.getRunning());
+        for (Player player : players) {
+            PlayerClock clock = player.getClock();
+            clock.setTime(msg.getClocks()[player.getIndex()]);
+            clock.setRunning(player == runningClockPlayer);
         }
         game.post(new ClockUpdateEvent(runningClockPlayer));
     }

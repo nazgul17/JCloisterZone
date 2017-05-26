@@ -3,10 +3,7 @@ package com.jcloisterzone;
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 import com.google.common.base.Predicates;
 import com.google.common.collect.Iterables;
@@ -15,8 +12,12 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.predicate.MeeplePredicates;
+import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.ui.PlayerColor;
+
+import io.vavr.collection.HashMap;
+import io.vavr.control.Option;
 
 
 /**
@@ -25,26 +26,22 @@ import com.jcloisterzone.ui.PlayerColor;
  *
  * @author Roman Krejcik
  */
-public class Player implements Serializable {
+public class Player implements IPlayer, Serializable {
 
     private static final long serialVersionUID = -7276471952562769832L;
 
-    private int points;
-    private final Map<PointCategory, Integer> pointStats = new HashMap<>();
+    private final Game game;
+    private final PlayerAttributes attributes;
 
     private final List<Follower> followers = new ArrayList<Follower>(SmallFollower.QUANTITY + 3);
     private final List<Special> specialMeeples = new ArrayList<Special>(3);
     private final Iterable<Meeple> meeples = Iterables.<Meeple>concat(followers, specialMeeples);
 
-    final private String nick;
-    final private int index;
-    private PlayerSlot slot;
     private final PlayerClock clock = new PlayerClock();
 
-    public Player(String nick, int index, PlayerSlot slot) {
-        this.nick = nick;
-        this.index = index;
-        this.slot = slot;
+    public Player(Game game, PlayerAttributes attributes) {
+        this.game = game;
+        this.attributes = attributes;
     }
 
     public void addMeeple(Meeple meeple) {
@@ -89,40 +86,32 @@ public class Player implements Serializable {
     }
 
     public void addPoints(int points, PointCategory category) {
-        this.points += points;
-        if (pointStats.containsKey(category)) {
-            pointStats.put(category, pointStats.get(category) + points);
-        } else {
-            pointStats.put(category, points);
-        }
+        game.replaceState(state -> state.addPoints(this, points, category));
     }
 
     public int getPoints() {
-        return points;
+        return game.getState().getScore(this).getPoints();
     }
 
     public String getNick() {
-        return nick;
+        return attributes.getNick();
     }
 
     @Override
     public String toString() {
-        return nick + " " + points;
+        return attributes.getNick() + " " + getPoints();
     }
 
     public int getIndex() {
-        return index;
+        return attributes.getIndex();
     }
 
     public PlayerColor getColors() {
-        return slot.getColors();
+        return attributes.getSlot().getColors();
     }
 
     public PlayerSlot getSlot() {
-        return slot;
-    }
-    public void setSlot(PlayerSlot slot) {
-        this.slot = slot;
+        return attributes.getSlot();
     }
 
     public PlayerClock getClock() {
@@ -133,8 +122,8 @@ public class Player implements Serializable {
     public boolean equals(Object o) {
         if (this == o)
             return true;
-        if (o instanceof Player) {
-            if (((Player) o).index == index && index != -1)
+        if (o instanceof IPlayer) {
+            if (((IPlayer) o).getIndex() == getIndex() && getIndex() != -1)
                 return true;
         }
         return false;
@@ -142,22 +131,22 @@ public class Player implements Serializable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(index, nick);
+        return attributes.hashCode();
     }
-
-    public void setPoints(int points) {
-        this.points = points;
-    }
-
 
     public int getPointsInCategory(PointCategory cat) {
-        Integer points = pointStats.get(cat);
-        return points == null ? 0 : points;
+        HashMap<PointCategory, Integer> pointStats = game.getState().getScore(this).getStats();
+        Option<Integer> points = pointStats.get(cat);
+        return points.getOrElse(0);
     }
 
-    public void setPointsInCategory(PointCategory category, int points) {
-        pointStats.put(category, points);
-    }
+//    public void setPoints(int points) {
+//        this.points = points;
+//    }
+//
+//    public void setPointsInCategory(PointCategory category, int points) {
+//        pointStats.put(category, points);
+//    }
 
     public boolean isLocalHuman() {
         return getSlot().isOwn() && !getSlot().isAi();

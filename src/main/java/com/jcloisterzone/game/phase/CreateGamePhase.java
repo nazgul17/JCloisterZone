@@ -12,6 +12,7 @@ import java.util.Set;
 import com.google.common.collect.ClassToInstanceMap;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.ai.AiPlayer;
 import com.jcloisterzone.board.DefaultTilePack;
 import com.jcloisterzone.board.Tile;
@@ -32,6 +33,8 @@ import com.jcloisterzone.game.capability.PigHerdCapability;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.SlotMessage;
+
+import io.vavr.collection.Array;
 
 
 public class CreateGamePhase extends ServerAwarePhase {
@@ -142,21 +145,21 @@ public class CreateGamePhase extends ServerAwarePhase {
     }
 
     private void createPlayers() {
-        List<Player> players = new ArrayList<>();
+        List<PlayerAttributes> players = new ArrayList<>();
         PlayerSlot[] sorted = new PlayerSlot[slots.length];
         System.arraycopy(slots, 0, sorted, 0, slots.length);
         Arrays.sort(sorted, new PlayerSlotComparator());
         for (int i = 0; i < sorted.length; i++) {
             PlayerSlot slot = sorted[i];
             if (slot.isOccupied()) {
-                Player player = new Player(slot.getNickname(), i, slot);
+                PlayerAttributes player = new PlayerAttributes(slot.getNickname(), i, slot);
                 players.add(player);
             }
         }
         if (players.isEmpty()) {
             throw new IllegalStateException("No players in game");
         }
-        game.setPlayers(players, 0);
+        game.setPlayers(Array.ofAll(players), 0);
     }
 
     protected Snapshot getSnapshot() {

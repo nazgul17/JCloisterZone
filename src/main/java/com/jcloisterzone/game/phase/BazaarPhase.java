@@ -46,7 +46,7 @@ public class BazaarPhase extends ServerAwarePhase {
         }
         Player p = game.getNextPlayer();
         bazaarCap.setBazaarTileSelectingPlayer(p);
-        int size = game.getAllPlayers().length;
+        int size = game.getAllPlayers().length();
         ArrayList<BazaarItem> supply = new ArrayList<BazaarItem>(size);
         for (int i = 0; i < size; i++) {
             Tile t = getTilePack().drawTile(game.getRandom().nextInt(getTilePack().size()));
@@ -82,7 +82,7 @@ public class BazaarPhase extends ServerAwarePhase {
 
     private boolean isBazaarTriggered() {
         if (!bazaarCap.isBazaarTriggered()) return false;
-        if (getTilePack().size() < game.getAllPlayers().length) return false; //there isn't one tile for each player available
+        if (getTilePack().size() < game.getAllPlayers().length()) return false; //there isn't one tile for each player available
         if (bazaarCap.getBazaarSupply() != null) return false;
         return true;
     }
