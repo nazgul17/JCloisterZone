@@ -190,7 +190,7 @@ public class DefaultTilePack implements TilePack {
     @Override
     public int getSizeForEdgePattern(EdgePattern pattern) {
         int size = 0;
-        for (EdgePattern filled : pattern.fill()) {
+        for (EdgePattern filled : pattern.expand()) {
             Integer count = edgePatterns.get(filled);
             size += count == null ? 0 : count;
         }

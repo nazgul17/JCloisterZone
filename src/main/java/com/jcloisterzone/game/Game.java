@@ -76,6 +76,7 @@ public class Game extends GameSettings implements EventProxy {
 
     private GameState state;
     private Array<Player> players;
+    private Board board;
 
 
     // -- old --
@@ -85,7 +86,7 @@ public class Game extends GameSettings implements EventProxy {
     /** pack of remaining tiles */
     private Tile currentTile;
     /** game board, contains placed tiles */
-    private Board board;
+
 
     private final List<NeutralFigure> neutralFigures = new ArrayList<>();
 

@@ -24,6 +24,8 @@ import com.jcloisterzone.feature.visitor.IsOccupiedOrCompleted;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
 
+import io.vavr.Tuple2;
+
 
 /**
  * Represents one game tile. Contains references on score objects
@@ -36,44 +38,38 @@ public class Tile /*implements Cloneable*/ {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    public static final String ABBEY_TILE_ID = "AM.A";
-
     protected Game game;
-    private final Expansion origin;
-    private final String id;
 
-    private ArrayList<Feature> features;
-    private Bridge bridge; //direct reference to bridge feature
+    private final Position position;
 
-    protected TileSymmetry symmetry;
-    protected Position position = null;
-    private Rotation rotation = Rotation.R0;
+//    private ArrayList<Feature> features;
+//    private Bridge bridge; //direct reference to bridge feature
+//
+//
+//    protected Position position = null;
+//    private Rotation rotation = Rotation.R0;
 
-    private EdgePattern edgePattern;
 
-    //expansions data - maybe some map instead ? but still it is only few tiles
-    private TileTrigger trigger;
-    private Location river;
-    private Location flier;
-    private Location windRose;
-    private Class<? extends Feature> cornCircle;
-
-    public Tile(Expansion origin, String id) {
-        this.origin = origin;
-        this.id = id;
+    public Tile(Game game, Position position) {
+        this.game = game;
+        this.position = position;
     }
 
-    @Override
-    public int hashCode() {
-        return id.hashCode();
+    private Tuple2<TileDefinition, Rotation> getPlacedTile() {
+        return game.getState().getPlacedTiles().get(position).get();
+    }
+
+    public TileDefinition getTileDefinition() {
+        return getPlacedTile()._1;
+    }
+
+    public Rotation getRotation() {
+        return getPlacedTile()._2;
     }
 
     public EdgePattern getEdgePattern() {
-        return edgePattern;
-    }
-
-    public void setEdgePattern(EdgePattern edgePattern) {
-        this.edgePattern = edgePattern;
+        Tuple2<TileDefinition, Rotation> pt = getPlacedTile();
+        return pt._1.getEdgePattern().rotate(pt._2);
     }
 
     public Edge getEdge(Location side) {
@@ -81,11 +77,11 @@ public class Tile /*implements Cloneable*/ {
     }
 
     public String getId() {
-        return id;
+        return tileDefinition.getId();
     }
 
     public Expansion getOrigin() {
-        return origin;
+        return tileDefinition.getOrigin();
     }
 
     protected boolean check(Tile tile, Location rel, Board board) {
@@ -125,7 +121,7 @@ public class Tile /*implements Cloneable*/ {
         Location oppositeLoc = loc.rev();
         MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
         if (oppositePiece != null) {
-            if (isAbbeyTile()) {
+            if (tileDefinition.isAbbeyTile()) {
                 oppositePiece.setAbbeyEdge(oppositeLoc);
             } else {
                 MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
@@ -138,7 +134,7 @@ public class Tile /*implements Cloneable*/ {
             Location oppositeHalfSide = halfSide.rev();
             oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
             if (oppositePiece != null) {
-                if (isAbbeyTile()) {
+                if (tileDefinition.isAbbeyTile()) {
                     oppositePiece.setAbbeyEdge(oppositeHalfSide);
                 } else {
                     MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
@@ -154,7 +150,7 @@ public class Tile /*implements Cloneable*/ {
         MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
         if (oppositePiece != null) {
             oppositePiece.setEdge(oppositeLoc, null);
-            if (!isAbbeyTile()) {
+            if (!tileDefinition.isAbbeyTile()) {
                 MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
                 if (thisPiece != null) { //can be null for bridge undo
                     thisPiece.setEdge(loc, null);
@@ -167,7 +163,7 @@ public class Tile /*implements Cloneable*/ {
             oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
             if (oppositePiece != null) {
                 oppositePiece.setEdge(oppositeHalfSide, null);
-                if (!isAbbeyTile()) {
+                if (!tileDefinition.isAbbeyTile()) {
                     MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
                     thisPiece.setEdge(halfSide, null);
                 }
@@ -189,15 +185,7 @@ public class Tile /*implements Cloneable*/ {
     }
 
     public TileSymmetry getSymmetry() {
-        return symmetry;
-    }
-
-    public void setSymmetry(TileSymmetry symmetry) {
-        this.symmetry = symmetry;
-    }
-
-    public boolean isAbbeyTile() {
-        return id.equals(ABBEY_TILE_ID);
+        return tileDefinition.getSymmetry()
     }
 
     public boolean hasCloister() {

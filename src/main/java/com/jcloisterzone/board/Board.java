@@ -1,21 +1,17 @@
 package com.jcloisterzone.board;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.EnumSet;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
+import java.util.stream.Stream;
+import java.util.stream.Stream.Builder;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BridgeCapability;
+
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 
 
 /**
@@ -26,63 +22,97 @@ import com.jcloisterzone.game.capability.BridgeCapability;
 
  */
 public class Board {
-    protected final Map<Position,Tile> tiles = new LinkedHashMap<Position,Tile>();
-    protected final Map<Position, EdgePattern> availMoves = new HashMap<>();
-    protected final Map<Position, Set<Rotation>> currentAvailMoves = new HashMap<>();
-    protected final Set<Position> holes = new HashSet<>();
-
-    private int maxX, minX, maxY, minY;
+//    protected final Map<Position,Tile> tiles = new LinkedHashMap<Position,Tile>();
+//    protected final Map<Position, EdgePattern> availMoves = new HashMap<>();
+//    protected final Map<Position, Set<Rotation>> currentAvailMoves = new HashMap<>();
+//    protected final Set<Position> holes = new HashSet<>();
+//    private int maxX, minX, maxY, minY;
 
     private final Game game;
 
 //	protected Set<TunnelEnd> tunnels = new HashSet<>();
 //	protected Map<Integer, TunnelEnd> openTunnels = new HashMap<>(); //tunnel with open one side
 
-    protected List<Tile> discardedTiles = new ArrayList<>();
+//  protected List<Tile> discardedTiles = new ArrayList<>();
 
 
     public Board(Game game) {
         this.game = game;
     }
 
-    /**
-     * Updates current avail moves for next turn
-     * @param tile next tile
-     */
-    public void refreshAvailablePlacements(Tile tile) {
-        Rotation tileRotation = tile.getRotation();
-        currentAvailMoves.clear();
-        for (Position p : availMoves.keySet()) {
-            EnumSet<Rotation> allowed = EnumSet.noneOf(Rotation.class);
-            for (Rotation rotation: Rotation.values()) {
-                tile.setRotation(rotation);
-                if (!isPlacementAllowed(tile, p)) {
-                    //not allowed according standard rules, must check if deployed bridge can allow it
-                    if (!game.hasCapability(BridgeCapability.class)) continue;
-                    if (!game.getCapability(BridgeCapability.class).isTilePlacementWithBridgePossible(tile, p)) continue;
+    private EdgePattern getEdgetPattern(Position pos) {
+        java.util.List<Edge> edges = new ArrayList<>(4);
+
+        Position.ADJACENT.forEach((loc, offset) -> {
+            Position adj = pos.add(offset);
+            edges.add(get(adj).getEdge(loc.rev()));
+        });
+
+        return new EdgePattern(edges.toArray(new Edge[4]));
+    }
+
+    public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements() {
+        Builder<Tuple2<Position, EdgePattern>> builder = Stream.builder();
+
+        HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
+        java.util.HashSet<Position> used = new java.util.HashSet<>();
+        placedTiles.forEach((pos, tuple) -> {
+            for (Position offset: Position.ADJACENT.values()) {
+                Position adj = pos.add(offset);
+                if (!used.contains(adj) && !placedTiles.containsKey(adj)) {
+                    builder.add(new Tuple2<Position, EdgePattern>(adj, getEdgetPattern(adj)));
+                    used.add(adj);
                 }
-                if (!game.isTilePlacementAllowed(tile, p)) continue;
-                allowed.add(rotation);
             }
-            if (!allowed.isEmpty()) {
-                currentAvailMoves.put(p, allowed);
-            }
-        }
-        tile.setRotation(tileRotation); //reset rotation
+        });
+
+        return builder.build();
     }
 
-
-    protected void availMovesAdd(Position pos) {
-        availMoves.put(pos, EdgePattern.forEmptyTile(this, pos));
+    public Stream<Tuple2<Position, EdgePattern>> getHoles() {
+        return getAvailablePlacements().filter(tuple -> {
+            return tuple._2.wildcardSize() == 0;
+        });
     }
 
-    protected void availMovesRemove(Position pos) {
-        availMoves.remove(pos);
-    }
+//    /**
+//     * Updates current avail moves for next turn
+//     * @param tile next tile
+//     */
+//    public void refreshAvailablePlacements(Tile tile) {
+//        Rotation tileRotation = tile.getRotation();
+//        currentAvailMoves.clear();
+//        for (Position p : availMoves.keySet()) {
+//            EnumSet<Rotation> allowed = EnumSet.noneOf(Rotation.class);
+//            for (Rotation rotation: Rotation.values()) {
+//                tile.setRotation(rotation);
+//                if (!isPlacementAllowed(tile, p)) {
+//                    //not allowed according standard rules, must check if deployed bridge can allow it
+//                    if (!game.hasCapability(BridgeCapability.class)) continue;
+//                    if (!game.getCapability(BridgeCapability.class).isTilePlacementWithBridgePossible(tile, p)) continue;
+//                }
+//                if (!game.isTilePlacementAllowed(tile, p)) continue;
+//                allowed.add(rotation);
+//            }
+//            if (!allowed.isEmpty()) {
+//                currentAvailMoves.put(p, allowed);
+//            }
+//        }
+//        tile.setRotation(tileRotation); //reset rotation
+//    }
 
-    public EdgePattern getAvailMoveEdgePattern(Position pos) {
-        return availMoves.get(pos);
-    }
+
+//    protected void availMovesAdd(Position pos) {
+//        availMoves.put(pos, EdgePattern.forEmptyTile(this, pos));
+//    }
+//
+//    protected void availMovesRemove(Position pos) {
+//        availMoves.remove(pos);
+//    }
+
+//    public EdgePattern getAvailMoveEdgePattern(Position pos) {
+//        return availMoves.get(pos);
+//    }
 
 
     /**
@@ -92,117 +122,113 @@ public class Board {
      * @param p position to place
      * @throws IllegalMoveException if placement is violate game rules
      */
-    public void add(Tile tile, Position p) {
-        add(tile, p, false);
+    public void add(Tile tile, Position pos) {
+        HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
+        assert !placedTiles.containsKey(pos);
+        game.replaceState(state -> state.setPlacedTiles(
+            placedTiles.put(
+                pos,
+                new Tuple2<>(tile.getTileDefinition(), tile.getRotation())
+            )
+        ));
+        //TODO merge features
     }
 
-    public void add(Tile tile, Position p, boolean unchecked) {
-        if (!unchecked) {
-            if (tile.isAbbeyTile()) {
-                if (!holes.contains(p)) {
-                    throw new IllegalArgumentException("Abbey must be placed inside hole");
-                }
-            } else {
-                if (!currentAvailMoves.containsKey(p)) {
-                    throw new IllegalArgumentException("Invalid position " + p);
-                }
-                if (!currentAvailMoves.get(p).contains(tile.getRotation())) {
-                    throw new IllegalArgumentException("Incorrect rotation " + tile.getRotation() + " "+ p);
-                }
-            }
-        }
+//    public void add(Tile tile, Position p, boolean unchecked) {
+//        if (!unchecked) {
+//            if (tile.isAbbeyTile()) {
+//                if (!holes.contains(p)) {
+//                    throw new IllegalArgumentException("Abbey must be placed inside hole");
+//                }
+//            } else {
+//                if (!currentAvailMoves.containsKey(p)) {
+//                    throw new IllegalArgumentException("Invalid position " + p);
+//                }
+//                if (!currentAvailMoves.get(p).contains(tile.getRotation())) {
+//                    throw new IllegalArgumentException("Incorrect rotation " + tile.getRotation() + " "+ p);
+//                }
+//            }
+//        }
+//
+//        tiles.put(p, tile);
+//        availMovesRemove(p);
+//
+//        for (Position offset: Position.ADJACENT.values()) {
+//            Position next = p.add(offset);
+//            if (get(next) == null) {
+//                availMovesAdd(next);
+//                if (isHole(next)) {
+//                    holes.add(next);
+//                }
+//            }
+//        }
+//        holes.remove(p);
+//        tile.setPosition(p);
+//        if (p.x > maxX) maxX = p.x;
+//        if (p.x < minX) minX = p.x;
+//        if (p.y > maxY) maxY = p.y;
+//        if (p.y < minY) minY = p.y;
+//    }
 
-        tiles.put(p, tile);
-        availMovesRemove(p);
+//    public void mergeFeatures(Tile tile) {
+//        for (Entry<Location, Tile> e : getAdjacentTilesMap(tile.getPosition()).entrySet()) {
+//            tile.merge(e.getValue(), e.getKey());
+//        }
+//    }
 
-        for (Position offset: Position.ADJACENT.values()) {
-            Position next = p.add(offset);
-            if (get(next) == null) {
-                availMovesAdd(next);
-                if (isHole(next)) {
-                    holes.add(next);
-                }
-            }
-        }
-        holes.remove(p);
-        tile.setPosition(p);
-        if (p.x > maxX) maxX = p.x;
-        if (p.x < minX) minX = p.x;
-        if (p.y > maxY) maxY = p.y;
-        if (p.y < minY) minY = p.y;
-    }
+//    public void remove(Tile tile) {
+//        Position pos = tile.getPosition();
+//        assert pos != null;
+//        tiles.remove(pos);
+//        tile.setPosition(null);
+//        availMovesAdd(pos);
+//        if (isHole(pos)) holes.add(pos);
+//        for (Position offset: Position.ADJACENT.values()) {
+//            Position next = pos.add(offset);
+//            holes.remove(next);
+//            if (getAdjacentCount(next) == 0) {
+//                availMoves.remove(next);
+//            }
+//        }
+//    }
 
-    public void mergeFeatures(Tile tile) {
-        for (Entry<Location, Tile> e : getAdjacentTilesMap(tile.getPosition()).entrySet()) {
-            tile.merge(e.getValue(), e.getKey());
-        }
-    }
+//    public void unmergeFeatures(Tile tile) {
+//        assert tile.getPosition() != null;
+//        for (Entry<Location, Tile> e : getAdjacentTilesMap(tile.getPosition()).entrySet()) {
+//            tile.unmerge(e.getValue(), e.getKey());
+//        }
+//    }
 
-    public void remove(Tile tile) {
-        Position pos = tile.getPosition();
-        assert pos != null;
-        tiles.remove(pos);
-        tile.setPosition(null);
-        availMovesAdd(pos);
-        if (isHole(pos)) holes.add(pos);
-        for (Position offset: Position.ADJACENT.values()) {
-            Position next = pos.add(offset);
-            holes.remove(next);
-            if (getAdjacentCount(next) == 0) {
-                availMoves.remove(next);
-            }
-        }
-    }
-
-    public void unmergeFeatures(Tile tile) {
-        assert tile.getPosition() != null;
-        for (Entry<Location, Tile> e : getAdjacentTilesMap(tile.getPosition()).entrySet()) {
-            tile.unmerge(e.getValue(), e.getKey());
-        }
-    }
-
-    public void discardTile(Tile tile) {
-        discardedTiles.add(tile);
-        game.post(new TileEvent(TileEvent.DISCARD, null, tile, null));
-    }
+//    public void discardTile(Tile tile) {
+//        discardedTiles.add(tile);
+//        game.post(new TileEvent(TileEvent.DISCARD, null, tile, null));
+//    }
 
 
-    public List<Tile> getDiscardedTiles() {
-        return discardedTiles;
-    }
+//    public List<Tile> getDiscardedTiles() {
+//        return discardedTiles;
+//    }
 
-    private boolean isHole(Position p) {
-        for (Position offset: Position.ADJACENT.values()) {
-            Position next = p.add(offset);
-            if (get(next) == null) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private int getAdjacentCount(Position p) {
-        int count = 0;
-        for (Position offset: Position.ADJACENT.values()) {
-            Position next = p.add(offset);
-            if (get(next) != null) {
-                count++;
-            }
-        }
-        return count;
-    }
-
-    public Map<Position, Set<Rotation>> getAvailablePlacements() {
-        return currentAvailMoves;
-    }
-
-    public Set<Position> getAvailablePlacementPositions() {
-        return currentAvailMoves.keySet();
-    }
-
-    public Set<Position> getHoles() {
-        return holes;
-    }
+//    private boolean isHole(Position p) {
+//        for (Position offset: Position.ADJACENT.values()) {
+//            Position next = p.add(offset);
+//            if (get(next) == null) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
+//
+//    private int getAdjacentCount(Position p) {
+//        int count = 0;
+//        for (Position offset: Position.ADJACENT.values()) {
+//            Position next = p.add(offset);
+//            if (get(next) != null) {
+//                count++;
+//            }
+//        }
+//        return count;
+//    }
 
 
     /**

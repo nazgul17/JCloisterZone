@@ -1,11 +1,11 @@
 package com.jcloisterzone.board;
 
-import java.util.Collection;
-import java.util.Map;
-
-import com.google.common.collect.ImmutableMap;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+
+import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Map;
 
 
 /**
@@ -20,25 +20,20 @@ public class Position implements BoardPointer, Comparable<Position> {
 
     private static final long serialVersionUID = -345L;
 
-    public static final Map<Location, Position> ADJACENT;
-    public static final Map<Location, Position> ADJACENT_AND_DIAGONAL;
+    public static final LinkedHashMap<Location, Position> ADJACENT = LinkedHashMap.of(
+        Location.N, new Position(0, -1),
+        Location.E, new Position(1, 0),
+        Location.S, new Position(0, 1),
+        Location.W, new Position(-1, 0)
+    );
 
-    static {
-        ADJACENT = new ImmutableMap.Builder<Location, Position>()
-         .put(Location.N, new Position(0, -1))
-         .put(Location.E, new Position(1, 0))
-         .put(Location.S, new Position(0, 1))
-         .put(Location.W, new Position(-1, 0))
-         .build();
+    public static final Map<Location, Position> ADJACENT_AND_DIAGONAL = ADJACENT.merge(HashMap.of(
+        Location.NE, new Position(1, -1),
+        Location.SE, new Position(1, 1),
+        Location.SW, new Position(-1, 1),
+        Location.NW, new Position(-1, -1)
+    ));
 
-        ADJACENT_AND_DIAGONAL= new ImmutableMap.Builder<Location, Position>()
-         .putAll(ADJACENT)
-         .put(Location.NE, new Position(1, -1))
-         .put(Location.SE, new Position(1, 1))
-         .put(Location.SW, new Position(-1, 1))
-         .put(Location.NW, new Position(-1, -1))
-         .build();
-    }
 
     public Position(int x, int y) {
         this.x = x;
@@ -46,7 +41,7 @@ public class Position implements BoardPointer, Comparable<Position> {
     }
 
     public Position(Position p) {
-        this(p.x,p.y);
+        this(p.x, p.y);
     }
 
     @Override
@@ -54,26 +49,18 @@ public class Position implements BoardPointer, Comparable<Position> {
         return this;
     }
 
+    @Override
+    public FeaturePointer asFeaturePointer() {
+        return new FeaturePointer(this, null);
+    }
+
+    @Override
     public String toString() {
-        return new StringBuilder().append("[x=").append(x).append(",y=").append(y).append("]").toString();
+        return String.format("[x=%s,y=%s]", x, y);
     }
 
     public Position add(Position p) {
-        return new Position(x+p.x, y+p.y);
-    }
-
-    public Position[] addMulti(Position[] offsets) {
-        Position[] result = new Position[offsets.length];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = add(offsets[i]);
-        }
-        return result;
-    }
-
-    public Position[] addMulti(Collection<Position> offsets) {
-        Position[] arr = new Position[offsets.size()];
-        arr = offsets.toArray(arr);
-        return addMulti(arr);
+        return new Position(x + p.x, y + p.y);
     }
 
     public Position add(Location loc) {
@@ -95,6 +82,7 @@ public class Position implements BoardPointer, Comparable<Position> {
     public int hashCode() {
         return (x << 16) ^ y;
     }
+
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof Position) {
@@ -111,11 +99,4 @@ public class Position implements BoardPointer, Comparable<Position> {
         }
         return y - o.y;
     }
-
-    @Override
-    public FeaturePointer asFeaturePointer() {
-        return new FeaturePointer(this, null);
-    }
-
-
 }
