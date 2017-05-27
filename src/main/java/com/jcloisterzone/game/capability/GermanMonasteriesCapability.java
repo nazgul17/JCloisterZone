@@ -19,7 +19,7 @@ public class GermanMonasteriesCapability extends Capability {
     }
 
     @Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {
             ((Cloister)feature).setMonastery(attributeBoolValue(xml, "monastery"));
         }

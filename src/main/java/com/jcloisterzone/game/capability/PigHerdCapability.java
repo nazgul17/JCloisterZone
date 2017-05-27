@@ -4,7 +4,6 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 
 import org.w3c.dom.Element;
 
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
@@ -18,10 +17,10 @@ public class PigHerdCapability extends Capability {
 	}
 
 	@Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Farm) {
         	if (attributeBoolValue(xml, "pig")) {
-	            if (game.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tile.getId())) {
+	            if (game.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId.getId())) {
 	            	((Farm) feature).setPigHerd(true);
 	            }
             }

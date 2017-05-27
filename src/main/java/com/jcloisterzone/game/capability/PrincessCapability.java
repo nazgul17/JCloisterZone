@@ -9,7 +9,6 @@ import org.w3c.dom.Element;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.PrincessAction;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
@@ -42,7 +41,7 @@ public class PrincessCapability extends Capability {
     }
 
     @Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "princess")) {
             ((City)feature).setPricenss(true);
         }

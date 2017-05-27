@@ -90,7 +90,7 @@ public class FarmHintsLayer extends AbstractGridLayer {
             Set<Location> farmLocations = new HashSet<>();
             for (Feature f : tile.getFeatures()) {
                 if (f instanceof Farm) {
-                    farmLocations.add(f.getLocation());
+                    farmLocations.translate(f.getLocation());
                 }
             }
             if (farmLocations.isEmpty()) return;

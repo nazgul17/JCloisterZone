@@ -91,7 +91,7 @@ public class CastleCapability extends Capability {
     }
 
     @Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City) {
             ((City) feature).setCastleBase(attributeBoolValue(xml, "castle-base"));
         }

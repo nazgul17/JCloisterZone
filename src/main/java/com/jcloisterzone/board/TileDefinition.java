@@ -26,6 +26,10 @@ public class TileDefinition {
     private final Location windRose;
     private final Class<? extends Feature> cornCircle;
 
+    public TileDefinition(Expansion origin, String id, Map<Location, Feature> initialFeatures) {
+        this(origin, id, initialFeatures, null, null, null, null, null);
+    }
+
 
     public TileDefinition(Expansion origin, String id,
         Map<Location, Feature> initialFeatures,
@@ -43,6 +47,30 @@ public class TileDefinition {
 
         this.edgePattern = computeEdgePattern();
         this.symmetry = this.edgePattern.getSymmetry();
+    }
+
+    public TileDefinition setTileTrigger(TileTrigger trigger) {
+        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+    }
+
+    public TileDefinition setRiver(Location river) {
+        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+    }
+
+    public TileDefinition setFlier(Location flier) {
+        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+    }
+
+    public TileDefinition setWindRose(Location windRose) {
+        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+    }
+
+    public TileDefinition setCornCircle(Class<? extends Feature> cornCircle) {
+        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+    }
+
+    public TileDefinition setInitialFeatures(Map<Location, Feature> initialFeatures) {
+        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
     }
 
     public boolean isAbbeyTile() {
@@ -102,16 +130,16 @@ public class TileDefinition {
         return cornCircle;
     }
 
-    private Edge computeSideEdge(Location loc) {
+    private EdgeType computeSideEdge(Location loc) {
         if (river != null && loc.isPartOf(river)) {
-            return Edge.RIVER;
+            return EdgeType.RIVER;
         }
 
         Tuple2<Location, Feature> tuple = initialFeatures.find(item -> loc.isPartOf(item._1)).getOrNull();
 
-        if (tuple == null) return Edge.FARM;
-        if (tuple._2 instanceof Road) return Edge.ROAD;
-        if (tuple._2 instanceof City) return Edge.CITY;
+        if (tuple == null) return EdgeType.FARM;
+        if (tuple._2 instanceof Road) return EdgeType.ROAD;
+        if (tuple._2 instanceof City) return EdgeType.CITY;
 
         throw new IllegalArgumentException();
     }

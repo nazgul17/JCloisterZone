@@ -152,7 +152,7 @@ public class WagonPhase extends ServerAwarePhase {
                             if (side.intersect(f.getLocation()) != null) {
                                 if (j == i) {
                                     //Abbey at side;
-                                    Position target = f.getTile().getPosition().add(side);
+                                    Position target = f.getTile().getPosition().translate(side);
                                     Tile abbeyTile = getBoard().get(target);
                                     assert abbeyTile.isAbbeyTile();
                                     wagonMoves.addAll(getPlacements(abbeyTile.getCloister()));

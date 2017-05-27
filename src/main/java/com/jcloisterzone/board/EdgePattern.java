@@ -17,7 +17,7 @@ public class EdgePattern {
         this.mask = mask;
     }
 
-    public EdgePattern(Edge N, Edge E, Edge S, Edge W ) {
+    public EdgePattern(EdgeType N, EdgeType E, EdgeType S, EdgeType W ) {
         this.mask = N.getMask() + (E.getMask() << 4) + (S.getMask() << 8) + + (W.getMask() << 12);
     }
 
@@ -26,52 +26,52 @@ public class EdgePattern {
             throw new IllegalArgumentException();
         }
         return new EdgePattern(
-            Edge.forChar(str.charAt(0)),
-            Edge.forChar(str.charAt(1)),
-            Edge.forChar(str.charAt(2)),
-            Edge.forChar(str.charAt(3))
+            EdgeType.forChar(str.charAt(0)),
+            EdgeType.forChar(str.charAt(1)),
+            EdgeType.forChar(str.charAt(2)),
+            EdgeType.forChar(str.charAt(3))
         );
     }
 
-    public Edge[] getEdges() {
-        return new Edge[] {
-            Edge.forMask(mask & 15),
-            Edge.forMask((mask >> 4) & 15),
-            Edge.forMask((mask >> 8) & 15),
-            Edge.forMask((mask >> 12) & 15)
+    public EdgeType[] getEdges() {
+        return new EdgeType[] {
+            EdgeType.forMask(mask & 15),
+            EdgeType.forMask((mask >> 4) & 15),
+            EdgeType.forMask((mask >> 8) & 15),
+            EdgeType.forMask((mask >> 12) & 15)
         };
     }
 
     public TileSymmetry getSymmetry() {
-        Edge[] edges = getEdges();
+        EdgeType[] edges = getEdges();
         if (edges[0] == edges[1] && edges[0] == edges[2] && edges[0] == edges[3]) return TileSymmetry.S4;
         if (edges[0] == edges[2] && edges[1] == edges[3]) return TileSymmetry.S2;
         return TileSymmetry.NONE;
     }
 
-    public Edge at(Location loc) {
-        if (loc == Location.N) return Edge.forMask(mask & 15);
-        if (loc == Location.E) return Edge.forMask((mask >> 4) & 15);
-        if (loc == Location.S) return Edge.forMask((mask >> 8) & 15);
-        if (loc == Location.W) return Edge.forMask((mask >> 12) & 15);
+    public EdgeType at(Location loc) {
+        if (loc == Location.N) return EdgeType.forMask(mask & 15);
+        if (loc == Location.E) return EdgeType.forMask((mask >> 4) & 15);
+        if (loc == Location.S) return EdgeType.forMask((mask >> 8) & 15);
+        if (loc == Location.W) return EdgeType.forMask((mask >> 12) & 15);
         throw new IllegalArgumentException();
     }
 
     public EdgePattern rotate(Rotation rot) {
         if (rot == Rotation.R0) return this;
-        java.util.List<Edge> l = Arrays.asList(getEdges());
+        java.util.List<EdgeType> l = Arrays.asList(getEdges());
         Collections.rotate(l, rot.ordinal());
         return new EdgePattern(l.get(0), l.get(1), l.get(2), l.get(3));
     }
 
     @Deprecated //use rotate on EdgePattern instad
-    public Edge at(Location loc, Rotation rotation) {
+    public EdgeType at(Location loc, Rotation rotation) {
         return at(loc.rotateCCW(rotation));
     }
 
     public int wildcardSize() {
         return (int) Stream.of(getEdges())
-            .filter(edge -> edge != Edge.UNKNOWN)
+            .filter(edge -> edge != EdgeType.UNKNOWN)
             .count();
     }
 
@@ -108,11 +108,11 @@ public class EdgePattern {
 
     public boolean isBridgeAllowed(Location bridge, Rotation tileRotation) {
         if (bridge == Location.NS) {
-            if (at(Location.N, tileRotation) != Edge.FARM) return false;
-            if (at(Location.S, tileRotation) != Edge.FARM) return false;
+            if (at(Location.N, tileRotation) != EdgeType.FARM) return false;
+            if (at(Location.S, tileRotation) != EdgeType.FARM) return false;
         } else {
-            if (at(Location.W, tileRotation) != Edge.FARM) return false;
-            if (at(Location.E, tileRotation) != Edge.FARM) return false;
+            if (at(Location.W, tileRotation) != EdgeType.FARM) return false;
+            if (at(Location.E, tileRotation) != EdgeType.FARM) return false;
         }
         return true;
     }

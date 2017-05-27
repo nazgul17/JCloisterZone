@@ -41,14 +41,14 @@ public class Board {
     }
 
     private EdgePattern getEdgetPattern(Position pos) {
-        java.util.List<Edge> edges = new ArrayList<>(4);
+        java.util.List<EdgeType> edges = new ArrayList<>(4);
 
         Position.ADJACENT.forEach((loc, offset) -> {
             Position adj = pos.add(offset);
             edges.add(get(adj).getEdge(loc.rev()));
         });
 
-        return new EdgePattern(edges.toArray(new Edge[4]));
+        return new EdgePattern(edges.get(0), edges.get(1), edges.get(2), edges.get(3));
     }
 
     public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements() {
@@ -286,7 +286,7 @@ public class Board {
         for (Position p : positions) {
             Tile t = get(p);
             if (t != null) {
-                tiles.add(t);
+                tiles.translate(t);
             }
         }
         return tiles;
@@ -295,7 +295,7 @@ public class Board {
     public Map<Location, Tile> getAdjacentTilesMap(Position pos) {
         Map<Location, Tile> tiles = new HashMap<Location, Tile>(4);
         for (Entry<Location, Position> e: Position.ADJACENT.entrySet()) {
-            Tile tile = get(e.getValue().add(pos));
+            Tile tile = get(e.getValue().translate(pos));
             if (tile != null) {
                 tiles.put(e.getKey(), tile);
             }

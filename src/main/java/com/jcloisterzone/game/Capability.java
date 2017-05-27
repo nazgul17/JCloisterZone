@@ -75,10 +75,11 @@ public abstract class Capability {
     public void initTile(Tile tile, Element xml) {
     }
 
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
+        return feature;
     }
 
-    public List<Feature> extendFeatures(Tile tile) {
+    public List<Feature> extendFeatures(String tileId) {
         return Collections.emptyList();
     }
 

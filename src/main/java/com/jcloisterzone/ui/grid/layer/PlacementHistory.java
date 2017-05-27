@@ -7,8 +7,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
-import com.google.common.base.Objects;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
@@ -120,7 +120,7 @@ public class PlacementHistory extends AbstractGridLayer {
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(getOuterType(), player, position);
+            return Objects.hash(getOuterType(), player, position);
         }
 
         @Override
@@ -134,9 +134,9 @@ public class PlacementHistory extends AbstractGridLayer {
 
             PlacementHistoryEntry that = (PlacementHistoryEntry) obj;
 
-            return Objects.equal(this.getOuterType(), that.getOuterType())
-                    && Objects.equal(this.player, that.player)
-                    && Objects.equal(this.position, that.position);
+            return Objects.equals(this.getOuterType(), that.getOuterType())
+                    && Objects.equals(this.player, that.player)
+                    && Objects.equals(this.position, that.position);
         }
 
     }

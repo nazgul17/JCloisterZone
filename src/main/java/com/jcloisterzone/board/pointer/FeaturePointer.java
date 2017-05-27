@@ -1,10 +1,15 @@
 package com.jcloisterzone.board.pointer;
 
+import java.util.Objects;
+
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.feature.Feature;
 
+@Immutable
 public class FeaturePointer implements BoardPointer {
+
+    private static final long serialVersionUID = -3616884893003114766L;
 
     private final Position position;
     private final Location location;
@@ -14,13 +19,13 @@ public class FeaturePointer implements BoardPointer {
         this.location = location;
     }
 
-    public FeaturePointer(Feature feature) {
-        this(feature.getTile().getPosition(), feature.getLocation());
-    }
-
     @Override
     public FeaturePointer asFeaturePointer() {
         return this;
+    }
+
+    public FeaturePointer translate(Position pos) {
+        return new FeaturePointer(position.add(pos), location);
     }
 
     public Position getPosition() {
@@ -31,47 +36,27 @@ public class FeaturePointer implements BoardPointer {
         return location;
     }
 
-    public boolean match(Feature f) {
-        if (f == null) return false;
-        return f.getLocation().equals(location) && f.getTile().getPosition().equals(position);
-    }
+
+
 
     @Override
     public String toString() {
-        return new StringBuilder().append("[x=").append(position.x).append(",y=")
-                .append(position.y).append(",").append(location).append("]").toString();
+        return String.format("[x=%s,y=%s,loc=%s]", position.x, position.y, location);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result
-                + ((location == null) ? 0 : location.hashCode());
-        result = prime * result
-                + ((position == null) ? 0 : position.hashCode());
-        return result;
+        return Objects.hash(position, location);
     }
 
     @Override
     public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
+        if (this == obj) return true;
+        if (obj == null) return false;
+        if (getClass() != obj.getClass()) return false;
         FeaturePointer other = (FeaturePointer) obj;
-        if (location == null) {
-            if (other.location != null)
-                return false;
-        } else if (!location.equals(other.location))
-            return false;
-        if (position == null) {
-            if (other.position != null)
-                return false;
-        } else if (!position.equals(other.position))
-            return false;
+        if (!Objects.equals(location, other.location)) return false;
+        if (!Objects.equals(position, other.position)) return false;
         return true;
     }
 

@@ -73,7 +73,7 @@ class LegacyAiScoreContext extends AbstractScoreContext implements CompletableSc
             if (side.intersect(completable.getLocation()) != null) {
                 if (completable.getEdges()[i] == null) {
                     //side is open
-                    Position p = completable.getTile().getPosition().add(side);
+                    Position p = completable.getTile().getPosition().translate(side);
                     if (!openEdgesChanceToClose.containsKey(p)) {
                         OpenEdge edge = new OpenEdge();
                         edge.chanceToClose = aiPlayer.chanceToPlaceTile(game, p);

@@ -23,7 +23,7 @@ public final class ShrineCapability extends Capability {
     }
 
     @Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {
             ((Cloister)feature).setShrine(attributeBoolValue(xml, "shrine"));
         }

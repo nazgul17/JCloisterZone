@@ -13,6 +13,7 @@ import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 
+
 public abstract class AbstractScoreContext extends SelfReturningVisitor implements ScoreContext {
 
     protected final Game game;

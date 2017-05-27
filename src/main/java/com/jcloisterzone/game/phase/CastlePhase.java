@@ -57,7 +57,7 @@ public class CastlePhase extends Phase {
                 locs = new HashSet<>();
                 currentTileCastleBases.put(owner, locs);
             }
-            locs.add(f.getLocation());
+            locs.translate(f.getLocation());
         }
         if (currentTileCastleBases == null) {
             next();

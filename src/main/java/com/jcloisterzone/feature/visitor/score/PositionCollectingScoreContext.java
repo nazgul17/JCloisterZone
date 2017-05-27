@@ -47,7 +47,7 @@ public abstract class PositionCollectingScoreContext extends MultiTileScoreConte
 
     @Override
     public VisitResult visit(Feature feature) {
-        positions.add(feature.getTile().getPosition());
+        positions.translate(feature.getTile().getPosition());
         if (((Completable)feature).isOpen()) {
             isCompleted = false;
         }

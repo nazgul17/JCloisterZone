@@ -1,7 +1,9 @@
 package com.jcloisterzone.board;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,12 +27,11 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 import static com.jcloisterzone.XMLUtils.attributeIntValue;
 
 
-public class TileFactory {
+public class TileDefinitionBuilder {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Tile tile; //context
-    private ArrayList<Feature> features;
+    private Map<Location, Feature> features;
 
     private Game game;
 
@@ -43,13 +44,11 @@ public class TileFactory {
         this.game = game;
     }
 
-    public Tile createTile(Expansion expansion, String fullId, Element xml, boolean isTunnelActive) {
-        Tile tile = new Tile(expansion, fullId);
-        this.tile = tile;
-        features = new ArrayList<>();
-        tile.setGame(game);
+    public TileDefinition createTile(Expansion expansion, String tileId, Element xml, boolean isTunnelActive) {
 
-        logger.debug("Creating " + tile.getId());
+        features = new HashMap<>();
+
+        logger.debug("Creating " + tileId);
 
         NodeList nl;
         nl = xml.getElementsByTagName("cloister");
@@ -72,19 +71,20 @@ public class TileFactory {
         for (int i = 0; i < nl.getLength(); i++) {
             processTowerElement((Element) nl.item(i));
         }
-        for (Feature f : game.extendFeatures(tile)) {
-            TileFeature tileFeature = (TileFeature) f;
-            tileFeature.setId(game.idSequnceNextVal());
-            tileFeature.setTile(tile);
-            features.add(tileFeature);
-        }
+        //TODO Count
+//        for (Feature f : game.extendFeatures(tile)) {
+//            TileFeature tileFeature = (TileFeature) f;
+//            tileFeature.setId(game.idSequnceNextVal());
+//            tileFeature.setTile(tile);
+//            features.add(tileFeature);
+//        }
 
-
-        tile.setFeatures(features);
+        io.vavr.collection.HashMap<Location, Feature> _features = io.vavr.collection.HashMap.ofAll(features);
+        TileDefinition tileDef = new TileDefinition(expansion, tileId, _features);
 
         features = null;
-        this.tile = null; //clear context
-        return tile;
+
+        return tileDef;
     }
 
     private void processCloisterElement(Element e) {
@@ -92,7 +92,7 @@ public class TileFactory {
         cloister.setId(game.idSequnceNextVal());
         cloister.setTile(tile);
         cloister.setLocation(Location.CLOISTER);
-        features.add(cloister);
+        features.translate(cloister);
         game.initFeature(tile, cloister, e);
     }
 
@@ -101,7 +101,7 @@ public class TileFactory {
         tower.setId(game.idSequnceNextVal());
         tower.setTile(tile);
         tower.setLocation(Location.TOWER);
-        features.add(tower);
+        features.translate(tower);
         game.initFeature(tile, tower, e);
     }
 
@@ -175,7 +175,7 @@ public class TileFactory {
         //logger.debug(tile.getId() + "/" + piece.getClass().getSimpleName() + "/"  + loc);
         piece.setTile(tile);
         piece.setLocation(loc);
-        features.add(piece);
+        features.translate(piece);
     }
 
 }

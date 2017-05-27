@@ -16,7 +16,6 @@ import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TunnelAction;
 import com.jcloisterzone.board.Location;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.TunnelPiecePlacedEvent;
 import com.jcloisterzone.feature.Feature;
@@ -79,7 +78,7 @@ public final class TunnelCapability extends Capability {
     }
 
     @Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (!(feature instanceof Road)) return;
         Road road = (Road) feature;
         if (road.isTunnelEnd()) {

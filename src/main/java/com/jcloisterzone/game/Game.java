@@ -473,20 +473,21 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public void initFeature(Tile tile, Feature feature, Element xml) {
-        if (feature instanceof Farm && tile.getId().startsWith("CO.")) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
+        if (feature instanceof Farm && tileId.startsWith("CO.")) {
             //this is not part of Count capability because it is integral behaviour valid also when capability is off
-            ((Farm) feature).setAdjoiningCityOfCarcassonne(true);
+            feature = ((Farm) feature).setAdjoiningCityOfCarcassonne(true);
         }
         for (Capability cap: capabilities) {
-            cap.initFeature(tile, feature, xml);
+            feature = cap.initFeature(tileId, feature, xml);
         }
+        return feature;
     }
 
-    public List<Feature> extendFeatures(Tile tile) {
+    public List<Feature> extendFeatures(String tileId) {
         List<Feature> result = null;
         for (Capability cap: capabilities) {
-            List<Feature> list = cap.extendFeatures(tile);
+            List<Feature> list = cap.extendFeatures(tileId);
             if (!list.isEmpty()) {
                 if (result == null) {
                     result = new ArrayList<>();

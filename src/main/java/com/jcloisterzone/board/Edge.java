@@ -1,39 +1,51 @@
 package com.jcloisterzone.board;
 
-public enum Edge {
-    ROAD(1, 'R'),
-    CITY(2, 'C'),
-    FARM(4, 'F'),
-    RIVER(8, 'I'),
-    UNKNOWN(15, '?');
 
-    private int mask;
-    private char ch;
+import java.util.Objects;
 
-    Edge(int mask, char ch) {
-        this.mask = mask;
-        this.ch = ch;
-    }
+import com.jcloisterzone.Immutable;
 
-    public int getMask() {
-        return mask;
-    }
+@Immutable
+public class Edge {
+    /** Edge between to positions */
 
-    public char asChar() {
-        return ch;
-    }
+    final Position p1, p2;
 
-    static Edge forMask(int mask) {
-        for (Edge e : values()) {
-            if (e.mask == mask) return e;
+    public Edge(Position p1, Position p2) {
+        assert !p1.equals(p2);
+        if (p1.compareTo(p2) > 0) {
+            this.p1 = p2;
+            this.p2 = p1;
+        } else {
+            this.p1 = p1;
+            this.p2 = p2;
         }
-        throw new IllegalArgumentException("Invalid Edge mask " + mask);
     }
 
-    static Edge forChar(int ch) {
-        for (Edge e : values()) {
-            if (e.ch == ch) return e;
-        }
-        throw new IllegalArgumentException("Unknow edge " + ch);
+    public Edge(Position pos, Location loc) {
+        this(pos, pos.add(loc));
+    }
+
+    public Edge translate(Position pos) {
+        return new Edge(p1.add(pos), p2.add(pos));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(p1, p2);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (obj == null) return false;
+        if (!(obj instanceof Edge)) return false;
+        Edge e = (Edge) obj;
+        return Objects.equals(p1, e.p1) && Objects.equals(p2, e.p2);
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Edge(%s, %s)", p1, p2);
     }
 }

@@ -1,93 +1,37 @@
 package com.jcloisterzone.feature;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
 
-import com.jcloisterzone.board.Location;
-import com.jcloisterzone.feature.visitor.FeatureVisitor;
-import com.jcloisterzone.feature.visitor.FeatureVisitor.VisitResult;
-import com.jcloisterzone.feature.visitor.FindMaster;
+import com.jcloisterzone.board.Edge;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.game.Game;
 
-public abstract class MultiTileFeature extends TileFeature implements Scoreable {
+import io.vavr.collection.List;
 
-    protected MultiTileFeature[] edges;
+public abstract class MultiTileFeature<T extends MultiTileFeature<?>> extends TileFeature implements Scoreable {
 
-    @Override
-    public void setLocation(Location location) {
-        super.setLocation(location);
+    protected final List<Edge> openEdges;
 
-        int edgeCount = 0;
-        for (Location side : getSides()) {
-            if (side.intersect(location) != null) {
-                edgeCount++;
-            }
-        }
-        edges = new MultiTileFeature[edgeCount];
+    public MultiTileFeature(Game game, List<FeaturePointer> places, List<Edge> openEdges) {
+        super(game, places);
+        this.openEdges = openEdges;
     }
 
-    public MultiTileFeature[] getEdges() {
-        return edges;
+    public abstract T merge(T f);
+
+
+    public List<Edge> getOpenEdges() {
+        return openEdges;
     }
 
-    public boolean containsEdge(MultiTileFeature f) {
-        for (MultiTileFeature edge : edges) {
-            if (edge == f) return true;
-        }
-        return false;
+    // immutable helpers
+
+    protected List<Edge> mergeEdges(T obj) {
+        return openEdges.appendAll(obj.openEdges).distinct();
     }
 
-    protected Location[] getSides() {
-        return Location.sides();
-    }
-
-    private int getEdgeIndex(Location edge) {
-        int i = 0;
-        for (Location side : getSides()) {
-            if (side.intersect(getLocation()) != null) {
-                if (side.isPartOf(edge)) return i;
-                i++;
-            }
-        }
-        throw new IllegalArgumentException("No such edge " + edge);
-    }
-
-    public void setEdge(Location loc, MultiTileFeature piece) {
-        edges[getEdgeIndex(loc)] = piece;
-    }
-
-    public void setAbbeyEdge(Location loc) {
-        edges[getEdgeIndex(loc)] = this; //special value
-    }
-
-
-    @Override
-    public Feature getMaster() {
-        return walk(new FindMaster());
-    }
-
-    @Override
-    public <T> T walk(FeatureVisitor<T> visitor) {
-        Stack<MultiTileFeature> stack = new Stack<MultiTileFeature>();
-        //TODO implement by bit set or marking - this method can be optimized
-        Set<MultiTileFeature> visited = new HashSet<>();
-        MultiTileFeature previous = null; //little optimization - less touching set
-        stack.push(this);
-        visited.add(this);
-        while (!stack.isEmpty()) {
-            MultiTileFeature nextToVisit = stack.pop();
-            if (visitor.visit(nextToVisit) == VisitResult.STOP) {
-                break;
-            }
-            for (MultiTileFeature feature : nextToVisit.edges) {
-                if (feature != null && feature != nextToVisit && previous != feature && ! visited.contains(feature)) {
-                    visited.add(feature);
-                    stack.push(feature);
-                }
-            }
-            previous = nextToVisit;
-        }
-        return visitor.getResult();
+    protected List<Edge> placeOnBoardEdges(Position pos) {
+        return openEdges.map(edge -> edge.translate(pos));
     }
 
 }

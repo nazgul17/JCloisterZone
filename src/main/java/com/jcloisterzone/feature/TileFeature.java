@@ -1,134 +1,57 @@
 package com.jcloisterzone.feature;
 
 import java.lang.reflect.Method;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
 
-import com.google.common.collect.ObjectArrays;
-import com.jcloisterzone.board.Location;
-import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.feature.visitor.FeatureVisitor;
-import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.Immutable;
+import com.jcloisterzone.board.Edge;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.Game;
 
+import io.vavr.collection.List;
+
+@Immutable
 public abstract class TileFeature implements Feature {
 
-    private int id; //unique feature identifier
-    private Tile tile;
-    private Location location;
-    private Feature[] neighbouring;
+    protected final Game game; //Game is not immutable! is it ok?
+    protected final List<FeaturePointer> places;
 
-    private List<Meeple> meeples = Collections.emptyList();
+    public TileFeature(Game game, List<FeaturePointer> places) {
+        this.game = game;
+        this.places = places;
+    }
 
-    protected Game getGame() {
-        return tile.getGame();
+    public Game getGame() {
+        return game;
     }
 
     @Override
-    public <T> T walk(FeatureVisitor<T> visitor) {
-        visitor.visit(this);
-        return visitor.getResult();
-    }
-
-    @Override
-    public Feature getMaster() {
-        return this;
-    }
-
-    @Override
-    public void addMeeple(Meeple meeple) {
-        if (meeples.isEmpty()) {
-            meeples = Collections.singletonList(meeple);
-            meeple.setIndex(0);
-        } else {
-            //rare case (eg. Crop circles allows this) when more then one follower stay on same feature
-            int index = -1;
-            for (Meeple m : meeples) {
-                if (m.getIndex() > index) index = m.getIndex();
-            }
-            meeples = new LinkedList<>(meeples);
-            meeples.add(meeple);
-            meeple.setIndex(index+1);
-        }
-    }
-
-    @Override
-    public void removeMeeple(Meeple meeple) {
-        if (meeples.size() == 1) {
-            assert meeples.get(0) == meeple;
-            meeples = Collections.emptyList();
-        } else {
-            meeples.remove(meeple);
-        }
-        meeple.setIndex(null);
-    }
-
-    @Override
-    public final List<Meeple> getMeeples() {
-        return meeples;
-    }
-
-    public Feature[] getNeighbouring() {
-        return neighbouring;
-    }
-
-    public void addNeighbouring(Feature[] neighbouring) {
-        if (this.neighbouring == null) {
-            this.neighbouring = neighbouring;
-        } else {
-            this.neighbouring = ObjectArrays.concat(this.neighbouring, neighbouring, Feature.class);
-        }
-    }
-
-    public Tile getTile() {
-        return tile;
-    }
-
-    public void setTile(Tile tile) {
-        assert this.tile == null;
-        this.tile = tile;
-    }
-
-    public Location getLocation() {
-        return location.rotateCW(tile.getRotation());
-    }
-
-    public Location getRawLocation() {
-        return location;
-    }
-
-    public void setLocation(Location location) {
-        assert this.location == null;
-        this.location = location;
-    }
-
-    @Override
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    @Override
-    public int hashCode() {
-        return id;
+    public List<FeaturePointer> getPlaces() {
+       return places;
     }
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+"@"+getId();
+        return getClass().getSimpleName()+"@"+hashCode();
     }
 
-    public static String getLocalizedNamefor (Class<? extends Feature> feature) {
+    public static String getLocalizedNamefor(Class<? extends Feature> feature) {
         try {
             Method m = feature.getMethod("name");
             return (String) m.invoke(null);
         } catch (Exception e) {
             return feature.getSimpleName();
         }
+    }
+
+    // immutable helpers
+
+    protected List<FeaturePointer> mergePlaces(TileFeature obj) {
+        return this.places.appendAll(obj.places);
+    }
+
+    protected List<FeaturePointer> placeOnBoardPlaces(Position pos) {
+        return this.places.map(fp -> fp.translate(pos));
     }
 
 }

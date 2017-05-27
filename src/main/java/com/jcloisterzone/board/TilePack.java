@@ -1,6 +1,7 @@
 package com.jcloisterzone.board;
 
-import java.util.Set;
+import io.vavr.Tuple2;
+import io.vavr.collection.Set;
 
 public interface TilePack {
 
@@ -10,14 +11,14 @@ public interface TilePack {
     boolean isEmpty();
     int size();
 
-    Tile drawTile(int index);
-    Tile drawTile(String groupId, String tileId);
-    Tile drawTile(String tileId);
+    Tuple2<TileDefinition, TilePack> drawTile(int index);
+    Tuple2<TileDefinition, TilePack> drawTile(String groupId, String tileId);
+    Tuple2<TileDefinition, TilePack> drawTile(String tileId);
 
     /* special Abbey related methods - refactor je to jen kvuli klientovi */
-    Tile getAbbeyTile();
+    Tuple2<TileDefinition, TilePack> getAbbeyTile();
 
-    void setGroupState(String groupId, TileGroupState state);
+    TilePack setGroupState(String groupId, TileGroupState state);
     TileGroupState getGroupState(String groupId);
     Set<String> getGroups();
 

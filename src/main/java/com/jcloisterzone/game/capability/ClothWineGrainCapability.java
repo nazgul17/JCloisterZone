@@ -10,7 +10,6 @@ import org.w3c.dom.NodeList;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.TradeResource;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.FeatureCompletedEvent;
 import com.jcloisterzone.event.TradeResourceEvent;
@@ -77,7 +76,7 @@ public class ClothWineGrainCapability extends Capability {
     }
 
     @Override
-    public void initFeature(Tile tile, Feature feature, Element xml) {
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City && xml.hasAttribute("resource")) {
             City city = (City) feature;
             String val = xml.getAttribute("resource");

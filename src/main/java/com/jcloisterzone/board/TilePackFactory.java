@@ -38,7 +38,7 @@ public class TilePackFactory {
 
     public static final String DEFAULT_TILE_GROUP = "default";
 
-    private final TileFactory tileFactory = new TileFactory();
+    private final TileDefinitionBuilder tileFactory = new TileDefinitionBuilder();
 
     protected Game game;
     protected Config config;
@@ -82,7 +82,7 @@ public class TilePackFactory {
         for (int i = 0; i < nl.getLength(); i++) {
             Element tileElement = (Element) nl.item(i);
             String tileId = getTileId(expansion, tileElement);
-            if (Tile.ABBEY_TILE_ID.equals(tileId)) {
+            if (TileDefinition.ABBEY_TILE_ID.equals(tileId)) {
                 result.add(new TileCount(tileId, null));
             } else {
                 result.add(new TileCount(tileId, getTileCount(tileElement, tileId)));
@@ -98,7 +98,7 @@ public class TilePackFactory {
         for (int i = 0; i < nl.getLength(); i++) {
             Element tileElement = (Element) nl.item(i);
             String tileId = getTileId(expansion, tileElement);
-            if (!Tile.ABBEY_TILE_ID.equals(tileId)) {
+            if (!TileDefinition.ABBEY_TILE_ID.equals(tileId)) {
                 size += getTileCount(tileElement, tileId);
             }
         }
@@ -150,7 +150,7 @@ public class TilePackFactory {
     }
 
     protected int getTileCount(Element card, String tileId) {
-        if (Tile.ABBEY_TILE_ID.equals(tileId)) {
+        if (TileDefinition.ABBEY_TILE_ID.equals(tileId)) {
             return PlayerSlot.COUNT;
         } else {
             return attributeIntValue(card, "count", 1);
@@ -163,37 +163,20 @@ public class TilePackFactory {
         return attributeStringValue(card, "group", DEFAULT_TILE_GROUP);
     }
 
-    public List<Tile> createTiles(Expansion expansion, String tileId, Element card, Map<String, Integer> discardList) {
+    public TileDefinition createTileDefinition(Expansion expansion, String tileId, Element tileElement) {
         if (usedIds.contains(tileId)) {
             throw new IllegalArgumentException("Multiple occurences of id " + tileId + " in tile definition xml.");
         }
         usedIds.add(tileId);
 
-        int count = getTileCount(card, tileId);
-
-        if (discardList.containsKey(tileId)) {
-            int n = discardList.get(tileId);
-            count -= n;
-            if (count <= 0) { //discard can be in multiple expansions and than can be nagative
-                return Collections.emptyList();
-            }
+        TileDefinition tileDef = tileFactory.createTile(expansion, tileId, tileElement, isTunnelActive(expansion));
+        try {
+            tileDef = game.initTile(tileDef, tileElement);
+        } catch (RemoveTileException ex) {
+            return null;
         }
 
-        List<Tile> tiles = new ArrayList<Tile>(count);
-        for (int j = 0; j < count; j++) {
-            Tile tile = tileFactory.createTile(expansion, tileId, card, isTunnelActive(expansion));
-            try {
-                game.initTile(tile, card); //must be called before rotation!
-
-                //set after full inicialization
-                tile.setSymmetry(TileSymmetry.forTile(tile));
-                tile.setEdgePattern(EdgePattern.forTile(tile));
-                tiles.add(tile);
-            } catch (RemoveTileException ex) {
-                //empty
-            }
-        }
-        return tiles;
+        return tileDef;
     }
 
     public LinkedList<Position> getPreplacedPositions(String tileId, Element card) {
@@ -208,8 +191,8 @@ public class TilePackFactory {
         return result;
     }
 
-    public DefaultTilePack createTilePack() {
-        DefaultTilePack tilePack = new DefaultTilePack();
+    public TilePack createTilePack() {
+        //DefaultTilePack tilePack = new DefaultTilePack();
 
         Map<String, Integer> discardList = getDiscardTiles();
 
@@ -219,14 +202,28 @@ public class TilePackFactory {
             for (int i = 0; i < nl.getLength(); i++) {
                 Element tileElement = (Element) nl.item(i);
                 if (!game.hasCapability(RiverCapability.class)) {
-                    //if not playing river skip rivet tiles to prevent wrong tile count in pack (GQ11 rivers)
+                    //skip river tiles if not playing River to prevent wrong tile count in pack (GQ11 rivers)
                     if (tileElement.getElementsByTagName("river").getLength() > 0) {
                         continue;
                     }
                 }
+
                 String tileId = getTileId(expansion, tileElement);
                 LinkedList<Position> positions = getPreplacedPositions(tileId, tileElement);
-                for (Tile tile : createTiles(expansion, tileId, tileElement, discardList)) {
+                int count = getTileCount(tileElement, tileId);
+                if (discardList.containsKey(tileId)) {
+                    int n = discardList.get(tileId);
+                    count -= n;
+                    if (count <= 0) { //discard can be in multiple expansions and than can be nagative
+                        continue;
+                    }
+                }
+
+                TileDefinition tileDef = createTileDefinition(expansion, tileId, tileElement);
+                if (tileDef == null) {
+                    continue;
+                }
+                //for {
                     tilePack.addTile(tile, getTileGroup(tile, tileElement));
                     if (positions != null && !positions.isEmpty()) {
                         Position pos = positions.removeFirst();
@@ -252,7 +249,7 @@ public class TilePackFactory {
                         logger.info("Setting initial placement {} for {}", pos, tile);
                         tile.setPosition(pos);
                     }
-                }
+                //}
             }
         }
         return tilePack;

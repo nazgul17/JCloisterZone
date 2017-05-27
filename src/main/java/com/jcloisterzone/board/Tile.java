@@ -72,7 +72,7 @@ public class Tile /*implements Cloneable*/ {
         return pt._1.getEdgePattern().rotate(pt._2);
     }
 
-    public Edge getEdge(Location side) {
+    public EdgeType getEdge(Location side) {
         return getEdgePattern().at(side, rotation);
     }
 
@@ -171,17 +171,9 @@ public class Tile /*implements Cloneable*/ {
         }
     }
 
-    protected void rotate() {
-        rotation = rotation.next();
-    }
-
     public void setRotation(Rotation rotation) {
         assert rotation != null;
         this.rotation =  rotation;
-    }
-
-    public Rotation getRotation() {
-        return rotation;
     }
 
     public TileSymmetry getSymmetry() {
