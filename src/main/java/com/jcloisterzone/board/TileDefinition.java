@@ -1,9 +1,12 @@
 package com.jcloisterzone.board;
 
 import com.jcloisterzone.Expansion;
+import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Road;
 
-import io.vavr.collection.HashMap;
+import io.vavr.Tuple2;
+import io.vavr.collection.Map;
 
 public class TileDefinition {
 
@@ -14,7 +17,7 @@ public class TileDefinition {
     private final EdgePattern edgePattern;
     private final TileSymmetry symmetry;
 
-    private final HashMap<Location, Feature> features;
+    private final Map<Location, Feature> initialFeatures;
 
     //expansions data - maybe some map instead ? but still it is only few tiles
     private final TileTrigger trigger;
@@ -25,12 +28,12 @@ public class TileDefinition {
 
 
     public TileDefinition(Expansion origin, String id,
-        HashMap<Location, Feature> features,
+        Map<Location, Feature> initialFeatures,
         TileTrigger trigger, Location river, Location flier, Location windRose,
         Class<? extends Feature> cornCircle) {
         this.origin = origin;
         this.id = id;
-        this.features = features;
+        this.initialFeatures = initialFeatures;
 
         this.trigger = trigger;
         this.river = river;
@@ -38,27 +41,22 @@ public class TileDefinition {
         this.windRose = windRose;
         this.cornCircle = cornCircle;
 
-     // IMMUTABLE TODO
-        this.edgePattern = null;
-        this.symmetry = null;
+        this.edgePattern = computeEdgePattern();
+        this.symmetry = this.edgePattern.getSymmetry();
     }
 
+    public boolean isAbbeyTile() {
+        return id.equals(ABBEY_TILE_ID);
+    }
 
     @Override
     public int hashCode() {
         return id.hashCode();
     }
 
-
-    public boolean isAbbeyTile() {
-        return id.equals(ABBEY_TILE_ID);
-    }
-
-
     public Expansion getOrigin() {
         return origin;
     }
-
 
     public String getId() {
         return id;
@@ -75,8 +73,8 @@ public class TileDefinition {
     }
 
 
-    public HashMap<Location, Feature> getFeatures() {
-        return features;
+    public Map<Location, Feature> getInitialFeatures() {
+        return initialFeatures;
     }
 
 
@@ -104,5 +102,26 @@ public class TileDefinition {
         return cornCircle;
     }
 
+    private Edge computeSideEdge(Location loc) {
+        if (river != null && loc.isPartOf(river)) {
+            return Edge.RIVER;
+        }
 
+        Tuple2<Location, Feature> tuple = initialFeatures.find(item -> loc.isPartOf(item._1)).getOrNull();
+
+        if (tuple == null) return Edge.FARM;
+        if (tuple._2 instanceof Road) return Edge.ROAD;
+        if (tuple._2 instanceof City) return Edge.CITY;
+
+        throw new IllegalArgumentException();
+    }
+
+    private EdgePattern computeEdgePattern() {
+        return new EdgePattern(
+            computeSideEdge(Location.N),
+            computeSideEdge(Location.E),
+            computeSideEdge(Location.S),
+            computeSideEdge(Location.W)
+        );
+    }
 }

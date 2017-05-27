@@ -42,6 +42,13 @@ public class EdgePattern {
         };
     }
 
+    public TileSymmetry getSymmetry() {
+        Edge[] edges = getEdges();
+        if (edges[0] == edges[1] && edges[0] == edges[2] && edges[0] == edges[3]) return TileSymmetry.S4;
+        if (edges[0] == edges[2] && edges[1] == edges[3]) return TileSymmetry.S2;
+        return TileSymmetry.NONE;
+    }
+
     public Edge at(Location loc) {
         if (loc == Location.N) return Edge.forMask(mask & 15);
         if (loc == Location.E) return Edge.forMask((mask >> 4) & 15);

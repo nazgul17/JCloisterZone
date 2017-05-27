@@ -31,4 +31,14 @@ public class EdgePatternTest {
         assertTrue(EdgePattern.fromString("????").isMatching(EdgePattern.fromString("IRIF")));
     }
 
+    @Test
+    public void getSymmetry() {
+        assertEquals(TileSymmetry.S4, EdgePattern.fromString("CCCC").getSymmetry());
+        assertEquals(TileSymmetry.S4, EdgePattern.fromString("RRRR").getSymmetry());
+        assertEquals(TileSymmetry.S2, EdgePattern.fromString("CICI").getSymmetry());
+        assertEquals(TileSymmetry.NONE, EdgePattern.fromString("CIRI").getSymmetry());
+        assertEquals(TileSymmetry.NONE, EdgePattern.fromString("FRCR").getSymmetry());
+    }
+
 }
+
