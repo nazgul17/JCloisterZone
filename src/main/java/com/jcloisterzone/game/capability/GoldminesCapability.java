@@ -21,6 +21,7 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.event.GoldChangeEvent;
 import com.jcloisterzone.feature.Castle;
@@ -62,7 +63,7 @@ public class GoldminesCapability  extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("goldmine").getLength() > 0) {
             tile.setTrigger(TileTrigger.GOLDMINE);
         }

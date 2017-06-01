@@ -32,7 +32,7 @@ public abstract class TileFeature implements Feature {
 
     @Override
     public String toString() {
-        return getClass().getSimpleName()+"@"+hashCode();
+        return String.format("%s%s", getClass().getSimpleName(), places);
     }
 
     public static String getLocalizedNamefor(Class<? extends Feature> feature) {

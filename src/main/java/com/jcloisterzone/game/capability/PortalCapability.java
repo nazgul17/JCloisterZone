@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
@@ -35,20 +36,21 @@ public class PortalCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("portal").getLength() > 0) {
-            tile.setTrigger(TileTrigger.PORTAL);
+            tile = tile.setTileTrigger(TileTrigger.PORTAL);
         }
+        return tile;
     }
 
     @Override
     public void handleEvent(Event event) {
-    	if (event.isUndo() && event instanceof MeepleEvent) {
-    		MeepleEvent ev = (MeepleEvent) event;
-	    	if (ev.getTo() == null && game.getCurrentTile().hasTrigger(TileTrigger.PORTAL)) {
-	    		portalUsed = false;
-	    	}
-    	}
+        if (event.isUndo() && event instanceof MeepleEvent) {
+            MeepleEvent ev = (MeepleEvent) event;
+            if (ev.getTo() == null && game.getCurrentTile().hasTrigger(TileTrigger.PORTAL)) {
+                portalUsed = false;
+            }
+        }
     }
 
 

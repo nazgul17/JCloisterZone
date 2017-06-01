@@ -12,18 +12,19 @@ import com.jcloisterzone.game.Game;
 
 public class PigHerdCapability extends Capability {
 
-	public PigHerdCapability(Game game) {
-		super(game);
-	}
+    public PigHerdCapability(Game game) {
+        super(game);
+    }
 
-	@Override
+    @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Farm) {
-        	if (attributeBoolValue(xml, "pig")) {
-	            if (game.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId.getId())) {
-	            	((Farm) feature).setPigHerd(true);
-	            }
+            if (attributeBoolValue(xml, "pig")) {
+                if (game.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId)) {
+                    feature = ((Farm) feature).setPigHerds(1);
+                }
             }
         }
+        return feature;
     }
 }

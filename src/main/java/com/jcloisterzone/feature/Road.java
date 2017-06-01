@@ -1,32 +1,31 @@
 package com.jcloisterzone.feature;
 
+import static com.jcloisterzone.ui.I18nUtils._;
+
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Edge;
-import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.RoadScoreContext;
 import com.jcloisterzone.game.Game;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
-
-import static com.jcloisterzone.ui.I18nUtils._;
+import io.vavr.collection.Map;
 
 public class Road extends CompletableFeature<Road> {
 
     private final boolean inn;
-    /*
-     * 0 - no tunnel -1 - open tunnel n - player token n+100 - player token B (2
-     * players game)
-     */
-//    private int tunnelEnd;
-//    public static final int OPEN_TUNNEL = -1;
-    // IMMUTABLE TODO Tunnel
+    private final Map<FeaturePointer, TunnelEnd> tunnelEnds;
 
+    public Road(Game game, List<FeaturePointer> places, List<Edge> openEdges) {
+        this(game, places, openEdges, false, HashMap.<FeaturePointer, TunnelEnd>empty());
+    }
 
-    public Road(Game game, List<FeaturePointer> places, List<Edge> openEdges, boolean inn) {
+    public Road(Game game, List<FeaturePointer> places, List<Edge> openEdges, boolean inn, Map<FeaturePointer, TunnelEnd> tunnelEnds) {
         super(game, places, openEdges);
         this.inn = inn;
+        this.tunnelEnds = tunnelEnds;
     }
 
     @Override
@@ -35,7 +34,8 @@ public class Road extends CompletableFeature<Road> {
             game,
             mergePlaces(road),
             mergeEdges(road),
-            inn || road.inn
+            inn || road.inn,
+            mergeTunnelEnds(road)
         );
     }
 
@@ -45,7 +45,8 @@ public class Road extends CompletableFeature<Road> {
             game,
             placeOnBoardPlaces(pos),
             placeOnBoardEdges(pos),
-            inn
+            inn,
+            placeOnBoardTunnelEnds(pos)
         );
     }
 
@@ -54,16 +55,18 @@ public class Road extends CompletableFeature<Road> {
     }
 
     public Road setInn(boolean inn) {
-        return new Road(game, places, openEdges, inn);
+        if (this.inn == inn) return this;
+        return new Road(game, places, openEdges, inn, tunnelEnds);
     }
 
-//    public int getTunnelEnd() {
-//        return tunnelEnd;
-//    }
-//
-//    public void setTunnelEnd(int tunnelEnd) {
-//        this.tunnelEnd = tunnelEnd;
-//    }
+    public Map<FeaturePointer, TunnelEnd> getTunnelEnds() {
+        return tunnelEnds;
+    }
+
+    public Road setTunnelEnds(Map<FeaturePointer, TunnelEnd> tunnelEnds) {
+        return new Road(game, places, openEdges, inn, tunnelEnds);
+    }
+
 //
 //    public boolean isTunnelEnd() {
 //        return tunnelEnd != 0;
@@ -72,8 +75,7 @@ public class Road extends CompletableFeature<Road> {
 //    public boolean isTunnelOpen() {
 //        return tunnelEnd == OPEN_TUNNEL;
 //    }
-
-
+//
 //    public void setTunnelEdge(MultiTileFeature f) {
 //        edges[edges.length - 1] = f;
 //    }
@@ -90,5 +92,15 @@ public class Road extends CompletableFeature<Road> {
 
     public static String name() {
         return _("Road");
+    }
+
+    // immutable helpers
+
+    protected Map<FeaturePointer, TunnelEnd> mergeTunnelEnds(Road road) {
+        return tunnelEnds.merge(road.tunnelEnds);
+    }
+
+    protected Map<FeaturePointer, TunnelEnd> placeOnBoardTunnelEnds(Position pos) {
+        return tunnelEnds.mapKeys(fp -> fp.translate(pos));
     }
 }

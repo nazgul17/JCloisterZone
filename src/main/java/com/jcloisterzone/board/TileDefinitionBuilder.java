@@ -1,9 +1,14 @@
 package com.jcloisterzone.board;
 
+import static com.jcloisterzone.XMLUtils.attributeBoolValue;
+import static com.jcloisterzone.XMLUtils.attributeIntValue;
+import static com.jcloisterzone.XMLUtils.contentAsLocations;
+import static com.jcloisterzone.XMLUtils.attrAsLocations;
+
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,27 +16,27 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.jcloisterzone.Expansion;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
-import com.jcloisterzone.feature.TileFeature;
 import com.jcloisterzone.feature.Tower;
-import com.jcloisterzone.game.CustomRule;
+import com.jcloisterzone.feature.TunnelEnd;
 import com.jcloisterzone.game.Game;
 
-import static com.jcloisterzone.XMLUtils.asLocation;
-import static com.jcloisterzone.XMLUtils.asLocations;
-import static com.jcloisterzone.XMLUtils.attributeBoolValue;
-import static com.jcloisterzone.XMLUtils.attributeIntValue;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
 
 
 public class TileDefinitionBuilder {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Map<Location, Feature> features;
+    private java.util.Map<Location, Feature> features;
+    private String tileId;
 
     private Game game;
 
@@ -46,7 +51,8 @@ public class TileDefinitionBuilder {
 
     public TileDefinition createTile(Expansion expansion, String tileId, Element xml, boolean isTunnelActive) {
 
-        features = new HashMap<>();
+        features = new java.util.HashMap<>();
+        this.tileId = tileId;
 
         logger.debug("Creating " + tileId);
 
@@ -71,6 +77,8 @@ public class TileDefinitionBuilder {
         for (int i = 0; i < nl.getLength(); i++) {
             processTowerElement((Element) nl.item(i));
         }
+
+        //IMMUTABLE TODO
         //TODO Count
 //        for (Feature f : game.extendFeatures(tile)) {
 //            TileFeature tileFeature = (TileFeature) f;
@@ -83,99 +91,125 @@ public class TileDefinitionBuilder {
         TileDefinition tileDef = new TileDefinition(expansion, tileId, _features);
 
         features = null;
+        tileId = null;
 
         return tileDef;
     }
 
     private void processCloisterElement(Element e) {
-        Cloister cloister = new Cloister();
-        cloister.setId(game.idSequnceNextVal());
-        cloister.setTile(tile);
-        cloister.setLocation(Location.CLOISTER);
-        features.translate(cloister);
-        game.initFeature(tile, cloister, e);
+        Cloister cloister = new Cloister(
+            game,
+            List.of(new FeaturePointer(Position.ZERO, Location.CLOISTER))
+        );
+        cloister = (Cloister) game.initFeature(tileId, cloister, e);
+        features.put(Location.CLOISTER, cloister);
+
     }
 
     private void processTowerElement(Element e) {
-        Tower tower = new Tower();
-        tower.setId(game.idSequnceNextVal());
-        tower.setTile(tile);
-        tower.setLocation(Location.TOWER);
-        features.translate(tower);
-        game.initFeature(tile, tower, e);
+        Tower tower = new Tower(
+            game,
+            List.of(new FeaturePointer(Position.ZERO, Location.TOWER))
+        );
+        tower = (Tower) game.initFeature(tileId, tower, e);
+        features.put(Location.TOWER, tower);
     }
 
 
     private void processRoadElement(Element e, boolean isTunnelActive) {
-        String[] sides = asLocation(e);
-        //using tunnel argument for two cases, tunnel entrance and tunnel underpass - sides.lenght distinguish it
-        if (sides.length > 1 && isTunnelActive && attributeBoolValue(e, "tunnel")) {
-            for (String side: sides) {
-                String[] side_as_array = { side };
-                processRoadElement(side_as_array, e, true);
-            }
+        Stream<Location> sides = contentAsLocations(e);
+        //using tunnel argument for two cases, tunnel entrance and tunnel underpass - sides.length distinguish it
+        if (sides.toArray().length > 1 && isTunnelActive && attributeBoolValue(e, "tunnel")) {
+            sides.forEach(loc -> {
+                processRoadElement(Stream.of(loc), e, true);
+            });
         } else {
             processRoadElement(sides, e, isTunnelActive);
         }
     }
 
-    private void processRoadElement(String[] sides, Element e, boolean isTunnelActive) {
-        //Road road = new Road(tile, sides.length, sides.length == 1 && attributeBoolValue(e, "tunnel"));
-        Road road = new Road();
-        road.setId(game.idSequnceNextVal());
+    private void processRoadElement(Stream<Location> sides, Element e, boolean isTunnelActive) {
+        FeaturePointer place = initPlaces(sides, Road.class);
+        Road road = new Road(
+            game,
+            List.of(place),
+            initOpenEdges(sides)
+        );
+
         if (isTunnelActive && attributeBoolValue(e, "tunnel")) {
-            road.setTunnelEnd(Road.OPEN_TUNNEL);
+            road = road.setTunnelEnds(HashMap.of(place, new TunnelEnd()));
         }
-        initFromDirList(road, sides);
-        game.initFeature(tile, road, e);
+
+        road = (Road) game.initFeature(tileId, road, e);
+        features.put(place.getLocation(), road);
     }
 
     private void processCityElement(Element e) {
-        String[] sides = asLocation(e);
-        City c = new City();
-        c.setId(game.idSequnceNextVal());
-        c.setPennants(attributeIntValue(e, "pennant", 0));
-        initFromDirList(c, sides);
-        game.initFeature(tile, c, e);
+        Stream<Location> sides = contentAsLocations(e);
+        FeaturePointer place = initPlaces(sides, City.class);
+
+        City city = new City(
+            game,
+            List.of(place),
+            initOpenEdges(sides),
+            attributeIntValue(e, "pennant", 0)
+        );
+
+        city = (City) game.initFeature(tileId, city, e);
+        features.put(place.getLocation(), city);
     }
 
     //TODO move expansion specific stuff
     private void processFarmElement(Element e) {
-        String[] sides = asLocation(e);
-        Farm farm = new Farm();
-        farm.setId(game.idSequnceNextVal());
+        Stream<Location> sides = contentAsLocations(e);
+        FeaturePointer place = initPlaces(sides, Farm.class);
+        List<FeaturePointer> adjoiningCities;
+
         if (e.hasAttribute("city")) {
-            List<City> cities = new ArrayList<>();
-            String[] citiesLocs = asLocations(e, "city");
-            for (int j = 0; j < citiesLocs.length; j++) {
-                Location d = Location.valueOf(citiesLocs[j]);
-                for (Feature p : features) {
-                    if (p instanceof City) {
-                        if (d.isPartOf(p.getLocation())) {
-                            cities.add((City) p);
-                            break;
+            //List<City> cities = new ArrayList<>();
+            Stream<Location> citiesLocs = attrAsLocations(e, "city");
+            citiesLocs = citiesLocs.map(partial -> {
+                for(Entry<Location, Feature> entry : features.entrySet()) {
+                    if (entry.getValue() instanceof City) {
+                        Location loc = entry.getKey();
+                        if (partial.isPartOf(loc)) {
+                            return loc;
                         }
                     }
                 }
-            }
-            farm.setAdjoiningCities(cities.toArray(new Feature[cities.size()]));
+                throw new IllegalArgumentException(String.format("Unable to match adjoining city %s for tile %s", partial, tileId));
+            });
+            adjoiningCities = List.ofAll(citiesLocs.map(
+                loc -> new FeaturePointer(Position.ZERO, loc)
+            ));
+        } else {
+            adjoiningCities = List.empty();
         }
-        initFromDirList(farm, sides);
-        game.initFeature(tile, farm, e);
+
+        Farm farm = new Farm(
+            game,
+            List.of(place),
+            adjoiningCities
+        );
+
+        farm = (Farm) game.initFeature(tileId, farm, e);
+        features.put(place.getLocation(), farm);
     }
 
-    private void initFromDirList(TileFeature piece, String[] sides) {
-        Location loc = null;
-        for (int i = 0; i < sides.length; i++) {
-            Location l = Location.valueOf(sides[i]);
-            assert !(piece instanceof Farm ^ l.isFarmLocation()) : String.format("Invalid location %s kind for tile %s", l, tile.getId());
-            assert l.intersect(loc) == null;
-            loc = loc == null ? l : loc.union(l);
-        }
+    private FeaturePointer initPlaces(Stream<Location> sides, Class<? extends Feature> clazz) {
+        AtomicReference<Location> locRef = new AtomicReference<Location>();
+        sides.forEach(l -> {
+            assert !(clazz.equals(Farm.class) ^ l.isFarmLocation()) : String.format("Invalid location %s kind for tile %s", l, tileId);
+            assert l.intersect(locRef.get()) == null;
+            locRef.set(locRef.get() == null ? l : locRef.get().union(l));
+        });
         //logger.debug(tile.getId() + "/" + piece.getClass().getSimpleName() + "/"  + loc);
-        piece.setTile(tile);
-        piece.setLocation(loc);
-        features.translate(piece);
+        return new FeaturePointer(Position.ZERO, locRef.get());
     }
 
+    private List<Edge> initOpenEdges(Stream<Location> sides) {
+        return List.ofAll(
+            sides.filter(loc -> loc.isEdgeLocation()).map(loc -> new Edge(Position.ZERO, loc))
+        );
+    }
 }

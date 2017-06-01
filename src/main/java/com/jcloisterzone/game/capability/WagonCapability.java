@@ -19,6 +19,7 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
@@ -29,7 +30,7 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-import static com.jcloisterzone.XMLUtils.asLocation;
+import static com.jcloisterzone.XMLUtils.contentAsLocations;
 
 public class WagonCapability extends Capability {
 
@@ -69,7 +70,7 @@ public class WagonCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         NodeList nl = xml.getElementsByTagName("wagon-move");
         assert nl.getLength() <= 1;
         if (nl.getLength() == 1) {
@@ -81,7 +82,7 @@ public class WagonCapability extends Capability {
     }
 
     private void processNeighbouringElement(Tile tile, Element e) {
-        String[] sides = asLocation(e);
+        String[] sides = contentAsLocations(e);
         Feature[] te = new Feature[sides.length];
         for (int i = 0; i < te.length; i++) {
             te[i] = tile.getFeaturePartOf(Location.valueOf(sides[i]));

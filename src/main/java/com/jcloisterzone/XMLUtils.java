@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -85,12 +86,14 @@ public class XMLUtils {
         return sw.toString();
     }
 
-    public static String[] asLocation(Element e) {
-        return e.getFirstChild().getNodeValue().trim().split("\\s+");
+    public static Stream<Location> contentAsLocations(Element e) {
+        String[] tokens = e.getFirstChild().getNodeValue().trim().split("\\s+");
+        return Stream.of(tokens).map(s -> Location.valueOf(s));
     }
 
-    public static String[] asLocations(Element e, String attr) {
-        return e.getAttribute(attr).trim().split("\\s+");
+    public static Stream<Location> attrAsLocations(Element e, String attr) {
+        String[] tokens = e.getAttribute(attr).trim().split("\\s+");
+        return Stream.of(tokens).map(s -> Location.valueOf(s));
     }
 
     public static String getTileId(Expansion expansion, Element xml) {

@@ -18,8 +18,9 @@ public class CathedralCapability extends Capability {
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City) {
-            ((City) feature).setCathedral(attributeBoolValue(xml, "cathedral"));
+            feature = ((City) feature).setCathedral(attributeBoolValue(xml, "cathedral"));
         }
+        return feature;
     }
 
 

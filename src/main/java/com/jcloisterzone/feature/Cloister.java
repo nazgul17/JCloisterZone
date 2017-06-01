@@ -19,6 +19,10 @@ public class Cloister extends TileFeature implements Completable {
     protected final boolean monastery;
     protected final boolean yagaHut;
 
+    public Cloister(Game game, List<FeaturePointer> places) {
+        this(game, places, false, false, false);
+    }
+
     public Cloister(Game game, List<FeaturePointer> places, boolean shrine, boolean monastery, boolean yagaHut) {
         super(game, places);
         this.shrine = shrine;
@@ -40,6 +44,7 @@ public class Cloister extends TileFeature implements Completable {
     }
 
     public Cloister setShrine(boolean shrine) {
+        if (this.shrine == shrine) return this;
         return new Cloister(game, places, shrine, monastery, yagaHut);
     }
 
@@ -48,6 +53,7 @@ public class Cloister extends TileFeature implements Completable {
     }
 
     public Cloister setMonastery(boolean monastery) {
+        if (this.monastery == monastery) return this;
         return new Cloister(game, places, shrine, monastery, yagaHut);
     }
 
@@ -56,6 +62,7 @@ public class Cloister extends TileFeature implements Completable {
     }
 
     public Cloister setYagaHut(boolean yagaHut) {
+        if (this.yagaHut == yagaHut) return this;
         return new Cloister(game, places, shrine, monastery, yagaHut);
     }
 

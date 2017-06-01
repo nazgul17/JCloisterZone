@@ -11,6 +11,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.event.Event;
@@ -83,7 +84,7 @@ public class DragonCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("volcano").getLength() > 0) {
             tile.setTrigger(TileTrigger.VOLCANO);
         }

@@ -10,6 +10,7 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
@@ -66,7 +67,7 @@ public class WindRoseCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.hasAttribute("wind-rose")) {
             Location loc = Location.valueOf(xml.getAttribute("wind-rose"));
             tile.setWindRose(loc);

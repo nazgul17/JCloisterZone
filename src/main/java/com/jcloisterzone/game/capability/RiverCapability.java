@@ -15,6 +15,7 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TileSymmetry;
@@ -36,12 +37,12 @@ public class RiverCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         NodeList nl;
         nl = xml.getElementsByTagName("river");
         assert nl.getLength() <= 1;
         if (nl.getLength() == 1) {
-            Location river = XMLUtils.union(XMLUtils.asLocation((Element) nl.item(0)));
+            Location river = XMLUtils.union(XMLUtils.contentAsLocations((Element) nl.item(0)));
             tile.setRiver(river);
             if (tile.getSymmetry() != TileSymmetry.NONE) {
                 if (tile.getRiver().isRotationOf(Location.WE)) {

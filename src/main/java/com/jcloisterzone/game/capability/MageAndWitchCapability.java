@@ -14,6 +14,7 @@ import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.action.MageAndWitchAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
@@ -40,7 +41,7 @@ public class MageAndWitchCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("mage").getLength() > 0) {
             tile.setTrigger(TileTrigger.MAGE);
         }

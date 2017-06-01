@@ -3,7 +3,6 @@ package com.jcloisterzone.feature;
 import static com.jcloisterzone.ui.I18nUtils._;
 
 import com.jcloisterzone.PointCategory;
-import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.FarmScoreContext;
@@ -11,7 +10,7 @@ import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.List;
 
-public class Farm extends MultiTileFeature<Farm> {
+public class Farm extends TileFeature implements MultiTileFeature<Farm> {
 
     // for unplaced features, references is to (0, 0)
     protected final List<FeaturePointer> adjoiningCities; //or castles
@@ -19,9 +18,13 @@ public class Farm extends MultiTileFeature<Farm> {
     protected final int pigHerds;
 
 
-    public Farm(Game game, List<FeaturePointer> places, List<Edge> openEdges, List<FeaturePointer> adjoiningCities,
+    public Farm(Game game, List<FeaturePointer> places, List<FeaturePointer> adjoiningCities) {
+        this(game, places, adjoiningCities, false, 0);
+    }
+
+    public Farm(Game game, List<FeaturePointer> places, List<FeaturePointer> adjoiningCities,
             boolean adjoiningCityOfCarcassonne, int pigHerds) {
-        super(game, places, openEdges);
+        super(game, places);
         this.adjoiningCities = adjoiningCities;
         this.adjoiningCityOfCarcassonne = adjoiningCityOfCarcassonne;
         this.pigHerds = pigHerds;
@@ -32,7 +35,6 @@ public class Farm extends MultiTileFeature<Farm> {
         return new Farm(
             game,
             mergePlaces(farm),
-            mergeEdges(farm),
             mergeAdjoiningCities(farm),
             adjoiningCityOfCarcassonne || farm.adjoiningCityOfCarcassonne,
             pigHerds + farm.pigHerds
@@ -44,7 +46,6 @@ public class Farm extends MultiTileFeature<Farm> {
         return new Farm(
             game,
             placeOnBoardPlaces(pos),
-            placeOnBoardEdges(pos),
             placeOnBoardAdjoiningCities(pos),
             adjoiningCityOfCarcassonne,
             pigHerds
@@ -56,7 +57,7 @@ public class Farm extends MultiTileFeature<Farm> {
     }
 
     public Farm setAdjoiningCities(List<FeaturePointer> adjoiningCities) {
-        return new Farm(game, places, openEdges, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
+        return new Farm(game, places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
     public int getPigHerds() {
@@ -64,7 +65,7 @@ public class Farm extends MultiTileFeature<Farm> {
     }
 
     public Farm setPigHerds(int pigHerds) {
-        return new Farm(game, places, openEdges, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
+        return new Farm(game, places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
     public boolean isAdjoiningCityOfCarcassonne() {
@@ -72,7 +73,7 @@ public class Farm extends MultiTileFeature<Farm> {
     }
 
     public Farm setAdjoiningCityOfCarcassonne(boolean adjoiningCityOfCarcassonne) {
-        return new Farm(game, places, openEdges, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
+        return new Farm(game, places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
     @Override

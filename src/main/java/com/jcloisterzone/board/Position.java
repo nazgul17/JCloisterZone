@@ -20,6 +20,8 @@ public class Position implements BoardPointer, Comparable<Position> {
 
     private static final long serialVersionUID = -345L;
 
+    public static Position ZERO = new Position(0, 0);
+
     public static final LinkedHashMap<Location, Position> ADJACENT = LinkedHashMap.of(
         Location.N, new Position(0, -1),
         Location.E, new Position(1, 0),

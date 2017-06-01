@@ -18,7 +18,8 @@ public class InnCapability extends Capability {
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Road) {
-            ((Road) feature).setInn(attributeBoolValue(xml, "inn"));
+            feature = ((Road) feature).setInn(attributeBoolValue(xml, "inn"));
         }
+        return feature;
     }
 }

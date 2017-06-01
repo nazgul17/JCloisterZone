@@ -43,8 +43,9 @@ public class PrincessCapability extends Capability {
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "princess")) {
-            ((City)feature).setPricenss(true);
+            feature = ((City)feature).setPrincess(true);
         }
+        return feature;
     }
 
     @Override

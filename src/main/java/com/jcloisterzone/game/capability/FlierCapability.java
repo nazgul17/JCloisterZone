@@ -13,6 +13,7 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
@@ -63,11 +64,11 @@ public class FlierCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         NodeList nl = xml.getElementsByTagName("flier");
         assert nl.getLength() <= 1;
         if (nl.getLength() == 1) {
-            Location flier = XMLUtils.union(XMLUtils.asLocation((Element) nl.item(0)));
+            Location flier = XMLUtils.union(XMLUtils.contentAsLocations((Element) nl.item(0)));
             tile.setFlier(flier);
         }
     }

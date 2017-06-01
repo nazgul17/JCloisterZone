@@ -9,6 +9,7 @@ import org.w3c.dom.NodeList;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
@@ -45,7 +46,7 @@ public class AbbeyCapability extends Capability {
 
     @Override
     public String getTileGroup(Tile tile) {
-        return tile.getId().equals(Tile.ABBEY_TILE_ID) ? "inactive": null;
+        return tile.getId().equals(TileDefinition.ABBEY_TILE_ID) ? "inactive": null;
     }
 
     public boolean hasUnusedAbbey(Player player) {
@@ -59,7 +60,7 @@ public class AbbeyCapability extends Capability {
     }
 
     public void undoUseAbbey(Player player) {
-    	unusedAbbey.add(player);
+        unusedAbbey.add(player);
     }
 
     public Player getAbbeyRoundLastPlayer() {

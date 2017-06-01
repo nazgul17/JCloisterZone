@@ -7,6 +7,7 @@ import org.w3c.dom.Element;
 
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.figure.Meeple;
@@ -32,7 +33,7 @@ public class PlagueCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("plague").getLength() > 0) {
             tile.setTrigger(TileTrigger.PLAGUE);
         }

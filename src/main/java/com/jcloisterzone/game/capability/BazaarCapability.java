@@ -11,6 +11,7 @@ import org.w3c.dom.NodeList;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.TileEvent;
@@ -52,7 +53,7 @@ public class BazaarCapability extends Capability {
     }
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("bazaar").getLength() > 0) {
             tile.setTrigger(TileTrigger.BAZAAR);
         }

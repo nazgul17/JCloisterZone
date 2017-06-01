@@ -17,6 +17,7 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
@@ -72,7 +73,8 @@ public abstract class Capability {
     public void loadTileFromSnapshot(Tile tile, Element tileNode) {
     }
 
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
+        return tile;
     }
 
     public Feature initFeature(String tileId, Feature feature, Element xml) {

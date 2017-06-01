@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
@@ -41,7 +41,7 @@ public class CornCircleCapability extends Capability {
 
 
     @Override
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         NodeList nl = xml.getElementsByTagName("corn-circle");
         if (nl.getLength() > 0) {
             String type = ((Element)nl.item(0)).getAttribute("type");

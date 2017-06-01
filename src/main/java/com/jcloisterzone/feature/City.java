@@ -8,6 +8,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.CityScoreContext;
 import com.jcloisterzone.game.Game;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
@@ -19,6 +20,9 @@ public class City extends CompletableFeature<City> {
     private final Map<TradeResource, Integer> tradeResources;
     private final boolean besieged, cathedral, princess, castleBase;
 
+    public City(Game game, List<FeaturePointer> places, List<Edge> openEdges, int pennants) {
+        this(game, places, openEdges, pennants, HashMap.empty(), false, false, false, false);
+    }
 
     public City(Game game, List<FeaturePointer> places, List<Edge> openEdges, int pennants,
             Map<TradeResource, Integer> tradeResources, boolean besieged, boolean cathedral, boolean princess,
@@ -67,6 +71,7 @@ public class City extends CompletableFeature<City> {
     }
 
     public City setBesieged(boolean besieged) {
+        if (this.besieged == besieged) return this;
         return new City(game, places, openEdges, pennants, tradeResources, besieged, cathedral, princess, castleBase);
     }
 
@@ -75,14 +80,16 @@ public class City extends CompletableFeature<City> {
     }
 
     public City setCathedral(boolean cathedral) {
+        if (this.cathedral == cathedral) return this;
         return new City(game, places, openEdges, pennants, tradeResources, besieged, cathedral, princess, castleBase);
     }
 
-    public boolean isprincess() {
+    public boolean isPrincess() {
         return princess;
     }
 
-    public City setprincess(boolean princess) {
+    public City setPrincess(boolean princess) {
+        if (this.princess == princess) return this;
         return new City(game, places, openEdges, pennants, tradeResources, besieged, cathedral, princess, castleBase);
     }
 
@@ -91,6 +98,7 @@ public class City extends CompletableFeature<City> {
     }
 
     public City setCastleBase(boolean castleBase) {
+        if (this.castleBase == castleBase) return this;
         return new City(game, places, openEdges, pennants, tradeResources, besieged, cathedral, princess, castleBase);
     }
 
@@ -119,6 +127,4 @@ public class City extends CompletableFeature<City> {
     public static String name() {
         return _("City");
     }
-
-
 }

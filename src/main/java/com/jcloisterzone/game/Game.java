@@ -467,7 +467,7 @@ public class Game extends GameSettings implements EventProxy {
 
     // delegation to capabilities
 
-    public void initTile(Tile tile, Element xml) {
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
         for (Capability cap: capabilities) {
             cap.initTile(tile, xml);
         }
