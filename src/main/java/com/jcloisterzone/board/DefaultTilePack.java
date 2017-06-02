@@ -1,5 +1,7 @@
 package com.jcloisterzone.board;
 
+import java.util.function.Predicate;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -8,6 +10,7 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
 public class DefaultTilePack implements TilePack {
@@ -17,20 +20,31 @@ public class DefaultTilePack implements TilePack {
     private final Map<String, Array<TileDefinition>> groups;
     private final Map<String, TileGroupState> groupStates;
 
-
     public DefaultTilePack(Map<String, Array<TileDefinition>> groups) {
-        this.groups = groups;
-        this.groupStates = groups.map((groupId, tiles ) -> {
+        this(groups, groups.map((groupId, tiles ) -> {
             return new Tuple2<>(
                 groupId,
                 INACTIVE_GROUP.equals(groupId) ? TileGroupState.RETIRED : TileGroupState.WAITING
             );
-        });
+        }));
+    }
+
+    public DefaultTilePack(Map<String, Array<TileDefinition>> groups, Map<String, TileGroupState> groupStates) {
+        this.groups = groups;
+        this.groupStates = groupStates;
+    }
+
+    private Stream<Array<TileDefinition>> getActiveGroups() {
+        return Stream.ofAll(groups)
+            .filter(t -> getGroupState(t._1) == TileGroupState.ACTIVE)
+            .map(t -> t._2);
     }
 
     @Override
     public int totalSize() {
-        return Stream.ofAll(groups.values()).map(tiles -> tiles.length()).sum().intValue();
+        return Stream.ofAll(groups.values())
+            .map(tiles -> tiles.length())
+            .sum().intValue();
     }
 
     @Override
@@ -40,67 +54,52 @@ public class DefaultTilePack implements TilePack {
 
     @Override
     public int size() {
-        return Stream.ofAll(groups)
-            .filter(t -> groupStates.get(t._1).get() == TileGroupState.ACTIVE)
-            .map(t -> t._2.length())
+        return getActiveGroups()
+            .map(tiles -> tiles.length())
             .sum().intValue();
     }
 
+    private DefaultTilePack replaceGroup(String groupId, Array<TileDefinition> tiles) {
+        if (tiles.isEmpty()) {
+            return new DefaultTilePack(
+                groups.remove(groupId),
+                groupStates.remove(groupId)
+            );
+        } else {
+            return new DefaultTilePack(
+                groups.put(groupId, tiles),
+                groupStates
+            );
+        }
+    }
+
     @Override
-    public Tile drawTile(int index) {
-        for (Entry<String,TileGroup> entry: groups.entrySet()) {
-            TileGroup group = entry.getValue();
-            if (group.state != TileGroupState.ACTIVE) continue;
-            ArrayList<Tile> tiles = group.tiles;
+    public Tuple2<TileDefinition, TilePack> drawTile(int index) {
+        for (Tuple2<String, Array<TileDefinition>> t : groups) {
+            String groupId = t._1;
+            if (getGroupState(groupId) != TileGroupState.ACTIVE) continue;
+            Array<TileDefinition> tiles = t._2;
             if (index < tiles.size()) {
-                Tile currentTile = tiles.remove(index);
-                decreaseSideMaskCounter(currentTile, entry.getKey());
-                return currentTile;
+                TileDefinition tile = tiles.get(index);
+                tiles = tiles.removeAt(index);
+                return new Tuple2<>(tile, replaceGroup(groupId, tiles));
             } else {
                 index -= tiles.size();
             }
         }
-        throw new ArrayIndexOutOfBoundsException();
+        throw new IllegalArgumentException();
     }
 
-    private void increaseSideMaskCounter(Tile tile, String groupId) {
-        if (!INACTIVE_GROUP.equals(groupId) && tile.getPosition() == null) {
-            Integer countForSideMask = edgePatterns.get(tile.getEdgePattern());
-            if (countForSideMask == null) {
-                edgePatterns.put(tile.getEdgePattern(), 1);
-            } else {
-                edgePatterns.put(tile.getEdgePattern(), countForSideMask + 1);
-            }
-        }
-    }
-
-    private void decreaseSideMaskCounter(Tile tile, String groupId) {
-        if (tile == null || groupId.equals(INACTIVE_GROUP)) return;
-        Integer count = edgePatterns.get(tile.getEdgePattern());
-        if (count == null) {
-            logger.error("Inconsistent edge mask statistics. Cannot decrease: " + tile.getEdgePattern().toString());
-            return;
-        }
-        if (count == 1) {
-            edgePatterns.remove(tile.getEdgePattern());
-        } else {
-            edgePatterns.put(tile.getEdgePattern(), count - 1);
-        }
-    }
 
     @Override
-    public Tile drawTile(String groupId, String tileId) {
-        ArrayList<Tile> tiles = groups.get(groupId).tiles;
-        Iterator<Tile> i = tiles.iterator();
-        while(i.hasNext()) {
-            Tile tile = i.next();
-            if (tile.getId().equals(tileId)) {
-                i.remove();
-                decreaseSideMaskCounter(tile, groupId);
-                return tile;
-            }
-        }
-        return null;
+    public Tuple2<TileDefinition, TilePack> drawTile(String groupId, String tileId) {
+        Predicate<TileDefinition> matchesId = t -> t.getId().equals(tileId);
+        Array<TileDefinition> tiles = groups.get(groupId)
+            .getOrElseThrow(() -> new IllegalArgumentException());
+        TileDefinition tile = tiles.find(matchesId)
+            .getOrElseThrow(() -> new IllegalArgumentException());
+        DefaultTilePack pack = replaceGroup(groupId, tiles.removeFirst(matchesId));
+        return new Tuple2<>(tile, pack);
     }
 
     @Override
@@ -145,19 +144,17 @@ public class DefaultTilePack implements TilePack {
     }
 
     @Override
-    public void setGroupState(String groupId, TileGroupState state) {
+    public DefaultTilePack setGroupState(String groupId, TileGroupState state) {
         //can be called with non-existing group (from expansion etc.)
-        TileGroup group = groups.get(groupId);
-        if (group != null) {
-            group.state = state;
-        }
+        return new DefaultTilePack(
+            groups,
+            groupStates.put(groupId, state)
+        );
     }
 
     @Override
     public TileGroupState getGroupState(String groupId) {
-        TileGroup group = groups.get(groupId);
-        if (group == null) return null;
-        return group.state;
+        return groupStates.get(groupId).getOrNull();
     }
 
     @Override
@@ -175,15 +172,4 @@ public class DefaultTilePack implements TilePack {
         }
         return null;
     }
-
-    @Override
-    public int getSizeForEdgePattern(EdgePattern pattern) {
-        int size = 0;
-        for (EdgePattern filled : pattern.expand()) {
-            Integer count = edgePatterns.get(filled);
-            size += count == null ? 0 : count;
-        }
-        return size;
-    }
-
 }
