@@ -1,44 +1,36 @@
 package com.jcloisterzone.board;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class DefaultTilePack implements TilePack {
+import io.vavr.Tuple2;
+import io.vavr.collection.Array;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Stream;
 
-    static class TileGroup {
-        final ArrayList<Tile> tiles = new ArrayList<>();
-        TileGroupState state = TileGroupState.WAITING;
-    }
+public class DefaultTilePack implements TilePack {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    private Map<String, TileGroup> groups = new HashMap<>();
-    private Map<EdgePattern, Integer> edgePatterns = new HashMap<>();
+    private final Map<String, Array<TileDefinition>> groups;
+    private final Map<String, TileGroupState> groupStates;
 
 
-    public DefaultTilePack() {
-        TileGroup inactive = new TileGroup();
-        inactive.state = TileGroupState.RETIRED;
-        groups.put(INACTIVE_GROUP, inactive);
+    public DefaultTilePack(Map<String, Array<TileDefinition>> groups) {
+        this.groups = groups;
+        this.groupStates = groups.map((groupId, tiles ) -> {
+            return new Tuple2<>(
+                groupId,
+                INACTIVE_GROUP.equals(groupId) ? TileGroupState.RETIRED : TileGroupState.WAITING
+            );
+        });
     }
 
     @Override
     public int totalSize() {
-        int n = 0;
-        for (TileGroup group: groups.values()) {
-            if (group.state != TileGroupState.RETIRED) {
-                n += group.tiles.size();
-            }
-        }
-        return n;
+        return Stream.ofAll(groups.values()).map(tiles -> tiles.length()).sum().intValue();
     }
 
     @Override
@@ -48,13 +40,10 @@ public class DefaultTilePack implements TilePack {
 
     @Override
     public int size() {
-        int n = 0;
-        for (TileGroup group: groups.values()) {
-            if (group.state == TileGroupState.ACTIVE) {
-                n += group.tiles.size();
-            }
-        }
-        return n;
+        return Stream.ofAll(groups)
+            .filter(t -> groupStates.get(t._1).get() == TileGroupState.ACTIVE)
+            .map(t -> t._2.length())
+            .sum().intValue();
     }
 
     @Override

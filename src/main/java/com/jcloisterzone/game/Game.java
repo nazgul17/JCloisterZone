@@ -32,6 +32,7 @@ import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
@@ -469,8 +470,9 @@ public class Game extends GameSettings implements EventProxy {
 
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         for (Capability cap: capabilities) {
-            cap.initTile(tile, xml);
+            tile = cap.initTile(tile, xml);
         }
+        return tile;
     }
 
     public Feature initFeature(String tileId, Feature feature, Element xml) {
@@ -504,7 +506,7 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public String getTileGroup(Tile tile) {
+    public String getTileGroup(TileDefinition tile) {
         for (Capability cap: capabilities) {
             String group = cap.getTileGroup(tile);
             if (group != null) return group;

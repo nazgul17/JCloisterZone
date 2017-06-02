@@ -1,22 +1,12 @@
 package com.jcloisterzone.board;
 
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-import com.google.common.collect.Maps;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.config.Config;
@@ -26,6 +16,14 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.capability.RiverCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
+
+import io.vavr.Tuple2;
+import io.vavr.collection.Array;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
 
 import static com.jcloisterzone.XMLUtils.attributeIntValue;
 import static com.jcloisterzone.XMLUtils.attributeStringValue;
@@ -44,7 +42,10 @@ public class TilePackFactory {
     protected Config config;
     protected Map<Expansion, Element> defs;
 
-    private Set<String> usedIds = new HashSet<>(); //for assertion only
+    private java.util.Set<String> usedIds = new java.util.HashSet<>(); //for assertion only
+
+    private java.util.Map<String, java.util.List<TileDefinition>> tiles = new java.util.HashMap<>();
+    private java.util.List<Tuple2<TileDefinition, Position>> preplacedTiles = new java.util.ArrayList<>();
 
     public static class TileCount {
         public String tileId;
@@ -66,29 +67,24 @@ public class TilePackFactory {
         this.config = config;
     }
 
-    public void setExpansions(Set<Expansion> expansions) {
-        defs = Maps.newLinkedHashMap();
-        for (Expansion expansion : expansions) {
-            defs.put(expansion, getExpansionDefinition(expansion));
-        }
+    public void setExpansions(Iterable<Expansion> expansions) {
+        defs = Stream.ofAll(expansions).map(
+            exp -> new Tuple2<Expansion, Element>(exp, getExpansionDefinition(exp))
+        ).collect(LinkedHashMap.collector());
     }
 
 
 
-    public List<TileCount> getExpansionTiles(Expansion expansion) {
-        List<TileCount> result = new ArrayList<>();
+    public Stream<TileCount> getExpansionTiles(Expansion expansion) {
         Element el = getExpansionDefinition(expansion);
-        NodeList nl = el.getElementsByTagName("tile");
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element tileElement = (Element) nl.item(i);
+        return XMLUtils.elementStream(el.getElementsByTagName("tile")).map(tileElement -> {
             String tileId = getTileId(expansion, tileElement);
             if (TileDefinition.ABBEY_TILE_ID.equals(tileId)) {
-                result.add(new TileCount(tileId, null));
+                return new TileCount(tileId, null);
             } else {
-                result.add(new TileCount(tileId, getTileCount(tileElement, tileId)));
+                return new TileCount(tileId, getTileCount(tileElement, tileId));
             }
-        }
-        return result;
+        });
     }
 
     public int getExpansionSize(Expansion expansion) {
@@ -128,20 +124,19 @@ public class TilePackFactory {
     }
 
     protected Map<String, Integer> getDiscardTiles() {
-        Map<String, Integer> discard = new HashMap<>();
+        java.util.Map<String, Integer> discard = new java.util.HashMap<>();
         for (Element expansionDef: defs.values()) {
             NodeList nl = expansionDef.getElementsByTagName("discard");
-            for (int i = 0; i < nl.getLength(); i++) {
-                Element el = (Element) nl.item(i);
+            XMLUtils.elementStream(nl).forEach(el -> {
                 String tileId = el.getAttribute("tile");
                 if (discard.containsKey(tileId)) {
                     discard.put(tileId, 1 + discard.get(tileId));
                 } else {
                     discard.put(tileId, 1);
                 }
-            }
+            });
         }
-        return discard;
+        return HashMap.ofAll(discard);
     }
 
     protected boolean isTunnelActive(Expansion expansion) {
@@ -157,7 +152,7 @@ public class TilePackFactory {
         }
     }
 
-    protected String getTileGroup(Tile tile, Element card) {
+    protected String getTileGroup(TileDefinition tile, Element card) {
         String group = game.getTileGroup(tile);
         if (group != null) return group;
         return attributeStringValue(card, "group", DEFAULT_TILE_GROUP);
@@ -179,80 +174,86 @@ public class TilePackFactory {
         return tileDef;
     }
 
-    public LinkedList<Position> getPreplacedPositions(String tileId, Element card) {
+    public Stream<Position> getPreplacedPositions(String tileId, Element card) {
         NodeList nl = card.getElementsByTagName("position");
-        if (nl.getLength() == 0) return null;
-
-        LinkedList<Position> result = new LinkedList<Position>();
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element posEl = (Element) nl.item(i);
-            result.add(new Position(attributeIntValue(posEl, "x"), attributeIntValue(posEl, "y")));
-        }
-        return result;
+        return XMLUtils.elementStream(nl).map(
+            e -> new Position(attributeIntValue(e, "x"), attributeIntValue(e, "y"))
+        );
     }
 
-    public TilePack createTilePack() {
-        //DefaultTilePack tilePack = new DefaultTilePack();
-
+    public Tuple2<TilePack, List<Tuple2<TileDefinition, Position>>> createTilePack() {
         Map<String, Integer> discardList = getDiscardTiles();
 
-        for (Entry<Expansion, Element> entry: defs.entrySet()) {
-            Expansion expansion = entry.getKey();
-            NodeList nl = entry.getValue().getElementsByTagName("tile");
-            for (int i = 0; i < nl.getLength(); i++) {
-                Element tileElement = (Element) nl.item(i);
+        defs.forEach((expansion, element) -> {
+            NodeList nl = element.getElementsByTagName("tile");
+            XMLUtils.elementStream(nl).forEach(tileElement -> {
+
                 if (!game.hasCapability(RiverCapability.class)) {
                     //skip river tiles if not playing River to prevent wrong tile count in pack (GQ11 rivers)
                     if (tileElement.getElementsByTagName("river").getLength() > 0) {
-                        continue;
+                        return;
                     }
                 }
 
                 String tileId = getTileId(expansion, tileElement);
-                LinkedList<Position> positions = getPreplacedPositions(tileId, tileElement);
+                List<Position> positions = getPreplacedPositions(tileId, tileElement).toList();
                 int count = getTileCount(tileElement, tileId);
-                if (discardList.containsKey(tileId)) {
-                    int n = discardList.get(tileId);
-                    count -= n;
-                    if (count <= 0) { //discard can be in multiple expansions and than can be nagative
-                        continue;
-                    }
+                int n = discardList.get(tileId).getOrElse(0);
+
+                count -= n;
+                if (count <= 0) { //discard can be in multiple expansions and than can be negative
+                    return;
                 }
 
                 TileDefinition tileDef = createTileDefinition(expansion, tileId, tileElement);
                 if (tileDef == null) {
-                    continue;
+                    return;
                 }
-                //for {
-                    tilePack.addTile(tile, getTileGroup(tile, tileElement));
+
+                for (int ci = 0; ci < count; ci++) {
+                    Position pos = null;
                     if (positions != null && !positions.isEmpty()) {
-                        Position pos = positions.removeFirst();
+                        pos = positions.peek();
+                        positions = positions.pop();
                         //hard coded exceptions - should be declared in pack def
                         if (game.hasExpansion(Expansion.COUNT)) {
-                            if (tile.getId().equals("BA.RCr")) continue;
-                            if (tile.getId().equals("R1.I.s") ||
-                                tile.getId().equals("R2.I.s") ||
-                                tile.getId().equals("GQ.RFI")) {
+                            if (tileId.equals("BA.RCr")) continue;
+                            if (tileId.equals("R1.I.s") ||
+                                tileId.equals("R2.I.s") ||
+                                tileId.equals("GQ.RFI")) {
                                 pos = new Position(1, 2);
                             }
-                            if (tile.getId().equals("WR.CFR")) {
+                            if (tileId.equals("WR.CFR")) {
                                 pos = new Position(-2, -2);
                             }
                         } else if (game.hasExpansion(Expansion.WIND_ROSE)) {
-                            if (tile.getId().equals("BA.RCr")) continue;
+                            if (tileId.equals("BA.RCr")) continue;
                             if (game.hasCapability(RiverCapability.class)) {
-                                if (tile.getId().equals("WR.CFR")) {
+                                if (tileId.equals("WR.CFR")) {
                                     pos = new Position(0, 1);
                                 }
                             }
                         }
-                        logger.info("Setting initial placement {} for {}", pos, tile);
-                        tile.setPosition(pos);
+                        logger.info("Setting initial placement {} for {}", pos, tileId);
                     }
-                //}
-            }
-        }
-        return tilePack;
+                    if (pos != null) {
+                        preplacedTiles.add(new Tuple2<>(tileDef, pos));
+                    } else {
+                        String group = getTileGroup(tileDef, tileElement);
+                        if (!tiles.containsKey(group)) {
+                            tiles.put(group, new java.util.ArrayList<>());
+                        }
+                        tiles.get(group).add(tileDef);
+                    }
+                }
+            });
+        });
+
+        Map<String, Array<TileDefinition>> groups = HashMap.ofAll(tiles).mapValues(l -> Array.ofAll(l));
+        return new Tuple2<>(
+            new DefaultTilePack(groups),
+            List.ofAll(preplacedTiles)
+        );
     }
 
     public Game getGame() {

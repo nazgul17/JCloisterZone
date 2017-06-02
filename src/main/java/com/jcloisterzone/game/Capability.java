@@ -85,7 +85,7 @@ public abstract class Capability {
         return Collections.emptyList();
     }
 
-    public String getTileGroup(Tile tile) {
+    public String getTileGroup(TileDefinition tile) {
         return null;
     }
 

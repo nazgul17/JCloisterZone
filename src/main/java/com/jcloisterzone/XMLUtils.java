@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -60,6 +62,18 @@ public class XMLUtils {
         } catch (ParserConfigurationException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static io.vavr.collection.Stream<Node> nodeStream(NodeList nl) {
+        List<Node> arrayList = new ArrayList<>();
+        for (int i = 0; i < nl.getLength(); i++) {
+            arrayList.add(nl.item(i));
+        }
+        return io.vavr.collection.Stream.ofAll(arrayList);
+    }
+
+    public static io.vavr.collection.Stream<Element> elementStream(NodeList nl) {
+        return nodeStream(nl).map(node -> (Element) node);
     }
 
     public static Element getElementByTagName(Element parent, String childName) {
