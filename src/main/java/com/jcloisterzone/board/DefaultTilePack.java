@@ -7,9 +7,7 @@ import org.slf4j.LoggerFactory;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
-import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
@@ -38,6 +36,10 @@ public class DefaultTilePack implements TilePack {
         return Stream.ofAll(groups)
             .filter(t -> getGroupState(t._1) == TileGroupState.ACTIVE)
             .map(t -> t._2);
+    }
+
+    private Stream<TileDefinition> getActiveTiles() {
+        return getActiveGroups().flatMap(t -> t);
     }
 
     @Override
@@ -103,44 +105,15 @@ public class DefaultTilePack implements TilePack {
     }
 
     @Override
-    public Tile drawTile(String tileId) {
-        for (String groupId: groups.keySet()) {
-            Tile tile = drawTile(groupId, tileId);
-            if (tile != null) return tile;
-        }
-        logger.warn("Tile pack does not contain {}", tileId);
-        return null;
-    }
-
-    public List<Tile> drawPrePlacedActiveTiles() {
-        List<Tile> result = new ArrayList<>();
-        for (Entry<String, TileGroup> entry: groups.entrySet()) {
-            TileGroup group = entry.getValue();
-            Iterator<Tile> i = group.tiles.iterator();
-            while(i.hasNext()) {
-                Tile tile = i.next();
-                if (tile.getPosition() != null) {
-                    if (group.state == TileGroupState.ACTIVE) {
-                        result.add(tile);
-                        i.remove();
-                    } else {
-                        tile.setPosition(null);
-                        increaseSideMaskCounter(tile, entry.getKey());
-                    }
-                }
+    public Tuple2<TileDefinition, TilePack> drawTile(String tileId) {
+        for (String groupId: getGroups()) {
+            try {
+                return drawTile(groupId, tileId);
+            } catch (IllegalArgumentException e) {
+                //pass
             }
         }
-        return result;
-    }
-
-    public void addTile(Tile tile, String groupId) {
-        TileGroup group = groups.get(groupId);
-        if (group == null) {
-            group = new TileGroup();
-            groups.put(groupId, group);
-        }
-        group.tiles.add(tile);
-        increaseSideMaskCounter(tile, groupId);
+        throw new IllegalAccessError("Tile pack does not contain " + tileId);
     }
 
     @Override
@@ -162,8 +135,15 @@ public class DefaultTilePack implements TilePack {
         return groups.keySet();
     }
 
-    /* special Abbey related methods - TODO refactor it is here only for client */
     @Override
+    public int getSizeForEdgePattern(EdgePattern edgePattern) {
+        return getActiveTiles()
+            .filter(tile -> edgePattern.isMatching(tile.getEdgePattern()))
+            .size();
+    }
+
+    /* special Abbey related methods - TODO refactor it is here only for client */
+    /*@Override
     public Tile getAbbeyTile() {
         for (Tile tile : groups.get(INACTIVE_GROUP).tiles) {
             if (tile.getId().equals(Tile.ABBEY_TILE_ID)) {
@@ -171,5 +151,5 @@ public class DefaultTilePack implements TilePack {
             }
         }
         return null;
-    }
+    }*/
 }

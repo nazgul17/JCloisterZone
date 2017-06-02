@@ -1,15 +1,11 @@
 package com.jcloisterzone.board;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
@@ -26,28 +22,12 @@ import com.jcloisterzone.game.Game;
 
 import io.vavr.Tuple2;
 
-
-/**
- * Represents one game tile. Contains references on score objects
- * which lays on tile and provides logic for tiles merging, rotating
- * and placing figures.
- *
- * @author Roman Krejcik
- */
 public class Tile /*implements Cloneable*/ {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected Game game;
-
+    protected final Game game;
     private final Position position;
-
-//    private ArrayList<Feature> features;
-//    private Bridge bridge; //direct reference to bridge feature
-//
-//
-//    protected Position position = null;
-//    private Rotation rotation = Rotation.R0;
 
 
     public Tile(Game game, Position position) {
@@ -56,7 +36,7 @@ public class Tile /*implements Cloneable*/ {
     }
 
     private Tuple2<TileDefinition, Rotation> getPlacedTile() {
-        return game.getState().getPlacedTiles().get(position).get();
+        return game.getState().getPlacedTiles().get(position).getOrNull();
     }
 
     public TileDefinition getTileDefinition() {
@@ -72,47 +52,46 @@ public class Tile /*implements Cloneable*/ {
         return pt._1.getEdgePattern().rotate(pt._2);
     }
 
-    public EdgeType getEdge(Location side) {
-        return getEdgePattern().at(side, rotation);
+    public EdgeType getEdgeType(Location side) {
+        return getEdgePattern().at(side, getRotation());
     }
 
     public String getId() {
-        return tileDefinition.getId();
+        return getTileDefinition().getId();
     }
 
     public Expansion getOrigin() {
-        return tileDefinition.getOrigin();
+        return getTileDefinition().getOrigin();
     }
 
-    protected boolean check(Tile tile, Location rel, Board board) {
-        return getEdge(rel) == tile.getEdge(rel.rev());
-    }
-
-    public void setFeatures(ArrayList<Feature> features) {
-        assert this.features == null;
-        this.features = features;
-    }
-
-    public List<Feature> getFeatures() {
-        return features;
-    }
+//    protected boolean check(Tile tile, Location rel, Board board) {
+//        return getEdge(rel) == tile.getEdge(rel.rev());
+//    }
+//
+//    public List<Feature> getFeatures() {
+//        return features;
+//    }
 
     public Feature getFeature(Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
-        for (Feature p : features) {
-            if (p.getLocation().equals(loc)) return p;
-        }
-        return null;
+
+        return game.getState().getFeatures()
+            .get(new FeaturePointer(position, loc))
+            .getOrNull();
+
     }
 
     public Feature getFeaturePartOf(Location loc) {
-        if (loc == Location.ABBOT) loc = Location.CLOISTER;
-        for (Feature p : features) {
-            if (loc.isPartOf(p.getLocation())) {
-                return p;
-            }
-        }
-        return null;
+        Location normLoc = loc == Location.ABBOT ? Location.CLOISTER : loc;
+
+        Tuple2<Location, Feature> initial = getTileDefinition()
+            .getInitialFeatures()
+            .find(t -> normLoc.isPartOf(t._1))
+            .getOrNull();
+
+        if (initial == null) return null;
+
+        return getFeature(initial._1);
     }
 
     /** merge this to another tile - method argument is tile placed before */
@@ -145,45 +124,44 @@ public class Tile /*implements Cloneable*/ {
         }
     }
 
-    protected void unmerge(Tile tile, Location loc) {
-        Location oppositeLoc = loc.rev();
-        MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
-        if (oppositePiece != null) {
-            oppositePiece.setEdge(oppositeLoc, null);
-            if (!tileDefinition.isAbbeyTile()) {
-                MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
-                if (thisPiece != null) { //can be null for bridge undo
-                    thisPiece.setEdge(loc, null);
-                }
-            }
-        }
-        for (int i = 0; i < 2; i++) {
-            Location halfSide = i == 0 ? loc.getLeftFarm() : loc.getRightFarm();
-            Location oppositeHalfSide = halfSide.rev();
-            oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
-            if (oppositePiece != null) {
-                oppositePiece.setEdge(oppositeHalfSide, null);
-                if (!tileDefinition.isAbbeyTile()) {
-                    MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
-                    thisPiece.setEdge(halfSide, null);
-                }
-            }
-        }
-    }
+//    protected void unmerge(Tile tile, Location loc) {
+//        Location oppositeLoc = loc.rev();
+//        MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
+//        if (oppositePiece != null) {
+//            oppositePiece.setEdge(oppositeLoc, null);
+//            if (!tileDefinition.isAbbeyTile()) {
+//                MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
+//                if (thisPiece != null) { //can be null for bridge undo
+//                    thisPiece.setEdge(loc, null);
+//                }
+//            }
+//        }
+//        for (int i = 0; i < 2; i++) {
+//            Location halfSide = i == 0 ? loc.getLeftFarm() : loc.getRightFarm();
+//            Location oppositeHalfSide = halfSide.rev();
+//            oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
+//            if (oppositePiece != null) {
+//                oppositePiece.setEdge(oppositeHalfSide, null);
+//                if (!tileDefinition.isAbbeyTile()) {
+//                    MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
+//                    thisPiece.setEdge(halfSide, null);
+//                }
+//            }
+//        }
+//    }
 
-    public void setRotation(Rotation rotation) {
-        assert rotation != null;
-        this.rotation =  rotation;
-    }
+//    public void setRotation(Rotation rotation) {
+//        assert rotation != null;
+//        this.rotation =  rotation;
+//    }
 
     public TileSymmetry getSymmetry() {
-        return tileDefinition.getSymmetry()
+        return getTileDefinition().getSymmetry();
     }
 
     public boolean hasCloister() {
         return getFeature(Location.CLOISTER) != null;
     }
-
 
     public Cloister getCloister() {
         return (Cloister) getFeature(Location.CLOISTER);
@@ -197,41 +175,31 @@ public class Tile /*implements Cloneable*/ {
         return game;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
-    }
-
-
-    public void setPosition(Position p) {
-        position = p;
-    }
-
     public Position getPosition() {
         return position;
     }
 
-
-    public Bridge getBridge() {
-        return bridge;
-    }
-
-    public void placeBridge(Location bridgeLoc) {
-        assert bridge == null && bridgeLoc != null; //TODO AI support - remove bridge from tile
-        Location normalizedLoc = bridgeLoc.rotateCCW(rotation);
-        bridge = new Bridge();
-        bridge.setId(game.idSequnceNextVal());
-        bridge.setTile(this);
-        bridge.setLocation(normalizedLoc);
-        features.add(bridge);
-        edgePattern = edgePattern.getBridgePattern(normalizedLoc);
-    }
-
-    public void removeBridge(Location bridgeLoc) {
-        Location normalizedLoc = bridgeLoc.rotateCCW(rotation);
-        features.remove(bridge);
-        bridge = null;
-        edgePattern = edgePattern.removeBridgePattern(normalizedLoc);
-    }
+//    public Bridge getBridge() {
+//        return bridge;
+//    }
+//
+//    public void placeBridge(Location bridgeLoc) {
+//        assert bridge == null && bridgeLoc != null; //TODO AI support - remove bridge from tile
+//        Location normalizedLoc = bridgeLoc.rotateCCW(rotation);
+//        bridge = new Bridge();
+//        bridge.setId(game.idSequnceNextVal());
+//        bridge.setTile(this);
+//        bridge.setLocation(normalizedLoc);
+//        features.add(bridge);
+//        edgePattern = edgePattern.getBridgePattern(normalizedLoc);
+//    }
+//
+//    public void removeBridge(Location bridgeLoc) {
+//        Location normalizedLoc = bridgeLoc.rotateCCW(rotation);
+//        features.remove(bridge);
+//        bridge = null;
+//        edgePattern = edgePattern.removeBridgePattern(normalizedLoc);
+//    }
 
     public Set<Location> getUnoccupiedScoreables(boolean excludeCompleted) {
         Set<Location> locations = new HashSet<>();

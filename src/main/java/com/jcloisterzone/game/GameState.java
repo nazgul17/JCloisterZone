@@ -8,11 +8,14 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
+import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.feature.Feature;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 
 @Immutable
 public class GameState {
@@ -21,8 +24,9 @@ public class GameState {
     private final Array<PlayerScore> score;
     private final int turnPlayer;
 
-    private final HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles;
+    private final Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles;
     private final List<TileDefinition> discardedTiles;
+    private final Map<FeaturePointer, Feature> features;
 
     /*
      * tilepack = List<TileDefinition> TOOD random remove, implement own class
@@ -35,22 +39,24 @@ public class GameState {
         return new GameState(
             players, players.map(p -> new PlayerScore()), turnPlayer,
             HashMap.empty(),
-            List.empty()
+            List.empty(),
+            HashMap.empty()
         );
     }
 
     private GameState(Array<PlayerAttributes> players, Array<PlayerScore> score, int turnPlayer,
-            HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
-            List<TileDefinition> discardedTiles) {
+            Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
+            List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features) {
         this.players = players;
         this.score = score;
         this.turnPlayer = turnPlayer;
         this.placedTiles = placedTiles;
         this.discardedTiles = discardedTiles;
+        this.features = features;
     }
 
     private GameState setScore(Array<PlayerScore> score) {
-        return new GameState(this.players, score, this.turnPlayer, this.placedTiles, this.discardedTiles);
+        return new GameState(players, score, turnPlayer, placedTiles, discardedTiles, features);
     }
 
     public GameState addPoints(IPlayer p, int points, PointCategory category) {
@@ -61,11 +67,15 @@ public class GameState {
     }
 
     public GameState setTurnPlayer(int turnPlayer) {
-        return new GameState(players, score, turnPlayer, placedTiles, discardedTiles);
+        return new GameState(players, score, turnPlayer, placedTiles, discardedTiles, features);
     }
 
-    public GameState setPlacedTiles(HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
-        return new GameState(players, score, turnPlayer, placedTiles, discardedTiles);
+    public GameState setPlacedTiles(Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
+        return new GameState(players, score, turnPlayer, placedTiles, discardedTiles, features);
+    }
+
+    public GameState setFeatures(Map<FeaturePointer, Feature> features) {
+        return new GameState(players, score, turnPlayer, placedTiles, discardedTiles, features);
     }
 
     public Array<PlayerAttributes> getPlayers() {
@@ -80,7 +90,11 @@ public class GameState {
         return turnPlayer;
     }
 
-    public HashMap<Position, Tuple2<TileDefinition, Rotation>> getPlacedTiles() {
+    public Map<Position, Tuple2<TileDefinition, Rotation>> getPlacedTiles() {
         return placedTiles;
+    }
+
+    public Map<FeaturePointer, Feature> getFeatures() {
+        return features;
     }
 }

@@ -237,6 +237,9 @@ public class TilePackFactory {
                         logger.info("Setting initial placement {} for {}", pos, tileId);
                     }
                     if (pos != null) {
+                        //TODO groups need to be applied
+                        //some preplaced are not used?
+                        //IMMUTABLE TODO
                         preplacedTiles.add(new Tuple2<>(tileDef, pos));
                     } else {
                         String group = getTileGroup(tileDef, tileElement);

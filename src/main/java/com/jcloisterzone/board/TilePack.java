@@ -16,7 +16,7 @@ public interface TilePack {
     Tuple2<TileDefinition, TilePack> drawTile(String tileId);
 
     /* special Abbey related methods - refactor je to jen kvuli klientovi */
-    Tuple2<TileDefinition, TilePack> getAbbeyTile();
+    //Tuple2<TileDefinition, TilePack> getAbbeyTile();
 
     TilePack setGroupState(String groupId, TileGroupState state);
     TileGroupState getGroupState(String groupId);
