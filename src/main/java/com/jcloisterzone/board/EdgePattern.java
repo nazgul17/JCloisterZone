@@ -6,6 +6,9 @@ import java.util.stream.Stream;
 
 import com.jcloisterzone.Immutable;
 
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Map;
+
 @Immutable
 public class EdgePattern {
 
@@ -17,8 +20,17 @@ public class EdgePattern {
         this.mask = mask;
     }
 
-    public EdgePattern(EdgeType N, EdgeType E, EdgeType S, EdgeType W ) {
+    public EdgePattern(EdgeType N, EdgeType E, EdgeType S, EdgeType W) {
         this.mask = N.getMask() + (E.getMask() << 4) + (S.getMask() << 8) + + (W.getMask() << 12);
+    }
+
+    public EdgePattern(Map<Location, EdgeType> edges) {
+        this(
+            edges.get(Location.N).get(),
+            edges.get(Location.E).get(),
+            edges.get(Location.S).get(),
+            edges.get(Location.W).get()
+        );
     }
 
     public static EdgePattern fromString(String str) {

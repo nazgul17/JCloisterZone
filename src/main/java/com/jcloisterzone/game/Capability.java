@@ -153,7 +153,7 @@ public abstract class Capability {
     public void finalScoring(ScoringStrategy strategy) {
     }
 
-    public boolean isTilePlacementAllowed(Tile tile, Position p) {
+    public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
         return true;
     }
 

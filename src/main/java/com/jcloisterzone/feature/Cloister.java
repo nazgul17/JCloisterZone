@@ -1,16 +1,17 @@
 package com.jcloisterzone.feature;
 
 
+import static com.jcloisterzone.ui.I18nUtils._;
+
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.CloisterScoreContext;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.List;
-
-import static com.jcloisterzone.ui.I18nUtils._;
 
 
 public class Cloister extends TileFeature implements Completable {
@@ -31,10 +32,10 @@ public class Cloister extends TileFeature implements Completable {
     }
 
     @Override
-    public Feature placeOnBoard(Position pos) {
+    public Feature placeOnBoard(Position pos, Rotation rot) {
         return new Cloister(
             game,
-            placeOnBoardPlaces(pos),
+            placeOnBoardPlaces(pos, rot),
             shrine, monastery, yagaHut
         );
     }

@@ -3,6 +3,7 @@ package com.jcloisterzone.feature;
 import static com.jcloisterzone.ui.I18nUtils._;
 
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.Game;
 
@@ -23,8 +24,8 @@ public class Tower extends TileFeature {
     }
 
     @Override
-    public Tower placeOnBoard(Position pos) {
-        return new Tower(game, placeOnBoardPlaces(pos), height);
+    public Tower placeOnBoard(Position pos, Rotation rot) {
+        return new Tower(game, placeOnBoardPlaces(pos, rot), height);
     }
 
     public Tower increaseHeight() {

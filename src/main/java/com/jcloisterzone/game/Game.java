@@ -572,7 +572,7 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public boolean isTilePlacementAllowed(Tile tile, Position p) {
+    public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
         for (Capability cap: capabilities) {
             if (!cap.isTilePlacementAllowed(tile, p)) return false;
         }

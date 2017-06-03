@@ -65,6 +65,32 @@ public class Position implements BoardPointer, Comparable<Position> {
         return new Position(x + p.x, y + p.y);
     }
 
+    public Position subtract(Position p) {
+        return new Position(x - p.x, y - p.y);
+    }
+
+    public Position rotateCW(Rotation rot) {
+        switch (rot) {
+        case R0: return this;
+        case R90: return new Position(-y, x);
+        case R180: return new Position(-x, -y);
+        case R270: return new Position(y, -x);
+        }
+        throw new IllegalArgumentException();
+    }
+
+    public Position rotateCCW(Rotation rot) {
+        return rotateCW(rot.inverse());
+    }
+
+    public Position rotateCW(Position origin, Rotation rot) {
+        return subtract(origin).rotateCW(rot).add(origin);
+    }
+
+    public Position rotateCCW(Position origin, Rotation rot) {
+        return subtract(origin).rotateCCW(rot).add(origin);
+    }
+
     public Position add(Location loc) {
         int x = this.x;
         int y = this.y;

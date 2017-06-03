@@ -3,8 +3,8 @@ package com.jcloisterzone.feature;
 import java.lang.reflect.Method;
 
 import com.jcloisterzone.Immutable;
-import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.Game;
 
@@ -50,8 +50,8 @@ public abstract class TileFeature implements Feature {
         return this.places.appendAll(obj.places);
     }
 
-    protected List<FeaturePointer> placeOnBoardPlaces(Position pos) {
-        return this.places.map(fp -> fp.translate(pos));
+    protected List<FeaturePointer> placeOnBoardPlaces(Position pos, Rotation rot) {
+        return this.places.map(fp -> fp.rotateCW(rot).translate(pos));
     }
 
 }

@@ -4,6 +4,7 @@ import static com.jcloisterzone.ui.I18nUtils._;
 
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.FarmScoreContext;
 import com.jcloisterzone.game.Game;
@@ -42,11 +43,11 @@ public class Farm extends TileFeature implements MultiTileFeature<Farm> {
     }
 
     @Override
-    public Feature placeOnBoard(Position pos) {
+    public Feature placeOnBoard(Position pos, Rotation rot) {
         return new Farm(
             game,
-            placeOnBoardPlaces(pos),
-            placeOnBoardAdjoiningCities(pos),
+            placeOnBoardPlaces(pos, rot),
+            placeOnBoardAdjoiningCities(pos, rot),
             adjoiningCityOfCarcassonne,
             pigHerds
         );
@@ -96,7 +97,7 @@ public class Farm extends TileFeature implements MultiTileFeature<Farm> {
         return this.adjoiningCities.appendAll(obj.adjoiningCities).distinct();
     }
 
-    protected List<FeaturePointer> placeOnBoardAdjoiningCities(Position pos) {
-        return this.adjoiningCities.map(fp -> fp.translate(pos));
+    protected List<FeaturePointer> placeOnBoardAdjoiningCities(Position pos, Rotation rot) {
+        return this.adjoiningCities.map(fp -> fp.rotateCW(rot).translate(pos));
     }
 }

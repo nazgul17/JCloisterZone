@@ -1,8 +1,6 @@
 package com.jcloisterzone.board;
 
 import java.util.ArrayList;
-import java.util.stream.Stream;
-import java.util.stream.Stream.Builder;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.TileEvent;
@@ -12,6 +10,9 @@ import com.jcloisterzone.game.capability.BridgeCapability;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
+import io.vavr.control.Option;
 
 
 /**
@@ -30,6 +31,8 @@ public class Board {
 
     private final Game game;
 
+    private transient final java.util.Map<Position, Option<Tile>> tiles = new java.util.HashMap<>();
+
 //	protected Set<TunnelEnd> tunnels = new HashSet<>();
 //	protected Map<Integer, TunnelEnd> openTunnels = new HashMap<>(); //tunnel with open one side
 
@@ -40,39 +43,57 @@ public class Board {
         this.game = game;
     }
 
+    private Tuple2<TileDefinition, Rotation> getPlacedTile(Position pos) {
+        return game.getState().getPlacedTiles().get(pos).getOrNull();
+    }
+
     private EdgePattern getEdgetPattern(Position pos) {
-        java.util.List<EdgeType> edges = new ArrayList<>(4);
+        Tuple2<TileDefinition, Rotation> placed = getPlacedTile(pos);
+        if (placed != null) {
+            return placed._1.getEdgePattern().rotate(placed._2);
+        }
 
-        Position.ADJACENT.forEach((loc, offset) -> {
-            Position adj = pos.add(offset);
-            edges.add(get(adj).getEdge(loc.rev()));
-        });
-
-        return new EdgePattern(edges.get(0), edges.get(1), edges.get(2), edges.get(3));
+        return new EdgePattern(
+            Position.ADJACENT.map((loc, offset) -> {
+                Position adj = pos.add(offset);
+                Tuple2<TileDefinition, Rotation> adjTile = getPlacedTile(adj);
+                if (adjTile == null) {
+                    return new Tuple2<>(loc, EdgeType.UNKNOWN);
+                } else {
+                    EdgeType edge = adjTile._1.getEdgePattern().rotate(adjTile._2).at(loc.rev());
+                    return new Tuple2<>(loc, edge);
+                }
+            })
+         );
     }
 
     public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements() {
-        Builder<Tuple2<Position, EdgePattern>> builder = Stream.builder();
+        java.util.Set<Position> used = new java.util.HashSet<>();
+        Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
 
-        HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
-        java.util.HashSet<Position> used = new java.util.HashSet<>();
-        placedTiles.forEach((pos, tuple) -> {
+        return Stream.ofAll(placedTiles).flatMap(item -> {
+            Position pos = item._1;
+            java.util.List<Tuple2<Position, EdgePattern>> avail = new java.util.ArrayList<>(4);
             for (Position offset: Position.ADJACENT.values()) {
                 Position adj = pos.add(offset);
                 if (!used.contains(adj) && !placedTiles.containsKey(adj)) {
-                    builder.add(new Tuple2<Position, EdgePattern>(adj, getEdgetPattern(adj)));
+                    avail.add(new Tuple2<Position, EdgePattern>(adj, getEdgetPattern(adj)));
                     used.add(adj);
                 }
             }
+            return avail;
         });
+    }
 
-        return builder.build();
+    public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements(TileDefinition tile) {
+        return getAvailablePlacements().filter(t -> {
+            //TODO check bridge
+            return game.isTilePlacementAllowed(tile, t._1);
+        });
     }
 
     public Stream<Tuple2<Position, EdgePattern>> getHoles() {
-        return getAvailablePlacements().filter(tuple -> {
-            return tuple._2.wildcardSize() == 0;
-        });
+        return getAvailablePlacements().filter(t -> t._2.wildcardSize() == 0);
     }
 
 //    /**
@@ -122,16 +143,20 @@ public class Board {
      * @param p position to place
      * @throws IllegalMoveException if placement is violate game rules
      */
-    public void add(Tile tile, Position pos) {
-        HashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
+    //TODO rename to placeTile
+    //IMMUTABLE TODO
+    public void add(TileDefinition tile, Position pos, Rotation rot) {
+        Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
         assert !placedTiles.containsKey(pos);
         game.replaceState(state -> state.setPlacedTiles(
             placedTiles.put(
                 pos,
-                new Tuple2<>(tile.getTileDefinition(), tile.getRotation())
+                new Tuple2<>(tile, rot)
             )
         ));
+        tile.getInitialFeatures().map(t -> t.update2(t._2.placeOnBoard(pos, rot)));
         //TODO merge features
+        //IMMUTABLE TODO
     }
 
 //    public void add(Tile tile, Position p, boolean unchecked) {
@@ -231,28 +256,28 @@ public class Board {
 //    }
 
 
-    /**
-     * Returns tile on position with cordinates <code>x</code>,<code>y</code>.
-     * @param x x-coordinate
-     * @param y y-coordinate
-     * @return demand tile
-     */
     public Tile get(int x, int y) {
-        return tiles.get(new Position(x, y));
+        return get(new Position(x, y));
     }
 
-    public Tile get(Position p) {
-        return tiles.get(p);
+    public Tile get(Position pos) {
+        Option<Tile> o = tiles.get(pos);
+        if (o == null) {
+            Tuple2<TileDefinition, Rotation> t = getPlacedTile(pos);
+            o = Option.of(t == null ? null : new Tile(game, pos));
+            tiles.put(pos, o);
+        }
+        return o.get();
     }
 
     public Feature get(FeaturePointer fp) {
-        Tile tile =  tiles.get(fp.getPosition());
-        return tile == null ? null : tile.getFeaturePartOf(fp.getLocation());
+        return game.getState().getFeatures().get(fp).getOrNull();
     }
 
-    public Collection<Tile> getAllTiles() {
-        return tiles.values();
-    }
+    //TODO maybe get all feature will be enough in new arch
+//    public Collection<Tile> getAllTiles() {
+//
+//    }
 
     /*
      * Check if placement is legal against orthonogal neigbours. */

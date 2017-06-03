@@ -5,6 +5,7 @@ import java.util.Objects;
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 
 @Immutable
 public class FeaturePointer implements BoardPointer {
@@ -28,6 +29,14 @@ public class FeaturePointer implements BoardPointer {
         return new FeaturePointer(position.add(pos), location);
     }
 
+    public FeaturePointer rotateCW(Rotation rot) {
+        return new FeaturePointer(position, location.rotateCW(rot));
+    }
+
+    public FeaturePointer rotateCCW(Rotation rot) {
+        return new FeaturePointer(position, location.rotateCCW(rot));
+    }
+
     public Position getPosition() {
         return position;
     }
@@ -35,9 +44,6 @@ public class FeaturePointer implements BoardPointer {
     public Location getLocation() {
         return location;
     }
-
-
-
 
     @Override
     public String toString() {
@@ -59,7 +65,4 @@ public class FeaturePointer implements BoardPointer {
         if (!Objects.equals(position, other.position)) return false;
         return true;
     }
-
-
-
 }

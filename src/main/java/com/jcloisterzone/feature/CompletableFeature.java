@@ -2,6 +2,7 @@ package com.jcloisterzone.feature;
 
 import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.Game;
 
@@ -32,8 +33,8 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
         return openEdges.appendAll(obj.openEdges).distinct();
     }
 
-    protected List<Edge> placeOnBoardEdges(Position pos) {
-        return openEdges.map(edge -> edge.translate(pos));
+    protected List<Edge> placeOnBoardEdges(Position pos, Rotation rot) {
+        return openEdges.map(edge -> edge.rotateCW(Position.ZERO, rot).translate(pos));
     }
 
 }

@@ -5,6 +5,7 @@ import static com.jcloisterzone.ui.I18nUtils._;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.RoadScoreContext;
 import com.jcloisterzone.game.Game;
@@ -40,13 +41,13 @@ public class Road extends CompletableFeature<Road> {
     }
 
     @Override
-    public Road placeOnBoard(Position pos) {
+    public Road placeOnBoard(Position pos, Rotation rot) {
         return new Road(
             game,
-            placeOnBoardPlaces(pos),
-            placeOnBoardEdges(pos),
+            placeOnBoardPlaces(pos, rot),
+            placeOnBoardEdges(pos, rot),
             inn,
-            placeOnBoardTunnelEnds(pos)
+            placeOnBoardTunnelEnds(pos, rot)
         );
     }
 
@@ -100,7 +101,7 @@ public class Road extends CompletableFeature<Road> {
         return tunnelEnds.merge(road.tunnelEnds);
     }
 
-    protected Map<FeaturePointer, TunnelEnd> placeOnBoardTunnelEnds(Position pos) {
-        return tunnelEnds.mapKeys(fp -> fp.translate(pos));
+    protected Map<FeaturePointer, TunnelEnd> placeOnBoardTunnelEnds(Position pos, Rotation rot) {
+        return tunnelEnds.mapKeys(fp -> fp.rotateCW(rot).translate(pos));
     }
 }

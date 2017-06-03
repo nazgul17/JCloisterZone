@@ -1,9 +1,12 @@
 package com.jcloisterzone.feature;
 
+import static com.jcloisterzone.ui.I18nUtils._;
+
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.CityScoreContext;
 import com.jcloisterzone.game.Game;
@@ -11,8 +14,6 @@ import com.jcloisterzone.game.Game;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
-
-import static com.jcloisterzone.ui.I18nUtils._;
 
 public class City extends CompletableFeature<City> {
 
@@ -52,11 +53,11 @@ public class City extends CompletableFeature<City> {
     }
 
     @Override
-    public Feature placeOnBoard(Position pos) {
+    public Feature placeOnBoard(Position pos, Rotation rot) {
         return new City(
             game,
-            placeOnBoardPlaces(pos),
-            placeOnBoardEdges(pos),
+            placeOnBoardPlaces(pos, rot),
+            placeOnBoardEdges(pos, rot),
             pennants, tradeResources, besieged, cathedral, princess, castleBase
         );
     }

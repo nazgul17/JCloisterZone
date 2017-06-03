@@ -30,6 +30,20 @@ public class Edge {
         return new Edge(p1.add(pos), p2.add(pos));
     }
 
+    public Edge rotateCW(Position origin, Rotation rot) {
+        return new Edge(
+            p1.rotateCW(origin, rot),
+            p2.rotateCW(origin, rot)
+        );
+    }
+
+    public Edge rotateCCW(Position origin, Rotation rot) {
+        return new Edge(
+            p1.rotateCCW(origin, rot),
+            p2.rotateCCW(origin, rot)
+        );
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(p1, p2);
