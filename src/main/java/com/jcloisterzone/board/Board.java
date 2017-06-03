@@ -4,7 +4,9 @@ import java.util.ArrayList;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BridgeCapability;
 
@@ -23,11 +25,7 @@ import io.vavr.control.Option;
 
  */
 public class Board {
-//    protected final Map<Position,Tile> tiles = new LinkedHashMap<Position,Tile>();
-//    protected final Map<Position, EdgePattern> availMoves = new HashMap<>();
-//    protected final Map<Position, Set<Rotation>> currentAvailMoves = new HashMap<>();
-//    protected final Set<Position> holes = new HashSet<>();
-//    private int maxX, minX, maxY, minY;
+    //TODO move tiles inside and make it immutable
 
     private final Game game;
 
@@ -145,6 +143,7 @@ public class Board {
      */
     //TODO rename to placeTile
     //IMMUTABLE TODO
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     public void add(TileDefinition tile, Position pos, Rotation rot) {
         Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
         assert !placedTiles.containsKey(pos);
@@ -154,9 +153,25 @@ public class Board {
                 new Tuple2<>(tile, rot)
             )
         ));
-        tile.getInitialFeatures().map(t -> t.update2(t._2.placeOnBoard(pos, rot)));
-        //TODO merge features
-        //IMMUTABLE TODO
+        java.util.Map<FeaturePointer, Feature> fpUpdate = new java.util.HashMap<>();
+        Stream.ofAll(tile.getInitialFeatures().values())
+            .map(f -> f.placeOnBoard(pos, rot))
+            .forEach(feature -> {
+                if (feature instanceof MultiTileFeature) {
+                    Stream<FeaturePointer> adjacent = feature.getPlaces().get().getAdjacent(feature.getClass());
+                    feature = adjacent.foldLeft((MultiTileFeature) feature, (f, adjFp) -> {
+                        Option<Feature> adj = game.getState().getFeatures().get(adjFp);
+                        if (adj.isEmpty()) return f;
+                        return f.merge((MultiTileFeature) adj.get());
+                    });
+                }
+                for (FeaturePointer fp : feature.getPlaces()) {
+                    fpUpdate.put(fp, feature);
+                }
+            });
+        game.replaceState(state ->
+            state.setFeatures(HashMap.ofAll(fpUpdate).merge(state.getFeatures()))
+        );
     }
 
 //    public void add(Tile tile, Position p, boolean unchecked) {
@@ -281,14 +296,14 @@ public class Board {
 
     /*
      * Check if placement is legal against orthonogal neigbours. */
-    public boolean isPlacementAllowed(Tile tile, Position p) {
-        for (Entry<Location, Tile> e : getAdjacentTilesMap(p).entrySet()) {
-            if (!tile.check(e.getValue(), e.getKey(), this)) {
-                return false;
-            }
-        }
-        return true;
-    }
+//    public boolean isPlacementAllowed(Tile tile, Position p) {
+//        for (Entry<Location, Tile> e : getAdjacentTilesMap(p).entrySet()) {
+//            if (!tile.check(e.getValue(), e.getKey(), this)) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 
     public int getMaxX() {
         return maxX;
@@ -306,16 +321,16 @@ public class Board {
         return minY;
     }
 
-    public List<Tile> getMulti(Position[] positions) {
-        List<Tile> tiles = new ArrayList<>();
-        for (Position p : positions) {
-            Tile t = get(p);
-            if (t != null) {
-                tiles.translate(t);
-            }
-        }
-        return tiles;
-    }
+//    public List<Tile> getMulti(Position[] positions) {
+//        List<Tile> tiles = new ArrayList<>();
+//        for (Position p : positions) {
+//            Tile t = get(p);
+//            if (t != null) {
+//                tiles.translate(t);
+//            }
+//        }
+//        return tiles;
+//    }
 
     public Map<Location, Tile> getAdjacentTilesMap(Position pos) {
         Map<Location, Tile> tiles = new HashMap<Location, Tile>(4);
@@ -335,7 +350,7 @@ public class Board {
     public int getContinuousRowSize(Position start, Location direction) {
         start = start.add(direction);
         int size = 0;
-        while (get(start) != null) {
+        while (getPlacedTile(start) != null) {
             size++;
             start = start.add(direction);
         }

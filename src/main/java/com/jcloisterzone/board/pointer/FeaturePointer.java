@@ -6,6 +6,11 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
+import com.jcloisterzone.feature.Farm;
+import com.jcloisterzone.feature.Feature;
+
+import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 
 @Immutable
 public class FeaturePointer implements BoardPointer {
@@ -35,6 +40,21 @@ public class FeaturePointer implements BoardPointer {
 
     public FeaturePointer rotateCCW(Rotation rot) {
         return new FeaturePointer(position, location.rotateCCW(rot));
+    }
+
+    public Stream<FeaturePointer> getAdjacent(Class<? extends Feature> forType) {
+        if (Farm.class.isAssignableFrom(forType)) {
+            return Stream.of(Location.sides()).flatMap(loc ->
+                List.of(
+                    new FeaturePointer(position.add(loc), loc.getLeftFarm().rev()),
+                    new FeaturePointer(position.add(loc), loc.getRightFarm().rev())
+                )
+            );
+        } else {
+            return Stream.of(Location.sides()).map(loc ->
+                new FeaturePointer(position.add(loc), loc.rev())
+            );
+        }
     }
 
     public Position getPosition() {
