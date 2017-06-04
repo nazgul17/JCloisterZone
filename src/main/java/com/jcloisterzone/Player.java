@@ -2,11 +2,7 @@ package com.jcloisterzone;
 
 import java.io.Serializable;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.List;
 
-import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
@@ -17,6 +13,7 @@ import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.ui.PlayerColor;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.control.Option;
 
 
@@ -33,15 +30,21 @@ public class Player implements IPlayer, Serializable {
     private final Game game;
     private final PlayerAttributes attributes;
 
-    private final List<Follower> followers = new ArrayList<Follower>(SmallFollower.QUANTITY + 3);
-    private final List<Special> specialMeeples = new ArrayList<Special>(3);
-    private final Iterable<Meeple> meeples = Iterables.<Meeple>concat(followers, specialMeeples);
+    private final List<Follower> followers;
+    private final List<Special> specialMeeples;
+
+//    private final List<Follower> followers = new ArrayList<Follower>(SmallFollower.QUANTITY + 3);
+//    private final List<Special> specialMeeples = new ArrayList<Special>(3);
+//    private final Iterable<Meeple> meeples = Iterables.<Meeple>concat(followers, specialMeeples);
 
     private final PlayerClock clock = new PlayerClock();
 
     public Player(Game game, PlayerAttributes attributes) {
         this.game = game;
         this.attributes = attributes;
+
+        followers = game.createPlayerFollowers(attributes);
+        specialMeeples = game.createPlayerSpecialMeeples(attributes);
     }
 
     public void addMeeple(Meeple meeple) {

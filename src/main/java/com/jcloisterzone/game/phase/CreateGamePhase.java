@@ -148,7 +148,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         last.setDefaultNext(next); //after last phase, the first is default
     }
 
-    private void createPlayers() {
+    protected void preparePlayers() {
         List<PlayerAttributes> players = new ArrayList<>();
         PlayerSlot[] sorted = new PlayerSlot[slots.length];
         System.arraycopy(slots, 0, sorted, 0, slots.length);
@@ -168,20 +168,6 @@ public class CreateGamePhase extends ServerAwarePhase {
 
     protected Snapshot getSnapshot() {
         return null;
-    }
-
-    protected void initializePlayersMeeples() {
-        for (Player player : game.getAllPlayers()) {
-            for (int i = 0; i < SmallFollower.QUANTITY; i++) {
-                player.addMeeple(new SmallFollower(game, i, player));
-            }
-            game.initPlayer(player);
-        }
-    }
-
-    protected void preparePlayers() {
-        createPlayers();
-        initializePlayersMeeples();
     }
 
     protected Tiles prepareTilePack() {

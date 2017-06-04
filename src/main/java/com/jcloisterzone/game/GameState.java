@@ -17,7 +17,6 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.LinkedHashMultimap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
@@ -35,7 +34,7 @@ public class GameState {
     private final List<TileDefinition> discardedTiles;
     private final Map<FeaturePointer, Feature> features;
 
-    private final LinkedHashMultimap<FeaturePointer, Meeple> deployedMeeples;
+    private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
 
     /*
      * tilepack = List<TileDefinition> TOOD random remove, implement own class
@@ -52,7 +51,7 @@ public class GameState {
             LinkedHashMap.empty(),
             List.empty(),
             HashMap.empty(),
-            LinkedHashMultimap.withSeq().empty()
+            LinkedHashMap.empty()
         );
     }
 
@@ -60,7 +59,7 @@ public class GameState {
             TilePackState tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
-            LinkedHashMultimap<FeaturePointer, Meeple> deployedMeeples) {
+            LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
         this.players = players;
         this.score = score;
         this.turnPlayer = turnPlayer;
@@ -107,7 +106,7 @@ public class GameState {
         return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
     }
 
-    public GameState setDeployedMeeples(LinkedHashMultimap<FeaturePointer, Meeple> deployedMeeples) {
+    public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
         return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
     }
 
@@ -143,7 +142,7 @@ public class GameState {
         return features;
     }
 
-    public LinkedHashMultimap<FeaturePointer, Meeple> getDeployedMeeples() {
+    public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
         return deployedMeeples;
     }
 }

@@ -1,14 +1,6 @@
 package com.jcloisterzone.game;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -53,6 +45,7 @@ import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.feature.visitor.score.ScoreContext;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.capability.FairyCapability;
@@ -61,7 +54,12 @@ import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
 
+import io.vavr.Tuple2;
 import io.vavr.collection.Array;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.LinkedHashMultimap;
+import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 
 
 /**
@@ -84,20 +82,20 @@ public class Game extends GameSettings implements EventProxy {
 
     // -- old --
 
-    private final List<NeutralFigure> neutralFigures = new ArrayList<>();
-
+//    private final List<NeutralFigure> neutralFigures = new ArrayList<>();
+//
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
     private Phase phase;
-
-    private List<Capability> capabilities = new ArrayList<>(); //TODO change to map?
-    private FairyCapability fairyCapability; //shortcut - TODO remove
+//
+    private List<Capability> capabilities = List.empty(); //TODO change to map?
+//    private FairyCapability fairyCapability; //shortcut - TODO remove
 
 //    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
 //    private Phase lastUndoablePhase;
 
     private final EventBus eventBus = new EventBus(new EventBusExceptionHandler("game event bus"));
     //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before swithc is done
-    private final Deque<Event> eventQueue = new ArrayDeque<>();
+    private final java.util.Deque<Event> eventQueue = new java.util.ArrayDeque<>();
 
     private int idSequenceCurrVal = 0;
 
@@ -243,22 +241,18 @@ public class Game extends GameSettings implements EventProxy {
         return phases;
     }
 
-    public Iterable<Meeple> getDeployedMeeples() {
-        Iterable<Meeple> iter = Collections.emptyList();
-        for (Player player : players) {
-            iter = Iterables.concat(iter, player.getFollowers(), player.getSpecialMeeples());
-        }
-        return Iterables.filter(iter, MeeplePredicates.deployed());
+    public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
+        return state.getDeployedMeeples();
     }
 
     public Player getTurnPlayer() {
         return players.get(state.getTurnPlayer());
     }
 
-    public void setTurnPlayer(IPlayer player) {
-        this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
-        post(new PlayerTurnEvent(getTurnPlayer()));
-    }
+//    public void setTurnPlayer(IPlayer player) {
+//        this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
+//        post(new PlayerTurnEvent(getTurnPlayer()));
+//    }
 
     /**
      * Returns player who is allowed to make next action.
@@ -269,9 +263,9 @@ public class Game extends GameSettings implements EventProxy {
         return phase == null ? null : phase.getActivePlayer();
     }
 
-    public List<NeutralFigure> getNeutralFigures() {
-        return neutralFigures;
-    }
+//    public List<NeutralFigure> getNeutralFigures() {
+//        return neutralFigures;
+//    }
 
     public Player getNextPlayer() {
         return getNextPlayer(getTurnPlayer());
@@ -321,10 +315,9 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public Meeple getMeeple(MeeplePointer mp) {
-        for (Meeple m : getDeployedMeeples()) {
-            if (m.at(mp)) return m;
-        }
-        return null;
+        Tuple2<Meeple, FeaturePointer> match =
+            getDeployedMeeples().find(t -> mp.match(t._1)).getOrNull();
+        return match == null ? null : match._1;
     }
 
     // TODO rename
@@ -336,11 +329,22 @@ public class Game extends GameSettings implements EventProxy {
         this.players = players.map(p -> new Player(this, p));
     }
 
+    public List<Follower> createPlayerFollowers(PlayerAttributes p) {
+        Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
+                .map(i -> (Follower) new SmallFollower(this, i, p));
+
+        List<Follower> followers = List.ofAll(stream);
+
+        //TODO call create on capabilities
+
+        return followers;
+    }
+
     private void createCapabilityInstance(Class<? extends Capability> clazz) {
         if (clazz == null) return;
         try {
             Capability capability = clazz.getConstructor(Game.class).newInstance(this);
-            capabilities.add(capability);
+            capabilities = capabilities.append(capability);
         } catch (Exception e) {
             logger.error(e.getMessage(), e); //should never happen
         }

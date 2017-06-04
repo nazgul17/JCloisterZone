@@ -36,7 +36,7 @@ public abstract class Meeple extends Figure {
         public static final DeploymentCheckResult OK = new DeploymentCheckResult();
     }
 
-    public Meeple(Game game, Integer idSuffix, Player player) {
+    public Meeple(Game game, Integer idSuffix, PlayerAttributes player) {
         super(game);
         StringBuilder idBuilder = new StringBuilder();
         idBuilder.append(player.getIndex());
