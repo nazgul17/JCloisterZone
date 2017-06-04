@@ -5,7 +5,7 @@ import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.ClothWineGrainCapability;
 
-public class TradeResourceEvent extends PlayEvent implements Undoable {
+public class TradeResourceEvent extends PlayEvent {
 
     private final TradeResource resource;
     private final int count;
@@ -22,16 +22,5 @@ public class TradeResourceEvent extends PlayEvent implements Undoable {
 
     public int getCount() {
         return count;
-    }
-
-    @Override
-    public void undo(Game game) {
-        ClothWineGrainCapability cap = game.getCapability(ClothWineGrainCapability.class);
-        cap.addTradeResources(getTargetPlayer(), resource, -count);
-    }
-
-    @Override
-    public Event getInverseEvent() {
-        throw new UnsupportedOperationException();
     }
 }

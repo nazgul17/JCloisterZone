@@ -86,9 +86,6 @@ public abstract class Phase implements RmiProxy {
 
     //shortcuts
 
-    protected TilePack getTilePack() {
-        return game.getTilePack();
-    }
     protected Board getBoard() {
         return game.getBoard();
     }

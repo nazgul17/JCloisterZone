@@ -2,11 +2,9 @@ package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.Game;
 
-public class MeepleEvent extends MoveEvent<FeaturePointer> implements Undoable {
+public class MeepleEvent extends MoveEvent<FeaturePointer> {
 
     private final Meeple meeple;
 
@@ -17,25 +15,6 @@ public class MeepleEvent extends MoveEvent<FeaturePointer> implements Undoable {
 
     public Meeple getMeeple() {
         return meeple;
-    }
-
-    @Override
-    public void undo(Game game) {
-        if (getTo() != null) {
-            meeple.getFeature().removeMeeple(meeple);
-            meeple.clearDeployment();
-        }
-        if (getFrom() != null) {
-            Feature f = game.getBoard().get(getFrom());
-            f.addMeeple(meeple);
-            meeple.setFeaturePointer(getFrom());
-            meeple.setFeature(f);
-        }
-    }
-
-    @Override
-    public Event getInverseEvent() {
-        return new MeepleEvent(getTriggeringPlayer(), meeple, to, from);
     }
 
     @Override

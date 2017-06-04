@@ -82,13 +82,6 @@ public class Game extends GameSettings implements EventProxy {
 
     // -- old --
 
-    /** pack of remaining tiles */
-    private TilePack tilePack;
-    /** pack of remaining tiles */
-    private Tile currentTile;
-    /** game board, contains placed tiles */
-
-
     private final List<NeutralFigure> neutralFigures = new ArrayList<>();
 
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
@@ -306,14 +299,6 @@ public class Game extends GameSettings implements EventProxy {
      */
     public Array<Player> getAllPlayers() {
         return players;
-    }
-
-    public TilePack getTilePack() {
-        return tilePack;
-    }
-
-    public void setTilePack(TilePack tilePack) {
-        this.tilePack = tilePack;
     }
 
     public Board getBoard() {

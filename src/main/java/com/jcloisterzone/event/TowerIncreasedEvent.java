@@ -6,7 +6,7 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.TowerCapability;
 
-public class TowerIncreasedEvent extends PlayEvent implements Undoable {
+public class TowerIncreasedEvent extends PlayEvent {
 
     private final int captureRange;
     private final Position position;
@@ -23,21 +23,5 @@ public class TowerIncreasedEvent extends PlayEvent implements Undoable {
 
     public Position getPosition() {
         return position;
-    }
-
-    @Override
-    public void undo(Game game) {
-        Tile tile = game.getBoard().get(position);
-        assert tile.getTower().getHeight() > 0;
-        tile.getTower().setHeight(tile.getTower().getHeight() - 1);
-
-        TowerCapability cap = game.getCapability(TowerCapability.class);
-        cap.setLastIncreasedTower(null);
-        cap.setTowerPieces(getTriggeringPlayer(), cap.getTowerPieces(getTriggeringPlayer()) + 1);
-    }
-
-    @Override
-    public Event getInverseEvent() {
-        throw new UnsupportedOperationException();
     }
 }

@@ -8,7 +8,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.FairyCapability;
 
-public class ScoreEvent extends PlayEvent implements Undoable {
+public class ScoreEvent extends PlayEvent  {
 
     //TODO fields revision
 
@@ -74,26 +74,6 @@ public class ScoreEvent extends PlayEvent implements Undoable {
 
     public boolean isFinal() {
         return isFinal;
-    }
-
-    @Override
-    public void undo(Game game) {
-        if (label != null && label.contains(" + ")) {
-            //HACK: nasty hack, fairy finished object fires score event as one, but points are in two categories
-            getTargetPlayer().addPoints(-FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-            getTargetPlayer().addPoints(-points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, category);
-        } else {
-            getTargetPlayer().addPoints(-points, category);
-        }
-    }
-
-    @Override
-    public Event getInverseEvent() {
-    	if (this.meepleType != null) {
-    		throw new UnsupportedOperationException();
-    	}
-    	// only non-meeple events are currently reversed
-    	return new ScoreEvent(position, getTargetPlayer(), -points, category);
     }
 
     @Override

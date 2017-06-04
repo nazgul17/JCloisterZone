@@ -14,10 +14,13 @@ import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.ai.AiPlayer;
-import com.jcloisterzone.board.DefaultTilePack;
-import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
+import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePackFactory;
+import com.jcloisterzone.board.TilePackFactory.Tiles;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.PlayerTurnEvent;
@@ -34,6 +37,7 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.SlotMessage;
 
+import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 
 
@@ -180,23 +184,24 @@ public class CreateGamePhase extends ServerAwarePhase {
         initializePlayersMeeples();
     }
 
-    protected void prepareTilePack() {
+    protected Tiles prepareTilePack() {
         TilePackFactory tilePackFactory = new TilePackFactory();
         tilePackFactory.setGame(game);
         tilePackFactory.setConfig(getGameController().getConfig());
         tilePackFactory.setExpansions(game.getExpansions());
-        game.setTilePack(tilePackFactory.createTilePack());
-        getTilePack().setGroupState("default", TileGroupState.ACTIVE);
-        getTilePack().setGroupState("count", TileGroupState.ACTIVE);
-        getTilePack().setGroupState("wind-rose-initial", TileGroupState.ACTIVE);
-        game.begin();
+
+        Tiles tiles = tilePackFactory.createTilePack();
+        TilePack tilePack = tiles.getTilePack();
+        tilePack = tilePack.setGroupState("default", TileGroupState.ACTIVE);
+        tilePack = tilePack.setGroupState("count", TileGroupState.ACTIVE);
+        tilePack = tilePack.setGroupState("wind-rose-initial", TileGroupState.ACTIVE);
+        return new Tiles(tilePack, tiles.getPreplacedTiles());
     }
 
-    protected void preplaceTiles() {
-        for (Tile preplaced : ((DefaultTilePack)getTilePack()).drawPrePlacedActiveTiles()) {
-            game.getBoard().add(preplaced, preplaced.getPosition(), true);
-            game.getBoard().mergeFeatures(preplaced);
-            game.post(new TileEvent(TileEvent.PLACEMENT, null, preplaced, preplaced.getPosition()));
+    protected void preplaceTiles(Iterable<Tuple2<TileDefinition, Position>> preplacedTiles) {
+        for (Tuple2<TileDefinition, Position> t : preplacedTiles) {
+            game.getBoard().add(t._1, t._2, Rotation.R0);
+            game.post(new TileEvent(TileEvent.PLACEMENT, null, t._1, t._2, Rotation.R0));
         }
     }
 
@@ -259,11 +264,13 @@ public class CreateGamePhase extends ServerAwarePhase {
         game.start();
         preparePlayers();
         preparePhases();
-        prepareTilePack();
+        Tiles tiles = prepareTilePack();
+        game.replaceState(state -> state.setTilePacks(tiles.getTilePack()));
+        game.begin();
         prepareAiPlayers(muteAi);
 
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, getSnapshot()));
-        preplaceTiles();
+        preplaceTiles(tiles.getPreplacedTiles());
         game.post(new PlayerTurnEvent(game.getTurnPlayer()));;
         toggleClock(game.getTurnPlayer());
         next();

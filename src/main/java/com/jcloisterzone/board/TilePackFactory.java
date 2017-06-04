@@ -32,6 +32,25 @@ import static com.jcloisterzone.XMLUtils.getTileId;
 
 public class TilePackFactory {
 
+    public static class Tiles {
+        private final TilePack tilePack;
+        private List<Tuple2<TileDefinition, Position>> preplacedTiles;
+
+        public Tiles(TilePack tilePack, List<Tuple2<TileDefinition, Position>> preplacedTiles) {
+            super();
+            this.tilePack = tilePack;
+            this.preplacedTiles = preplacedTiles;
+        }
+
+        public TilePack getTilePack() {
+            return tilePack;
+        }
+
+        public List<Tuple2<TileDefinition, Position>> getPreplacedTiles() {
+            return preplacedTiles;
+        }
+    }
+
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     public static final String DEFAULT_TILE_GROUP = "default";
@@ -181,7 +200,7 @@ public class TilePackFactory {
         );
     }
 
-    public Tuple2<TilePack, List<Tuple2<TileDefinition, Position>>> createTilePack() {
+    public Tiles createTilePack() {
         Map<String, Integer> discardList = getDiscardTiles();
 
         defs.forEach((expansion, element) -> {
@@ -253,7 +272,7 @@ public class TilePackFactory {
         });
 
         Map<String, Array<TileDefinition>> groups = HashMap.ofAll(tiles).mapValues(l -> Array.ofAll(l));
-        return new Tuple2<>(
+        return new Tiles(
             new DefaultTilePack(groups),
             List.ofAll(preplacedTiles)
         );
