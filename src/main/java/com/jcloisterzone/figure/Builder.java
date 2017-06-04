@@ -1,17 +1,17 @@
 package com.jcloisterzone.figure;
 
-import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.feature.City;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
-import com.jcloisterzone.feature.visitor.IsOccupiedAndUncompleted;
 import com.jcloisterzone.game.Game;
 
 public class Builder extends Special {
 
     private static final long serialVersionUID = 1189566966196473830L;
 
-    public Builder(Game game, Player player) {
+    public Builder(Game game, PlayerAttributes player) {
         super(game, player);
     }
 
@@ -20,8 +20,12 @@ public class Builder extends Special {
         if (!(f instanceof City || f instanceof Road) ) {
             return new DeploymentCheckResult("Builder must be placed in city or on road only.");
         }
-        if (!f.walk(new IsOccupiedAndUncompleted().with(Follower.class))) {
-            return new DeploymentCheckResult("Feature is not occupied by follower or completed.");
+        Completable cf = (Completable) f;
+        if (cf.isCompleted()) {
+            return new DeploymentCheckResult("Feature is completed.");
+        }
+        if (cf.getMeeples().find(m -> Follower.class.isInstance(m)).isEmpty()) {
+            return new DeploymentCheckResult("Feature is not occupied by follower.");
         }
         return super.isDeploymentAllowed(f);
     }

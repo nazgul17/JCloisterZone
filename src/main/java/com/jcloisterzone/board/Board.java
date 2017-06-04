@@ -104,6 +104,13 @@ public class Board {
         return getAvailablePlacements().filter(t -> t._2.wildcardSize() == 0);
     }
 
+    public Stream<TilePlacement> getTilePlacements(TileDefinition tile) {
+        return getAvailablePlacements(tile).flatMap(t -> {
+            // IMMUTABLE TODO filter rotations
+            return Stream.of(Rotation.values()).map(r -> new TilePlacement(t._1, r));
+        });
+    }
+
 //    /**
 //     * Updates current avail moves for next turn
 //     * @param tile next tile

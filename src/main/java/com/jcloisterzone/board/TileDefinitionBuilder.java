@@ -8,7 +8,6 @@ import static com.jcloisterzone.XMLUtils.attrAsLocations;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Stream;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +28,7 @@ import com.jcloisterzone.game.Game;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
 
 
 public class TileDefinitionBuilder {
@@ -117,9 +117,10 @@ public class TileDefinitionBuilder {
 
 
     private void processRoadElement(Element e, boolean isTunnelActive) {
+        //List<Location> sides = List.ofAll(contentAsLocations(e))
         Stream<Location> sides = contentAsLocations(e);
         //using tunnel argument for two cases, tunnel entrance and tunnel underpass - sides.length distinguish it
-        if (sides.toArray().length > 1 && isTunnelActive && attributeBoolValue(e, "tunnel")) {
+        if (sides.size() > 1 && isTunnelActive && attributeBoolValue(e, "tunnel")) {
             sides.forEach(loc -> {
                 processRoadElement(Stream.of(loc), e, true);
             });

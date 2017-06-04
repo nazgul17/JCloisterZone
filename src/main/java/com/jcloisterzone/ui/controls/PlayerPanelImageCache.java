@@ -49,11 +49,11 @@ public class PlayerPanelImageCache {
         return new ImageIcon(img.getScaledInstance(30, 30, Image.SCALE_SMOOTH)).getImage();
     }
 
-    private void scaleFigureImages(Player player, Color color, Collection<? extends Meeple> meeples) {
+    private void scaleFigureImages(Player player, Color color, Iterable<? extends Meeple> meeples) {
         for (Meeple f : meeples) {
             String key = player.getIndex() + f.getClass().getSimpleName();
             if (!scaledImages.containsKey(key)) {
-            	Image img = rm.getLayeredImage(new LayeredImageDescriptor(f.getClass(), color));
+                Image img = rm.getLayeredImage(new LayeredImageDescriptor(f.getClass(), color));
                 scaledImages.put(key, scaleImage(img));
             }
         }
@@ -65,8 +65,8 @@ public class PlayerPanelImageCache {
             scaleFigureImages(player, color, player.getFollowers());
             scaleFigureImages(player, color, player.getSpecialMeeples());
             if (game.hasCapability(TunnelCapability.class)) {
-            	Image tunnelA = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", player.getColors().getMeepleColor()));
-            	Image tunnelB = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", player.getColors().getTunnelBColor()));
+                Image tunnelA = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", player.getColors().getMeepleColor()));
+                Image tunnelB = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", player.getColors().getTunnelBColor()));
 
                 scaledImages.put(player.getIndex()+"tunnelA", scaleImage(tunnelA));
                 scaledImages.put(player.getIndex()+"tunnelB", scaleImage(tunnelB));

@@ -5,12 +5,14 @@ import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.FeaturePredicates;
 import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
@@ -216,55 +218,27 @@ public class Tile /*implements Cloneable*/ {
 //    }
 
     public Stream<Tuple2<Location, Scoreable>> getUnoccupiedScoreables(boolean excludeCompleted) {
-
-        return getFeatures()
+        Stream<Tuple2<Location, Scoreable>> unoccupied = getFeatures()
             .filter(t -> t._2 instanceof Scoreable)
             .map(t -> t.map2(f -> (Scoreable) f))
-            .filter(t -> t._2.getMeeples().isEmpty());
+            .filter(t -> !t._2.isOccupied());
 
-
-
-//        Set<Location> locations = new HashSet<>();
-//        for (Feature f : features) {
-//            if (f instanceof Scoreable) {
-//                if (f instanceof Cloister) {
-//                    Cloister c = (Cloister) f;
-//                    if (c.isMonastery() && c.getMeeples().isEmpty()) {
-//                        locations.add(Location.ABBOT);
-//                    }
-//                }
-//                IsOccupied visitor;
-//                if (excludeCompleted && f instanceof Completable) {
-//                    visitor = new IsOccupiedOrCompleted();
-//                } else {
-//                    visitor = new IsOccupied();
-//                }
-//                if (f.walk(visitor)) continue;
-//                locations.add(f.getLocation());
-//            }
-//        }
-//        return locations;
-    }
-
-    public Set<Location> getPlayerFeatures(Player player, Class<? extends Feature> featureClass) {
-        return getPlayerFeatures(player, featureClass, false);
-    }
-
-    public Set<Location> getPlayerUncompletedFeatures(Player player, Class<? extends Feature> featureClass) {
-        return getPlayerFeatures(player, featureClass, true);
-    }
-
-
-    private Set<Location> getPlayerFeatures(Player player, Class<? extends Feature> featureClass, boolean uncompletedOnly)  {
-        Set<Location> locations = new HashSet<>();
-        for (Feature f : features) {
-            if (!featureClass.isInstance(f)) continue;
-            IsOccupied visitor = uncompletedOnly ? new IsOccupiedAndUncompleted() : new IsOccupied();
-            if (f.walk(visitor.with(player).with(Follower.class))) {
-                locations.add(f.getLocation());
-            }
+        if (excludeCompleted) {
+            return unoccupied.filter(t -> FeaturePredicates.uncompleted().test(t._2));
+        } else {
+            return unoccupied;
         }
-        return locations;
+    }
+
+    public Stream<Tuple2<Location, Feature>> getPlayerFeatures(PlayerAttributes player, Class<? extends Feature> featureClass) {
+        return getFeatures()
+            .filter(t -> featureClass == null || featureClass.isInstance(t._2))
+            .filter(t -> t._2.isOccupiedBy(player));
+    }
+
+    public Stream<Tuple2<Location, Feature>> getPlayerUncompletedFeatures(PlayerAttributes player, Class<? extends Feature> featureClass) {
+        return getPlayerFeatures(player, featureClass)
+            .filter(t -> FeaturePredicates.uncompleted().test(t._2));
     }
 
     @Override
@@ -273,66 +247,49 @@ public class Tile /*implements Cloneable*/ {
     }
 
     public TileTrigger getTrigger() {
-        return trigger;
+        return getTileDefinition().getTrigger();
     }
 
-    public void setTrigger(TileTrigger trigger) {
-        this.trigger = trigger;
-    }
 
     public boolean hasTrigger(TileTrigger trigger) {
-        return trigger == this.trigger;
+        return getTrigger() == trigger;
     }
 
     public Class<? extends Feature> getCornCircle() {
-        return cornCircle;
+        return getTileDefinition().getCornCircle();
     }
 
-    public void setCornCircle(Class<? extends Feature> cornCircle) {
-        this.cornCircle = cornCircle;
-    }
-
-    public City getCityWithPrincess() {
-        for (Feature p : features) {
-            if (p instanceof City ) {
-                City cp = (City) p;
-                if (cp.isPricenss()) {
-                    return cp;
-                }
-            }
-        }
-        return null;
-    }
+//    public City getCityWithPrincess() {
+//        for (Feature p : features) {
+//            if (p instanceof City ) {
+//                City cp = (City) p;
+//                if (cp.isPricenss()) {
+//                    return cp;
+//                }
+//            }
+//        }
+//        return null;
+//    }
 
 
     public Location getRiver() {
-        return river;
+       Location loc =  getTileDefinition().getRiver();
+       return loc == null ? null : loc.rotateCCW(getRotation());
     }
-
-    public void setRiver(Location river) {
-        this.river = river;
-    }
-
 
     public Location getFlier() {
-        return flier;
-    }
-
-    public void setFlier(Location flier) {
-        this.flier = flier;
+        Location loc =  getTileDefinition().getFlier();
+        return loc == null ? null : loc.rotateCCW(getRotation());
     }
 
     public Location getWindRose() {
-        return windRose;
+        Location loc =  getTileDefinition().getWindRose();
+        return loc == null ? null : loc.rotateCCW(getRotation());
     }
 
-    public void setWindRose(Location windRose) {
-        this.windRose = windRose;
-    }
-
-    public boolean isBridgeAllowed(Location bridgeLoc) {
-        if (origin == Expansion.COUNT || getBridge() != null) return false;
-        return edgePattern.isBridgeAllowed(bridgeLoc, rotation);
-    }
+//    public boolean isBridgeAllowed(Location bridgeLoc) {
+//        if (origin == Expansion.COUNT || getBridge() != null) return false;
+//        return edgePattern.isBridgeAllowed(bridgeLoc, rotation);
+//    }
 
 }

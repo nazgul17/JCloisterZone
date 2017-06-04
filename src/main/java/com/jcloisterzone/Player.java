@@ -14,6 +14,7 @@ import com.jcloisterzone.ui.PlayerColor;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
 
@@ -47,14 +48,6 @@ public class Player implements IPlayer, Serializable {
         specialMeeples = game.createPlayerSpecialMeeples(attributes);
     }
 
-    public void addMeeple(Meeple meeple) {
-        if (meeple instanceof Follower) {
-            followers.add((Follower) meeple);
-        } else {
-            specialMeeples.add((Special) meeple);
-        }
-    }
-
     public List<Follower> getFollowers() {
         return followers;
     }
@@ -63,29 +56,40 @@ public class Player implements IPlayer, Serializable {
         return specialMeeples;
     }
 
-    public Iterable<Meeple> getMeeples() {
-        return meeples;
+    public Stream<Meeple> getMeeples() {
+        return Stream.concat(followers, specialMeeples);
     }
 
     public boolean hasSpecialMeeple(Class<? extends Special> clazz) {
         assert !Modifier.isAbstract(clazz.getModifiers());
-        return Iterables.any(specialMeeples, Predicates.and(MeeplePredicates.inSupply(), MeeplePredicates.type(clazz)));
+        return !Stream.ofAll(specialMeeples)
+            .filter(m -> m.getClass().equals(clazz))
+            .filter(m -> m.isInSupply())
+            .isEmpty();
     }
 
     public boolean hasFollower() {
-        return Iterables.any(followers, MeeplePredicates.inSupply());
+        return !Stream.ofAll(followers)
+            .filter(m -> m.isInSupply())
+            .isEmpty();
     }
 
     public boolean hasFollower(Class<? extends Follower> clazz) {
         assert !Modifier.isAbstract(clazz.getModifiers());
-        //chcek equality not instanceOf - phantom is subclass of small follower
-        return Iterables.any(followers, Predicates.and(MeeplePredicates.inSupply(), MeeplePredicates.type(clazz)));
+        //check equality not instanceOf - phantom is subclass of small follower
+        return !Stream.ofAll(followers)
+                .filter(m -> m.getClass().equals(clazz))
+                .filter(m -> m.isInSupply())
+                .isEmpty();
     }
 
     public Meeple getMeepleFromSupply(Class<? extends Meeple> clazz) {
         assert !Modifier.isAbstract(clazz.getModifiers());
-        Iterable<? extends Meeple> collection = (Follower.class.isAssignableFrom(clazz) ? followers : specialMeeples);
-        return Iterables.find(collection, Predicates.and(MeeplePredicates.inSupply(), MeeplePredicates.type(clazz)));
+        List<? extends Meeple> collection = (Follower.class.isAssignableFrom(clazz) ? followers : specialMeeples);
+        return Stream.ofAll(collection)
+            .filter(m -> m.getClass().equals(clazz))
+            .find(m -> m.isInSupply())
+            .getOrNull();
     }
 
     public void addPoints(int points, PointCategory category) {
@@ -110,7 +114,7 @@ public class Player implements IPlayer, Serializable {
     }
 
     public PlayerColor getColors() {
-        return attributes.getSlot().getColors();
+        return attributes.getColors();
     }
 
     public PlayerSlot getSlot() {
@@ -119,6 +123,16 @@ public class Player implements IPlayer, Serializable {
 
     public PlayerClock getClock() {
         return clock;
+    }
+
+    public int getPointsInCategory(PointCategory cat) {
+        HashMap<PointCategory, Integer> pointStats = game.getState().getScore(this).getStats();
+        Option<Integer> points = pointStats.get(cat);
+        return points.getOrElse(0);
+    }
+
+    public boolean isLocalHuman() {
+        return attributes.isLocalHuman();
     }
 
     @Override
@@ -137,22 +151,6 @@ public class Player implements IPlayer, Serializable {
         return attributes.hashCode();
     }
 
-    public int getPointsInCategory(PointCategory cat) {
-        HashMap<PointCategory, Integer> pointStats = game.getState().getScore(this).getStats();
-        Option<Integer> points = pointStats.get(cat);
-        return points.getOrElse(0);
-    }
 
-//    public void setPoints(int points) {
-//        this.points = points;
-//    }
-//
-//    public void setPointsInCategory(PointCategory category, int points) {
-//        pointStats.put(category, points);
-//    }
-
-    public boolean isLocalHuman() {
-        return getSlot().isOwn() && !getSlot().isAi();
-    }
 
 }

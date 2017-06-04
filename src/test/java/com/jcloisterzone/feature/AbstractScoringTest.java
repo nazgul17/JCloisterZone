@@ -29,7 +29,7 @@ public class AbstractScoringTest extends AbstractTileTest {
 
     @Before
     public void setUp() {
-        game.start();
+        game.createCapabilities();
     }
 
     @After

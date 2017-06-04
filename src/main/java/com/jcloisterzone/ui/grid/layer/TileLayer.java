@@ -19,9 +19,9 @@ public class TileLayer extends AbstractGridLayer {
     private SortedSet<Tile> placedTiles = new TreeSet<>(new Comparator<Tile>() {
         @Override
         public int compare(Tile o1, Tile o2) {
-        	if (o1.getPosition() == null) {
-        		return o2.getPosition() == null ? 0 : 1;
-        	}
+            if (o1.getPosition() == null) {
+                return o2.getPosition() == null ? 0 : 1;
+            }
             return o1.getPosition().compareTo(o2.getPosition());
 
         }
@@ -61,11 +61,11 @@ public class TileLayer extends AbstractGridLayer {
 
     @Subscribe
     public void handleTileEvent(TileEvent ev) {
-    if (ev.getType() == TileEvent.PLACEMENT) {
-        tilePlaced(ev.getTile());
-    } else if (ev.getType() == TileEvent.REMOVE) {
-        tileRemoved(ev.getTile());
-    }
+        if (ev.getType() == TileEvent.PLACEMENT) {
+            tilePlaced(ev.getTile());
+        } else if (ev.getType() == TileEvent.REMOVE) {
+            tileRemoved(ev.getTile());
+        }
     }
 
     private void tilePlaced(Tile tile) {

@@ -8,6 +8,7 @@ import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.SelectActionEvent;
@@ -28,12 +29,12 @@ public class TilePhase extends Phase {
 
     @Override
     public void enter() {
-        TilePlacementAction action = new TilePlacementAction(game.getCurrentTile());
-        for (Entry<Position, Set<Rotation>> entry: getBoard().getAvailablePlacements().entrySet()) {
-            for (Rotation rotation : entry.getValue()) {
-                action.add(new TilePlacement(entry.getKey(), rotation));
-            }
-        }
+        TileDefinition tile = game.getState().getDrawnTile();
+        TilePlacementAction action = new TilePlacementAction(tile);
+
+        //getBoard().getAvailablePlacements(tile).flatMap(t )
+        getBoard().getTilePlacements(tile).forEach(tp -> action.add(tp));
+
         game.post(new SelectActionEvent(getActivePlayer(), action, false));
     }
 

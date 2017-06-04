@@ -247,7 +247,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         //temporary code should be configured by player as rules
         prepareCapabilities();
 
-        game.start();
+        game.createCapabilities();
         preparePlayers();
         preparePhases();
         Tiles tiles = prepareTilePack();

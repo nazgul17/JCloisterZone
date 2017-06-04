@@ -17,7 +17,7 @@ public abstract class Follower extends Meeple {
 
     private static final long serialVersionUID = -659337195197201811L;
 
-    private boolean inPrison;
+    //private boolean inPrison;
 
     public Follower(Game game, Integer idSuffix, PlayerAttributes player) {
         super(game, idSuffix, player);
@@ -33,27 +33,14 @@ public abstract class Follower extends Meeple {
     }
 
     public boolean isInPrison() {
-        return inPrison;
-    }
-
-    public void setInPrison(boolean inPrison) {
-        this.inPrison = inPrison;
-        if (inPrison) {
-            setFeaturePointer(null);
-        }
+        //IMMUTABLE TOOD
+        //return inPrison;
+        return false;
     }
 
     @Override
     public boolean isInSupply() {
-        return !inPrison && super.isInSupply();
-    }
-
-    @Override
-    public void setFeaturePointer(FeaturePointer featurePointer) {
-        if (featurePointer != null && inPrison) {
-            inPrison = false;
-        }
-        super.setFeaturePointer(featurePointer);
+        return !isInPrison() && super.isInSupply();
     }
 
 
@@ -61,23 +48,24 @@ public abstract class Follower extends Meeple {
     @Override
     public void undeploy(boolean checkForLonelyBuilderOrPig) {
         assert !isInPrison();
-        //store ref which is lost be super call
-        Feature piece = getFeature();
-        super.undeploy(checkForLonelyBuilderOrPig); //clear piece
+        //store reference which is lost by super call
+        Feature f = getFeature();
+        super.undeploy(checkForLonelyBuilderOrPig); //clear
         if (checkForLonelyBuilderOrPig) {
-            boolean builder = game.hasCapability(BuilderCapability.class) && (piece instanceof City || piece instanceof Road);
-            boolean pig = game.hasCapability(PigCapability.class) && piece instanceof Farm;
-            if (builder || pig) {
-                Special toRemove = piece.walk(new RemoveLonelyBuilderAndPig(getPlayer()));
-                if (toRemove != null) {
-                    toRemove.undeploy(false);
-                }
-            }
+//            boolean builder = game.hasCapability(BuilderCapability.class) && (piece instanceof City || piece instanceof Road);
+//            boolean pig = game.hasCapability(PigCapability.class) && piece instanceof Farm;
+//            if (builder || pig) {
+//                Special toRemove = piece.walk(new RemoveLonelyBuilderAndPig(getPlayer()));
+//                if (toRemove != null) {
+//                    toRemove.undeploy(false);
+//                }
+//            }
+            //IMMUTABLE TODO
         }
     }
 
     @Override
     public String toString() {
-        return super.toString() + (inPrison ? "(PRISON)" : "");
+        return super.toString() + (isInPrison() ? "(PRISON)" : "");
     }
 }

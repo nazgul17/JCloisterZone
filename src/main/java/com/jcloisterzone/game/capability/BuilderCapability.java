@@ -1,13 +1,11 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.List;
-import java.util.Set;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.collect.Iterables;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
@@ -17,8 +15,11 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.figure.Builder;
+import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+
+import io.vavr.collection.List;
 
 public class BuilderCapability extends Capability {
 
@@ -40,9 +41,10 @@ public class BuilderCapability extends Capability {
         builderState = (BuilderState) data;
     }
 
+
     @Override
-    public void initPlayer(Player player) {
-        player.addMeeple(new Builder(game, player));
+    public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+        return List.of((Special) new Builder(game, p))
     }
 
     public BuilderState getBuilderState() {
@@ -60,7 +62,7 @@ public class BuilderCapability extends Capability {
     }
 
     @Override
-    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+    public void prepareActions(java.util.List<PlayerAction<?>> actions, java.util.Set<FeaturePointer> followerOptions) {
         Player player = game.getActivePlayer();
         if (!player.hasSpecialMeeple(Builder.class)) return;
 

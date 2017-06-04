@@ -6,9 +6,13 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 @Immutable
 public abstract class TileFeature implements Feature {
@@ -28,6 +32,14 @@ public abstract class TileFeature implements Feature {
     @Override
     public List<FeaturePointer> getPlaces() {
        return places;
+    }
+
+    @Override
+    public Stream<Meeple> getMeeples() {
+        Set<FeaturePointer> fps = HashSet.ofAll(places);
+        return Stream.ofAll(game.getDeployedMeeples())
+            .filter(t -> fps.contains(t._2))
+            .map(t -> t._1);
     }
 
     @Override

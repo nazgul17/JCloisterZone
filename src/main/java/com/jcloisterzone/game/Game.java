@@ -46,6 +46,7 @@ import com.jcloisterzone.feature.visitor.score.ScoreContext;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
+import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.capability.FairyCapability;
@@ -88,7 +89,7 @@ public class Game extends GameSettings implements EventProxy {
     private Phase phase;
 //
     private List<Capability> capabilities = List.empty(); //TODO change to map?
-//    private FairyCapability fairyCapability; //shortcut - TODO remove
+    private FairyCapability fairyCapability; //shortcut - TODO remove
 
 //    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
 //    private Phase lastUndoablePhase;
@@ -335,9 +336,13 @@ public class Game extends GameSettings implements EventProxy {
 
         List<Follower> followers = List.ofAll(stream);
 
-        //TODO call create on capabilities
+        followers = followers.appendAll(getCapabilities().flatMap(c -> createPlayerFollowers(p)));
 
         return followers;
+    }
+
+    public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+        return getCapabilities().flatMap(c -> createPlayerSpecialMeeples(p));
     }
 
     private void createCapabilityInstance(Class<? extends Capability> clazz) {
@@ -362,7 +367,7 @@ public class Game extends GameSettings implements EventProxy {
         return null;
     }
 
-    public void start() {
+    public void createCapabilities() {
         for (Class<? extends Capability> capability: getCapabilityClasses()) {
             createCapabilityInstance(capability);
         }
@@ -488,12 +493,6 @@ public class Game extends GameSettings implements EventProxy {
             }
         }
         return result == null ? Collections.emptyList() : result;
-    }
-
-    public void initPlayer(Player player) {
-        for (Capability cap: capabilities) {
-            cap.initPlayer(player);
-        }
     }
 
     public String getTileGroup(TileDefinition tile) {

@@ -1,10 +1,6 @@
 package com.jcloisterzone.game;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,6 +8,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
@@ -26,6 +23,9 @@ import com.jcloisterzone.feature.score.ScoringStrategy;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.Special;
+
+import io.vavr.collection.List;
 
 
 public abstract class Capability {
@@ -83,22 +83,27 @@ public abstract class Capability {
     }
 
     public List<Feature> extendFeatures(String tileId) {
-        return Collections.emptyList();
+        return List.empty();
     }
 
     public String getTileGroup(TileDefinition tile) {
         return null;
     }
 
-    public void initPlayer(Player player) {
+    public List<Follower> createPlayerFollowers(PlayerAttributes p) {
+        return List.empty();
+    }
+
+    public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+        return List.empty();
     }
 
     public void begin() {
     }
 
     /** convenient method to find follower action in all actions */
-    protected List<MeepleAction> findFollowerActions(List<PlayerAction<?>> actions) {
-        List<MeepleAction> followerActions = new ArrayList<>();
+    protected java.util.List<MeepleAction> findFollowerActions(java.util.List<PlayerAction<?>> actions) {
+        java.util.List<MeepleAction> followerActions = new ArrayList<>();
         for (PlayerAction<?> a : actions) {
             if (a instanceof MeepleAction) {
                 MeepleAction ma = (MeepleAction) a;
@@ -111,9 +116,9 @@ public abstract class Capability {
     }
 
     /** convenient method to find follower action in all actions, or create new if player has follower and action doesn't exists*/
-    protected List<MeepleAction> findAndFillFollowerActions(List<PlayerAction<?>> actions) {
-        List<MeepleAction> followerActions = findFollowerActions(actions);
-        Set<Class<? extends Meeple>> hasAction = new HashSet<>();
+    protected java.util.List<MeepleAction> findAndFillFollowerActions(java.util.List<PlayerAction<?>> actions) {
+        java.util.List<MeepleAction> followerActions = findFollowerActions(actions);
+        java.util.Set<Class<? extends Meeple>> hasAction = new java.util.HashSet<>();
         for (MeepleAction ma : followerActions) {
             hasAction.add(ma.getMeepleType());
         }
@@ -129,13 +134,13 @@ public abstract class Capability {
         return followerActions;
     }
 
-    public void extendFollowOptions(Set<FeaturePointer> followerOptions) {
+    public void extendFollowOptions(java.util.Set<FeaturePointer> followerOptions) {
     }
 
-    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+    public void prepareActions(java.util.List<PlayerAction<?>> actions, java.util.Set<FeaturePointer> followerOptions) {
     }
 
-    public void postPrepareActions(List<PlayerAction<?>> actions) {
+    public void postPrepareActions(java.util.List<PlayerAction<?>> actions) {
     }
 
     public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
