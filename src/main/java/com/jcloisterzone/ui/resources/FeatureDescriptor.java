@@ -110,9 +110,4 @@ public class FeatureDescriptor {
             return false;
         return true;
     }
-
-
-
-
-
 }

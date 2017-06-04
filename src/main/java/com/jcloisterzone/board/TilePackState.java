@@ -11,14 +11,16 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
-public class DefaultTilePack implements TilePack {
+public class TilePackState {
+
+    static final String INACTIVE_GROUP = "inactive";
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Map<String, Array<TileDefinition>> groups;
     private final Map<String, TileGroupState> groupStates;
 
-    public DefaultTilePack(Map<String, Array<TileDefinition>> groups) {
+    public TilePackState(Map<String, Array<TileDefinition>> groups) {
         this(groups, groups.map((groupId, tiles ) -> {
             return new Tuple2<>(
                 groupId,
@@ -27,7 +29,7 @@ public class DefaultTilePack implements TilePack {
         }));
     }
 
-    public DefaultTilePack(Map<String, Array<TileDefinition>> groups, Map<String, TileGroupState> groupStates) {
+    public TilePackState(Map<String, Array<TileDefinition>> groups, Map<String, TileGroupState> groupStates) {
         this.groups = groups;
         this.groupStates = groupStates;
     }
@@ -42,41 +44,41 @@ public class DefaultTilePack implements TilePack {
         return getActiveGroups().flatMap(t -> t);
     }
 
-    @Override
+
     public int totalSize() {
         return Stream.ofAll(groups.values())
             .map(tiles -> tiles.length())
             .sum().intValue();
     }
 
-    @Override
+
     public boolean isEmpty() {
         return size() == 0;
     }
 
-    @Override
+
     public int size() {
         return getActiveGroups()
             .map(tiles -> tiles.length())
             .sum().intValue();
     }
 
-    private DefaultTilePack replaceGroup(String groupId, Array<TileDefinition> tiles) {
+    private TilePackState replaceGroup(String groupId, Array<TileDefinition> tiles) {
         if (tiles.isEmpty()) {
-            return new DefaultTilePack(
+            return new TilePackState(
                 groups.remove(groupId),
                 groupStates.remove(groupId)
             );
         } else {
-            return new DefaultTilePack(
+            return new TilePackState(
                 groups.put(groupId, tiles),
                 groupStates
             );
         }
     }
 
-    @Override
-    public Tuple2<TileDefinition, TilePack> drawTile(int index) {
+
+    public Tuple2<TileDefinition, TilePackState> drawTile(int index) {
         for (Tuple2<String, Array<TileDefinition>> t : groups) {
             String groupId = t._1;
             if (getGroupState(groupId) != TileGroupState.ACTIVE) continue;
@@ -93,19 +95,19 @@ public class DefaultTilePack implements TilePack {
     }
 
 
-    @Override
-    public Tuple2<TileDefinition, TilePack> drawTile(String groupId, String tileId) {
+
+    public Tuple2<TileDefinition, TilePackState> drawTile(String groupId, String tileId) {
         Predicate<TileDefinition> matchesId = t -> t.getId().equals(tileId);
         Array<TileDefinition> tiles = groups.get(groupId)
             .getOrElseThrow(() -> new IllegalArgumentException());
         TileDefinition tile = tiles.find(matchesId)
             .getOrElseThrow(() -> new IllegalArgumentException());
-        DefaultTilePack pack = replaceGroup(groupId, tiles.removeFirst(matchesId));
+        TilePackState pack = replaceGroup(groupId, tiles.removeFirst(matchesId));
         return new Tuple2<>(tile, pack);
     }
 
-    @Override
-    public Tuple2<TileDefinition, TilePack> drawTile(String tileId) {
+
+    public Tuple2<TileDefinition, TilePackState> drawTile(String tileId) {
         for (String groupId: getGroups()) {
             try {
                 return drawTile(groupId, tileId);
@@ -116,26 +118,22 @@ public class DefaultTilePack implements TilePack {
         throw new IllegalAccessError("Tile pack does not contain " + tileId);
     }
 
-    @Override
-    public DefaultTilePack setGroupState(String groupId, TileGroupState state) {
+    public TilePackState setGroupState(String groupId, TileGroupState state) {
         //can be called with non-existing group (from expansion etc.)
-        return new DefaultTilePack(
+        return new TilePackState(
             groups,
             groupStates.put(groupId, state)
         );
     }
 
-    @Override
     public TileGroupState getGroupState(String groupId) {
         return groupStates.get(groupId).getOrNull();
     }
 
-    @Override
     public Set<String> getGroups() {
         return groups.keySet();
     }
 
-    @Override
     public int getSizeForEdgePattern(EdgePattern edgePattern) {
         return getActiveTiles()
             .filter(tile -> edgePattern.isMatching(tile.getEdgePattern()))

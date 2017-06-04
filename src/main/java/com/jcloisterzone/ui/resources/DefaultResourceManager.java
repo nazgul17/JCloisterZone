@@ -18,6 +18,7 @@ import com.google.common.collect.ImmutableMap;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.capability.CountCapability;
@@ -54,15 +55,8 @@ public class DefaultResourceManager implements ResourceManager {
         this.imgLoader = imgLoader;
     }
 
-
     @Override
-    public TileImage getTileImage(Tile tile) {
-        return null;
-        //return (new TileImageFactory()).getTileImage(tile);
-    }
-
-    @Override
-    public TileImage getTileImage(Tile tile, Rotation rot) {
+    public TileImage getTileImage(TileDefinition tile, Rotation rot) {
         return null;
     }
 

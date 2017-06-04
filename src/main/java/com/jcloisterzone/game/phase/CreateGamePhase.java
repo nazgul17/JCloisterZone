@@ -18,9 +18,9 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
-import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePackFactory;
 import com.jcloisterzone.board.TilePackFactory.Tiles;
+import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.PlayerTurnEvent;
@@ -191,7 +191,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         tilePackFactory.setExpansions(game.getExpansions());
 
         Tiles tiles = tilePackFactory.createTilePack();
-        TilePack tilePack = tiles.getTilePack();
+        TilePackState tilePack = tiles.getTilePack();
         tilePack = tilePack.setGroupState("default", TileGroupState.ACTIVE);
         tilePack = tilePack.setGroupState("count", TileGroupState.ACTIVE);
         tilePack = tilePack.setGroupState("wind-rose-initial", TileGroupState.ACTIVE);
@@ -265,7 +265,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         preparePlayers();
         preparePhases();
         Tiles tiles = prepareTilePack();
-        game.replaceState(state -> state.setTilePacks(tiles.getTilePack()));
+        game.replaceState(state -> state.setTilePack(tiles.getTilePack()));
         game.begin();
         prepareAiPlayers(muteAi);
 

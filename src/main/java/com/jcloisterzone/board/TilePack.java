@@ -1,26 +1,42 @@
 package com.jcloisterzone.board;
 
+import com.jcloisterzone.game.Game;
+
 import io.vavr.Tuple2;
-import io.vavr.collection.Set;
 
-public interface TilePack {
+public class TilePack {
 
-    static final String INACTIVE_GROUP = "inactive";
+    private final Game game;
 
-    int totalSize();
-    boolean isEmpty();
-    int size();
+    public TilePack(Game game) {
+        this.game = game;
+    }
 
-    Tuple2<TileDefinition, TilePack> drawTile(int index);
-    Tuple2<TileDefinition, TilePack> drawTile(String groupId, String tileId);
-    Tuple2<TileDefinition, TilePack> drawTile(String tileId);
+    private TilePackState getState() {
+        return game.getState().getTilePack();
+    }
 
-    /* special Abbey related methods - refactor je to jen kvuli klientovi */
-    //Tuple2<TileDefinition, TilePack> getAbbeyTile();
+    public int totalSize() {
+        return getState().totalSize();
+    }
 
-    TilePack setGroupState(String groupId, TileGroupState state);
-    TileGroupState getGroupState(String groupId);
-    Set<String> getGroups();
+    public boolean isEmpty() {
+        return getState().isEmpty();
+    }
 
-    int getSizeForEdgePattern(EdgePattern edgePattern);
+    public int size() {
+        return getState().size();
+    }
+
+    public TileDefinition drawTile(int index) {
+        Tuple2<TileDefinition, TilePackState> t = getState().drawTile(index);
+        game.replaceState(state -> state.setTilePack(t._2).setDrawnTile(t._1));
+        return t._1;
+    }
+
+    public TileDefinition drawTile(String tileId) {
+        Tuple2<TileDefinition, TilePackState> t = getState().drawTile(tileId);
+        game.replaceState(state -> state.setTilePack(t._2).setDrawnTile(t._1));
+        return t._1;
+    }
 }

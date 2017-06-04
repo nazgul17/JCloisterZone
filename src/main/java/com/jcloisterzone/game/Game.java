@@ -45,7 +45,6 @@ import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.event.PlayerTurnEvent;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
-import com.jcloisterzone.event.Undoable;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
@@ -76,8 +75,11 @@ public class Game extends GameSettings implements EventProxy {
     // -- new --
 
     private GameState state;
+
+    //proxies
     private Array<Player> players;
-    private Board board;
+    private final TilePack tilePack;
+    private final Board board;
 
 
     // -- old --
@@ -90,8 +92,8 @@ public class Game extends GameSettings implements EventProxy {
     private List<Capability> capabilities = new ArrayList<>(); //TODO change to map?
     private FairyCapability fairyCapability; //shortcut - TODO remove
 
-    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
-    private Phase lastUndoablePhase;
+//    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
+//    private Phase lastUndoablePhase;
 
     private final EventBus eventBus = new EventBus(new EventBusExceptionHandler("game event bus"));
     //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before swithc is done
@@ -103,16 +105,15 @@ public class Game extends GameSettings implements EventProxy {
     private long randomSeed;
 
     public Game(String gameId) {
-        super(gameId);
-        HashCode hash = HashCode.fromBytes(gameId.getBytes());
-        this.randomSeed = hash.asLong();
-        this.random = new Random(randomSeed);
+        this(gameId, HashCode.fromBytes(gameId.getBytes()).asLong());
     }
 
     public Game(String gameId, long randomSeed) {
         super(gameId);
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
+        this.tilePack = new TilePack(this);
+        this.board = new Board(this);
     }
 
     public GameState getState() {
@@ -124,51 +125,58 @@ public class Game extends GameSettings implements EventProxy {
         this.state = f.apply(this.state);
     }
 
+    public TilePack getTilePack() {
+        return tilePack;
+    }
+
+    public Board getBoard() {
+        return board;
+    }
 
     @Override
     public EventBus getEventBus() {
         return eventBus;
     }
 
-    public Undoable getLastUndoable() {
-        return lastUndoable.size() == 0 ? null : lastUndoable.get(lastUndoable.size()-1);
-    }
-
-    public void clearLastUndoable() {
-        lastUndoable.clear();
-    }
-
-    private boolean isUiSupportedUndo(Event event) {
-        if (event instanceof TileEvent && event.getType() == TileEvent.PLACEMENT) return true;
-        if (event instanceof MeepleEvent && ((MeepleEvent) event).getTo() != null) return true;
-        if (event instanceof BridgeEvent && event.getType() == BridgeEvent.DEPLOY) return true;
-        if (event instanceof GoldChangeEvent) return true;
-        if (event instanceof ScoreEvent && ((ScoreEvent)event).getCategory() == PointCategory.WIND_ROSE) return true;
-        return false;
-    }
+//    public Undoable getLastUndoable() {
+//        return lastUndoable.size() == 0 ? null : lastUndoable.get(lastUndoable.size()-1);
+//    }
+//
+//    public void clearLastUndoable() {
+//        lastUndoable.clear();
+//    }
+//
+//    private boolean isUiSupportedUndo(Event event) {
+//        if (event instanceof TileEvent && event.getType() == TileEvent.PLACEMENT) return true;
+//        if (event instanceof MeepleEvent && ((MeepleEvent) event).getTo() != null) return true;
+//        if (event instanceof BridgeEvent && event.getType() == BridgeEvent.DEPLOY) return true;
+//        if (event instanceof GoldChangeEvent) return true;
+//        if (event instanceof ScoreEvent && ((ScoreEvent)event).getCategory() == PointCategory.WIND_ROSE) return true;
+//        return false;
+//    }
 
     @Override
     public void post(Event event) {
         eventQueue.add(event);
-        if (event instanceof PlayEvent && !event.isUndo()) {
-            if (isUiSupportedUndo(event)) {
-                if ((event instanceof BridgeEvent && ((BridgeEvent)event).isForced()) ||
-                     event instanceof GoldChangeEvent && ((GoldChangeEvent)event).getPos().equals(getCurrentTile().getPosition()) ||
-                     event instanceof ScoreEvent) {
-                    //just add to chain after tile event
-                    lastUndoable.add((Undoable) event);
-                } else {
-                    lastUndoable.clear();
-                    lastUndoable.add((Undoable) event);
-                    lastUndoablePhase = phase;
-                }
-            } else {
-                if (event.getClass().getAnnotation(Idempotent.class) == null) {
-                    lastUndoable.clear();
-                    lastUndoablePhase = null;
-                }
-            }
-        }
+//        if (event instanceof PlayEvent && !event.isUndo()) {
+//            if (isUiSupportedUndo(event)) {
+//                if ((event instanceof BridgeEvent && ((BridgeEvent)event).isForced()) ||
+//                     event instanceof GoldChangeEvent && ((GoldChangeEvent)event).getPos().equals(getCurrentTile().getPosition()) ||
+//                     event instanceof ScoreEvent) {
+//                    //just add to chain after tile event
+//                    lastUndoable.add((Undoable) event);
+//                } else {
+//                    lastUndoable.clear();
+//                    lastUndoable.add((Undoable) event);
+//                    lastUndoablePhase = phase;
+//                }
+//            } else {
+//                if (event.getClass().getAnnotation(Idempotent.class) == null) {
+//                    lastUndoable.clear();
+//                    lastUndoablePhase = null;
+//                }
+//            }
+//        }
         // process capabilities after undo processing
         // capability can trigger another event and order is important! (eg. windrose scoring)
         for (Capability capability: capabilities) {
@@ -184,34 +192,32 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public boolean isUndoAllowed() {
-        return lastUndoable.size() > 0;
+        //return lastUndoable.size() > 0;
+        return false;
+        //IMMUTABLE TODO
     }
 
     public void undo() {
-        if (!isUndoAllowed()) {
-            logger.warn("Undo is not allowed");
-            return;
-        }
-        for (int i = lastUndoable.size()-1; i >= 0; i--) {
-            Undoable ev = lastUndoable.get(i);
-            Event inverse = ev.getInverseEvent();
-            inverse.setUndo(true);
-
-            ev.undo(this);
-            post(inverse); //should be post inside undo? silent vs. firing undo?
-        }
-        phase = lastUndoablePhase;
-        lastUndoable.clear();
-        lastUndoablePhase = null;
-        phase.reenter();
+//        if (!isUndoAllowed()) {
+//            logger.warn("Undo is not allowed");
+//            return;
+//        }
+//        for (int i = lastUndoable.size()-1; i >= 0; i--) {
+//            Undoable ev = lastUndoable.get(i);
+//            Event inverse = ev.getInverseEvent();
+//            inverse.setUndo(true);
+//
+//            ev.undo(this);
+//            post(inverse); //should be post inside undo? silent vs. firing undo?
+//        }
+//        phase = lastUndoablePhase;
+//        lastUndoable.clear();
+//        lastUndoablePhase = null;
+//        phase.reenter();
     }
 
     public Tile getCurrentTile() {
-        return currentTile;
-    }
-
-    public void setCurrentTile(Tile currentTile) {
-        this.currentTile = currentTile;
+        return board.get(state.getPlacedTiles().takeRight(1).get()._1);
     }
 
     public PlayerSlot[] getPlayerSlots() {
@@ -301,10 +307,6 @@ public class Game extends GameSettings implements EventProxy {
         return players;
     }
 
-    public Board getBoard() {
-        return board;
-    }
-
     public Random getRandom() {
         return random;
     }
@@ -360,7 +362,6 @@ public class Game extends GameSettings implements EventProxy {
         for (Class<? extends Capability> capability: getCapabilityClasses()) {
             createCapabilityInstance(capability);
         }
-        board = new Board(this);
     }
 
     public boolean isStarted() {

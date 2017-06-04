@@ -7,13 +7,13 @@ import java.util.Set;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
 
 public interface ResourceManager {
 
-    TileImage getTileImage(Tile tile);  //take rotation from tile instance
-    TileImage getTileImage(Tile tile, Rotation rot); //use custom rotation
+    TileImage getTileImage(TileDefinition tile, Rotation rot); //use custom rotation
     TileImage getAbbeyImage(Rotation rot);
 
     //generic image, path is without extension

@@ -12,8 +12,8 @@ import org.slf4j.LoggerFactory;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.plugin.Plugin;
 
@@ -37,12 +37,7 @@ public class PlugableResourceManager implements ResourceManager {
     }
 
     @Override
-    public TileImage getTileImage(Tile tile) {
-        return getTileImage(tile, tile.getRotation());
-    }
-
-    @Override
-    public TileImage getTileImage(Tile tile, Rotation rot) {
+    public TileImage getTileImage(TileDefinition tile, Rotation rot) {
         for (ResourceManager manager : managers) {
             TileImage result = manager.getTileImage(tile, rot);
             if (result != null) return result;
@@ -63,21 +58,21 @@ public class PlugableResourceManager implements ResourceManager {
 
     @Override
     public Image getImage(String path) {
-    	for (ResourceManager manager : managers) {
+        for (ResourceManager manager : managers) {
             Image result = manager.getImage(path);
             if (result != null) return result;
         }
-    	logger.warn("Unable to load image {}", path);
+        logger.warn("Unable to load image {}", path);
         return null;
     }
 
     @Override
     public Image getLayeredImage(LayeredImageDescriptor lid) {
-    	for (ResourceManager manager : managers) {
+        for (ResourceManager manager : managers) {
             Image result = manager.getLayeredImage(lid);
             if (result != null) return result;
         }
-    	logger.warn("Unable to load layered image {}", lid.getBaseName());
+        logger.warn("Unable to load layered image {}", lid.getBaseName());
         return null;
     }
 

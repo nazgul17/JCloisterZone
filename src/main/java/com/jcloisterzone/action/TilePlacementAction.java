@@ -15,6 +15,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.grid.ActionLayer;
@@ -25,17 +26,17 @@ import com.jcloisterzone.wsio.RmiProxy;
 
 public class TilePlacementAction extends PlayerAction<TilePlacement> implements ForwardBackwardListener {
 
-    private final Tile tile;
+    private final TileDefinition tile;
     private ForwardBackwardListener forwardBackwardDelegate;
 
     private Rotation tileRotation = Rotation.R0;
 
-    public TilePlacementAction(Tile tile) {
+    public TilePlacementAction(TileDefinition tile) {
         super("tileplacement");
         this.tile = tile;
     }
 
-    public Tile getTile() {
+    public TileDefinition getTile() {
         return tile;
     }
 

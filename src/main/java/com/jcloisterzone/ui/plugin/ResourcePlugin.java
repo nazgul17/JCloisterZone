@@ -28,6 +28,7 @@ import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
@@ -137,18 +138,13 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public TileImage getTileImage(Tile tile) {
-        return getTileImage(tile.getId(), tile.getRotation());
-    }
-
-    @Override
-    public TileImage getTileImage(Tile tile, Rotation rot) {
+    public TileImage getTileImage(TileDefinition tile, Rotation rot) {
         return getTileImage(tile.getId(), rot);
     }
 
     @Override
     public TileImage getAbbeyImage(Rotation rot) {
-        return getTileImage(Tile.ABBEY_TILE_ID, rot);
+        return getTileImage(TileDefinition.ABBEY_TILE_ID, rot);
     }
 
     private TileImage getTileImage(String tileId, Rotation rot) {
@@ -193,7 +189,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Meeple> type, Location loc) {
+    public ImmutablePoint getMeeplePlacement(TileDefinition tile, Class<? extends Meeple> type, Location loc) {
         if (!containsTile(tile.getId())) return null;
         if (type.equals(Barn.class)) return null;
         Feature piece = tile.getFeature(loc);
@@ -303,7 +299,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
+    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, int width, int height, Set<Location> locations) {
         if (!containsTile(tile.getId())) return null;
         // dirty hack to not handle quarter locations
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
@@ -368,7 +364,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners) {
+    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, int width, int height, Set<Location> corners) {
         return null;
     }
 

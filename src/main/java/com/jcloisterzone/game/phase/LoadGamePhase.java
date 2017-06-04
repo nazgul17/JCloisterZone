@@ -3,7 +3,7 @@ package com.jcloisterzone.game.phase;
 import java.util.Iterator;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.DefaultTilePack;
+import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.LoadGameTilePackFactory;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -56,7 +56,7 @@ public class LoadGamePhase extends CreateGamePhase {
     @Override
     protected void preplaceTiles() {
         //super.preplaceTiles();
-        for (Iterator<Tile> iter = ((DefaultTilePack)getTilePack()).drawPrePlacedActiveTiles().iterator(); iter.hasNext();) {
+        for (Iterator<Tile> iter = ((TilePackState)getTilePack()).drawPrePlacedActiveTiles().iterator(); iter.hasNext();) {
             Tile preplaced = iter.next();
             game.getBoard().add(preplaced, preplaced.getPosition(), true);
             game.getBoard().mergeFeatures(preplaced);
@@ -80,7 +80,7 @@ public class LoadGamePhase extends CreateGamePhase {
             f.addMeeple(m);
             game.post(new MeepleEvent(null, m, null, new FeaturePointer(m.getPosition(), m.getLocation())));
         }
-        tilePackFactory.activateGroups((DefaultTilePack) game.getTilePack());
+        tilePackFactory.activateGroups((TilePackState) game.getTilePack());
     }
 
     @Override
@@ -90,7 +90,7 @@ public class LoadGamePhase extends CreateGamePhase {
         tilePackFactory.setConfig(getConfig());
         tilePackFactory.setExpansions(game.getExpansions());
         tilePackFactory.setSnapshot(snapshot);
-        DefaultTilePack tilePack = tilePackFactory.createTilePack();
+        TilePackState tilePack = tilePackFactory.createTilePack();
         game.setTilePack(tilePack);
         for (String tileId : snapshot.getDiscardedTiles()) {
             Tile tile = tilePack.drawTile(tileId);

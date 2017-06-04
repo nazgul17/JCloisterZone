@@ -11,6 +11,7 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -90,9 +91,9 @@ public abstract class Phase implements RmiProxy {
         return game.getBoard();
     }
 
-    protected Tile getTile() {
-        return game.getCurrentTile();
-    }
+//    protected TileDefinition getTile() {
+//        return game.getCurrentTile();
+//    }
 
     public Player getActivePlayer() {
         return game.getTurnPlayer();

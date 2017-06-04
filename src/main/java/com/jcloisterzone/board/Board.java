@@ -155,7 +155,7 @@ public class Board {
     //IMMUTABLE TODO
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void add(TileDefinition tile, Position pos, Rotation rot) {
-        Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
+        LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
         assert !placedTiles.containsKey(pos);
         game.replaceState(state -> state.setPlacedTiles(
             placedTiles.put(

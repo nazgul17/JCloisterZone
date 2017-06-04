@@ -9,12 +9,11 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Game;
 
-public abstract class Figure implements Serializable, Cloneable {
+public abstract class Figure implements Serializable {
 
     private static final long serialVersionUID = 3264248810294656662L;
 
-    protected final Game game;
-    protected FeaturePointer featurePointer;
+    protected transient final Game game;
 
     public Figure(Game game) {
         assert game != null;
@@ -25,7 +24,7 @@ public abstract class Figure implements Serializable, Cloneable {
 //    public abstract void undeploy();
 
     public Position getPosition() {
-        return featurePointer == null ? null : featurePointer.getPosition();
+        //
     }
 
     public Location getLocation() {

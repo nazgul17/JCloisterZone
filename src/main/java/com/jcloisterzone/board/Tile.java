@@ -20,7 +20,10 @@ import com.jcloisterzone.feature.visitor.IsOccupiedOrCompleted;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
 
+import io.vavr.Predicates;
 import io.vavr.Tuple2;
+import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
 
 public class Tile /*implements Cloneable*/ {
 
@@ -82,7 +85,8 @@ public class Tile /*implements Cloneable*/ {
     }
 
     public Feature getFeaturePartOf(Location loc) {
-        Location normLoc = loc == Location.ABBOT ? Location.CLOISTER : loc;
+        Location normLoc = loc == Location.ABBOT ?
+                Location.CLOISTER : loc.rotateCCW(getRotation());
 
         Tuple2<Location, Feature> initial = getTileDefinition()
             .getInitialFeatures()
@@ -94,35 +98,45 @@ public class Tile /*implements Cloneable*/ {
         return getFeature(initial._1);
     }
 
-    /** merge this to another tile - method argument is tile placed before */
-    protected void merge(Tile tile, Location loc) {
-        //if (logger.isDebugEnabled()) logger.debug("Merging " + id + " with " + tile.getId());
-        Location oppositeLoc = loc.rev();
-        MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
-        if (oppositePiece != null) {
-            if (tileDefinition.isAbbeyTile()) {
-                oppositePiece.setAbbeyEdge(oppositeLoc);
-            } else {
-                MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
-                oppositePiece.setEdge(oppositeLoc, thisPiece);
-                thisPiece.setEdge(loc, oppositePiece);
-            }
-        }
-        for (int i = 0; i < 2; i++) {
-            Location halfSide = i == 0 ? loc.getLeftFarm() : loc.getRightFarm();
-            Location oppositeHalfSide = halfSide.rev();
-            oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
-            if (oppositePiece != null) {
-                if (tileDefinition.isAbbeyTile()) {
-                    oppositePiece.setAbbeyEdge(oppositeHalfSide);
-                } else {
-                    MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
-                    oppositePiece.setEdge(oppositeHalfSide, thisPiece);
-                    thisPiece.setEdge(halfSide, oppositePiece);
-                }
-            }
-        }
+    public Stream<Tuple2<Location, Feature>> getFeatures() {
+        Rotation rot = getRotation();
+        Map<FeaturePointer, Feature> allFeatures = game.getState().getFeatures();
+        return Stream.ofAll(getTileDefinition().getInitialFeatures())
+            .map(t -> t.update1(t._1.rotateCCW(rot)))
+            .map(t -> t.update2(
+                allFeatures.get(new FeaturePointer(position, t._1)).get()
+            ));
     }
+
+//    /** merge this to another tile - method argument is tile placed before */
+//    protected void merge(Tile tile, Location loc) {
+//        //if (logger.isDebugEnabled()) logger.debug("Merging " + id + " with " + tile.getId());
+//        Location oppositeLoc = loc.rev();
+//        MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
+//        if (oppositePiece != null) {
+//            if (tileDefinition.isAbbeyTile()) {
+//                oppositePiece.setAbbeyEdge(oppositeLoc);
+//            } else {
+//                MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
+//                oppositePiece.setEdge(oppositeLoc, thisPiece);
+//                thisPiece.setEdge(loc, oppositePiece);
+//            }
+//        }
+//        for (int i = 0; i < 2; i++) {
+//            Location halfSide = i == 0 ? loc.getLeftFarm() : loc.getRightFarm();
+//            Location oppositeHalfSide = halfSide.rev();
+//            oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
+//            if (oppositePiece != null) {
+//                if (tileDefinition.isAbbeyTile()) {
+//                    oppositePiece.setAbbeyEdge(oppositeHalfSide);
+//                } else {
+//                    MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
+//                    oppositePiece.setEdge(oppositeHalfSide, thisPiece);
+//                    thisPiece.setEdge(halfSide, oppositePiece);
+//                }
+//            }
+//        }
+//    }
 
 //    protected void unmerge(Tile tile, Location loc) {
 //        Location oppositeLoc = loc.rev();
@@ -201,27 +215,35 @@ public class Tile /*implements Cloneable*/ {
 //        edgePattern = edgePattern.removeBridgePattern(normalizedLoc);
 //    }
 
-    public Set<Location> getUnoccupiedScoreables(boolean excludeCompleted) {
-        Set<Location> locations = new HashSet<>();
-        for (Feature f : features) {
-            if (f instanceof Scoreable) {
-                if (f instanceof Cloister) {
-                    Cloister c = (Cloister) f;
-                    if (c.isMonastery() && c.getMeeples().isEmpty()) {
-                        locations.add(Location.ABBOT);
-                    }
-                }
-                IsOccupied visitor;
-                if (excludeCompleted && f instanceof Completable) {
-                    visitor = new IsOccupiedOrCompleted();
-                } else {
-                    visitor = new IsOccupied();
-                }
-                if (f.walk(visitor)) continue;
-                locations.add(f.getLocation());
-            }
-        }
-        return locations;
+    public Stream<Tuple2<Location, Scoreable>> getUnoccupiedScoreables(boolean excludeCompleted) {
+
+        return getFeatures()
+            .filter(t -> t._2 instanceof Scoreable)
+            .map(t -> t.map2(f -> (Scoreable) f))
+            .filter(t -> t._2.getMeeples().isEmpty());
+
+
+
+//        Set<Location> locations = new HashSet<>();
+//        for (Feature f : features) {
+//            if (f instanceof Scoreable) {
+//                if (f instanceof Cloister) {
+//                    Cloister c = (Cloister) f;
+//                    if (c.isMonastery() && c.getMeeples().isEmpty()) {
+//                        locations.add(Location.ABBOT);
+//                    }
+//                }
+//                IsOccupied visitor;
+//                if (excludeCompleted && f instanceof Completable) {
+//                    visitor = new IsOccupiedOrCompleted();
+//                } else {
+//                    visitor = new IsOccupied();
+//                }
+//                if (f.walk(visitor)) continue;
+//                locations.add(f.getLocation());
+//            }
+//        }
+//        return locations;
     }
 
     public Set<Location> getPlayerFeatures(Player player, Class<? extends Feature> featureClass) {

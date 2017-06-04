@@ -51,9 +51,10 @@ public abstract class Capability {
     protected Board getBoard() {
         return game.getBoard();
     }
-    protected Tile getCurrentTile() {
-        return game.getCurrentTile();
-    }
+
+//    protected TileDefinition getCurrentTile() {
+//        return game.getCurrentTile();
+//    }
 
     /* no @Subscribe for Capabilities
      * it cause post from another event handler and makes trouble with AI tasks

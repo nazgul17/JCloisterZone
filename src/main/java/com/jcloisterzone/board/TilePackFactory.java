@@ -33,16 +33,16 @@ import static com.jcloisterzone.XMLUtils.getTileId;
 public class TilePackFactory {
 
     public static class Tiles {
-        private final TilePack tilePack;
+        private final TilePackState tilePack;
         private List<Tuple2<TileDefinition, Position>> preplacedTiles;
 
-        public Tiles(TilePack tilePack, List<Tuple2<TileDefinition, Position>> preplacedTiles) {
+        public Tiles(TilePackState tilePack, List<Tuple2<TileDefinition, Position>> preplacedTiles) {
             super();
             this.tilePack = tilePack;
             this.preplacedTiles = preplacedTiles;
         }
 
-        public TilePack getTilePack() {
+        public TilePackState getTilePack() {
             return tilePack;
         }
 
@@ -273,7 +273,7 @@ public class TilePackFactory {
 
         Map<String, Array<TileDefinition>> groups = HashMap.ofAll(tiles).mapValues(l -> Array.ofAll(l));
         return new Tiles(
-            new DefaultTilePack(groups),
+            new TilePackState(groups),
             List.ofAll(preplacedTiles)
         );
     }

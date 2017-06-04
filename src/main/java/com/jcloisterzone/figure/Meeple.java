@@ -1,6 +1,7 @@
 package com.jcloisterzone.figure;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -15,9 +16,7 @@ public abstract class Meeple extends Figure {
 
     private final String id;
 
-    private transient final Player player;
-    private transient Feature feature;
-    private transient Integer index; //order of deployment on same feature //TODO rename variable
+    private transient final PlayerAttributes player;
 
 
     public static class DeploymentCheckResult {

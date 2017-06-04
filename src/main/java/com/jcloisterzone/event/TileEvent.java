@@ -1,7 +1,7 @@
 package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.DefaultTilePack;
+import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
