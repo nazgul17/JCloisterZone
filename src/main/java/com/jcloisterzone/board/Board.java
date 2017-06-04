@@ -1,17 +1,26 @@
 package com.jcloisterzone.board;
 
+import java.awt.Rectangle;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
+import com.jcloisterzone.game.CachedValue;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BridgeCapability;
 
+import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
@@ -25,20 +34,21 @@ import io.vavr.control.Option;
 
  */
 public class Board {
-    //TODO move tiles inside and make it immutable
+    //TODO move tiles inside and make it immutable ?
 
     private final Game game;
 
     private transient final java.util.Map<Position, Option<Tile>> tiles = new java.util.HashMap<>();
 
+    private transient final CachedValue<Rectangle> bounds;
+
 //	protected Set<TunnelEnd> tunnels = new HashSet<>();
 //	protected Map<Integer, TunnelEnd> openTunnels = new HashMap<>(); //tunnel with open one side
-
-//  protected List<Tile> discardedTiles = new ArrayList<>();
 
 
     public Board(Game game) {
         this.game = game;
+        bounds = new CachedValue<>(game, this::computeBounds);
     }
 
     private Tuple2<TileDefinition, Rotation> getPlacedTile(Position pos) {
@@ -305,46 +315,47 @@ public class Board {
 //        return true;
 //    }
 
+    private Rectangle computeBounds(GameState state) {
+        int minX = 0;
+        int maxX = 0;
+        int minY = 0;
+        int maxY = 0;
+        for (Position pos : state.getPlacedTiles().keySet()) {
+            if (minX > pos.x) minX = pos.x;
+            if (maxX < pos.x) maxX = pos.x;
+            if (minY > pos.y) minY = pos.y;
+            if (maxY < pos.y) maxY = pos.y;
+        };
+        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+    }
+
     public int getMaxX() {
-        return maxX;
+        return bounds.get().width + bounds.get().x;
     }
 
     public int getMinX() {
-        return minX;
+        return bounds.get().x;
     }
 
     public int getMaxY() {
-        return maxY;
+        return bounds.get().height + bounds.get().y;
     }
 
     public int getMinY() {
-        return minY;
+        return bounds.get().y;
     }
 
-//    public List<Tile> getMulti(Position[] positions) {
-//        List<Tile> tiles = new ArrayList<>();
-//        for (Position p : positions) {
-//            Tile t = get(p);
-//            if (t != null) {
-//                tiles.translate(t);
-//            }
-//        }
-//        return tiles;
-//    }
-
-    public Map<Location, Tile> getAdjacentTilesMap(Position pos) {
-        Map<Location, Tile> tiles = new HashMap<Location, Tile>(4);
-        for (Entry<Location, Position> e: Position.ADJACENT.entrySet()) {
-            Tile tile = get(e.getValue().translate(pos));
-            if (tile != null) {
-                tiles.put(e.getKey(), tile);
-            }
-        }
-        return tiles;
+    public Stream<Tuple2<Location, Tile>> getAdjacentTilesMap(Position pos) {
+        return Stream.ofAll(Position.ADJACENT)
+            .map(t -> t.map2(offset -> get(pos.add(offset))))
+            .filter(t -> t._2 != null);
     }
 
-    public List<Tile> getAdjacentAndDiagonalTiles(Position pos) {
-        return getMulti(pos.addMulti(Position.ADJACENT_AND_DIAGONAL.values()));
+    public Stream<Tile> getAdjacentAndDiagonalTiles(Position pos) {
+        return Stream.ofAll(Position.ADJACENT_AND_DIAGONAL.values())
+            .map(pos::add)
+            .map(this::get)
+            .filter(Predicates.isNotNull());
     }
 
     public int getContinuousRowSize(Position start, Location direction) {
