@@ -42,25 +42,25 @@ public class DrawPhase extends ServerAwarePhase {
 
     private boolean makeDebugDraw() {
         if (debugTiles != null && debugTiles.size() > 0) { //for debug purposes only
-//            String tileId = debugTiles.remove(0);
-//            if (tileId.equals(DEBUG_END_OF_PACK)) {
-//                next(GameOverPhase.class);
-//                return true;
-//            }
-//            TilePack tilePack = getTilePack();
-//            Tile tile = tilePack.drawTile(tileId);
-//            if (tile == null) {
-//                logger.warn("Invalid debug draw id: " + tileId);
-//            } else {
+            String tileId = debugTiles.remove(0);
+            if (tileId.equals(DEBUG_END_OF_PACK)) {
+                next(GameOverPhase.class);
+                return true;
+            }
+            TilePack tilePack = game.getTilePack();
+            try {
+                TileDefinition tile = tilePack.drawTile(tileId);
 //                boolean riverActive = tilePack.getGroupState("river-start") == TileGroupState.ACTIVE || tilePack.getGroupState("river") == TileGroupState.ACTIVE;
 //                if (game.hasCapability(RiverCapability.class) && tile.getRiver() == null && riverActive) {
 //                    game.getCapability(RiverCapability.class).activateNonRiverTiles();
 //                    tilePack.setGroupState("river-start", TileGroupState.RETIRED);
 //                    game.setCurrentTile(tile); //recovery from lake placement
 //                }
-//                nextTile(tile);
-//                return true;
-//            }
+                nextTile(tile);
+                return true;
+            } catch (IllegalArgumentException e) {
+                logger.warn("Invalid debug draw id: " + tileId);
+            }
         }
         return false;
     }

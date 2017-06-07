@@ -12,12 +12,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.Set;
 
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.Farm;
@@ -31,6 +36,8 @@ import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
 
 public class FarmHintsLayer extends AbstractGridLayer {
+
+    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private static final int FULL_SIZE = 300;
     private static final AlphaComposite HINT_ALPHA_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .4f);
@@ -85,25 +92,29 @@ public class FarmHintsLayer extends AbstractGridLayer {
 
     @Subscribe
     public void onTileEvent(TileEvent ev) {
-        Tile tile = ev.getTile();
-        if (ev.getType() == TileEvent.PLACEMENT) {
-            Set<Location> farmLocations = new HashSet<>();
-            for (Feature f : tile.getFeatures()) {
-                if (f instanceof Farm) {
-                    farmLocations.translate(f.getLocation());
-                }
-            }
-            if (farmLocations.isEmpty()) return;
-            int w = gridPanel.getTileWidth();
-            int h = gridPanel.getTileHeight();
-            Map<Location, FeatureArea> tAreas = rm.getFeatureAreas(tile, FULL_SIZE, FULL_SIZE * h / w, farmLocations);
-            areas.put(tile, tAreas);
-            refreshHints();
-        }
-        if (ev.getType() == TileEvent.REMOVE) {
-            areas.remove(tile);
-            refreshHints();
-        }
+        //IMMUTABLE TODO
+        logger.warn("IMMUTABLE TODO");
+//
+//
+//        TileDefinition tile = ev.getTileDefinition();
+//        if (ev.getType() == TileEvent.PLACEMENT) {
+//            Set<Location> farmLocations = new HashSet<>();
+//            for (Feature f : tile.getFeatures()) {
+//                if (f instanceof Farm) {
+//                    farmLocations.translate(f.getLocation());
+//                }
+//            }
+//            if (farmLocations.isEmpty()) return;
+//            int w = gridPanel.getTileWidth();
+//            int h = gridPanel.getTileHeight();
+//            Map<Location, FeatureArea> tAreas = rm.getFeatureAreas(tile, FULL_SIZE, FULL_SIZE * h / w, farmLocations);
+//            areas.put(tile, tAreas);
+//            refreshHints();
+//        }
+//        if (ev.getType() == TileEvent.REMOVE) {
+//            areas.remove(tile);
+//            refreshHints();
+//        }
 
     }
 

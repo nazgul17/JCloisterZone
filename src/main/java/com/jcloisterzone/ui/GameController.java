@@ -178,7 +178,7 @@ public class GameController extends EventProxyUiController<Game> implements Invo
                 client.setDiscardedTilesDialog(discardedTilesDialog);
                 client.getJMenuBar().setItemEnabled(MenuItem.DISCARDED_TILES, true);
             }
-            discardedTilesDialog.addTile(ev.getTile());
+            discardedTilesDialog.addTile(ev.getTileDefinition());
             discardedTilesDialog.setVisible(true);
             break;
         case TileEvent.PLACEMENT:

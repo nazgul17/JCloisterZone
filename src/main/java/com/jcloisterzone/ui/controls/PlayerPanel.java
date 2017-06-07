@@ -340,7 +340,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
                     boolean isOpponentActive = opponent.equals(game.getActivePlayer()) && opponent.isLocalHuman();
                     boolean clickable = isOpponentActive && !towerCap.isRansomPaidThisTurn();
                     for (Follower f : capturedFigures) {
-                        if (f.getPlayer() == opponent) {
+                        if (f.getPlayer().equals(opponent)) {
                             Integer prevVal = groupedByType.get(f.getClass());
                             groupedByType.put(f.getClass(), prevVal == null ? 1 : prevVal+1);
                         }

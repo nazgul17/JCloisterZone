@@ -6,6 +6,7 @@ import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.event.FlierRollEvent;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
@@ -61,12 +62,13 @@ public class AnimationLayer extends AbstractGridLayer {
     @Subscribe
     public void onTileEvent(TileEvent ev) {
         if (ev.getType() == TileEvent.PLACEMENT) {
-            Tile tile = ev.getTile();
+            TileDefinition tile = ev.getTileDefinition();
+            Position pos = ev.getPosition();
 
             boolean initialPlacement = ev.getTriggeringPlayer() == null;//if triggering player is null we are placing initial tiles
             if ((!initialPlacement && !ev.getTriggeringPlayer().isLocalHuman()) ||
-                (initialPlacement && tile.equals(getGame().getCurrentTile()))) {
-                service.registerAnimation(new RecentPlacement(tile.getPosition()));
+                (initialPlacement && tile.equals(getGame().getCurrentTile().getTileDefinition()))) {
+                service.registerAnimation(new RecentPlacement(pos));
             }
         }
     }
@@ -90,7 +92,7 @@ public class AnimationLayer extends AbstractGridLayer {
     }
 
     private void scored(Position pos, Player player, String points, boolean finalScoring) {
-	service.registerAnimation(new ScoreAnimation(
+    service.registerAnimation(new ScoreAnimation(
             pos,
             points,
             new ImmutablePoint(50, 50),

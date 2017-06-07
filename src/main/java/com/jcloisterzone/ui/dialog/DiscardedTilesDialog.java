@@ -12,7 +12,9 @@ import javax.swing.JScrollPane;
 
 import net.miginfocom.swing.MigLayout;
 
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
@@ -52,8 +54,8 @@ public class DiscardedTilesDialog extends JDialog {
         pack();
     }
 
-    public void addTile(Tile tile) {
-        Image icon = client.getResourceManager().getTileImage(tile).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
+    public void addTile(TileDefinition tile) {
+        Image icon = client.getResourceManager().getTileImage(tile, Rotation.R0).getImage().getScaledInstance(ICON_SIZE, ICON_SIZE, Image.SCALE_FAST);
         panel.add(new JLabel(new ImageIcon(icon)), "");
         scroll.getViewport().setViewPosition(new Point(panel.getWidth(), 0));
     }

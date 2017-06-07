@@ -38,38 +38,40 @@ public class TilePhase extends Phase {
         game.post(new SelectActionEvent(getActivePlayer(), action, false));
     }
 
-    @Override
-    public void loadGame(Snapshot snapshot) {
-         String tileId = snapshot.getNextTile();
-         Tile tile = game.getTilePack().drawTile(tileId);
-         game.setCurrentTile(tile);
-         game.getBoard().refreshAvailablePlacements(tile);
-         game.post(new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null));
-    }
+//    @Override
+//    public void loadGame(Snapshot snapshot) {
+//         String tileId = snapshot.getNextTile();
+//         Tile tile = game.getTilePack().drawTile(tileId);
+//         game.setCurrentTile(tile);
+//         game.getBoard().refreshAvailablePlacements(tile);
+//         game.post(new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null));
+//    }
 
     @Override
     public void placeTile(Rotation rotation, Position p) {
-        Tile tile = getTile();
-        tile.setRotation(rotation);
+        TileDefinition tile = game.getState().getDrawnTile();
 
-        boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
+        //IMMUTABLE TODO bridge
+        //boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
 
-        getBoard().add(tile, p);
-        if (tile.getTower() != null) {
-            game.getCapability(TowerCapability.class).registerTower(p);
-        }
-        game.post(new TileEvent(TileEvent.PLACEMENT, getActivePlayer(), tile, p));
+        getBoard().add(tile, p, rotation);
 
-        if (bridgeRequired) {
-            BridgeAction action = bridgeCap.prepareMandatoryBridgeAction();
+        //IMMUTABLE TODO bridge
+//        if (tile.getTower() != null) {
+//            game.getCapability(TowerCapability.class).registerTower(p);
+//        }
+        game.post(new TileEvent(TileEvent.PLACEMENT, getActivePlayer(), tile, p, rotation));
 
-            assert action.getOptions().size() == 1;
-            FeaturePointer bp = action.getOptions().iterator().next();
-
-            bridgeCap.decreaseBridges(getActivePlayer());
-            bridgeCap.deployBridge(bp.getPosition(), bp.getLocation(), true);
-        }
-        getBoard().mergeFeatures(tile);
+//        if (bridgeRequired) {
+//            BridgeAction action = bridgeCap.prepareMandatoryBridgeAction();
+//
+//            assert action.getOptions().size() == 1;
+//            FeaturePointer bp = action.getOptions().iterator().next();
+//
+//            bridgeCap.decreaseBridges(getActivePlayer());
+//            bridgeCap.deployBridge(bp.getPosition(), bp.getLocation(), true);
+//        }
+        //getBoard().mergeFeatures(tile);
 
         next();
     }

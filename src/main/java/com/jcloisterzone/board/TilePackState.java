@@ -115,7 +115,7 @@ public class TilePackState {
                 //pass
             }
         }
-        throw new IllegalAccessError("Tile pack does not contain " + tileId);
+        throw new IllegalArgumentException("Tile pack does not contain " + tileId);
     }
 
     public TilePackState setGroupState(String groupId, TileGroupState state) {
