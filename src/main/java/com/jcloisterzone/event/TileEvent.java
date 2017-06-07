@@ -37,6 +37,10 @@ public class TileEvent extends PlayEvent {
         return position;
     }
 
+    public Rotation getRotation() {
+        return rotation;
+    }
+
     @Override
     public String toString() {
         return super.toString() + " tile:" + tile.getId() + " position:" + position;

@@ -10,6 +10,7 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.event.Event;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 
@@ -19,6 +20,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Queue;
 
 @Immutable
 public class GameState {
@@ -36,12 +38,7 @@ public class GameState {
 
     private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
 
-    /*
-     * tilepack = List<TileDefinition> TOOD random remove, implement own class
-     * board : Map<Position, (TileDefinition, Rotation)>
-     * features: Map<FeaturePointer, Feature>
-     * meeples: Map<id: String, FeaturePointer>
-     */
+    private final Queue<Event> events;
 
     public static GameState createInitial(Array<PlayerAttributes> players, int turnPlayer) {
         return new GameState(
@@ -51,7 +48,8 @@ public class GameState {
             LinkedHashMap.empty(),
             List.empty(),
             HashMap.empty(),
-            LinkedHashMap.empty()
+            LinkedHashMap.empty(),
+            Queue.empty()
         );
     }
 
@@ -59,7 +57,8 @@ public class GameState {
             TilePackState tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
-            LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
+            LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
+            Queue<Event> events) {
         this.players = players;
         this.score = score;
         this.turnPlayer = turnPlayer;
@@ -69,10 +68,11 @@ public class GameState {
         this.discardedTiles = discardedTiles;
         this.features = features;
         this.deployedMeeples = deployedMeeples;
+        this.events = events;
     }
 
     private GameState setScore(Array<PlayerScore> score) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState addPoints(IPlayer p, int points, PointCategory category) {
@@ -83,31 +83,35 @@ public class GameState {
     }
 
     public GameState setTurnPlayer(int turnPlayer) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState setTilePack(TilePackState tilePack) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState setDrawnTile(TileDefinition drawnTile) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState setFeatures(Map<FeaturePointer, Feature> features) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState setDiscardedTiles(List<TileDefinition> discardedTiles) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples);
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+    }
+
+    public GameState setEvents(Queue<Event> events) {
+        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
     }
 
     public Array<PlayerAttributes> getPlayers() {
@@ -144,5 +148,9 @@ public class GameState {
 
     public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
         return deployedMeeples;
+    }
+
+    public Queue<Event> getEvents() {
+        return events;
     }
 }

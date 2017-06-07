@@ -1,14 +1,16 @@
 package com.jcloisterzone.event;
 
+import com.jcloisterzone.game.GameState;
 
 /**
  * Ancestor for all events including non-game events like setup and chat.
  */
 public abstract class Event {
 
+    @Deprecated
     private final int type;
-    /* flag if event is inverse event triggered by undo */
-    private boolean undo;
+
+    private GameState gameState;
 
     public Event() {
         this(0);
@@ -22,19 +24,20 @@ public abstract class Event {
         return type;
     }
 
-    @Override
-    public String toString() {
-    	if (type != 0) {
-    		return getClass().getSimpleName() + "/" + type;
-    	}
-    	return getClass().getSimpleName();
+    public GameState getGameState() {
+        return gameState;
     }
 
-	public boolean isUndo() {
-		return undo;
-	}
+    public void setGameState(GameState gameState) {
+        this.gameState = gameState;
+    }
 
-	public void setUndo(boolean undo) {
-		this.undo = undo;
-	}
+    @Override
+    public String toString() {
+        if (type != 0) {
+            return getClass().getSimpleName() + "/" + type;
+        }
+        return getClass().getSimpleName();
+    }
+
 }

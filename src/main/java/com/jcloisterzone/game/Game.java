@@ -95,7 +95,7 @@ public class Game extends GameSettings implements EventProxy {
 //    private Phase lastUndoablePhase;
 
     private final EventBus eventBus = new EventBus(new EventBusExceptionHandler("game event bus"));
-    //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before swithc is done
+    //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before switch is done
     private final java.util.Deque<Event> eventQueue = new java.util.ArrayDeque<>();
 
     private int idSequenceCurrVal = 0;
@@ -156,6 +156,12 @@ public class Game extends GameSettings implements EventProxy {
 
     @Override
     public void post(Event event) {
+        //IMMUTABLE TOTO make state always be not null
+        if (state == null) {
+            logger.warn("Null state " + event.toString());
+        }
+        replaceState(state -> state == null ? null : state.setEvents(state.getEvents().append(event)));
+        event.setGameState(state);
         eventQueue.add(event);
 //        if (event instanceof PlayEvent && !event.isUndo()) {
 //            if (isUiSupportedUndo(event)) {
