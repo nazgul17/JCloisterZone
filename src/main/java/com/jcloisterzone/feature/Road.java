@@ -2,6 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
@@ -82,8 +83,15 @@ public class Road extends CompletableFeature<Road> {
 //    }
 
     @Override
-    public RoadScoreContext getScoreContext() {
-        return new RoadScoreContext(game);
+    public int getPoints(Player player) {
+        int length = getPlaces().size();
+        int points;
+        if (inn) {
+            points = isCompleted() ? length * 2 : 0;
+        } else {
+            points = length;
+        }
+        return getMageAndWitchPoints(points) + getLittleBuildingPoints();
     }
 
     @Override

@@ -11,7 +11,7 @@ import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.List;
 
-public class Castle extends TileFeature implements Scoreable {
+public class Castle extends ScoreableFeature {
 
     public Castle(Game game, List<FeaturePointer> places) {
         super(game, places);
@@ -21,11 +21,6 @@ public class Castle extends TileFeature implements Scoreable {
     @Override
     public PointCategory getPointCategory() {
         return PointCategory.CASTLE;
-    }
-
-    @Override
-    public ScoreContext getScoreContext() {
-        throw new UnsupportedOperationException();
     }
 
     //IMMUTABLE TODO

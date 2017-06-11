@@ -18,6 +18,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.score.ScoringStrategy;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
@@ -152,7 +153,7 @@ public abstract class Capability {
         return true;
     }
 
-    public void scoreCompleted(CompletableScoreContext ctx) {
+    public void scoreCompleted(Completable feature) {
     }
 
     public void turnCleanUp() {

@@ -106,10 +106,16 @@ public class Tile /*implements Cloneable*/ {
         Rotation rot = getRotation();
         Map<FeaturePointer, Feature> allFeatures = game.getState().getFeatures();
         return Stream.ofAll(getTileDefinition().getInitialFeatures())
-            .map(t -> t.update1(t._1.rotateCCW(rot)))
+            .map(t -> t.update1(t._1.rotateCW(rot)))
             .map(t -> t.update2(
                 allFeatures.get(new FeaturePointer(position, t._1)).get()
             ));
+    }
+
+    public Stream<Tuple2<Location, Completable>> getCompletableFeatures() {
+        return getFeatures()
+            .filter(t -> t._2 instanceof Completable)
+            .map(t -> t.map2(f -> (Completable) f));
     }
 
 //    /** merge this to another tile - method argument is tile placed before */
@@ -172,6 +178,10 @@ public class Tile /*implements Cloneable*/ {
 //        assert rotation != null;
 //        this.rotation =  rotation;
 //    }
+
+    public boolean isAbbeyTile() {
+        return getTileDefinition().isAbbeyTile();
+    }
 
     public TileSymmetry getSymmetry() {
         return getTileDefinition().getSymmetry();

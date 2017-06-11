@@ -44,6 +44,9 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CommitMessage;
 
+import io.vavr.Predicates;
+import io.vavr.Tuple2;
+
 public class ScorePhase extends ServerAwarePhase {
 
     private Set<Completable> alredyScored = new HashSet<>();
@@ -68,17 +71,15 @@ public class ScorePhase extends ServerAwarePhase {
     }
 
     private void scoreCompletedOnTile(Tile tile) {
-        for (Feature feature : tile.getFeatures()) {
-            if (feature instanceof Completable) {
-                scoreCompleted((Completable) feature, true);
-            }
-        }
+        tile.getCompletableFeatures().forEach(t -> {
+            scoreCompleted(t._2, true);
+        });
     }
 
     private void scoreCompletedNearAbbey(Position pos) {
-        for (Entry<Location, Tile> e : getBoard().getAdjacentTilesMap(pos).entrySet()) {
-            Tile tile = e.getValue();
-            Feature feature = tile.getFeaturePartOf(e.getKey().rev());
+        for (Tuple2<Location, Tile> t : getBoard().getAdjacentTilesMap(pos)) {
+            Tile tile = t._2;
+            Feature feature = tile.getFeaturePartOf(t._1.rev());
             if (feature instanceof Completable) {
                 scoreCompleted((Completable) feature, false);
             }
@@ -86,45 +87,47 @@ public class ScorePhase extends ServerAwarePhase {
     }
 
     private void scoreFollowersOnBarnFarm(Farm farm, Map<City, CityScoreContext> cityCache) {
-        FarmScoreContext ctx = farm.getScoreContext();
-        ctx.setCityCache(cityCache);
-        farm.walk(ctx);
-
-        boolean hasBarn = false;
-        for (Meeple m : ctx.getSpecialMeeples()) {
-            if (m instanceof Barn) {
-                hasBarn = true;
-                break;
-            }
-        }
-        if (hasBarn) {
-            for (Player p : ctx.getMajorOwners()) {
-                int points = ctx.getPointsWhenBarnIsConnected(p);
-                game.scoreFeature(points, ctx, p);
-            }
-            for (Meeple m : ctx.getMeeples()) {
-                if (!(m instanceof Barn)) {
-                    undeloyMeeple(m);
-                }
-            }
-        }
+        // IMMUTABLE TODO
+//        FarmScoreContext ctx = farm.getScoreContext();
+//        ctx.setCityCache(cityCache);
+//        farm.walk(ctx);
+//
+//        boolean hasBarn = false;
+//        for (Meeple m : ctx.getSpecialMeeples()) {
+//            if (m instanceof Barn) {
+//                hasBarn = true;
+//                break;
+//            }
+//        }
+//        if (hasBarn) {
+//            for (Player p : ctx.getMajorOwners()) {
+//                int points = ctx.getPointsWhenBarnIsConnected(p);
+//                game.scoreFeature(points, ctx, p);
+//            }
+//            for (Meeple m : ctx.getMeeples()) {
+//                if (!(m instanceof Barn)) {
+//                    undeloyMeeple(m);
+//                }
+//            }
+//        }
     }
 
     @Override
     public void enter() {
         if (isLocalPlayer(getActivePlayer())) {
             boolean needsConfirm = false;
-            if (game.getLastUndoable() instanceof MeepleEvent) {
-                ConfirmConfig cfg =  getConfig().getConfirm();
-                MeepleEvent ev = (MeepleEvent) game.getLastUndoable();
-                if (cfg.getAny_deployment()) {
-                    needsConfirm = true;
-                } else if (cfg.getFarm_deployment() && ev.getTo().getLocation().isFarmLocation()) {
-                    needsConfirm = true;
-                } else if (cfg.getOn_tower_deployment() && ev.getTo().getLocation() == Location.TOWER) {
-                    needsConfirm = true;
-                }
-            }
+            // IMMUTABLE TODO
+//            if (game.getLastUndoable() instanceof MeepleEvent) {
+//                ConfirmConfig cfg =  getConfig().getConfirm();
+//                MeepleEvent ev = (MeepleEvent) game.getLastUndoable();
+//                if (cfg.getAny_deployment()) {
+//                    needsConfirm = true;
+//                } else if (cfg.getFarm_deployment() && ev.getTo().getLocation().isFarmLocation()) {
+//                    needsConfirm = true;
+//                } else if (cfg.getOn_tower_deployment() && ev.getTo().getLocation() == Location.TOWER) {
+//                    needsConfirm = true;
+//                }
+//            }
             if (needsConfirm) {
                 game.post(new RequestConfirmEvent(getActivePlayer()));
             } else {
@@ -140,19 +143,20 @@ public class ScorePhase extends ServerAwarePhase {
     public void handleCommit(CommitMessage msg) {
         game.updateRandomSeed(msg.getCurrentTime());
 
-        Position pos = getTile().getPosition();
+        Tile tile = game.getCurrentTile();
+        Position pos = tile.getPosition();
         //TODO separate event here ??? and move this code to abbey and mayor game
         if (barnCap != null) {
             Map<City, CityScoreContext> cityCache = new HashMap<>();
-            for (Feature feature : getTile().getFeatures()) {
-                if (feature instanceof Farm) {
-                    scoreFollowersOnBarnFarm((Farm) feature, cityCache);
+            for (Tuple2<Location, Feature> t : tile.getFeatures()) {
+                if (t._2 instanceof Farm) {
+                    scoreFollowersOnBarnFarm((Farm) t._2, cityCache);
                 }
             }
         }
 
-        scoreCompletedOnTile(getTile());
-        if (getTile().isAbbeyTile()) {
+        scoreCompletedOnTile(tile);
+        if (tile.isAbbeyTile()) {
             scoreCompletedNearAbbey(pos);
         }
 
@@ -171,9 +175,10 @@ public class ScorePhase extends ServerAwarePhase {
         }
 
         if (castleCap != null) {
-            for (Entry<Castle, Integer> entry : castleCap.getCastleScore().entrySet()) {
-                scoreCastle(entry.getKey(), entry.getValue());
-            }
+            // IMMUTABLE TODO
+//            for (Entry<Castle, Integer> entry : castleCap.getCastleScore().entrySet()) {
+//                scoreCastle(entry.getKey(), entry.getValue());
+//            }
         }
 
         if (gldCap != null) {
@@ -208,40 +213,30 @@ public class ScorePhase extends ServerAwarePhase {
         }
     }
 
-    private void scoreCastle(Castle castle, int points) {
-        List<Meeple> meeples = castle.getMeeples();
-        if (meeples.isEmpty()) meeples = castle.getSecondFeature().getMeeples();
-        Meeple m = meeples.get(0); //all meeples must share same owner
-        m.getPlayer().addPoints(points, PointCategory.CASTLE);
-        if (gldCap != null) {
-            gldCap.castleCompleted(castle, m.getPlayer());
-        }
-        game.post(new ScoreEvent(m.getFeature(), points, PointCategory.CASTLE, m));
-        undeloyMeeple(m);
-    }
+//    private void scoreCastle(Castle castle, int points) {
+//        List<Meeple> meeples = castle.getMeeples();
+//        if (meeples.isEmpty()) meeples = castle.getSecondFeature().getMeeples();
+//        Meeple m = meeples.get(0); //all meeples must share same owner
+//        m.getPlayer().addPoints(points, PointCategory.CASTLE);
+//        if (gldCap != null) {
+//            gldCap.castleCompleted(castle, m.getPlayer());
+//        }
+//        game.post(new ScoreEvent(m.getFeature(), points, PointCategory.CASTLE, m));
+//        undeloyMeeple(m);
+//    }
 
     private void scoreCompleted(Completable completable, boolean triggerBuilder) {
-        CompletableScoreContext ctx = completable.getScoreContext();
-        completable.walk(ctx);
         if (triggerBuilder && builderCap != null) {
-            for (Meeple m : ctx.getSpecialMeeples()) {
-                if (m instanceof Builder && m.getPlayer().equals(getActivePlayer())) {
-                    if (!m.at(getTile().getPosition())) {
-                        builderCap.useBuilder();
-                    }
-                    break;
-                }
+            if (!completable.getMeeples().find(Predicates.instanceOf(Builder.class)).isEmpty()) {
+                builderCap.useBuilder();
             }
         }
-        if (ctx.isCompleted()) {
-            Completable master = ctx.getMasterFeature();
-            if (!alredyScored.contains(master)) {
-                alredyScored.add(master);
-                game.scoreCompleted(ctx);
-                game.scoreCompletableFeature(ctx);
-                undeployMeeples(ctx);
-                game.post(new FeatureCompletedEvent(getActivePlayer(), master, ctx));
-            }
+        if (completable.isCompleted() && !alredyScored.contains(completable)) {
+            alredyScored.add(completable);
+            game.scoreCompleted(completable);
+            game.scoreCompletableFeature(completable);
+            undeployMeeples(ctx);
+            game.post(new FeatureCompletedEvent(getActivePlayer(), master, ctx));
         }
     }
 

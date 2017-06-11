@@ -24,6 +24,7 @@ import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
@@ -178,7 +179,7 @@ public class CastleCapability extends Capability {
     }
 
     @Override
-    public void scoreCompleted(CompletableScoreContext ctx) {
+    public void scoreCompleted(Completable ctx) {
         checkCastleVicinity(ctx.getPositions(), ctx.getPoints());
     }
 

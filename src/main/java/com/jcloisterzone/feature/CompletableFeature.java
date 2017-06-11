@@ -10,7 +10,7 @@ import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
-public abstract class CompletableFeature<T extends CompletableFeature<?>> extends TileFeature implements Completable, MultiTileFeature<T> {
+public abstract class CompletableFeature<T extends CompletableFeature<?>> extends ScoreableFeature implements Completable, MultiTileFeature<T> {
 
     protected final List<Edge> openEdges;
 

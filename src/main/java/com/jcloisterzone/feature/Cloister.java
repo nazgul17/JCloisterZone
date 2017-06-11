@@ -3,6 +3,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -14,7 +15,7 @@ import com.jcloisterzone.game.Game;
 import io.vavr.collection.List;
 
 
-public class Cloister extends TileFeature implements Completable {
+public class Cloister extends ScoreableFeature implements Completable {
 
     protected final boolean shrine;
     protected final boolean monastery;
@@ -74,8 +75,9 @@ public class Cloister extends TileFeature implements Completable {
     }
 
     @Override
-    public CompletableScoreContext getScoreContext() {
-        return new CloisterScoreContext(getGame());
+    public int getPoints(Player player) {
+        Position p = places.get().getPosition();
+        return game.getBoard().getAdjacentAndDiagonalTiles(p).size() + 1;
     }
 
     @Override

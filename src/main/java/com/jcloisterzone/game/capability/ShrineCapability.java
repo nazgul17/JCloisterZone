@@ -7,6 +7,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.feature.Cloister;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.figure.Meeple;
@@ -57,9 +58,9 @@ public final class ShrineCapability extends Capability {
     }
 
     @Override
-    public void scoreCompleted(CompletableScoreContext ctx) {
-        if (ctx.getMasterFeature() instanceof Cloister) {
-            resolveChallengedCloisters((Cloister) ctx.getMasterFeature());
+    public void scoreCompleted(Completable feature) {
+        if (feature instanceof Cloister) {
+            resolveChallengedCloisters((Cloister) feature);
         }
     }
 

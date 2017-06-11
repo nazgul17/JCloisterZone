@@ -38,6 +38,7 @@ import com.jcloisterzone.event.PlayerTurnEvent;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.City;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
@@ -304,6 +305,10 @@ public class Game extends GameSettings implements EventProxy {
         return players.get(index);
     }
 
+    public Player getPlayer(PlayerAttributes attrs) {
+        return players.get(attrs.getIndex());
+    }
+
     /**
      * Returns whole player list
      * @return player list
@@ -451,8 +456,8 @@ public class Game extends GameSettings implements EventProxy {
         post(scoreEvent);
     }
 
-    public void scoreCompletableFeature(CompletableScoreContext ctx) {
-        Set<Player> players = ctx.getMajorOwners();
+    public void scoreCompletableFeature(Completable feature) {
+        Set<Player> players = feature.getOwners();
         if (players.isEmpty()) return;
         int points = ctx.getPoints();
         for (Player p : players) {
@@ -546,7 +551,7 @@ public class Game extends GameSettings implements EventProxy {
         return true;
     }
 
-    public void scoreCompleted(CompletableScoreContext ctx) {
+    public void scoreCompleted(Completable ctx) {
         for (Capability cap: capabilities) {
             cap.scoreCompleted(ctx);
         }

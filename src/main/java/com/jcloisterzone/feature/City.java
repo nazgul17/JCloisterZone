@@ -2,6 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.board.Edge;
@@ -9,6 +10,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.visitor.score.CityScoreContext;
+import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.HashMap;
@@ -116,8 +118,22 @@ public class City extends CompletableFeature<City> {
     }
 
     @Override
-    public CityScoreContext getScoreContext() {
-        return new CityScoreContext(game);
+    public int getPoints(Player player) {
+        boolean completed = isCompleted();
+        int size = getPlaces().size();
+        
+        int pointsPerUnit = 2;
+        if (besieged) pointsPerUnit--;
+        if (completed) {
+            if (cathedral) pointsPerUnit++;
+        } else {
+            if (cathedral) {
+                pointsPerUnit = 0;
+            } else {
+                pointsPerUnit--;
+            }
+        }
+        return getMageAndWitchPoints(pointsPerUnit * (size + pennants)) + getLittleBuildingPoints();
     }
 
     @Override

@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -48,6 +49,8 @@ import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.ui.resources.svg.ThemeGeometry;
+
+import io.vavr.Tuple2;
 
 
 public class ResourcePlugin extends Plugin implements ResourceManager {
@@ -304,15 +307,19 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         // dirty hack to not handle quarter locations
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
+        Rotation rot = tile.getRotation();
+        locations = locations.stream().map(loc -> loc.rotateCCW(rot)).collect(Collectors.toCollection(HashSet::new));
+
         Map<Location, FeatureArea> areas = new HashMap<>();
         Area subsBridge = getBaseRoadAndCitySubstractions(tile);
         Area subsRoadCity = new Area(subsBridge);
         substractBridge(subsRoadCity, tile);
         Area subsFarm = getFarmSubstractions(tile);
 
-        for (Feature piece : tile.getFeatures()) {
+        for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
+            Location loc = t._1;
+            Feature feature = t._2;
             boolean aliasAbbot = false;
-            Location loc = piece.getLocation();
             if (loc == Location.CLOISTER && locations.contains(Location.ABBOT)) {
                 aliasAbbot = true;
             }
@@ -321,15 +328,15 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             }
 
             FeatureArea fa;
-            if (piece instanceof Farm) {
+            if (feature instanceof Farm) {
                 fa = getFarmArea(loc, tile, subsFarm);
                 areas.put(loc, fa);
                 continue;
             }
 
-            fa = getFeatureArea(tile, piece.getClass(), loc);
-            if (piece instanceof City || piece instanceof Road) {
-                Area subs = piece instanceof Bridge ? subsBridge : subsRoadCity;
+            fa = getFeatureArea(tile, feature.getClass(), loc);
+            if (feature instanceof City || feature instanceof Road) {
+                Area subs = feature instanceof Bridge ? subsBridge : subsRoadCity;
                 if (!subs.isEmpty()) {
                     fa.getTrackingArea().subtract(subs);
                 }
@@ -342,9 +349,14 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             areas.put(Location.FLIER, fa);
         }
 
+        areas.forEach((key, fa) -> {
+            Area a = fa.getTrackingArea();
+            a = a.createTransformedArea(rot.getAffineTransform(NORMALIZED_SIZE));
+            fa.setTrackingArea(a);
+        });
+
         double ratioX;
         double ratioY;
-        Rotation rot = tile.getRotation();
         if (rot == Rotation.R90 || rot  == Rotation.R270) {
             ratioX = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
             ratioY = (double) width / NORMALIZED_SIZE;
@@ -394,12 +406,13 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     private void substractBridge(Area substractions, Tile tile) {
-        Bridge bridge = tile.getBridge();
-        if (bridge != null) {
-            Area area;
-            area = getFeatureArea(tile, Bridge.class, bridge.getLocation()).getTrackingArea();
-            substractions.add(area);
-        }
+        //IMMUTABLE TODO
+//        Bridge bridge = tile.getBridge();
+//        if (bridge != null) {
+//            Area area;
+//            area = getFeatureArea(tile, Bridge.class, bridge.getLocation()).getTrackingArea();
+//            substractions.add(area);
+//        }
     }
 
     private Area getBaseRoadAndCitySubstractions(Tile tile) {
@@ -416,12 +429,14 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
 
     private Area getFarmSubstractions(Tile tile) {
         Area sub = new Area();
-        for (Feature piece : tile.getFeatures()) {
-            if (!(piece instanceof Farm)) {
-                Area area = getFeatureArea(tile, piece.getClass(), piece.getLocation()).getTrackingArea();
+        for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
+            if (!(t._2 instanceof Farm)) {
+                Area area = getFeatureArea(tile, t._2.getClass(), t._1).getTrackingArea();
                 sub.add(area);
             }
+
         }
+
         if (tile.getFlier() != null) {
             sub.add(getFeatureArea(tile, null, Location.FLIER).getTrackingArea());
         }
@@ -442,11 +457,12 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         FeatureArea result;
         if (isFarmComplement(tile, farm)) { //is complement farm
             Area base = new Area(getFullRectangle(tile));
-            for (Feature piece : tile.getFeatures()) {
-                if (piece instanceof Farm && piece.getLocation() != farm) {
-                    Area area = getFeatureArea(tile, Farm.class, piece.getLocation()).getTrackingArea();
+            for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
+                if (t._2 instanceof Farm && t._1 != farm) {
+                    Area area = getFeatureArea(tile, Farm.class, t._1).getTrackingArea();
                     base.subtract(area);
                 }
+
             }
             result = new FeatureArea(base, FeatureArea.DEFAULT_FARM_ZINDEX);
         } else {

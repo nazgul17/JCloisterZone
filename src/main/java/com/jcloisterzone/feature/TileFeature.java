@@ -44,7 +44,7 @@ public abstract class TileFeature implements Feature {
 
     @Override
     public String toString() {
-        return String.format("%s%s", getClass().getSimpleName(), places);
+        return String.format("%s(places=%s)", getClass().getSimpleName(), places);
     }
 
     public static String getLocalizedNamefor(Class<? extends Feature> feature) {
@@ -55,6 +55,8 @@ public abstract class TileFeature implements Feature {
             return feature.getSimpleName();
         }
     }
+
+
 
     // immutable helpers
 

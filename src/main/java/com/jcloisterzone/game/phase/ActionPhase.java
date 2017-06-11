@@ -5,6 +5,7 @@ import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -170,12 +171,13 @@ public class ActionPhase extends Phase {
         Meeple m = getActivePlayer().getMeepleFromSupply(meepleType);
         //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
         if (m instanceof Follower) {
-            if (getBoard().get(fp).walk(new IsOccupied())) {
+            if (getBoard().get(fp).isOccupied()) {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }
         m.deploy(fp);
-        if (portalCap != null && fp.getLocation() != Location.TOWER && getTile().hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(getTile().getPosition())) {
+        Tile tile = game.getCurrentTile();
+        if (portalCap != null && fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
             //magic gate usage
             portalCap.setPortalUsed(true);
         }

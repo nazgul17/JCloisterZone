@@ -2,6 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -11,7 +12,7 @@ import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.List;
 
-public class Farm extends TileFeature implements MultiTileFeature<Farm> {
+public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     // for unplaced features, references is to (0, 0)
     protected final List<FeaturePointer> adjoiningCities; //or castles
@@ -83,8 +84,9 @@ public class Farm extends TileFeature implements MultiTileFeature<Farm> {
     }
 
     @Override
-    public FarmScoreContext getScoreContext() {
-        return new FarmScoreContext(getGame());
+    public int getPoints(Player player) {
+        //IMMUTABLE TODO
+        throw new UnsupportedOperationException();
     }
 
     public static String name() {
