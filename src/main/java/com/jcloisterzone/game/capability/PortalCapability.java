@@ -1,7 +1,5 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.Set;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -16,6 +14,9 @@ import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.SnapshotCorruptedException;
+
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
 
 public class PortalCapability extends Capability {
 
@@ -43,33 +44,39 @@ public class PortalCapability extends Capability {
         return tile;
     }
 
-    @Override
-    public void handleEvent(Event event) {
-        if (event.isUndo() && event instanceof MeepleEvent) {
-            MeepleEvent ev = (MeepleEvent) event;
-            if (ev.getTo() == null && game.getCurrentTile().hasTrigger(TileTrigger.PORTAL)) {
-                portalUsed = false;
-            }
-        }
-    }
+//    @Override
+//    public void handleEvent(Event event) {
+//        if (event.isUndo() && event instanceof MeepleEvent) {
+//            MeepleEvent ev = (MeepleEvent) event;
+//            if (ev.getTo() == null && game.getCurrentTile().hasTrigger(TileTrigger.PORTAL)) {
+//                portalUsed = false;
+//            }
+//        }
+//    }
 
 
     @Override
-    public void extendFollowOptions(Set<FeaturePointer> followerOptions) {
-        if (getCurrentTile().hasTrigger(TileTrigger.PORTAL)) {
+    public Set<FeaturePointer> extendFollowOptions(Set<FeaturePointer> followerOptions) {
+        if (game.getCurrentTile().hasTrigger(TileTrigger.PORTAL)) {
             if (game.getActivePlayer().hasFollower()) {
-                prepareMagicPortal(followerOptions);
+                return prepareMagicPortal(followerOptions);
             }
         }
+        return followerOptions;
     }
 
-    public void prepareMagicPortal(Set<FeaturePointer> followerOptions) {
-        if (portalUsed) return;
-        for (Tile tile : getBoard().getAllTiles()) {
-            if (tile == getCurrentTile()) continue; //already contained in original followerOptions
-            Set<FeaturePointer> locations = game.prepareFollowerLocations(tile, true);
-            followerOptions.addAll(locations);
-        }
+    public Set<FeaturePointer> prepareMagicPortal(Set<FeaturePointer> followerOptions) {
+        if (portalUsed) return followerOptions;
+
+        java.util.Set<FeaturePointer> mutable = followerOptions.toJavaSet();
+        getBoard().getPlacedTiles()
+            //current tile is already contained in original followerOptions
+            .filter(tile -> !tile.equals(game.getCurrentTile()))
+            .forEach(tile -> {
+                Set<FeaturePointer> ptrs = game.prepareFollowerLocations(tile, true);
+                mutable.addAll(ptrs.toJavaSet());
+            });
+        return HashSet.ofAll(mutable);
     }
 
     @Override

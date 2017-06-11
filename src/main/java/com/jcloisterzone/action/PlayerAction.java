@@ -29,6 +29,11 @@ public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, It
         this.name = name;
     }
 
+    public PlayerAction(String name, io.vavr.collection.Set<T> ptrs) {
+        this.name = name;
+        addAll(ptrs);
+    }
+
     public abstract void perform(RmiProxy server, T target);
 
     @Override
@@ -41,6 +46,12 @@ public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, It
         return this;
     }
 
+    public PlayerAction<T> addAll(io.vavr.collection.Set<T> options) {
+        this.options.addAll(options.toJavaList());
+        return this;
+    }
+
+    @Deprecated
     public PlayerAction<T> addAll(Collection<T> options) {
         this.options.addAll(options);
         return this;
@@ -87,7 +98,7 @@ public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, It
     }
 
     protected Image getImage(Color color) {
-    	return client.getResourceManager().getLayeredImage(new LayeredImageDescriptor("actions/" + getName(), color));
+        return client.getResourceManager().getLayeredImage(new LayeredImageDescriptor("actions/" + getName(), color));
     }
 
 

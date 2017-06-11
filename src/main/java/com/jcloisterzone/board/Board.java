@@ -306,6 +306,10 @@ public class Board {
         return game.getState().getFeatures().get(fp).getOrNull();
     }
 
+    public Stream<Tile> getPlacedTiles() {
+        return Stream.ofAll(game.getState().getPlacedTiles()).map(t -> get(t._1));
+    }
+
     //TODO maybe get all feature will be enough in new arch
 //    public Collection<Tile> getAllTiles() {
 //

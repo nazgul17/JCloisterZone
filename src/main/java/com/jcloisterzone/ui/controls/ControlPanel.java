@@ -57,6 +57,7 @@ import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
 
 import io.vavr.collection.Array;
+import io.vavr.collection.IndexedSeq;
 
 public class ControlPanel extends JPanel {
 
@@ -301,7 +302,7 @@ public class ControlPanel extends JPanel {
     }
 
 
-    public void selectAction(Player targetPlayer, List<? extends PlayerAction<?>> actions, boolean canPass) {
+    public void selectAction(Player targetPlayer, IndexedSeq<? extends PlayerAction<?>> actions, boolean canPass) {
         // direct collection sort can be unsupported - so copy to array first!
         int i = 0;
         PlayerAction<?>[] arr = new PlayerAction[actions.size()];

@@ -1,5 +1,7 @@
 package com.jcloisterzone.board;
 
+import java.util.Objects;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -291,5 +293,18 @@ public class Tile /*implements Cloneable*/ {
 //        if (origin == Expansion.COUNT || getBridge() != null) return false;
 //        return edgePattern.isBridgeAllowed(bridgeLoc, rotation);
 //    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Tile)) return false;
+        Tile tile = (Tile) obj;
+        return Objects.equals(position, tile.position);
+    }
+
+    @Override
+    public int hashCode() {
+        return position.hashCode();
+    }
 
 }

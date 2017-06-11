@@ -18,6 +18,10 @@ public abstract class SelectFeatureAction extends PlayerAction<FeaturePointer> {
         super(name);
     }
 
+    public SelectFeatureAction(String name, io.vavr.collection.Set<FeaturePointer> ptrs) {
+        super(name, ptrs);
+    }
+
     @Override
     protected Class<? extends ActionLayer<?>> getActionLayerType() {
         return FeatureAreaLayer.class;

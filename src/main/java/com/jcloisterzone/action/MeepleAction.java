@@ -11,12 +11,19 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.wsio.RmiProxy;
 
+import io.vavr.collection.Set;
+
 public class MeepleAction extends SelectFeatureAction {
 
     private final Class<? extends Meeple> meepleType;
 
     public MeepleAction(Class<? extends Meeple> meepleType) {
         super(meepleType.getSimpleName().toLowerCase());
+        this.meepleType = meepleType;
+    }
+
+    public MeepleAction(Class<? extends Meeple> meepleType, Set<FeaturePointer> ptrs) {
+        super(meepleType.getSimpleName().toLowerCase(), ptrs);
         this.meepleType = meepleType;
     }
 

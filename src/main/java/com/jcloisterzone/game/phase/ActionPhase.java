@@ -1,11 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Iterables;
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
@@ -41,6 +35,9 @@ import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
+import io.vavr.collection.Set;
+import io.vavr.collection.Vector;
+
 
 public class ActionPhase extends Phase {
 
@@ -59,20 +56,23 @@ public class ActionPhase extends Phase {
 
     @Override
     public void enter() {
-        List<PlayerAction<?>> actions = new ArrayList<>();
+        Vector<PlayerAction<?>> actions = Vector.empty();
 
         Set<FeaturePointer> followerLocations = game.prepareFollowerLocations();
         if (getActivePlayer().hasFollower(SmallFollower.class)  && !followerLocations.isEmpty()) {
-            actions.add(new MeepleAction(SmallFollower.class).addAll(followerLocations));
+            PlayerAction<?> action = new MeepleAction(SmallFollower.class, followerLocations);
+            actions = actions.append(action);
         }
         //HACK put this directly here instead of BigFollower or Phatom capability - to avoid "priority" issues
         if (game.getActivePlayer().hasFollower(BigFollower.class) && !followerLocations.isEmpty()) {
-            actions.add(new MeepleAction(BigFollower.class).addAll(followerLocations));
+            PlayerAction<?> action = new MeepleAction(BigFollower.class, followerLocations);
+            actions = actions.append(action);
         }
         if (getActivePlayer().hasFollower(Phantom.class)  && !followerLocations.isEmpty()) {
-            actions.add(new MeepleAction(Phantom.class).addAll(followerLocations));
+            PlayerAction<?> action = new MeepleAction(Phantom.class, followerLocations);
+            actions = actions.append(action);
         }
-        game.prepareActions(actions, ImmutableSet.copyOf(followerLocations));
+        actions = game.prepareActions(actions, followerLocations);
         game.post(new SelectActionEvent(getActivePlayer(), actions, true));
     }
 

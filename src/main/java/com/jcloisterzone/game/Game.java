@@ -40,6 +40,7 @@ import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.score.ScoringStrategy;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.feature.visitor.score.ScoreContext;
@@ -57,10 +58,13 @@ import com.jcloisterzone.game.phase.Phase;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.LinkedHashMultimap;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 
 
 /**
@@ -389,28 +393,34 @@ public class Game extends GameSettings implements EventProxy {
 
 
     public Set<FeaturePointer> prepareFollowerLocations() {
-        Set<FeaturePointer> followerOptions = prepareFollowerLocations(currentTile, false);
+        Set<FeaturePointer> locations = prepareFollowerLocations(getCurrentTile(), false);
         for (Capability cap: capabilities) {
-            cap.extendFollowOptions(followerOptions);
+            locations = cap.extendFollowOptions(locations);
         }
-        return followerOptions;
+        return locations;
     }
 
     public Set<FeaturePointer> prepareFollowerLocations(Tile tile, boolean excludeFinished) {
-        if (!isDeployAllowed(tile, Follower.class)) return Collections.emptySet();
-        Set<FeaturePointer> pointers = new HashSet<>();
-        for (Location loc: tile.getUnoccupiedScoreables(excludeFinished)) {
-            //exclude finished == false -> just placed tile - it means do not check princess for magic portal
-            //TODO very cryptic, refactor
-            if (!excludeFinished && hasCapability(PrincessCapability.class) && getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
-                City princessCity = tile.getCityWithPrincess();
-                if (princessCity != null) {
-                    continue;
+        if (!isDeployAllowed(tile, Follower.class)) return HashSet.empty();
+
+        Position pos = tile.getPosition();
+        Stream<Tuple2<Location, Scoreable>> s = tile.getUnoccupiedScoreables(excludeFinished);
+
+        //exclude finished == false -> just placed tile - it means do not check princess for magic portal
+        //TODO very cryptic, refactor
+        //IMMUTABLE TODO
+        if (!excludeFinished && hasCapability(PrincessCapability.class) && getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
+            s = s.filter(t -> {
+                if (t._2 instanceof City) {
+                    City c = (City) t._2;
+                    return !c.isPrincess();
+                } else {
+                    return true;
                 }
-            }
-            pointers.add(new FeaturePointer(tile.getPosition(), loc));
+            });
         }
-        return pointers;
+
+        return s.map(t -> new FeaturePointer(pos, t._1)).toSet();
     }
 
     //scoring helpers
@@ -516,23 +526,16 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
         for (Capability cap: capabilities) {
-            cap.prepareActions(actions, followerOptions);
+            actions = cap.prepareActions(actions, followerOptions);
         }
         for (Capability cap: capabilities) {
-            cap.postPrepareActions(actions);
+            actions = cap.postPrepareActions(actions);
         }
-
         //to simplify capability iterations, allow returning empty actions (eg tower can add empty meeple action when no open tower exists etc)
         //and then filter them out at end
-        Iterator<PlayerAction<?>> iter = actions.iterator();
-        while (iter.hasNext()) {
-            PlayerAction<?> action = iter.next();
-            if (action.isEmpty()) {
-                iter.remove();
-            }
-        }
+        return actions.filter(action -> !action.isEmpty());
     }
 
 

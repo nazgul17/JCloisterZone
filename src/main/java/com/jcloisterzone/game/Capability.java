@@ -26,6 +26,8 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
+import io.vavr.collection.Vector;
 
 
 public abstract class Capability {
@@ -134,13 +136,16 @@ public abstract class Capability {
         return followerActions;
     }
 
-    public void extendFollowOptions(java.util.Set<FeaturePointer> followerOptions) {
+    public Set<FeaturePointer> extendFollowOptions(Set<FeaturePointer> locations) {
+        return locations;
     }
 
-    public void prepareActions(java.util.List<PlayerAction<?>> actions, java.util.Set<FeaturePointer> followerOptions) {
+    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+        return actions;
     }
 
-    public void postPrepareActions(java.util.List<PlayerAction<?>> actions) {
+    public Vector<PlayerAction<?>> postPrepareActions(Vector<PlayerAction<?>> actions) {
+        return actions;
     }
 
     public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
