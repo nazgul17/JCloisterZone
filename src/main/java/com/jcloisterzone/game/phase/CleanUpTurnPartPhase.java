@@ -19,10 +19,15 @@ public class CleanUpTurnPartPhase extends Phase {
     @Override
     public void enter() {
         boolean builderTakeAnotherTurn = builderCap != null && builderCap.hasPlayerAnotherTurn();
-        if (getTile() != null) { //after last turn, abbeys can be placed, then cycling through players and tile can be null. Do not delegate on capabilities in such case
-            game.turnPartCleanUp();
-            game.setCurrentTile(null);
-        }
+
+
+        // IMMUTABLE TODO Abbeys at end
+//        if (getTile() != null) { //after last turn, abbeys can be placed, then cycling through players and tile can be null. Do not delegate on capabilities in such case
+//            game.turnPartCleanUp();
+//            game.setCurrentTile(null);
+//        }
+        game.turnPartCleanUp();
+
         if (builderTakeAnotherTurn) {
             next(game.hasCapability(AbbeyCapability.class) ? AbbeyPhase.class : DrawPhase.class);
         } else {

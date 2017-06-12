@@ -164,8 +164,9 @@ public class MeepleLayer extends AbstractGridLayer {
     }
 
     private PositionedFigureImage createMeepleImage(Meeple meeple, Color c, FeaturePointer fp) {
+        Tile tile = getGame().getBoard().get(fp.getPosition());
         Feature feature = getGame().getBoard().get(fp);
-        ImmutablePoint offset = rm.getMeeplePlacement(feature.getTile(), meeple.getClass(), fp.getLocation());
+        ImmutablePoint offset = rm.getMeeplePlacement(tile, meeple.getClass(), fp.getLocation());
         LayeredImageDescriptor lid = new LayeredImageDescriptor(meeple.getClass(), c);
         lid.setAdditionalLayer(getExtraDecoration(meeple.getClass(), fp));
         Image image = rm.getLayeredImage(lid);
@@ -192,9 +193,10 @@ public class MeepleLayer extends AbstractGridLayer {
         if (count) {
             offset = DefaultResourceManager.COUNT_OFFSETS.get(fp.getLocation());
         } else if (fp != null) {
+            Tile tile = getGame().getBoard().get(fp.getPosition());
             Feature feature = getGame().getBoard().get(fp);
             bridgePlacement = feature instanceof Bridge;
-            offset = rm.getMeeplePlacement(feature.getTile(), SmallFollower.class, fp.getLocation());
+            offset = rm.getMeeplePlacement(tile, SmallFollower.class, fp.getLocation());
             if (nextToMeeple != null) {
                 //for better fairy visibilty
                 offset = offset.translate(-5, 0);

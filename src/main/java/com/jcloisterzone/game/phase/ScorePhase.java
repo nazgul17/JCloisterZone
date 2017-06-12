@@ -189,30 +189,6 @@ public class ScorePhase extends ServerAwarePhase {
         next();
     }
 
-    protected void undeployMeeples(CompletableScoreContext ctx) {
-        for (Meeple m : ctx.getMeeples()) {
-            undeloyMeeple(m);
-            //TODO decouple this hack
-            if (ctx instanceof PositionCollectingScoreContext) {
-                PositionCollectingScoreContext pctx = (PositionCollectingScoreContext) ctx;
-                if (pctx.containsMage()) {
-                    mageWitchCap.getMage().undeploy();
-                }
-                if (pctx.containsWitch()) {
-                    mageWitchCap.getWitch().undeploy();
-                }
-            }
-        }
-    }
-
-    protected void undeloyMeeple(Meeple m) {
-        Feature feature = m.getFeature();
-        m.undeploy(false);
-        if (m instanceof Wagon && wagonCap != null) {
-            wagonCap.wagonScored((Wagon) m, feature);
-        }
-    }
-
 //    private void scoreCastle(Castle castle, int points) {
 //        List<Meeple> meeples = castle.getMeeples();
 //        if (meeples.isEmpty()) meeples = castle.getSecondFeature().getMeeples();
@@ -235,8 +211,13 @@ public class ScorePhase extends ServerAwarePhase {
             alredyScored.add(completable);
             game.scoreCompleted(completable);
             game.scoreCompletableFeature(completable);
-            undeployMeeples(ctx);
-            game.post(new FeatureCompletedEvent(getActivePlayer(), master, ctx));
+            //IMMUTABLE TODO
+//   notify scored wagon
+//          if (m instanceof Wagon && wagonCap != null) {
+//          wagonCap.wagonScored((Wagon) m, feature);
+//      	}
+            game.undeployMeeples(completable);
+            game.post(new FeatureCompletedEvent(getActivePlayer(), completable));
         }
     }
 

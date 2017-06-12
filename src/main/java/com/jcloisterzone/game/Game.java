@@ -44,11 +44,13 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.score.ScoringStrategy;
 import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
+import com.jcloisterzone.feature.visitor.score.PositionCollectingScoreContext;
 import com.jcloisterzone.feature.visitor.score.ScoreContext;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
+import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.capability.FairyCapability;
@@ -261,10 +263,10 @@ public class Game extends GameSettings implements EventProxy {
         return players.get(state.getTurnPlayer());
     }
 
-//    public void setTurnPlayer(IPlayer player) {
-//        this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
-//        post(new PlayerTurnEvent(getTurnPlayer()));
-//    }
+    public void setTurnPlayer(IPlayer player) {
+        this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
+        post(new PlayerTurnEvent(getTurnPlayer()));
+    }
 
     /**
      * Returns player who is allowed to make next action.
@@ -426,6 +428,23 @@ public class Game extends GameSettings implements EventProxy {
         }
 
         return s.map(t -> new FeaturePointer(pos, t._1)).toSet();
+    }
+
+    public void undeployMeeples(Feature feature) {
+        for (Meeple m : feature.getMeeples()) {
+            m.undeploy(false);
+        }
+        // IMMUTABLE TOOD Mage and Witch undeployt
+//            if (ctx instanceof PositionCollectingScoreContext) {
+//                PositionCollectingScoreContext pctx = (PositionCollectingScoreContext) ctx;
+//                if (pctx.containsMage()) {
+//                    mageWitchCap.getMage().undeploy();
+//                }
+//                if (pctx.containsWitch()) {
+//                    mageWitchCap.getWitch().undeploy();
+//                }
+//            }
+//        }
     }
 
     //scoring helpers

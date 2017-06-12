@@ -299,7 +299,7 @@ public class Board {
             o = Option.of(t == null ? null : new Tile(game, pos));
             tiles.put(pos, o);
         }
-        return o.get();
+        return o.getOrNull();
     }
 
     public Feature get(FeaturePointer fp) {
