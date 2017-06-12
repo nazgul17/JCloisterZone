@@ -330,7 +330,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             FeatureArea fa;
             if (feature instanceof Farm) {
                 fa = getFarmArea(loc, tile, subsFarm);
-                areas.put(loc, fa);
+                areas.put(loc.rotateCW(rot), fa);
                 continue;
             }
 
@@ -342,7 +342,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
                 }
             }
             loc =  aliasAbbot ? Location.ABBOT : loc;
-            areas.put(loc, fa);
+            areas.put(loc.rotateCW(rot), fa);
         }
         if (locations.contains(Location.FLIER)) {
             FeatureArea fa = new FeatureArea(getFeatureArea(tile, null, Location.FLIER));

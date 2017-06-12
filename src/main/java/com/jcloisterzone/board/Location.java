@@ -262,7 +262,7 @@ public class Location implements Serializable {
 
     public Location intersect(Location d) {
         if (d == null || (mask & d.mask) == 0) return null;
-        assert !isSpecialLocation() && !(isEdgeLocation() ^ d.isEdgeLocation()) & !(isFarmLocation() ^ d.isFarmLocation()) : "interasect("+this+','+d+')';
+        assert !isSpecialLocation() && !(isEdgeLocation() ^ d.isEdgeLocation()) & !(isFarmLocation() ^ d.isFarmLocation()) : "intersect("+this+','+d+')';
         return create(mask & d.mask);
     }
 

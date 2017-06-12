@@ -43,15 +43,17 @@ public class FeaturePointer implements BoardPointer {
     }
 
     public Stream<FeaturePointer> getAdjacent(Class<? extends Feature> forType) {
+        Stream<Location> sides = Stream.of(Location.sides())
+            .filter(loc -> loc.intersect(location) != null);
         if (Farm.class.isAssignableFrom(forType)) {
-            return Stream.of(Location.sides()).flatMap(loc ->
+            return sides.flatMap(loc ->
                 List.of(
                     new FeaturePointer(position.add(loc), loc.getLeftFarm().rev()),
                     new FeaturePointer(position.add(loc), loc.getRightFarm().rev())
                 )
             );
         } else {
-            return Stream.of(Location.sides()).map(loc ->
+            return sides.map(loc ->
                 new FeaturePointer(position.add(loc), loc.rev())
             );
         }

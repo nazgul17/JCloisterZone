@@ -3,6 +3,8 @@ package com.jcloisterzone.event;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.pointer.BoardPointer;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
@@ -22,7 +24,7 @@ public class ScoreEvent extends PlayEvent  {
     private String label;
     private boolean isFinal;
 
-    public ScoreEvent(Feature feature, int points, PointCategory category, Meeple meeple) {
+    public ScoreEvent(FeaturePointer fp, int points, PointCategory category, Meeple meeple) {
         super(null, meeple == null ? null : meeple.getPlayer());
         this.feature = feature;
         this.position = feature.getTile().getPosition();

@@ -449,16 +449,18 @@ public class Game extends GameSettings implements EventProxy {
 
     //scoring helpers
 
-    public void scoreFeature(int points, ScoreContext ctx, Player p) {
-        PointCategory pointCategory = ctx.getMasterFeature().getPointCategory();
+    public void scoreFeature(Scoreable feature, Player p) {
+        int points = feature.getPoints(p);
+        PointCategory pointCategory = feature.getPointCategory();
         p.addPoints(points, pointCategory);
-        Follower follower = ctx.getSampleFollower(p);
+
+        Follower follower = feature.getSampleFollower(p);
         boolean isFinalScoring = getPhase() instanceof GameOverPhase;
         ScoreEvent scoreEvent;
         boolean isFairyScore = false;
         if (fairyCapability != null) {
-            for (Follower f : ctx.getFollowers()) {
-                if (f.getPlayer() == p && fairyCapability.isNextTo(f)) {
+            for (Follower f : feature.getFollowers()) {
+                if (f.getPlayer().equals(p) && fairyCapability.isNextTo(f)) {
                     isFairyScore = true;
                     break;
                 }
@@ -466,10 +468,10 @@ public class Game extends GameSettings implements EventProxy {
         }
         if (isFairyScore) {
             p.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-            scoreEvent = new ScoreEvent(follower.getFeature(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
+            scoreEvent = new ScoreEvent(follower.getFeaturePointer(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
             scoreEvent.setLabel(points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT);
         } else {
-            scoreEvent = new ScoreEvent(follower.getFeature(), points, pointCategory, follower);
+            scoreEvent = new ScoreEvent(follower.getFeaturePointer(), points, pointCategory, follower);
         }
         scoreEvent.setFinal(isFinalScoring);
         post(scoreEvent);
@@ -478,14 +480,14 @@ public class Game extends GameSettings implements EventProxy {
     public void scoreCompletableFeature(Completable feature) {
         Set<Player> players = feature.getOwners();
         if (players.isEmpty()) return;
-        int points = ctx.getPoints();
-        for (Player p : players) {
-            scoreFeature(points, ctx, p);
+
+        for (Player pl : players) {
+            scoreFeature(feature, pl);
         }
         if (fairyCapability != null) {
-            Set<Player> fairyPlayersWithoutMayority = new HashSet<>();
-            for (Follower f : ctx.getFollowers()) {
-                Player owner = f.getPlayer();
+            java.util.Set<Player> fairyPlayersWithoutMayority = new java.util.HashSet<>();
+            for (Follower f : feature.getFollowers()) {
+                Player owner = getPlayer(f.getPlayer());
                 if (fairyCapability.isNextTo(f) && !players.contains(owner)
                     && !fairyPlayersWithoutMayority.contains(owner)) {
                     fairyPlayersWithoutMayority.add(owner);
