@@ -3,14 +3,13 @@ package com.jcloisterzone.ui.grid.layer;
 import java.awt.Graphics2D;
 
 import com.google.common.eventbus.Subscribe;
-import com.jcloisterzone.Player;
+import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.FlierRollEvent;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
-import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
@@ -52,10 +51,10 @@ public class AnimationLayer extends AbstractGridLayer {
 
     @Subscribe
     public void onScoreEvent(ScoreEvent ev) {
-        if (ev.getFeature() == null) {
+        if (ev.getFeaturePointer() == null) {
             scored(ev.getPosition(), ev.getTargetPlayer(), ev.getLabel(), ev.isFinal());
         } else {
-            scored(ev.getFeature(), ev.getTargetPlayer(), ev.getLabel(), ev.getMeepleType(), ev.isFinal());
+            scored(ev.getFeaturePointer(), ev.getTargetPlayer(), ev.getLabel(), ev.getMeepleType(), ev.isFinal());
         }
     }
 
@@ -78,10 +77,10 @@ public class AnimationLayer extends AbstractGridLayer {
         return duration == null ? 10 : Math.max(duration, 1);
     }
 
-    private void scored(Feature scoreable, Player player, String points, Class<? extends Meeple> meepleType, boolean finalScoring) {
-        Tile tile = scoreable.getTile();
-        Position pos = tile.getPosition();
-        ImmutablePoint offset = rm.getMeeplePlacement(tile, meepleType, scoreable.getLocation());
+    private void scored(FeaturePointer fp, IPlayer player, String points, Class<? extends Meeple> meepleType, boolean finalScoring) {
+        Position pos = fp.getPosition();
+        //IMMUTABLE TODO (low priority probably) coupled with game by gc.getGame().getBoard().get(pos)
+        ImmutablePoint offset = rm.getMeeplePlacement(gc.getGame().getBoard().get(pos), meepleType, fp.getLocation());
         service.registerAnimation(new ScoreAnimation(
             pos,
             points,
@@ -91,7 +90,7 @@ public class AnimationLayer extends AbstractGridLayer {
         ));
     }
 
-    private void scored(Position pos, Player player, String points, boolean finalScoring) {
+    private void scored(Position pos, IPlayer player, String points, boolean finalScoring) {
     service.registerAnimation(new ScoreAnimation(
             pos,
             points,

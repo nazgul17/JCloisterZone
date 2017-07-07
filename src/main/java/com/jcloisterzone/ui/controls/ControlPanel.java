@@ -23,6 +23,7 @@ import javax.swing.Timer;
 import net.miginfocom.swing.MigLayout;
 
 import com.google.common.eventbus.Subscribe;
+import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.PointCategory;
@@ -302,7 +303,7 @@ public class ControlPanel extends JPanel {
     }
 
 
-    public void selectAction(Player targetPlayer, IndexedSeq<? extends PlayerAction<?>> actions, boolean canPass) {
+    public void selectAction(IPlayer targetPlayer, IndexedSeq<? extends PlayerAction<?>> actions, boolean canPass) {
         // direct collection sort can be unsupported - so copy to array first!
         int i = 0;
         PlayerAction<?>[] arr = new PlayerAction[actions.size()];

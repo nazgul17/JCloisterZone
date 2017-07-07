@@ -131,6 +131,10 @@ public class Game extends GameSettings implements EventProxy {
         this.state = f.apply(this.state);
     }
 
+    public void replaceState(GameState state) {
+        this.state = state;
+    }
+
     public TilePack getTilePack() {
         return tilePack;
     }
@@ -493,7 +497,7 @@ public class Game extends GameSettings implements EventProxy {
                     fairyPlayersWithoutMayority.add(owner);
 
                     owner.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-                    post(new ScoreEvent(f.getFeature(), FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY, f));
+                    post(new ScoreEvent(f.getFeaturePointer(), FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY, f));
                 }
             }
         }

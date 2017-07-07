@@ -5,17 +5,13 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.FairyCapability;
 
 public class ScoreEvent extends PlayEvent  {
 
     //TODO fields revision
 
-    private final Feature feature;
-    private final Position position;
+    private final BoardPointer pointer;
 
     private final int points;
     private final PointCategory category;
@@ -26,8 +22,7 @@ public class ScoreEvent extends PlayEvent  {
 
     public ScoreEvent(FeaturePointer fp, int points, PointCategory category, Meeple meeple) {
         super(null, meeple == null ? null : meeple.getPlayer());
-        this.feature = feature;
-        this.position = feature.getTile().getPosition();
+        this.pointer = fp;
         this.points = points;
         this.category = category;
         this.meepleType = meeple.getClass();
@@ -35,19 +30,18 @@ public class ScoreEvent extends PlayEvent  {
 
     public ScoreEvent(Position position, Player targetPlayer, int points, PointCategory category) {
         super(null, targetPlayer);
-        this.position = position;
-        this.feature = null;
+        this.pointer = position;
         this.meepleType = null;
         this.points = points;
         this.category = category;
     }
 
-    public Feature getFeature() {
-        return feature;
+    public FeaturePointer getFeaturePointer() {
+        return (pointer instanceof FeaturePointer) ? (FeaturePointer) pointer : null;
     }
 
     public Position getPosition() {
-        return position;
+        return pointer.getPosition();
     }
 
     public int getPoints() {
@@ -80,7 +74,6 @@ public class ScoreEvent extends PlayEvent  {
 
     @Override
     public String toString() {
-        // TODO Auto-generated method stub
-        return super.toString() + " feature:"+feature + " position:"+position;
+        return "ScoreEvent(  " + pointer +  ", " + points + ")";
     }
 }

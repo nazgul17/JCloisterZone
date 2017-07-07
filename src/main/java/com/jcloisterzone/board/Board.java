@@ -170,12 +170,27 @@ public class Board {
     public void add(TileDefinition tile, Position pos, Rotation rot) {
         LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = game.getState().getPlacedTiles();
         assert !placedTiles.containsKey(pos);
-        game.replaceState(state -> state.setPlacedTiles(
+
+        Option<Tuple2<Position, EdgePattern>> patterns = getAvailablePlacements().find(t -> t._1.equals(pos));
+        if (patterns.isDefined()) {
+            if (!patterns.get()._2.isMatching(tile.getEdgePattern().rotate(rot))) {
+                throw new IllegalArgumentException("Invalid rotation " + pos + "," + rot);
+            }
+        } else {
+            if (!placedTiles.isEmpty()) {
+                throw new IllegalArgumentException("Invalid position " + pos + "," + rot);
+            }
+        }
+
+        GameState state = game.getState();
+
+        state = state.setPlacedTiles(
             placedTiles.put(
                 pos,
                 new Tuple2<>(tile, rot)
             )
-        ));
+        );
+
         java.util.Map<FeaturePointer, Feature> fpUpdate = new java.util.HashMap<>();
         Stream.ofAll(tile.getInitialFeatures().values())
             .map(f -> f.placeOnBoard(pos, rot))
@@ -192,9 +207,8 @@ public class Board {
                     fpUpdate.put(fp, feature);
                 }
             });
-        game.replaceState(state ->
-            state.setFeatures(HashMap.ofAll(fpUpdate).merge(state.getFeatures()))
-        );
+        state = state.setFeatures(HashMap.ofAll(fpUpdate).merge(state.getFeatures()));
+        game.replaceState(state); //make one atomic change when everything is validated
     }
 
 //    public void add(Tile tile, Position p, boolean unchecked) {

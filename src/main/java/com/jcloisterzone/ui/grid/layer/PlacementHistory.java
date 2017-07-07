@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Objects;
 
 import com.google.common.eventbus.Subscribe;
-import com.jcloisterzone.Player;
+import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.ui.GameController;
@@ -45,8 +45,8 @@ public class PlacementHistory extends AbstractGridLayer {
 
         int limit = 0;
         int ndx = 0;
-        Player lastPlayer = null;
-        Player previousPlayer = null;
+        IPlayer lastPlayer = null;
+        IPlayer previousPlayer = null;
         for (PlacementHistoryEntry entry : entries) {
 
             if (ndx == 0) {
@@ -106,10 +106,10 @@ public class PlacementHistory extends AbstractGridLayer {
     }
 
     private class PlacementHistoryEntry {
-        private final Player player;
+        private final IPlayer player;
         private final Position position;
 
-        public PlacementHistoryEntry(Player player, Position position) {
+        public PlacementHistoryEntry(IPlayer player, Position position) {
             this.player = player;
             this.position = position;
         }
