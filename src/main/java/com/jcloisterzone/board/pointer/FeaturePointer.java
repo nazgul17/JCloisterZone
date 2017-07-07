@@ -59,6 +59,10 @@ public class FeaturePointer implements BoardPointer {
         }
     }
 
+    public boolean isPartOf(FeaturePointer other) {
+        return position.equals(other.position) && location.isPartOf(other.location);
+    }
+
     public Position getPosition() {
         return position;
     }

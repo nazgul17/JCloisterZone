@@ -150,6 +150,12 @@ public class Board {
 //        return availMoves.get(pos);
 //    }
 
+    public Option<Feature> getFeaturePartOf(FeaturePointer fp) {
+        return game.getState().getFeatures()
+            .find(t -> fp.isPartOf(t._1))
+            .map(t -> t._2);
+    }
+
 
     /**
      * Place tile on given position. Check for correct placement (check if neigbours
@@ -177,7 +183,7 @@ public class Board {
                 if (feature instanceof MultiTileFeature) {
                     Stream<FeaturePointer> adjacent = feature.getPlaces().get().getAdjacent(feature.getClass());
                     feature = adjacent.foldLeft((MultiTileFeature) feature, (f, adjFp) -> {
-                        Option<Feature> adj = game.getState().getFeatures().get(adjFp);
+                        Option<Feature> adj = getFeaturePartOf(adjFp);
                         if (adj.isEmpty()) return f;
                         return f.merge((MultiTileFeature) adj.get());
                     });
