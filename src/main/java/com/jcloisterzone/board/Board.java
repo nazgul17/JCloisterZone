@@ -38,7 +38,7 @@ public class Board {
 
     private final Game game;
 
-    private transient final java.util.Map<Position, Option<Tile>> tiles = new java.util.HashMap<>();
+    private transient final java.util.Map<Position, Tile> tiles = new java.util.HashMap<>();
 
     private transient final CachedValue<Rectangle> bounds;
 
@@ -299,13 +299,15 @@ public class Board {
     }
 
     public Tile get(Position pos) {
-        Option<Tile> o = tiles.get(pos);
-        if (o == null) {
+        Tile tile = tiles.get(pos);
+        if (tile == null) {
             Tuple2<TileDefinition, Rotation> t = getPlacedTile(pos);
-            o = Option.of(t == null ? null : new Tile(game, pos));
-            tiles.put(pos, o);
+            if (t != null) {
+                tile = new Tile(game, pos);
+                tiles.put(pos, tile);
+            }
         }
-        return o.getOrNull();
+        return tile;
     }
 
     public Feature get(FeaturePointer fp) {
