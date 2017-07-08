@@ -173,7 +173,7 @@ public class Board {
 
         Option<Tuple2<Position, EdgePattern>> patterns = getAvailablePlacements().find(t -> t._1.equals(pos));
         if (patterns.isDefined()) {
-            if (!patterns.get()._2.isMatching(tile.getEdgePattern().rotate(rot))) {
+            if (!patterns.get()._2.isMatchingExact(tile.getEdgePattern().rotate(rot))) {
                 throw new IllegalArgumentException("Invalid rotation " + pos + "," + rot);
             }
         } else {

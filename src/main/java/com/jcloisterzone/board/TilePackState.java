@@ -136,7 +136,7 @@ public class TilePackState {
 
     public int getSizeForEdgePattern(EdgePattern edgePattern) {
         return getActiveTiles()
-            .filter(tile -> edgePattern.isMatching(tile.getEdgePattern()))
+            .filter(tile -> edgePattern.isMatchingAnyRotation(tile.getEdgePattern()))
             .size();
     }
 

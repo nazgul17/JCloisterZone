@@ -2,6 +2,7 @@ package com.jcloisterzone.board;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertFalse;
 
 import org.junit.Test;
 
@@ -25,10 +26,17 @@ public class EdgePatternTest {
     }
 
     @Test
-    public void isMatching() {
-        assertTrue(EdgePattern.fromString("RC?F").isMatching(EdgePattern.fromString("RCRF")));
-        assertTrue(EdgePattern.fromString("RC?F").isMatching(EdgePattern.fromString("FFRC")));
-        assertTrue(EdgePattern.fromString("????").isMatching(EdgePattern.fromString("IRIF")));
+    public void isMatchingExact() {
+        assertTrue(EdgePattern.fromString("RC?F").isMatchingExact(EdgePattern.fromString("RCRF")));
+        assertFalse(EdgePattern.fromString("RC?F").isMatchingExact(EdgePattern.fromString("FFRC")));
+        assertTrue(EdgePattern.fromString("????").isMatchingExact(EdgePattern.fromString("IRIF")));
+    }
+
+    @Test
+    public void isMatchingAnyRotation() {
+        assertTrue(EdgePattern.fromString("RC?F").isMatchingAnyRotation(EdgePattern.fromString("RCRF")));
+        assertTrue(EdgePattern.fromString("RC?F").isMatchingAnyRotation(EdgePattern.fromString("FFRC")));
+        assertTrue(EdgePattern.fromString("????").isMatchingAnyRotation(EdgePattern.fromString("IRIF")));
     }
 
     @Test

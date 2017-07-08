@@ -103,15 +103,18 @@ public class EdgePattern {
         return min;
     }
 
-    public boolean isMatching(EdgePattern ep) {
-        for (Rotation rot : Rotation.values()) {
-            int m = rotate(rot).mask & ep.mask;
-            if (
-                ((m & 15) != 0) &&
+    public boolean isMatchingExact(EdgePattern ep) {
+        int m = mask & ep.mask;
+        return ((m & 15) != 0) &&
                 ((m & (15 << 4)) != 0) &&
                 ((m & (15 << 8)) != 0) &&
-                ((m & (15 << 12)) != 0)
-            ) {
+                ((m & (15 << 12)) != 0);
+
+    }
+
+    public boolean isMatchingAnyRotation(EdgePattern ep) {
+        for (Rotation rot : Rotation.values()) {
+            if (rotate(rot).isMatchingExact(ep)) {
                 return true;
             }
         }
