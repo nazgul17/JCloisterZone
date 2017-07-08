@@ -35,13 +35,6 @@ public class GameOverPhase extends ServerAwarePhase implements ScoreAllCallback,
             getConnection().send(new GameOverMessage(game.getGameId()));
         }
 
-        FairyCapability fairyCap = game.getCapability(FairyCapability.class);
-        if (fairyCap != null) {
-            //erase position to not affect final scoring
-        	//TOOD what about rather check game phase in rating instead this hack
-            fairyCap.getFairy().setFeaturePointer(null);
-        }
-
         ScoreAllFeatureFinder scoreAll = new ScoreAllFeatureFinder();
         scoreAll.scoreAll(game, this);
 
@@ -51,7 +44,7 @@ public class GameOverPhase extends ServerAwarePhase implements ScoreAllCallback,
 
     @Override
     public void scoreCastle(Meeple meeple, Castle castle) {
-        ScoreEvent ev = new ScoreEvent(meeple.getFeature(), 0, PointCategory.CASTLE, meeple);
+        ScoreEvent ev = new ScoreEvent(meeple.getDeployment(), 0, PointCategory.CASTLE, meeple);
         ev.setFinal(true);
         game.post(ev);
     }

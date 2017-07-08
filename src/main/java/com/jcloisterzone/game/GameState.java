@@ -9,10 +9,12 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
+import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.neutral.NeutralFigure;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -37,6 +39,7 @@ public class GameState {
     private final Map<FeaturePointer, Feature> features;
 
     private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
+    private final LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures;
 
     private final Queue<Event> events;
 
@@ -49,6 +52,7 @@ public class GameState {
             List.empty(),
             HashMap.empty(),
             LinkedHashMap.empty(),
+            LinkedHashMap.empty(),
             Queue.empty()
         );
     }
@@ -58,6 +62,7 @@ public class GameState {
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
+            LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures,
             Queue<Event> events) {
         this.players = players;
         this.score = score;
@@ -68,11 +73,15 @@ public class GameState {
         this.discardedTiles = discardedTiles;
         this.features = features;
         this.deployedMeeples = deployedMeeples;
+        this.deployedNeutralFigures = deployedNeutralFigures;
         this.events = events;
     }
 
     private GameState setScore(Array<PlayerScore> score) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState addPoints(IPlayer p, int points, PointCategory category) {
@@ -83,35 +92,66 @@ public class GameState {
     }
 
     public GameState setTurnPlayer(int turnPlayer) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setTilePack(TilePackState tilePack) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setDrawnTile(TileDefinition drawnTile) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setFeatures(Map<FeaturePointer, Feature> features) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setDiscardedTiles(List<TileDefinition> discardedTiles) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
+    }
+
+    public GameState setDeployedNeutralFigures(LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures) {
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public GameState setEvents(Queue<Event> events) {
-        return new GameState(players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles, features, deployedMeeples, events);
+        return new GameState(
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, events
+        );
     }
 
     public Array<PlayerAttributes> getPlayers() {
@@ -148,6 +188,10 @@ public class GameState {
 
     public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
         return deployedMeeples;
+    }
+
+    public LinkedHashMap<NeutralFigure<?>, BoardPointer> getDeployedNeutralFigures() {
+        return deployedNeutralFigures;
     }
 
     public Queue<Event> getEvents() {

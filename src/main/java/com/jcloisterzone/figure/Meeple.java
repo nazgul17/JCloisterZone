@@ -10,7 +10,7 @@ import com.jcloisterzone.game.Game;
 import io.vavr.Predicates;
 import io.vavr.collection.LinkedHashMap;
 
-public abstract class Meeple extends Figure {
+public abstract class Meeple extends Figure<FeaturePointer> {
 
     private static final long serialVersionUID = 251811435063355665L;
 
@@ -38,7 +38,7 @@ public abstract class Meeple extends Figure {
     }
 
     @Override
-    public FeaturePointer getFeaturePointer() {
+    public FeaturePointer getDeployment() {
         return game.getDeployedMeeples().get(this).getOrNull();
     }
 
@@ -63,7 +63,7 @@ public abstract class Meeple extends Figure {
 
     @Override
     public void deploy(FeaturePointer at) {
-        FeaturePointer origin = getFeaturePointer();
+        FeaturePointer origin = getDeployment();
         DeploymentCheckResult check = isDeploymentAllowed(game.getBoard().get(at));
         if (!check.result) {
           throw new IllegalArgumentException(check.error);
@@ -81,7 +81,7 @@ public abstract class Meeple extends Figure {
     }
 
     public void undeploy(boolean checkForLonelyBuilderOrPig) {
-        FeaturePointer source = getFeaturePointer();
+        FeaturePointer source = getDeployment();
         assert source != null;
         game.replaceState(state -> {
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();

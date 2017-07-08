@@ -26,6 +26,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
+import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.BridgeEvent;
@@ -263,6 +264,10 @@ public class Game extends GameSettings implements EventProxy {
         return state.getDeployedMeeples();
     }
 
+    public LinkedHashMap<NeutralFigure<?>, BoardPointer> getDeployedNeutralFigures() {
+        return state.getDeployedNeutralFigures();
+    }
+
     public Player getTurnPlayer() {
         return players.get(state.getTurnPlayer());
     }
@@ -470,12 +475,12 @@ public class Game extends GameSettings implements EventProxy {
                 }
             }
         }
-        if (isFairyScore) {
+        if (isFairyScore && !isOver()) {
             p.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-            scoreEvent = new ScoreEvent(follower.getFeaturePointer(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
+            scoreEvent = new ScoreEvent(follower.getDeployment(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
             scoreEvent.setLabel(points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT);
         } else {
-            scoreEvent = new ScoreEvent(follower.getFeaturePointer(), points, pointCategory, follower);
+            scoreEvent = new ScoreEvent(follower.getDeployment(), points, pointCategory, follower);
         }
         scoreEvent.setFinal(isFinalScoring);
         post(scoreEvent);
@@ -488,7 +493,7 @@ public class Game extends GameSettings implements EventProxy {
         for (Player pl : players) {
             scoreFeature(feature, pl);
         }
-        if (fairyCapability != null) {
+        if (fairyCapability != null && !isOver()) {
             java.util.Set<Player> fairyPlayersWithoutMayority = new java.util.HashSet<>();
             for (Follower f : feature.getFollowers()) {
                 Player owner = getPlayer(f.getPlayer());
@@ -497,7 +502,7 @@ public class Game extends GameSettings implements EventProxy {
                     fairyPlayersWithoutMayority.add(owner);
 
                     owner.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-                    post(new ScoreEvent(f.getFeaturePointer(), FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY, f));
+                    post(new ScoreEvent(f.getDeployment(), FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY, f));
                 }
             }
         }
