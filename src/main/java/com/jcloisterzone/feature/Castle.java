@@ -2,6 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -21,6 +22,14 @@ public class Castle extends ScoreableFeature {
     @Override
     public PointCategory getPointCategory() {
         return PointCategory.CASTLE;
+    }
+
+    @Override
+    public int getPoints(Player player) {
+        if (game.isOver()) {
+            return 0;
+        }
+        throw new UnsupportedOperationException("TODO IMMUTABLE");
     }
 
     //IMMUTABLE TODO

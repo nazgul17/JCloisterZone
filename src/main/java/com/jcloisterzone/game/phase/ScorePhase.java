@@ -49,7 +49,7 @@ import io.vavr.Tuple2;
 
 public class ScorePhase extends ServerAwarePhase {
 
-    private Set<Completable> alredyScored = new HashSet<>();
+    private Set<Completable> alreadyScored = new HashSet<>();
 
     private final BarnCapability barnCap;
     private final BuilderCapability builderCap;
@@ -185,7 +185,7 @@ public class ScorePhase extends ServerAwarePhase {
             gldCap.awardGoldPieces();
         }
 
-        alredyScored.clear();
+        alreadyScored.clear();
         next();
     }
 
@@ -207,10 +207,10 @@ public class ScorePhase extends ServerAwarePhase {
                 builderCap.useBuilder();
             }
         }
-        if (completable.isCompleted() && !alredyScored.contains(completable)) {
-            alredyScored.add(completable);
+        if (completable.isCompleted() && !alreadyScored.contains(completable)) {
+            alreadyScored.add(completable);
             game.scoreCompleted(completable);
-            game.scoreCompletableFeature(completable);
+            game.scoreFeature(completable);
             //IMMUTABLE TODO
 //   notify scored wagon
 //          if (m instanceof Wagon && wagonCap != null) {

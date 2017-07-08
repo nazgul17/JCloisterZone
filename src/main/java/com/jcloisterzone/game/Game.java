@@ -458,13 +458,14 @@ public class Game extends GameSettings implements EventProxy {
 
     //scoring helpers
 
-    public void scoreFeature(Scoreable feature, Player p) {
+    private void scoreFeature(Scoreable feature, Player p) {
+        boolean finalScoring = isOver();
+
         int points = feature.getPoints(p);
         PointCategory pointCategory = feature.getPointCategory();
         p.addPoints(points, pointCategory);
 
         Follower follower = feature.getSampleFollower(p);
-        boolean isFinalScoring = getPhase() instanceof GameOverPhase;
         ScoreEvent scoreEvent;
         boolean isFairyScore = false;
         if (fairyCapability != null) {
@@ -475,18 +476,18 @@ public class Game extends GameSettings implements EventProxy {
                 }
             }
         }
-        if (isFairyScore && !isOver()) {
+        if (isFairyScore && !finalScoring) {
             p.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
             scoreEvent = new ScoreEvent(follower.getDeployment(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
             scoreEvent.setLabel(points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT);
         } else {
             scoreEvent = new ScoreEvent(follower.getDeployment(), points, pointCategory, follower);
         }
-        scoreEvent.setFinal(isFinalScoring);
+        scoreEvent.setFinal(finalScoring);
         post(scoreEvent);
     }
 
-    public void scoreCompletableFeature(Completable feature) {
+    public void scoreFeature(Scoreable feature) {
         Set<Player> players = feature.getOwners();
         if (players.isEmpty()) return;
 
@@ -599,9 +600,9 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public void finalScoring(ScoringStrategy strategy) {
+    public void finalScoring() {
         for (Capability cap: capabilities) {
-            cap.finalScoring(strategy);
+            cap.finalScoring();
         }
     }
 

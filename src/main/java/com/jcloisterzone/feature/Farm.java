@@ -7,7 +7,7 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.visitor.score.FarmScoreContext;
+import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.List;
@@ -83,11 +83,39 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
         return PointCategory.FARM;
     }
 
+    private int getPointsPerCity(Player player, int basePoints) {
+        return basePoints + pigHerds
+            + getSpecialMeeples().count(m -> (m instanceof Pig) && m.getPlayer().equals(player));
+    }
+
     @Override
     public int getPoints(Player player) {
-        //IMMUTABLE TODO
-        throw new UnsupportedOperationException();
+        return getPlayerPoints(player, getPointsPerCity(player, 3)) + getLittleBuildingPoints();
     }
+
+    public int getPointsWhenBarnIsConnected(Player player) {
+        return getPlayerPoints(player, getPointsPerCity(player, 1)) + getLittleBuildingPoints();
+    }
+
+    private int getPlayerPoints(Player player, int pointsPerCity) {
+        int points = adjoiningCityOfCarcassonne ? pointsPerCity : 0;
+
+        for (FeaturePointer fp : adjoiningCities) {
+            Feature feature = game.getBoard().getFeaturePartOf(fp).get();
+            if (feature instanceof Castle) {
+                // adjoning Castle provides 1 more point then common city
+                points += pointsPerCity + 1;
+            } else {
+                points += pointsPerCity;
+                if (((City) feature).isBesieged()) {
+                    // besieged cities has double value
+                    points += pointsPerCity;
+                }
+            }
+        }
+        return points;
+    }
+
 
     public static String name() {
         return _("Farm");

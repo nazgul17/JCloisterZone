@@ -153,6 +153,7 @@ public abstract class Capability {
         return true;
     }
 
+    //NICE TO HAVE RENAME it - hook invoked before scoring is made on completed completable
     public void scoreCompleted(Completable feature) {
     }
 
@@ -162,7 +163,7 @@ public abstract class Capability {
     public void turnPartCleanUp() {
     }
 
-    public void finalScoring(ScoringStrategy strategy) {
+    public void finalScoring() {
     }
 
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {

@@ -214,7 +214,7 @@ public class GoldminesCapability  extends Capability {
     }
 
     @Override
-    public void finalScoring(ScoringStrategy strategy) {
+    public void finalScoring() {
         for (Player player: game.getAllPlayers()) {
             int pieces = getPlayerGoldPieces(player);
             if (pieces == 0) continue;
@@ -223,7 +223,7 @@ public class GoldminesCapability  extends Capability {
             else if (pieces < 7) points = 2 * pieces;
             else if (pieces < 10) points = 3 * pieces;
             else points = 4 * pieces;
-            strategy.addPoints(player, points, PointCategory.GOLD);
+            player.addPoints( points, PointCategory.GOLD);
         }
     }
 }

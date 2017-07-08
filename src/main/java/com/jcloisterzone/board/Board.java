@@ -19,9 +19,11 @@ import com.jcloisterzone.game.capability.BridgeCapability;
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
@@ -149,6 +151,10 @@ public class Board {
 //    public EdgePattern getAvailMoveEdgePattern(Position pos) {
 //        return availMoves.get(pos);
 //    }
+
+    public Set<Feature> getAllFeatures() {
+        return HashSet.ofAll(game.getState().getFeatures().values());
+    }
 
     public Option<Feature> getFeaturePartOf(FeaturePointer fp) {
         return game.getState().getFeatures()

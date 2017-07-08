@@ -93,7 +93,9 @@ public class Player implements IPlayer, Serializable {
     }
 
     public void addPoints(int points, PointCategory category) {
-        game.replaceState(state -> state.addPoints(this, points, category));
+        if (points != 0) {
+            game.replaceState(state -> state.addPoints(this, points, category));
+        }
     }
 
     public int getPoints() {

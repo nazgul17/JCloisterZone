@@ -86,7 +86,7 @@ public class ClothWineGrainCapability extends Capability {
 
 
     @Override
-    public void finalScoring(ScoringStrategy strategy) {
+    public void finalScoring() {
         for (TradeResource tr : TradeResource.values()) {
             int hiVal = 1;
             for (Player player: game.getAllPlayers()) {
@@ -98,7 +98,7 @@ public class ClothWineGrainCapability extends Capability {
             for (Player player: game.getAllPlayers()) {
                 int playerValue = getTradeResources(player, tr);
                 if (playerValue == hiVal) {
-                    strategy.addPoints(player, 10, PointCategory.TRADE_GOODS);
+                    player.addPoints(10, PointCategory.TRADE_GOODS);
                 }
             }
 
