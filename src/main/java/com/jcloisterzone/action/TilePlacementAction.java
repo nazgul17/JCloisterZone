@@ -6,10 +6,6 @@ import java.awt.Image;
 import java.awt.Insets;
 import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
@@ -23,6 +19,10 @@ import com.jcloisterzone.ui.grid.layer.TilePlacementLayer;
 import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.wsio.RmiProxy;
 
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
+
 public class TilePlacementAction extends PlayerAction<TilePlacement> implements ForwardBackwardListener {
 
     private final TileDefinition tile;
@@ -30,7 +30,8 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> implements 
 
     private Rotation tileRotation = Rotation.R0;
 
-    public TilePlacementAction(TileDefinition tile) {
+    public TilePlacementAction(TileDefinition tile, Set<TilePlacement> options) {
+        super(options);
         this.tile = tile;
     }
 
@@ -57,26 +58,15 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> implements 
     }
 
     public Map<Position, Set<Rotation>> groupByPosition() {
-        Map<Position, Set<Rotation>> map = new HashMap<>();
-        for (TilePlacement tp: options) {
-            Set<Rotation> rotations = map.get(tp.getPosition());
-            if (rotations == null) {
-                rotations = new HashSet<>();
-                map.put(tp.getPosition(), rotations);
-            }
-            rotations.add(tp.getRotation());
-        }
-        return map;
+        return getOptions()
+            .groupBy(tp -> tp.getPosition())
+            .mapValues(setOfPlacements -> setOfPlacements.map(tp -> tp.getRotation()));
     }
 
-    public Set<Rotation> getRotations(Position p) {
-        Set<Rotation> rotations = new HashSet<>();
-        for (TilePlacement tp: options) {
-            if (tp.getPosition().equals(p)) {
-                rotations.add(tp.getRotation());
-            }
-        }
-        return rotations;
+    public Stream<Rotation> getRotations(Position pos) {
+        return Stream.ofAll(getOptions())
+            .filter(tp -> tp.getPosition().equals(pos))
+            .map(tp -> tp.getRotation());
     }
 
     @Override

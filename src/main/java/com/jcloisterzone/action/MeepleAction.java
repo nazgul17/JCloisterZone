@@ -12,7 +12,6 @@ import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Wagon;
-import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.wsio.RmiProxy;
 
@@ -22,13 +21,8 @@ public class MeepleAction extends SelectFeatureAction {
 
     private final Class<? extends Meeple> meepleType;
 
-    public MeepleAction(Class<? extends Meeple> meepleType) {
-        super();
-        this.meepleType = meepleType;
-    }
-
-    public MeepleAction(Class<? extends Meeple> meepleType, Set<FeaturePointer> ptrs) {
-        super(ptrs);
+    public MeepleAction(Class<? extends Meeple> meepleType, Set<FeaturePointer> options) {
+        super(options);
         this.meepleType = meepleType;
     }
 

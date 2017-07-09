@@ -4,8 +4,14 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
+import io.vavr.collection.Set;
+
 @DisplayableEntity("actions/princess")
 public class PrincessAction extends SelectFollowerAction {
+
+    public PrincessAction(Set<MeeplePointer> options) {
+        super(options);
+    }
 
     @Override
     public void perform(RmiProxy server, MeeplePointer mp) {

@@ -2,12 +2,7 @@ package com.jcloisterzone.action;
 
 import java.awt.Color;
 import java.awt.Image;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
 
-import com.google.common.collect.ImmutableSet;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.grid.ActionLayer;
@@ -17,18 +12,21 @@ import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.RmiProxy;
 
+import io.vavr.collection.Iterator;
+import io.vavr.collection.Set;
+
+//TODO decouple UI ordering (comparable) outside actions
 public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, Iterable<T> {
 
-    protected final Set<T> options = new HashSet<T>();
+    protected final Set<T> options;
 
+    @Deprecated
     protected Client client;
+    @Deprecated
     protected MainPanel mainPanel;
 
-    public PlayerAction() {
-    }
-
-    public PlayerAction(io.vavr.collection.Set<T> ptrs) {
-        addAll(ptrs);
+    public PlayerAction(Set<T> options) {
+       this.options = options;
     }
 
     public abstract void perform(RmiProxy server, T target);
@@ -38,24 +36,8 @@ public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, It
         return options.iterator();
     }
 
-    public PlayerAction<T> add(T option) {
-        options.add(option);
-        return this;
-    }
-
-    public PlayerAction<T> addAll(io.vavr.collection.Set<T> options) {
-        this.options.addAll(options.toJavaList());
-        return this;
-    }
-
-    @Deprecated
-    public PlayerAction<T> addAll(Collection<T> options) {
-        this.options.addAll(options);
-        return this;
-    }
-
-    public ImmutableSet<T> getOptions() {
-        return ImmutableSet.copyOf(options);
+    public Set<T> getOptions() {
+        return options;
     }
 
     public boolean isEmpty() {

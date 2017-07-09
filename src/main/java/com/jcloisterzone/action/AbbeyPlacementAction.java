@@ -10,8 +10,14 @@ import com.jcloisterzone.ui.grid.layer.AbbeyPlacementLayer;
 import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
+import io.vavr.collection.Set;
+
 @DisplayableEntity("actions/abbeyplacement")
 public class AbbeyPlacementAction extends SelectTileAction {
+
+    public AbbeyPlacementAction(Set<Position> options) {
+        super(options);
+    }
 
     @Override
     public Image getImage(Player player, boolean active) {

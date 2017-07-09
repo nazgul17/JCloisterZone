@@ -1,18 +1,20 @@
 package com.jcloisterzone.action;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.layer.FollowerAreaLayer;
 
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
+
 
 public abstract class SelectFollowerAction extends PlayerAction<MeeplePointer> {
+
+    public SelectFollowerAction(Set<MeeplePointer> options) {
+        super(options);
+    }
 
     @Override
     protected Class<? extends ActionLayer<?>> getActionLayerType() {
@@ -21,24 +23,15 @@ public abstract class SelectFollowerAction extends PlayerAction<MeeplePointer> {
 
     //temporary legacy, TODO direct meeple selection on client
 
-    public Map<Position, List<MeeplePointer>> groupByPosition() {
-        Map<Position, List<MeeplePointer>> map = new HashMap<>();
-        for (MeeplePointer mp: options) {
-            List<MeeplePointer> pointers = map.get(mp.getPosition());
-            if (pointers == null) {
-                pointers = new ArrayList<>();
-                map.put(mp.getPosition(), pointers);
-            }
-            pointers.add(mp);
-        }
-        return map;
+    public Map<Position, Set<MeeplePointer>> groupByPosition() {
+        return Map.narrow(
+            getOptions().groupBy(mp -> mp.getPosition())
+        );
     }
 
-    //TODO direct implementation
-    public List<MeeplePointer> getMeeplePointers(Position p) {
-        List<MeeplePointer> pointers = groupByPosition().get(p);
-        if (pointers == null) return Collections.emptyList();
-        return pointers;
+    //TODO direct implementation ?
+    public Set<MeeplePointer> getMeeplePointers(Position pos) {
+         return groupByPosition().getOrElse(pos, HashSet.empty());
     }
 
 }

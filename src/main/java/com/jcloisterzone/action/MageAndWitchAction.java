@@ -9,12 +9,15 @@ import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.wsio.RmiProxy;
 
+import io.vavr.collection.Set;
+
 //TODO generic NeutralMeepleAction
 public class MageAndWitchAction extends SelectFeatureAction {
 
     private final boolean mage;
 
-    public MageAndWitchAction(boolean mage) {
+    public MageAndWitchAction(Set<FeaturePointer> options, boolean mage) {
+        super(options);
         this.mage = mage;
     }
 
