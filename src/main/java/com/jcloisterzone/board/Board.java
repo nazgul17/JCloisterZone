@@ -108,8 +108,9 @@ public class Board {
 
     public Stream<TilePlacement> getTilePlacements(TileDefinition tile) {
         return getAvailablePlacements(tile).flatMap(t -> {
-            // IMMUTABLE TODO filter rotations
-            return Stream.of(Rotation.values()).map(r -> new TilePlacement(t._1, r));
+            return Stream.of(Rotation.values())
+                .filter(r -> t._2.isMatchingExact(tile.getEdgePattern().rotate(r)))
+                .map(r -> new TilePlacement(t._1, r));
         });
     }
 
