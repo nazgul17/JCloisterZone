@@ -3,17 +3,15 @@ package com.jcloisterzone.ui.grid.layer;
 import java.awt.Graphics2D;
 import java.util.Comparator;
 
-import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.TileImage;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.SortedSet;
 import io.vavr.collection.TreeSet;
 
@@ -29,7 +27,8 @@ public class TileLayer extends AbstractGridLayer {
         }
     }
 
-    private SortedSet<Tuple2<Position, Tuple2<TileDefinition, Rotation>>> placedTiles = TreeSet.empty();
+    private SortedSet<Tuple2<Position, Tuple2<TileDefinition, Rotation>>> sortedPlacedTiles = TreeSet.empty();
+    private LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> originalPlacedTiles;
 
     public TileLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -37,8 +36,17 @@ public class TileLayer extends AbstractGridLayer {
         gc.register(this);
     }
 
+    private void updateSortedTiles() {
+        LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = gc.getGame().getState().getPlacedTiles();
+        if (originalPlacedTiles != placedTiles) {
+            sortedPlacedTiles = placedTiles.toSortedSet(new OrderByRowsComparator());
+        }
+    }
+
     @Override
     public void paint(Graphics2D g2) {
+        updateSortedTiles();
+
         //TODO nice shadow
         if (!getClient().getGridPanel().isLayerVisible(AbstractTilePlacementLayer.class)) {
 
@@ -46,26 +54,19 @@ public class TileLayer extends AbstractGridLayer {
             int xSize = getTileWidth(),
                 ySize = getTileHeight(),
                 thickness = xSize / 11;
-            for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : placedTiles) {
+            for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : sortedPlacedTiles) {
                 Position p = t._1;
                 int x = getOffsetX(p), y = getOffsetY(p);
                 g2.fillRect(x-thickness, y-thickness, xSize+2*thickness, ySize+2*thickness);
             }
         }
 
-        for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : placedTiles) {
+        for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : sortedPlacedTiles) {
             Position p = t._1;
             TileDefinition tdef = t._2._1;
             Rotation rot = t._2._2;
             TileImage tileImg = rm.getTileImage(tdef, rot);
             g2.drawImage(tileImg.getImage(), getAffineTransform(tileImg, p), null);
-        }
-    }
-
-    @Subscribe
-    public void handleTileEvent(TileEvent ev) {
-        if (ev.getType() == TileEvent.PLACEMENT || ev.getType() == TileEvent.REMOVE) {
-            placedTiles = ev.getGameState().getPlacedTiles().toSortedSet(new OrderByRowsComparator());
         }
     }
 }

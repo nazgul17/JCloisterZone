@@ -1,40 +1,25 @@
 package com.jcloisterzone.board;
 
 import java.awt.Rectangle;
-import java.nio.file.AtomicMoveNotSupportedException;
-import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.TileEvent;
-import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.game.CachedValue;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
-import com.jcloisterzone.game.capability.BridgeCapability;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
 
-/**
- * Board represent game board with any size, so <code>Tile</code> instances ale
- * stored in <code>Map</code>. Board supplies proper merging of score objects
- * (<code>Road</code>, <code>City</code> or <code>Farm</code>)
- * and diagonal merge for <code>Cloister<code> instances.
-
- */
 public class Board {
     //TODO move tiles inside and make it immutable ?
 

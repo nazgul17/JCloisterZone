@@ -46,6 +46,12 @@ import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.DefaultResourceManager;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
+import io.vavr.Tuple2;
+import io.vavr.Tuple3;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
+
 public class MeepleLayer extends AbstractGridLayer {
 
     public static final double FIGURE_SIZE_RATIO = 0.35;
@@ -56,67 +62,98 @@ public class MeepleLayer extends AbstractGridLayer {
      */
     private LinkedList<PositionedFigureImage> images = new LinkedList<>();
     private PositionedFigureImage fairyOnFeature = null;
-    //TODO own layer ???
-    private List<PositionedImage> permanentImages = new ArrayList<>();
+
 
     public MeepleLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
         gc.register(this);
     }
 
-    @Subscribe
-    public void onNeutralMeepleMoveEvent(NeutralFigureMoveEvent ev) {
-        if (ev.getFrom() != null) {
-            neutralFigureUndeployed(ev);
-        }
-        if (ev.getTo() != null) {
-            neutralFigureDeployed(ev);
-        }
-    }
+//    @Subscribe
+//    public void onNeutralMeepleMoveEvent(NeutralFigureMoveEvent ev) {
+//        if (ev.getFrom() != null) {
+//            neutralFigureUndeployed(ev);
+//        }
+//        if (ev.getTo() != null) {
+//            neutralFigureDeployed(ev);
+//        }
+//    }
 
     @Subscribe
+    @Deprecated
     public void onMeepleEvent(MeepleEvent ev) {
-    gridPanel.clearActionDecorations();
-
-        if (ev.getFrom() != null) {
-            meepleUndeployed(ev);
-        }
-        if (ev.getTo() != null) {
-            meepleDeployed(ev);
-        }
-    }
-
-    @Subscribe
-    public void onTunnelPiecePlacedEvent(TunnelPiecePlacedEvent ev) {
-        Player player = ev.getTriggeringPlayer();
-        Color c;
-        if (ev.isSecondPiece()) {
-            c = player.getColors().getTunnelBColor();
-        } else {
-            c = player.getColors().getMeepleColor();
-        }
-        Image tunnelPiece = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", c));
-        Tile tile = gridPanel.getTile(ev.getPosition());
-        ImmutablePoint offset = rm.getMeeplePlacement(tile, SmallFollower.class, ev.getLocation());
-        addPermanentImage(ev.getPosition(), offset, tunnelPiece);
-    }
-
-    @Subscribe
-    public void onLittleBuildingEvent(LittleBuildingEvent ev) {
-        Image img = rm.getImage("neutral/lb-"+ev.getBuilding().name().toLowerCase());
-        ImmutablePoint offset = new ImmutablePoint(65, 35);
-        double xScale = 1.15, yScale = 1.15;
-        //TODO tightly coupled with current theme, todo change image size in theme
-        if (ev.getBuilding() == LittleBuilding.TOWER) {
-            xScale = 1.0;
-            yScale = 0.7;
-        }
-        addPermanentImage(ev.getPosition(), offset, img, xScale, yScale);
+        //TODO IMMUTABLE action layers are just function of state
+        gridPanel.clearActionDecorations();
+//
+//        if (ev.getFrom() != null) {
+//            meepleUndeployed(ev);
+//        }
+//        if (ev.getTo() != null) {
+//            meepleDeployed(ev);
+//        }
     }
 
     public LinkedList<PositionedFigureImage> getPositionedFigures() {
         return images;
     }
+
+    public Vector<Tuple3<Meeple, FeaturePointer, ImmutablePoint>> getMeeplePostions() {
+        java.util.ArrayList<Tuple3<Meeple, FeaturePointer, ImmutablePoint>> result = new java.util.ArrayList<>();
+
+        for (Tuple2<FeaturePointer, LinkedHashMap<Meeple, FeaturePointer>> t : gc.getGame().getState().getDeployedMeeples().groupBy(t -> t._2)) {
+            //process each places separately
+            FeaturePointer fp = t._1;
+
+            int offsetX = getOffsetX(fp.getPosition());
+            int offsetY = getOffsetY(fp.getPosition());
+
+            int order = 0;
+            //TODO IMMUTABLE rearrange here
+            for (Meeple m : t._2.keySet()) {
+                int x = offsetX + 10 * order;
+                int y = offsetY;
+                result.add(new Tuple3<>(m, fp, new ImmutablePoint(x, y)));
+            }
+        }
+        return Vector.ofAll(result);
+    }
+
+    @Override
+    public void paint(Graphics2D g) {
+        int tileWidth = getTileWidth();
+
+        for (Tuple3<Meeple, FeaturePointer, ImmutablePoint> t : getMeeplePostions()) {
+            //process each places separately
+            Meeple m = t._1;
+            FeaturePointer fp = t._2;
+
+            Color color = m.getPlayer().getColors().getMeepleColor();
+            PositionedFigureImage pfi = createMeepleImage(m, color, fp);
+            if (pfi.bridgePlacement) continue;
+
+            paintPositionedImage(g, pfi, tileWidth);
+        }
+    }
+
+    //TODO perf?
+    public void paintMeeplesOnBridges(Graphics2D g) {
+        int tileWidth = getTileWidth();
+
+        for (Tuple3<Meeple, FeaturePointer, ImmutablePoint> t : getMeeplePostions()) {
+            //process each places separately
+            Meeple m = t._1;
+            FeaturePointer fp = t._2;
+
+            Color color = m.getPlayer().getColors().getMeepleColor();
+            PositionedFigureImage pfi = createMeepleImage(m, color, fp);
+            if (!pfi.bridgePlacement) continue;
+
+            paintPositionedImage(g, pfi, tileWidth);
+        }
+    }
+
+
+    // Legacy
 
     private void paintPositionedImage(Graphics2D g, PositionedImage mi, int squareSize) {
         ImageData i = mi.getScaledImageData(squareSize);
@@ -129,40 +166,15 @@ public class MeepleLayer extends AbstractGridLayer {
         g.rotate(gridPanel.getBoardRotation().getTheta(), x+i.boxSize/2, y+i.boxSize/2);
     }
 
-    @Override
-    public void paint(Graphics2D g) {
-        int squareSize = getTileWidth();
+//    @Override
+//    public void zoomChanged(int squareSize) {
+//        for (PositionedFigureImage mi : images) {
+//            mi.resetScaledImageData();
+//        }
+//        super.zoomChanged(squareSize);
+//    }
 
-        for (PositionedFigureImage mi : images) {
-            if (!mi.bridgePlacement) {
-                paintPositionedImage(g, mi, squareSize);
-            }
-        }
-        for (PositionedImage mi : permanentImages) {
-            paintPositionedImage(g, mi, squareSize);
-        }
-
-    }
-
-    public void paintMeeplesOnBridges(Graphics2D g) {
-        for (PositionedFigureImage mi : images) {
-            if (mi.bridgePlacement) {
-                paintPositionedImage(g, mi, getTileWidth() );
-            }
-        }
-    }
-
-    @Override
-    public void zoomChanged(int squareSize) {
-        for (PositionedFigureImage mi : images) {
-            mi.resetScaledImageData();
-        }
-        for (PositionedImage mi : permanentImages) {
-            mi.resetScaledImageData();
-        }
-        super.zoomChanged(squareSize);
-    }
-
+    //TODO needs revision, is is needed at all ?
     private PositionedFigureImage createMeepleImage(Meeple meeple, Color c, FeaturePointer fp) {
         Tile tile = getGame().getBoard().get(fp.getPosition());
         Feature feature = getGame().getBoard().get(fp);
@@ -229,116 +241,103 @@ public class MeepleLayer extends AbstractGridLayer {
         return pfi;
     }
 
-    private void rearrangeMeeples(FeaturePointer fp) {
-        int order = 0;
-        boolean hasOther = false;
+//    private void rearrangeMeeples(FeaturePointer fp) {
+//        int order = 0;
+//        boolean hasOther = false;
+//
+//        LinkedList<PositionedFigureImage> featureImages = new LinkedList<>();
+//        PositionedFigureImage withFairy = null;
+//        boolean isFairyOnCurrentFeature = false;
+//
+//        //iterate revese ti have small follower is placement order
+//        ListIterator<PositionedFigureImage> iter = images.listIterator(images.size());
+//        while (iter.hasPrevious()) {
+//            PositionedFigureImage mi = iter.previous();
+//            if (mi.location == fp.getLocation() && mi.position.equals(fp.getPosition())) {
+//                if (fairyOnFeature == mi) {
+//                    //dont add to array, it will be assigned from
+//                    hasOther = true;
+//                    isFairyOnCurrentFeature = true;
+//                } else {
+//                    if (mi.getFigure() instanceof SmallFollower) {
+//                        //small followers first
+//                        featureImages.addFirst(mi);
+//                    } else {
+//                        //others on top
+//                        hasOther = true;
+//                        featureImages.addLast(mi);
+//                    }
+//                    if (fairyOnFeature != null && mi.getFigure() instanceof Meeple) {
+//                        if (((Meeple) mi.getFigure()).getId().equals(fairyOnFeature.nextToMeeple)) {
+//                            withFairy = mi;
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//
+//        if (withFairy == null && isFairyOnCurrentFeature) {
+//            fairyOnFeature.order = 0; //show lonely fairy on first position
+//            order++;
+//        }
+//
+//        for (PositionedFigureImage mi : featureImages) {
+//            mi.order = order++;
+//            //System.err.println("Order: "+mi.getFigure().toString() + " = " + mi.order);
+//            if (mi == withFairy) {
+//                fairyOnFeature.order = order++;
+//                //System.err.println("Order: "+fairyOnFeature.getFigure().toString() + " = " + fairyOnFeature.order);
+//            }
+//        }
+//
+//        if (order > 1 && hasOther) {
+//            Collections.sort(images, new Comparator<PositionedFigureImage>() {
+//                @Override
+//                public int compare(PositionedFigureImage o1, PositionedFigureImage o2) {
+//                    return o1.order - o2.order;
+//                }
+//            });
+//        }
+//    }
+//
+//    private void meepleDeployed(MeepleEvent ev) {
+//        Color c = ev.getMeeple().getPlayer().getColors().getMeepleColor();
+//        images.add(createMeepleImage(ev.getMeeple(), c, ev.getTo()));
+//        rearrangeMeeples(ev.getTo());
+//    }
+//
+//    private void neutralFigureDeployed(NeutralFigureMoveEvent ev) {
+//        images.add(createNeutralFigureImage(ev.getFigure(), ev.getTo()));
+//        if (ev.getTo() instanceof FeaturePointer || ev.getTo() instanceof MeeplePointer) {
+//            rearrangeMeeples(ev.getTo().asFeaturePointer());
+//        }
+//    }
 
-        LinkedList<PositionedFigureImage> featureImages = new LinkedList<>();
-        PositionedFigureImage withFairy = null;
-        boolean isFairyOnCurrentFeature = false;
+//    private void figureUndeployed(Figure figure, BoardPointer from) {
+//        Iterator<PositionedFigureImage> iter = images.iterator();
+//        while (iter.hasNext()) {
+//            PositionedFigureImage mi = iter.next();
+//            if (mi.getFigure().equals(figure)) {
+//                if (mi == fairyOnFeature) {
+//                    fairyOnFeature = null;
+//                }
+//                iter.remove();
+//                break;
+//            }
+//        }
+//        if (from instanceof FeaturePointer || from instanceof MeeplePointer) {
+//            rearrangeMeeples(from.asFeaturePointer());
+//        }
+//    }
+//
+//    private void meepleUndeployed(MeepleEvent ev) {
+//        figureUndeployed(ev.getMeeple(), ev.getFrom());
+//    }
+//
+//    private void neutralFigureUndeployed(NeutralFigureMoveEvent ev) {
+//        figureUndeployed(ev.getFigure(), ev.getFrom());
+//    }
 
-        //iterate revese ti have small follower is placement order
-        ListIterator<PositionedFigureImage> iter = images.listIterator(images.size());
-        while (iter.hasPrevious()) {
-            PositionedFigureImage mi = iter.previous();
-            if (mi.location == fp.getLocation() && mi.position.equals(fp.getPosition())) {
-                if (fairyOnFeature == mi) {
-                    //dont add to array, it will be assigned from
-                    hasOther = true;
-                    isFairyOnCurrentFeature = true;
-                } else {
-                    if (mi.getFigure() instanceof SmallFollower) {
-                        //small followers first
-                        featureImages.addFirst(mi);
-                    } else {
-                        //others on top
-                        hasOther = true;
-                        featureImages.addLast(mi);
-                    }
-                    if (fairyOnFeature != null && mi.getFigure() instanceof Meeple) {
-                        if (((Meeple) mi.getFigure()).getId().equals(fairyOnFeature.nextToMeeple)) {
-                            withFairy = mi;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (withFairy == null && isFairyOnCurrentFeature) {
-            fairyOnFeature.order = 0; //show lonely fairy on first position
-            order++;
-        }
-
-        for (PositionedFigureImage mi : featureImages) {
-            mi.order = order++;
-            //System.err.println("Order: "+mi.getFigure().toString() + " = " + mi.order);
-            if (mi == withFairy) {
-                fairyOnFeature.order = order++;
-                //System.err.println("Order: "+fairyOnFeature.getFigure().toString() + " = " + fairyOnFeature.order);
-            }
-        }
-
-        if (order > 1 && hasOther) {
-            Collections.sort(images, new Comparator<PositionedFigureImage>() {
-                @Override
-                public int compare(PositionedFigureImage o1, PositionedFigureImage o2) {
-                    return o1.order - o2.order;
-                }
-            });
-        }
-    }
-
-    private void meepleDeployed(MeepleEvent ev) {
-        Color c = ev.getMeeple().getPlayer().getColors().getMeepleColor();
-        images.add(createMeepleImage(ev.getMeeple(), c, ev.getTo()));
-        rearrangeMeeples(ev.getTo());
-    }
-
-    private void neutralFigureDeployed(NeutralFigureMoveEvent ev) {
-        images.add(createNeutralFigureImage(ev.getFigure(), ev.getTo()));
-        if (ev.getTo() instanceof FeaturePointer || ev.getTo() instanceof MeeplePointer) {
-            rearrangeMeeples(ev.getTo().asFeaturePointer());
-        }
-    }
-
-    private void figureUndeployed(Figure figure, BoardPointer from) {
-        Iterator<PositionedFigureImage> iter = images.iterator();
-        while (iter.hasNext()) {
-            PositionedFigureImage mi = iter.next();
-            if (mi.getFigure().equals(figure)) {
-                if (mi == fairyOnFeature) {
-                    fairyOnFeature = null;
-                }
-                iter.remove();
-                break;
-            }
-        }
-        if (from instanceof FeaturePointer || from instanceof MeeplePointer) {
-            rearrangeMeeples(from.asFeaturePointer());
-        }
-    }
-
-    private void meepleUndeployed(MeepleEvent ev) {
-        figureUndeployed(ev.getMeeple(), ev.getFrom());
-    }
-
-    private void neutralFigureUndeployed(NeutralFigureMoveEvent ev) {
-        figureUndeployed(ev.getFigure(), ev.getFrom());
-    }
-
-    private void addPermanentImage(Position position, ImmutablePoint offset, Image image) {
-        addPermanentImage(position, offset, image, 1.0, 1.0);
-    }
-
-
-    //TODO hack with xScale, yScale - clean and do better
-    private void addPermanentImage(Position position, ImmutablePoint offset, Image image, double xScale, double yScale) {
-        PositionedImage pi = new PositionedImage(position, offset, image);
-        pi.heightWidthRatio = image.getHeight(null) / image.getWidth(null);
-        pi.xScaleFactor = xScale;
-        pi.yScaleFactor = yScale;
-        permanentImages.add(pi);
-    }
 
     //TODO path from Theme
     private String getExtraDecoration(Class<? extends Meeple> type, FeaturePointer fp) {
@@ -394,9 +393,9 @@ public class MeepleLayer extends AbstractGridLayer {
             return scaledImageData;
         }
 
-        public void resetScaledImageData() {
-            scaledImageData = null;
-        }
+//        public void resetScaledImageData() {
+//            scaledImageData = null;
+//        }
     }
 
     public class PositionedFigureImage extends PositionedImage {

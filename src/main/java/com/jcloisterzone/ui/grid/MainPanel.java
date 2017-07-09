@@ -21,6 +21,7 @@ import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.PlagueCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.ControlPanel;
@@ -37,6 +38,7 @@ import com.jcloisterzone.ui.grid.layer.FeatureAreaLayer;
 import com.jcloisterzone.ui.grid.layer.FollowerAreaLayer;
 import com.jcloisterzone.ui.grid.layer.GoldLayer;
 import com.jcloisterzone.ui.grid.layer.LittleBuildingActionLayer;
+import com.jcloisterzone.ui.grid.layer.TokenLayer;
 import com.jcloisterzone.ui.grid.layer.MeepleLayer;
 import com.jcloisterzone.ui.grid.layer.PlacementHistory;
 import com.jcloisterzone.ui.grid.layer.PlagueLayer;
@@ -112,6 +114,12 @@ public class MainPanel extends JPanel {
         }
 
         gridPanel.addLayer(meepleLayer); //zindex 50
+        //TODO add always
+        if (game.hasCapability(LittleBuildingsCapability.class) ||
+            game.hasCapability(TunnelCapability.class) ) {
+            gridPanel.addLayer(new TokenLayer(gridPanel, gc));
+        }
+
         if (game.hasCapability(BridgeCapability.class)) {
             BridgeLayer bridgeLayer = new BridgeLayer(gridPanel, gc);
             bridgeLayer.setMeepleLayer(meepleLayer);

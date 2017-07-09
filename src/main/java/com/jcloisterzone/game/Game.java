@@ -172,7 +172,9 @@ public class Game extends GameSettings implements EventProxy {
         if (state == null) {
             logger.warn("Null state " + event.toString());
         }
-        replaceState(state -> state == null ? null : state.setEvents(state.getEvents().append(event)));
+        if (event instanceof PlayEvent) {
+            replaceState(state -> state == null ? null : state.setEvents(state.getEvents().append((PlayEvent) event)));
+        }
         event.setGameState(state);
         eventQueue.add(event);
 //        if (event instanceof PlayEvent && !event.isUndo()) {

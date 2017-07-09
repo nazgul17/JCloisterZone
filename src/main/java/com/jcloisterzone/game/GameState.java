@@ -11,7 +11,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.Event;
+import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
@@ -41,7 +41,7 @@ public class GameState {
     private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
     private final LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures;
 
-    private final Queue<Event> events;
+    private final Queue<PlayEvent> events;
 
     public static GameState createInitial(Array<PlayerAttributes> players, int turnPlayer) {
         return new GameState(
@@ -63,7 +63,7 @@ public class GameState {
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
             LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures,
-            Queue<Event> events) {
+            Queue<PlayEvent> events) {
         this.players = players;
         this.score = score;
         this.turnPlayer = turnPlayer;
@@ -147,7 +147,7 @@ public class GameState {
         );
     }
 
-    public GameState setEvents(Queue<Event> events) {
+    public GameState setEvents(Queue<PlayEvent> events) {
         return new GameState(
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, events
@@ -194,7 +194,7 @@ public class GameState {
         return deployedNeutralFigures;
     }
 
-    public Queue<Event> getEvents() {
+    public Queue<PlayEvent> getEvents() {
         return events;
     }
 }

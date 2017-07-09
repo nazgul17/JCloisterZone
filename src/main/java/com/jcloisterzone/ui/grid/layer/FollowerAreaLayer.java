@@ -38,6 +38,7 @@ public class FollowerAreaLayer extends AbstractAreaLayer<SelectFollowerAction> {
         action.groupByPosition().forEach((pos, locations) -> {
             for (MeeplePointer pointer : action.getMeeplePointers(pos)) {
                 PositionedFigureImage pfi = null;
+                //IMMUTABLE TODO use meepleLayer.getMeeplePostions instead
                 for (PositionedFigureImage item : meepleLayer.getPositionedFigures()) {
                     if (item.getFigure() instanceof Meeple) {
                         Meeple meeple = (Meeple) item.getFigure();
