@@ -8,7 +8,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.BufferedImage;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.ui.UiUtils;
@@ -33,19 +32,16 @@ public class TilePlacementActionWrapper extends ActionWrapper implements Forward
 
     @Override
     public Image getImage(ResourceManager rm, Player player, boolean active) {
-        //TODO cound be rotation used directly ???
-        TileImage tileImg = rm.getTileImage(getAction().getTile(), Rotation.R0);
+        TileImage tileImg = rm.getTileImage(getAction().getTile(), tileRotation);
         Insets ins = tileImg.getOffset();
         Image img =  tileImg.getImage();
         int w = img.getWidth(null);
         int h = img.getHeight(null);
         BufferedImage bi = UiUtils.newTransparentImage(w+2, h+2);
-        AffineTransform at = tileRotation.getAffineTransform(w, h);
-        at.concatenate(AffineTransform.getTranslateInstance(1, 1));
         Graphics2D ig = bi.createGraphics();
         ig.setColor(Color.BLACK);
         ig.drawRect(ins.left, ins.top, w+1-ins.left-ins.right, h+1-ins.top-ins.bottom);
-        ig.drawImage(img, at, null);
+        ig.drawImage(img, AffineTransform.getTranslateInstance(1, 1), null);
         return bi;
     }
 

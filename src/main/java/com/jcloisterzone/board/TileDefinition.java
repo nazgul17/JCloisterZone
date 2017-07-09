@@ -130,6 +130,10 @@ public class TileDefinition {
         return cornCircle;
     }
 
+    public boolean hasTower() {
+        return initialFeatures.containsKey(Location.TOWER);
+    }
+
     private EdgeType computeSideEdge(Location loc) {
         if (river != null && loc.isPartOf(river)) {
             return EdgeType.RIVER;

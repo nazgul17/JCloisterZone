@@ -1,7 +1,5 @@
 package com.jcloisterzone.ui.plugin;
 
-import static com.jcloisterzone.ui.plugin.ResourcePlugin.NORMALIZED_SIZE;
-
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.Insets;
@@ -196,15 +194,17 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (!containsTile(tile.getId())) return null;
         if (type.equals(Barn.class)) return null;
         Feature feature = tile.getFeature(loc);
-        ImmutablePoint point = pluginGeometry.getMeeplePlacement(tile, feature.getClass(), loc);
+
+        Location normLoc = loc.rotateCCW(tile.getRotation());
+        ImmutablePoint point = pluginGeometry.getMeeplePlacement(tile.getTileDefinition(), feature.getClass(), normLoc);
         if (point == null) {
-            point = defaultGeometry.getMeeplePlacement(tile, feature.getClass(), loc);
+            point = defaultGeometry.getMeeplePlacement(tile.getTileDefinition(), feature.getClass(), normLoc);
         }
         if (point == null) {
-            logger.warn("No point defined for <" + (new FeatureDescriptor(tile, feature.getClass(), loc)) + ">");
+            logger.warn("No point defined for <" + (new FeatureDescriptor(tile.getId(), feature.getClass(), loc)) + ">");
             point = new ImmutablePoint(0, 0);
         }
-        return point;
+        return point.rotate100(tile.getRotation());
     }
 
     private FeatureArea applyRotationScaling(Tile tile, ThemeGeometry geom, FeatureArea area) {
@@ -226,7 +226,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         return area;
     }
 
-    private FeatureArea getFeatureArea(Tile tile, Class<? extends Feature> featureClass, Location loc) {
+    private FeatureArea getFeatureArea(TileDefinition tile, Class<? extends Feature> featureClass, Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
         if (Castle.class.equals(featureClass)) {
             featureClass = City.class;
@@ -236,7 +236,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (area == null) {
             area = adaptDefaultGeometry(defaultGeometry.getArea(tile, featureClass, loc));
             if (area == null) {
-                logger.error("No shape defined for <" + (new FeatureDescriptor(tile, featureClass, loc)) + ">");
+                logger.error("No shape defined for <" + (new FeatureDescriptor(tile.getId(), featureClass, loc)) + ">");
                 return new FeatureArea(new Area(), 0);
             } else {
                 source = defaultGeometry;
@@ -245,14 +245,14 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             source = pluginGeometry;
         }
 
-        area = applyRotationScaling(tile, source, area);
-        AffineTransform t = new AffineTransform();
-        t.concatenate(tile.getRotation().getAffineTransform(NORMALIZED_SIZE, (int) (NORMALIZED_SIZE * getImageSizeRatio())));
-        area = area.transform(t);
+//        area = applyRotationScaling(tile, source, area);
+//        AffineTransform t = new AffineTransform();
+//        t.concatenate(tile.getRotation().getAffineTransform(NORMALIZED_SIZE, (int) (NORMALIZED_SIZE * getImageSizeRatio())));
+//        area = area.transform(t);
         return area;
     }
 
-    private Area getSubstractionArea(Tile tile, boolean farm) {
+    private Area getSubstractionArea(TileDefinition tile, boolean farm) {
         Area d = defaultGeometry.getSubstractionArea(tile, farm),
              p = pluginGeometry.getSubstractionArea(tile, farm),
              area = new Area();
@@ -263,24 +263,24 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (p != null) {
             //HACK always area rotation scale as not scale in both width and height
             //it's what is required for ROAD subtraction but it's possible in future it will be needed scale area too.
-            Rotation rot = tile.getRotation();
-            if (rot == Rotation.R90 || rot == Rotation.R270) {
-                AffineTransform t = new AffineTransform();
-                AreaRotationScaling.NO_SCALE_HEIGHT.concatAffineTransform(t, getImageSizeRatio());
-                AreaRotationScaling.NO_SCALE_WIDTH.concatAffineTransform(t, 1.0 / getImageSizeRatio());
-                p = p.createTransformedArea(t);
-            }
+//            Rotation rot = tile.getRotation();
+//            if (rot == Rotation.R90 || rot == Rotation.R270) {
+//                AffineTransform t = new AffineTransform();
+//                AreaRotationScaling.NO_SCALE_HEIGHT.concatAffineTransform(t, getImageSizeRatio());
+//                AreaRotationScaling.NO_SCALE_WIDTH.concatAffineTransform(t, 1.0 / getImageSizeRatio());
+//                p = p.createTransformedArea(t);
+//            }
 
             area.add(p);
         }
 
-        AffineTransform t = new AffineTransform();
-        t.concatenate(tile.getRotation().getAffineTransform(NORMALIZED_SIZE, (int) (NORMALIZED_SIZE * getImageSizeRatio())));
-        area.transform(t);
+//        AffineTransform t = new AffineTransform();
+//        t.concatenate(tile.getRotation().getAffineTransform(NORMALIZED_SIZE, (int) (NORMALIZED_SIZE * getImageSizeRatio())));
+//        area.transform(t);
         return area;
     }
 
-    private boolean isFarmComplement(Tile tile, Location loc) {
+    private boolean isFarmComplement(TileDefinition tile, Location loc) {
         if (pluginGeometry.isFarmComplement(tile, loc)) return true;
         if (defaultGeometry.isFarmComplement(tile, loc)) return true;
         return false;
@@ -307,14 +307,15 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         // dirty hack to not handle quarter locations
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
+        TileDefinition tileDef = tile.getTileDefinition();
         Rotation rot = tile.getRotation();
         locations = locations.map(loc -> loc.rotateCCW(rot));
 
         Map<Location, FeatureArea> areas = HashMap.empty();
-        Area subsBridge = getBaseRoadAndCitySubstractions(tile);
+        Area subsBridge = getBaseRoadAndCitySubstractions(tileDef);
         Area subsRoadCity = new Area(subsBridge);
         substractBridge(subsRoadCity, tile);
-        Area subsFarm = getFarmSubstractions(tile);
+        Area subsFarm = getFarmSubstractions(tileDef);
 
         for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
             Location loc = t._1;
@@ -329,12 +330,12 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
 
             FeatureArea fa;
             if (feature instanceof Farm) {
-                fa = getFarmArea(loc, tile, subsFarm);
+                fa = getFarmArea(loc, tileDef, subsFarm);
                 areas = areas.put(loc.rotateCW(rot), fa);
                 continue;
             }
 
-            fa = getFeatureArea(tile, feature.getClass(), loc);
+            fa = getFeatureArea(tileDef, feature.getClass(), loc);
             if (feature instanceof City || feature instanceof Road) {
                 Area subs = feature instanceof Bridge ? subsBridge : subsRoadCity;
                 if (!subs.isEmpty()) {
@@ -345,7 +346,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             areas = areas.put(loc.rotateCW(rot), fa);
         }
         if (locations.contains(Location.FLIER)) {
-            FeatureArea fa = new FeatureArea(getFeatureArea(tile, null, Location.FLIER));
+            FeatureArea fa = new FeatureArea(getFeatureArea(tileDef, null, Location.FLIER));
             areas = areas.put(Location.FLIER, fa);
         }
 
@@ -411,9 +412,9 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
 //        }
     }
 
-    private Area getBaseRoadAndCitySubstractions(Tile tile) {
+    private Area getBaseRoadAndCitySubstractions(TileDefinition tile) {
         Area sub = new Area();
-        if (tile.getTower() != null) {
+        if (tile.hasTower()) {
             sub.add(getFeatureArea(tile, Tower.class, Location.TOWER).getTrackingArea());
         }
         if (tile.getFlier() != null) {
@@ -423,9 +424,9 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         return sub;
     }
 
-    private Area getFarmSubstractions(Tile tile) {
+    private Area getFarmSubstractions(TileDefinition tile) {
         Area sub = new Area();
-        for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
+        for (Tuple2<Location, Feature> t : tile.getInitialFeatures()) {
             if (!(t._2 instanceof Farm)) {
                 Area area = getFeatureArea(tile, t._2.getClass(), t._1).getTrackingArea();
                 sub.add(area);
@@ -440,20 +441,15 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         return sub;
     }
 
-    private Rectangle getFullRectangle(Tile tile) {
-        Rotation rot = tile.getRotation();
-        if (rot == Rotation.R90 || rot == Rotation.R270) {
-            return new Rectangle(0,0, (int) (NORMALIZED_SIZE * getImageSizeRatio()), NORMALIZED_SIZE-1);
-        } else {
-            return new Rectangle(0,0, NORMALIZED_SIZE-1, (int) (NORMALIZED_SIZE * getImageSizeRatio()));
-        }
+    private Rectangle getFullRectangle() {
+        return new Rectangle(0,0, NORMALIZED_SIZE-1, (int) (NORMALIZED_SIZE * getImageSizeRatio()));
     }
 
-    private FeatureArea getFarmArea(Location farm, Tile tile, Area sub) {
+    private FeatureArea getFarmArea(Location farm, TileDefinition tile, Area sub) {
         FeatureArea result;
         if (isFarmComplement(tile, farm)) { //is complement farm
-            Area base = new Area(getFullRectangle(tile));
-            for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
+            Area base = new Area(getFullRectangle());
+            for (Tuple2<Location, Feature> t : tile.getInitialFeatures()) {
                 if (t._2 instanceof Farm && t._1 != farm) {
                     Area area = getFeatureArea(tile, Farm.class, t._1).getTrackingArea();
                     base.subtract(area);

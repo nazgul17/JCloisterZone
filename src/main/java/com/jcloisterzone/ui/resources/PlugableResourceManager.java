@@ -30,6 +30,7 @@ public class PlugableResourceManager implements ResourceManager {
 
     public PlugableResourceManager(Iterable<Plugin> plugins) {
         managers = Stream.ofAll(plugins)
+            .filter(p -> p.isEnabled())
             .filter(Predicates.instanceOf(ResourceManager.class))
             .map(p -> (ResourceManager) p)
             .append(new DefaultResourceManager())

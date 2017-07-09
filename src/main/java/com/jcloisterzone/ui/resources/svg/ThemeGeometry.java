@@ -23,6 +23,7 @@ import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Farm;
@@ -39,10 +40,10 @@ import com.jcloisterzone.ui.resources.svg.SvgTransformationCollector.GeometryHan
 public class ThemeGeometry {
 
     public double getImageSizeRatio() {
-		return imageSizeRatio;
-	}
+        return imageSizeRatio;
+    }
 
-	protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private static class AreaWithZIndex {
         Area area;
@@ -73,8 +74,8 @@ public class ThemeGeometry {
     }
 
     public ThemeGeometry(ClassLoader loader, String folder, double imageSizeRatio) throws IOException, SAXException, ParserConfigurationException {
-    	this.imageSizeRatio = imageSizeRatio;
-    	
+        this.imageSizeRatio = imageSizeRatio;
+
         NodeList nl;
         URL aliasesResource = loader.getResource(folder + "/aliases.xml");
         if (aliasesResource != null) {
@@ -133,7 +134,7 @@ public class ThemeGeometry {
     }
 
     private void processShapeElement(Element shapeNode) {
-        final AreaWithZIndex az = createArea(shapeNode);        
+        final AreaWithZIndex az = createArea(shapeNode);
 
         SvgTransformationCollector transformCollector = new SvgTransformationCollector(shapeNode, imageSizeRatio);
         transformCollector.collect(new GeometryHandler() {
@@ -142,7 +143,7 @@ public class ThemeGeometry {
             public void processApply(Element node, FeatureDescriptor fd, AffineTransform transform, AreaRotationScaling rotationScaling) {
                 assert !areas.containsKey(fd) : "Duplicate key " + fd;
                 FeatureArea area = new FeatureArea(az.area.createTransformedArea(transform), getZIndex(az.zIndex, fd));
-                area.setRotationScaling(rotationScaling);                
+                area.setRotationScaling(rotationScaling);
                 areas.put(fd, area);
             }
 
@@ -166,7 +167,7 @@ public class ThemeGeometry {
         }
     }
 
-    private FeatureDescriptor[] getLookups(Tile tile, Class<? extends Feature> featureType, Location location) {
+    private FeatureDescriptor[] getLookups(TileDefinition tile, Class<? extends Feature> featureType, Location location) {
         String alias = aliases.get(tile.getId());
         FeatureDescriptor[] fd = new FeatureDescriptor[alias == null ? 2 : 3];
         fd[0] = new FeatureDescriptor(tile.getId(), featureType, location);
@@ -177,19 +178,17 @@ public class ThemeGeometry {
         return fd;
     }
 
-    public FeatureArea getArea(Tile tile, Class<? extends Feature> featureClass, Location loc) {
-        Rotation tileRotation = tile.getRotation();
+    public FeatureArea getArea(TileDefinition tile, Class<? extends Feature> featureClass, Location loc) {
         if (featureClass != null && featureClass.equals(Bridge.class)) {
-            Area a =  getBridgeArea(loc.rotateCCW(tileRotation));
-            //bridge is independent on tile rotation
-            if ((loc == Location.WE && (tileRotation == Rotation.R90 || tileRotation == Rotation.R180)) ||
-                (loc == Location.NS && (tileRotation == Rotation.R180 || tileRotation == Rotation.R270))) {
-                a = new Area(a);
-                a.transform(Rotation.R180.getAffineTransform(ResourcePlugin.NORMALIZED_SIZE));
-            }
+            Area a =  getBridgeArea(loc);
+//            //bridge is independent on tile rotation
+//            if ((loc == Location.WE && (tileRotation == Rotation.R90 || tileRotation == Rotation.R180)) ||
+//                (loc == Location.NS && (tileRotation == Rotation.R180 || tileRotation == Rotation.R270))) {
+//                a = new Area(a);
+//                a.transform(Rotation.R180.getAffineTransform(ResourcePlugin.NORMALIZED_SIZE));
+//            }
             return new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
         }
-        loc = loc.rotateCCW(tileRotation);
         FeatureDescriptor lookups[] = getLookups(tile, featureClass, loc);
         FeatureArea fa;
         for (FeatureDescriptor fd : lookups) {
@@ -206,7 +205,7 @@ public class ThemeGeometry {
         throw new IllegalArgumentException("Incorrect location");
     }
 
-    public Area getSubstractionArea(Tile tile, boolean isFarm) {
+    public Area getSubstractionArea(TileDefinition tile, boolean isFarm) {
         if (isFarm) {
             Area area = getSubstractionArea(substractionFarm, tile);
             if (area != null) return area;
@@ -214,7 +213,7 @@ public class ThemeGeometry {
         return getSubstractionArea(substractionAll, tile);
     }
 
-    private Area getSubstractionArea(Map<String, Area> substractions, Tile tile) {
+    private Area getSubstractionArea(Map<String, Area> substractions, TileDefinition tile) {
         Area area = substractions.get(tile.getId());
         if (area == null) {
             String alias = aliases.get(tile.getId());
@@ -225,8 +224,7 @@ public class ThemeGeometry {
         return area;
     }
 
-    public boolean isFarmComplement(Tile tile, Location loc) {
-        loc = loc.rotateCCW(tile.getRotation());
+    public boolean isFarmComplement(TileDefinition tile, Location loc) {
         FeatureDescriptor lookups[] = getLookups(tile, Farm.class, loc);
         for (FeatureDescriptor fd : lookups) {
             if (complementFarms.contains(fd)) return true;
@@ -234,15 +232,13 @@ public class ThemeGeometry {
         return false;
     }
 
-    public ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Feature> feature, Location location) {
-        Location normalizedLoc = location.rotateCCW(tile.getRotation());
-        FeatureDescriptor lookups[] = getLookups(tile, feature, normalizedLoc);
+    public ImmutablePoint getMeeplePlacement(TileDefinition tile, Class<? extends Feature> feature, Location location) {
+        FeatureDescriptor lookups[] = getLookups(tile, feature, location);
         ImmutablePoint point = null;
         for (FeatureDescriptor fd : lookups) {
             point = points.get(fd);
             if (point != null) break;
         }
-        if (point == null) return null;
-        return point.rotate100(tile.getRotation());
+        return point;
     }
 }
