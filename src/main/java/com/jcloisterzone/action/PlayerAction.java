@@ -12,25 +12,22 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.MainPanel;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.RmiProxy;
 
 public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, Iterable<T> {
 
-    @Deprecated
-    private final String name;
     protected final Set<T> options = new HashSet<T>();
 
     protected Client client;
     protected MainPanel mainPanel;
 
-    public PlayerAction(String name) {
-        this.name = name;
+    public PlayerAction() {
     }
 
-    public PlayerAction(String name, io.vavr.collection.Set<T> ptrs) {
-        this.name = name;
+    public PlayerAction(io.vavr.collection.Set<T> ptrs) {
         addAll(ptrs);
     }
 
@@ -65,10 +62,6 @@ public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, It
         return options.isEmpty();
     }
 
-    public String getName() {
-        return name;
-    }
-
     public Image getImage(Player player, boolean active) {
         return getImage(player != null && active ? player.getColors().getMeepleColor() : Color.GRAY);
     }
@@ -98,7 +91,11 @@ public abstract class PlayerAction<T> implements Comparable<PlayerAction<?>>, It
     }
 
     protected Image getImage(Color color) {
-        return client.getResourceManager().getLayeredImage(new LayeredImageDescriptor("actions/" + getName(), color));
+        if (!this.getClass().isAnnotationPresent(DisplayableEntity.class)) {
+            throw new UnsupportedOperationException("Annotate with DisplayableEntity or override getImage()");
+        }
+        DisplayableEntity disp = this.getClass().getAnnotation(DisplayableEntity.class);
+        return client.getResourceManager().getLayeredImage(new LayeredImageDescriptor(disp.value(), color));
     }
 
 

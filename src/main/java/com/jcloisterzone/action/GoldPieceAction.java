@@ -3,13 +3,13 @@ package com.jcloisterzone.action;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.layer.TileActionLayer;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
-public class GoldPieceAction extends SelectTileAction {
+// TODO generic token action ?
 
-    public GoldPieceAction() {
-        super("gold");
-    }
+@DisplayableEntity("actions/gold")
+public class GoldPieceAction extends SelectTileAction {
 
     @Override
     public void perform(RmiProxy server, Position p) {

@@ -7,13 +7,11 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.layer.AbbeyPlacementLayer;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
+@DisplayableEntity("actions/abbeyplacement")
 public class AbbeyPlacementAction extends SelectTileAction {
-
-    public AbbeyPlacementAction() {
-        super("abbeyplacement");
-    }
 
     @Override
     public Image getImage(Player player, boolean active) {

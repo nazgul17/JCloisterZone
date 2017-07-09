@@ -14,12 +14,12 @@ import com.jcloisterzone.ui.grid.layer.FeatureAreaLayer;
 public abstract class SelectFeatureAction extends PlayerAction<FeaturePointer> {
 
 
-    public SelectFeatureAction(String name) {
-        super(name);
+    public SelectFeatureAction() {
+        super();
     }
 
-    public SelectFeatureAction(String name, io.vavr.collection.Set<FeaturePointer> ptrs) {
-        super(name, ptrs);
+    public SelectFeatureAction(io.vavr.collection.Set<FeaturePointer> ptrs) {
+        super(ptrs);
     }
 
     @Override
@@ -41,14 +41,10 @@ public abstract class SelectFeatureAction extends PlayerAction<FeaturePointer> {
         return map;
     }
 
-  //TODO direct implementation
+    //TODO direct implementation
     public Set<Location> getLocations(Position p) {
         return groupByPosition().get(p);
     }
 
-//    @Override
-//    public String toString() {
-//        return getClass().getSimpleName() + '=' + locMap.toString();
-//    }
 
 }

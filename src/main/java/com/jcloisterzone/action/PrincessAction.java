@@ -1,11 +1,15 @@
 package com.jcloisterzone.action;
 
+import com.jcloisterzone.board.pointer.MeeplePointer;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
+import com.jcloisterzone.wsio.RmiProxy;
 
-//TODO undeploy type
-public class PrincessAction extends UndeployAction {
+@DisplayableEntity("actions/princess")
+public class PrincessAction extends SelectFollowerAction {
 
-    public PrincessAction() {
-        super("princess");
+    @Override
+    public void perform(RmiProxy server, MeeplePointer mp) {
+        server.undeployMeeple(mp);
     }
 
     @Override

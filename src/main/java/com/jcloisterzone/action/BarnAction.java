@@ -4,14 +4,12 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.layer.BarnAreaLayer;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
 //TODO do not extends select feature, use special type for corner based on position
+@DisplayableEntity("actions/barn")
 public class BarnAction extends SelectFeatureAction {
-
-    public BarnAction() {
-        super("barn");
-    }
 
     @Override
     public void perform(RmiProxy server, FeaturePointer bp) {

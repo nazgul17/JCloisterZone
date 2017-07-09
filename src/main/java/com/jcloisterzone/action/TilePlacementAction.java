@@ -14,7 +14,6 @@ import java.util.Set;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.ui.UiUtils;
@@ -32,7 +31,6 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> implements 
     private Rotation tileRotation = Rotation.R0;
 
     public TilePlacementAction(TileDefinition tile) {
-        super("tileplacement");
         this.tile = tile;
     }
 

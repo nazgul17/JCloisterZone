@@ -14,10 +14,6 @@ import com.jcloisterzone.ui.grid.layer.FollowerAreaLayer;
 
 public abstract class SelectFollowerAction extends PlayerAction<MeeplePointer> {
 
-    public SelectFollowerAction(String name) {
-        super(name);
-    }
-
     @Override
     protected Class<? extends ActionLayer<?>> getActionLayerType() {
         return FollowerAreaLayer.class;

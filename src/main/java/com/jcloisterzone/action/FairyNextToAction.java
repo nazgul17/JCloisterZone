@@ -2,13 +2,12 @@ package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.figure.neutral.Fairy;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
+//TODO generic NeutralMeepleAction
+@DisplayableEntity("actions/fairy")
 public class FairyNextToAction extends SelectFollowerAction {
-
-    public FairyNextToAction() {
-        super("fairy");
-    }
 
     @Override
     protected int getSortOrder() {

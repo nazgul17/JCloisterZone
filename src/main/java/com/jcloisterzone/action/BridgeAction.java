@@ -1,13 +1,13 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
-public class BridgeAction extends SelectFeatureAction {
+//TODO generic token action ?
 
-    public BridgeAction() {
-        super("bridge");
-    }
+@DisplayableEntity("actions/bridge")
+public class BridgeAction extends SelectFeatureAction {
 
     @Override
     public void perform(RmiProxy server, FeaturePointer bp) {

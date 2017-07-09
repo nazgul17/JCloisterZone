@@ -4,14 +4,16 @@ import java.awt.Image;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
+
+@DisplayableEntity("actions/tunnel")
 public class TunnelAction extends SelectFeatureAction {
 
     private final boolean secondTunnelPiece;
 
     public TunnelAction(boolean secondTunnelPiece) {
-        super("tunnel");
         this.secondTunnelPiece = secondTunnelPiece;
     }
 
