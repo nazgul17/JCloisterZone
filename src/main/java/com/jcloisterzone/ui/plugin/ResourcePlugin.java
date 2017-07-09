@@ -11,11 +11,6 @@ import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -24,6 +19,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import com.google.common.base.Functions;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Location;
@@ -51,6 +47,10 @@ import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.ui.resources.svg.ThemeGeometry;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
 
 public class ResourcePlugin extends Plugin implements ResourceManager {
@@ -63,7 +63,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     private int imageRatioX = 1;
     private int imageRatioY = 1;
 
-    private Set<String> supportedExpansions = new HashSet<>(); //expansion codes
+    private Set<String> supportedExpansions = HashSet.empty(); //expansion codes
 
     static {
         try {
@@ -93,7 +93,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         for (int i = 0; i < nl.getLength(); i++) {
             String expName = nl.item(i).getFirstChild().getNodeValue().trim();
             Expansion exp = Expansion.valueOf(expName);
-            supportedExpansions.add(exp.getCode());
+            supportedExpansions = supportedExpansions.add(exp.getCode());
         }
 
         Element tiles = XMLUtils.getElementByTagName(rootElement, "tiles");
@@ -308,9 +308,9 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
         Rotation rot = tile.getRotation();
-        locations = locations.stream().map(loc -> loc.rotateCCW(rot)).collect(Collectors.toCollection(HashSet::new));
+        locations = locations.map(loc -> loc.rotateCCW(rot));
 
-        Map<Location, FeatureArea> areas = new HashMap<>();
+        Map<Location, FeatureArea> areas = HashMap.empty();
         Area subsBridge = getBaseRoadAndCitySubstractions(tile);
         Area subsRoadCity = new Area(subsBridge);
         substractBridge(subsRoadCity, tile);
@@ -330,7 +330,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             FeatureArea fa;
             if (feature instanceof Farm) {
                 fa = getFarmArea(loc, tile, subsFarm);
-                areas.put(loc.rotateCW(rot), fa);
+                areas = areas.put(loc.rotateCW(rot), fa);
                 continue;
             }
 
@@ -342,11 +342,11 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
                 }
             }
             loc =  aliasAbbot ? Location.ABBOT : loc;
-            areas.put(loc.rotateCW(rot), fa);
+            areas = areas.put(loc.rotateCW(rot), fa);
         }
         if (locations.contains(Location.FLIER)) {
             FeatureArea fa = new FeatureArea(getFeatureArea(tile, null, Location.FLIER));
-            areas.put(Location.FLIER, fa);
+            areas = areas.put(Location.FLIER, fa);
         }
 
         areas.forEach((key, fa) -> {
@@ -384,11 +384,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     @Override
     public Map<Location, FeatureArea> getBridgeAreas(Tile tile, int width, int height, Set<Location> locations) {
         if (!isEnabled()) return null;
-        Map<Location, FeatureArea> result = new HashMap<>();
-        for (Location loc : locations) {
-            result.put(loc, getBridgeArea(width, height, loc));
-        }
-        return result;
+        return locations.toMap(Functions.identity(), loc -> getBridgeArea(width, height, loc));
     }
 
     //TODO move to Area Provider ???

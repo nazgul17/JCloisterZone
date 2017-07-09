@@ -7,7 +7,6 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
@@ -20,8 +19,6 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.score.ScoringStrategy;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;

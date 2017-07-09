@@ -4,10 +4,11 @@ import java.awt.Rectangle;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Ellipse2D;
-import java.util.HashMap;
-import java.util.Map;
 
+import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectFollowerAction;
+import com.jcloisterzone.board.Location;
+import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.figure.Meeple;
@@ -17,8 +18,13 @@ import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.grid.layer.MeepleLayer.PositionedFigureImage;
 import com.jcloisterzone.ui.resources.FeatureArea;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
-public class FollowerAreaLayer extends AbstractAreaLayer<SelectFollowerAction> {
+
+public class FollowerAreaLayer extends AbstractAreaLayer {
 
     private final MeepleLayer meepleLayer;
 
@@ -28,15 +34,21 @@ public class FollowerAreaLayer extends AbstractAreaLayer<SelectFollowerAction> {
     }
 
     @Override
+    public SelectFollowerAction getAction() {
+        return (SelectFollowerAction) super.getAction();
+    }
+
+    @Override
     protected Map<BoardPointer, FeatureArea> prepareAreas() {
         SelectFollowerAction action = getAction();
         int r = (int) (getTileWidth() / 3.0);
         int innerR = (int) (getTileWidth() / 4.2);
         int boxSize = (int) (getTileWidth() * MeepleLayer.FIGURE_SIZE_RATIO);
 
-        Map<BoardPointer, FeatureArea> result = new HashMap<>();
-        action.groupByPosition().forEach((pos, locations) -> {
-            for (MeeplePointer pointer : action.getMeeplePointers(pos)) {
+        Map<BoardPointer, FeatureArea> result = HashMap.empty();
+        for (Tuple2<Position, Set<MeeplePointer>> t : action.groupByPosition()) {
+            Position pos = t._1;
+            for (MeeplePointer pointer : t._2) {
                 PositionedFigureImage pfi = null;
                 //IMMUTABLE TODO use meepleLayer.getMeeplePostions instead
                 for (PositionedFigureImage item : meepleLayer.getPositionedFigures()) {
@@ -71,11 +83,10 @@ public class FollowerAreaLayer extends AbstractAreaLayer<SelectFollowerAction> {
 
                     AffineTransform translation = AffineTransform.getTranslateInstance(pos.x * getTileWidth(), pos.y * getTileHeight());
                     FeatureArea translated = fa.transform(translation);
-                    result.put(pointer, translated);
+                    result = result.put(pointer, translated);
                 }
             }
-
-        });
+        }
         return result;
     }
 

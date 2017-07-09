@@ -6,19 +6,22 @@ import java.awt.event.MouseEvent;
 
 import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.action.GoldPieceAction;
+import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectTileAction;
 import com.jcloisterzone.action.TowerPieceAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
 
 
-public class TileActionLayer extends AbstractGridLayer implements GridMouseListener, ActionLayer<SelectTileAction> {
+public class TileActionLayer extends AbstractGridLayer implements GridMouseListener, ActionLayer {
 
     private SelectTileAction action;
+    private ActionWrapper actionWrapper;
     private boolean active;
     private Image gridDecoration;
 
@@ -33,23 +36,29 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
     }
 
     @Override
-    public void setAction(boolean active, SelectTileAction action) {
-        this.action = action;
+    public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
+        this.actionWrapper = actionWrapper;
         this.active = active;
+        PlayerAction<?> action = getAction();
         if (action == null) {
             gridDecoration = null;
         } else if (action instanceof FairyOnTileAction) {
             gridDecoration = rm.getImage("decorations/fairy");
         } else if (action instanceof TowerPieceAction) {
-            gridDecoration =  rm.getImage("decorations/tower");
+            gridDecoration = rm.getImage("decorations/tower");
         } else if (action instanceof GoldPieceAction) {
             gridDecoration = rm.getImage("decorations/gold");
         }
     }
 
     @Override
+    public ActionWrapper getActionWrapper() {
+        return actionWrapper;
+    }
+
+    @Override
     public SelectTileAction getAction() {
-        return action;
+        return actionWrapper == null ? null : (SelectTileAction) actionWrapper.getAction();
     }
 
     @Override
@@ -76,6 +85,4 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
     public void squareEntered(MouseEvent e, Position p) { }
     @Override
     public void squareExited(MouseEvent e, Position p) {  }
-
-
 }

@@ -1,8 +1,6 @@
 package com.jcloisterzone.ui.resources;
 
 import java.awt.Image;
-import java.util.Map;
-import java.util.Set;
 
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
@@ -10,6 +8,9 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
+
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
 public interface ResourceManager {
 

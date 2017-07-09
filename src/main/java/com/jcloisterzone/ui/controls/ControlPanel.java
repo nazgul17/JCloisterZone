@@ -54,6 +54,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
 
@@ -269,10 +270,9 @@ public class ControlPanel extends JPanel {
     }
 
     private boolean isLastAbbeyPlacement() {
-        PlayerAction<?>[] actions = actionPanel.getActions();
-        if (actions == null) return false;
-        if (actions.length == 0) return false;
-        if (!(actions[0] instanceof AbbeyPlacementAction)) return false;
+        IndexedSeq<ActionWrapper> actions = actionPanel.getActions();
+        if (actions.isEmpty()) return false;
+        if (!(actions.get().getAction() instanceof AbbeyPlacementAction)) return false;
         return game.getTilePack().size() == 0;
     }
 
@@ -303,16 +303,10 @@ public class ControlPanel extends JPanel {
     }
 
 
-    public void selectAction(IPlayer targetPlayer, IndexedSeq<? extends PlayerAction<?>> actions, boolean canPass) {
+    public void selectAction(IPlayer targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean canPass) {
         // direct collection sort can be unsupported - so copy to array first!
         int i = 0;
-        PlayerAction<?>[] arr = new PlayerAction[actions.size()];
-        for (PlayerAction<?> pa : actions) {
-            pa.setClient(client);
-            arr[i++] = pa;
-        }
-        Arrays.sort(arr);
-        actionPanel.setActions(targetPlayer.isLocalHuman(), arr);
+        actionPanel.setActions(targetPlayer.isLocalHuman(), actions);
         setCanPass(targetPlayer.isLocalHuman() ? canPass : false);
     }
 

@@ -7,9 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +21,10 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.ImmutablePoint;
 
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
+
 public class DefaultResourceManager implements ResourceManager {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
@@ -34,12 +35,12 @@ public class DefaultResourceManager implements ResourceManager {
 
     //TODO use point def instead
     static {
-        COUNT_OFFSETS = new ImmutableMap.Builder<Location, ImmutablePoint>()
-         .put(Location.QUARTER_CASTLE, new ImmutablePoint(40, -40))
-         .put(Location.QUARTER_MARKET, new ImmutablePoint(100, 50))
-         .put(Location.QUARTER_BLACKSMITH, new ImmutablePoint(60, 130))
-         .put(Location.QUARTER_CATHEDRAL, new ImmutablePoint(-80, 5))
-         .build();
+        COUNT_OFFSETS = HashMap.of(
+           Location.QUARTER_CASTLE, new ImmutablePoint(40, -40),
+           Location.QUARTER_MARKET, new ImmutablePoint(100, 50),
+           Location.QUARTER_BLACKSMITH, new ImmutablePoint(60, 130),
+           Location.QUARTER_CATHEDRAL, new ImmutablePoint(-80, 5)
+        );
     }
 
     public DefaultResourceManager() {
@@ -94,7 +95,7 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners) {
-        Map<Location, FeatureArea> result = new HashMap<>();
+        Map<Location, FeatureArea> result = HashMap.empty();
         for (Location corner : corners) {
             int rx = width/2;
             int ry = height/2;
@@ -102,7 +103,7 @@ public class DefaultResourceManager implements ResourceManager {
             if (corner.isPartOf(Location.NR.union(Location.EL))) a.transform(Rotation.R90.getAffineTransform(width, height));
             if (corner.isPartOf(Location.SL.union(Location.ER))) a.transform(Rotation.R180.getAffineTransform(width, height));
             if (corner.isPartOf(Location.SR.union(Location.WL))) a.transform(Rotation.R270.getAffineTransform(width, height));
-            result.put(corner, new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX));
+            result = result.put(corner, new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX));
         }
         return result;
     }
@@ -116,13 +117,13 @@ public class DefaultResourceManager implements ResourceManager {
     @Override
     public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) {
-            Map<Location, FeatureArea> areas = new HashMap<>();
+            Map<Location, FeatureArea> areas = HashMap.empty();
             double rx = width * 0.6;
             double ry = height * 0.6;
             for (Location loc : locations) {
-                ImmutablePoint offset = COUNT_OFFSETS.get(loc);
+                ImmutablePoint offset = COUNT_OFFSETS.get(loc).get();
                 Area a = new Area(new Ellipse2D.Double(-rx+offset.getX(),-ry+offset.getY(),2*rx,2*ry));
-                areas.put(loc, new FeatureArea(a, FeatureArea.DEFAULT_STRUCTURE_ZINDEX));
+                areas = areas.put(loc, new FeatureArea(a, FeatureArea.DEFAULT_STRUCTURE_ZINDEX));
             }
             return areas;
         }

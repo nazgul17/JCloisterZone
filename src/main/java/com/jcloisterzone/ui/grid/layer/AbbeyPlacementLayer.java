@@ -9,29 +9,34 @@ import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
 
-public class AbbeyPlacementLayer extends AbstractTilePlacementLayer implements ActionLayer<AbbeyPlacementAction> {
+public class AbbeyPlacementLayer extends AbstractTilePlacementLayer implements ActionLayer {
 
-    private AbbeyPlacementAction action;
+    private ActionWrapper actionWrapper;
 
     public AbbeyPlacementLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
     }
 
     @Override
-    public void setAction(boolean active, AbbeyPlacementAction action) {
-        this.action = action;
+    public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
+        this.actionWrapper = actionWrapper;
         setActive(active);
-        setAvailablePositions(action == null ? null : action.getOptions());
+        setAvailablePositions(getAction() == null ? null : getAction().getOptions());
+    }
+
+    @Override
+    public ActionWrapper getActionWrapper() {
+        return actionWrapper;
     }
 
     @Override
     public AbbeyPlacementAction getAction() {
-        return action;
+        return actionWrapper == null ? null : (AbbeyPlacementAction) actionWrapper.getAction();
     }
-
 
     @Override
     protected void drawPreviewIcon(Graphics2D g2, Position previewPosition) {
@@ -49,7 +54,7 @@ public class AbbeyPlacementLayer extends AbstractTilePlacementLayer implements A
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (getPreviewPosition() != null && isActive()) {
                 e.consume();
-                action.perform(getRmiProxy(), p);
+                getAction().perform(getRmiProxy(), p);
             }
         }
     }

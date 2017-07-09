@@ -1,16 +1,17 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.ui.grid.ActionLayer;
+import com.jcloisterzone.ui.annotations.LinkedGridLayer;
+import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.ui.grid.layer.TileActionLayer;
-import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
 // TODO generic token action ?
 
-@DisplayableEntity("actions/gold")
+@LinkedImage("actions/gold")
+@LinkedGridLayer(TileActionLayer.class)
 public class GoldPieceAction extends SelectTileAction {
 
     public GoldPieceAction(Set<Position> options) {
@@ -20,16 +21,6 @@ public class GoldPieceAction extends SelectTileAction {
     @Override
     public void perform(RmiProxy server, Position p) {
         server.placeGoldPiece(p);
-    }
-
-    @Override
-    protected int getSortOrder() {
-        return 30;
-    }
-
-    @Override
-    protected Class<? extends ActionLayer<?>> getActionLayerType() {
-        return TileActionLayer.class;
     }
 
     @Override

@@ -1,9 +1,6 @@
 package com.jcloisterzone.ui.resources;
 
 import java.awt.Image;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
 
 import com.jcloisterzone.board.Location;
@@ -13,13 +10,17 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
 
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
+
 /** extends resource manager with convenient methods
  * and add tile image caching
  */
 public class ConvenientResourceManager implements ResourceManager {
 
     private final ResourceManager manager;
-    private final Map<String, Object> imageCache = new WeakHashMap<>(64);
+    private final WeakHashMap<String, Object> imageCache = new WeakHashMap<>(64);
 
 
     public ConvenientResourceManager(ResourceManager manager) {
@@ -33,12 +34,12 @@ public class ConvenientResourceManager implements ResourceManager {
     //helper methods
 
     public FeatureArea getBridgeArea(Tile tile, int width, int height, Location loc) {
-        Map<Location, FeatureArea> result = manager.getBridgeAreas(tile, width, height, Collections.singleton(loc));
-        return result.isEmpty() ? null : result.values().iterator().next();
+        Map<Location, FeatureArea> result = manager.getBridgeAreas(tile, width, height, HashSet.of(loc));
+        return result.isEmpty() ? null : result.get()._2;
     }
 
     public FeatureArea getMeepleTileArea(Tile tile, int width, int height, Location loc) {
-        Map<Location, FeatureArea> result =  manager.getFeatureAreas(tile, width, height, Collections.singleton(loc));
+        Map<Location, FeatureArea> result =  manager.getFeatureAreas(tile, width, height, HashSet.of(loc));
         return result.isEmpty() ? null : result.values().iterator().next();
     }
 

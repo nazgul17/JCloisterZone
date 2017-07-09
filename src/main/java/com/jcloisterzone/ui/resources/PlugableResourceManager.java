@@ -1,10 +1,6 @@
 package com.jcloisterzone.ui.resources;
 
 import java.awt.Image;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,23 +13,27 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.plugin.Plugin;
 
+import io.vavr.Predicates;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
+
 /**
  * Delegates requests to child plugins
  */
 public class PlugableResourceManager implements ResourceManager {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
-    private final List<ResourceManager> managers;
+    private final Vector<ResourceManager> managers;
 
 
-    public PlugableResourceManager(List<Plugin> plugins) {
-        managers = new ArrayList<>();
-        for (Plugin p: plugins) {
-            if (p instanceof ResourceManager) {
-                managers.add((ResourceManager) p);
-            }
-        }
-        managers.add(new DefaultResourceManager());
+    public PlugableResourceManager(Iterable<Plugin> plugins) {
+        managers = Stream.ofAll(plugins)
+            .filter(Predicates.instanceOf(ResourceManager.class))
+            .map(p -> (ResourceManager) p)
+            .append(new DefaultResourceManager())
+            .toVector();
     }
 
     @Override

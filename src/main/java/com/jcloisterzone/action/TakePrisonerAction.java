@@ -1,12 +1,12 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.ui.resources.DisplayableEntity;
+import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
-@DisplayableEntity("actions/takeprisoner")
+@LinkedImage("actions/takeprisoner")
 public class TakePrisonerAction extends SelectFollowerAction {
 
     public TakePrisonerAction(Set<MeeplePointer> options) {

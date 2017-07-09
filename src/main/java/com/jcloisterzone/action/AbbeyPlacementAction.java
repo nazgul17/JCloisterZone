@@ -5,14 +5,16 @@ import java.awt.Image;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.ui.grid.ActionLayer;
+import com.jcloisterzone.ui.annotations.LinkedGridLayer;
+import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.ui.grid.layer.AbbeyPlacementLayer;
-import com.jcloisterzone.ui.resources.DisplayableEntity;
+import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
-@DisplayableEntity("actions/abbeyplacement")
+@LinkedImage("actions/abbeyplacement")
+@LinkedGridLayer(AbbeyPlacementLayer.class)
 public class AbbeyPlacementAction extends SelectTileAction {
 
     public AbbeyPlacementAction(Set<Position> options) {
@@ -20,18 +22,13 @@ public class AbbeyPlacementAction extends SelectTileAction {
     }
 
     @Override
-    public Image getImage(Player player, boolean active) {
-        return client.getResourceManager().getAbbeyImage(Rotation.R0).getImage();
+    public Image getImage(ResourceManager rm, Player player, boolean active) {
+        return rm.getAbbeyImage(Rotation.R0).getImage();
     }
 
     @Override
     public void perform(RmiProxy server, Position p) {
         server.placeTile(Rotation.R0, p);
-    }
-
-    @Override
-    protected Class<? extends ActionLayer<?>> getActionLayerType() {
-        return AbbeyPlacementLayer.class;
     }
 
     @Override

@@ -5,13 +5,14 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.util.Set;
 
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
+
+import io.vavr.collection.Set;
 
 public abstract class AbstractTilePlacementLayer extends AbstractGridLayer implements GridMouseListener {
 

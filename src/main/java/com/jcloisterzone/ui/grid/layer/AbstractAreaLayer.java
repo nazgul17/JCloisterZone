@@ -9,15 +9,11 @@ import java.awt.event.MouseEvent;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.awt.geom.Point2D;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.ImageIcon;
 import javax.swing.event.MouseInputAdapter;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.BridgeAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
@@ -28,20 +24,25 @@ import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
+import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
-public abstract class AbstractAreaLayer<T extends PlayerAction<?>> extends AbstractGridLayer implements ActionLayer<T> {
+
+public abstract class AbstractAreaLayer extends AbstractGridLayer implements ActionLayer {
 
     private static final AlphaComposite AREA_ALPHA_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .6f);
     private static final AlphaComposite FIGURE_HIGHLIGHT_AREA_ALPHA_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .75f);
 
     private Player player;
-    private T action;
-    private Map<BoardPointer, FeatureArea> areas = Collections.emptyMap();
+    private ActionWrapper actionWrapper;
+    private Map<BoardPointer, FeatureArea> areas = HashMap.empty();
     private FeatureArea selectedArea;
     private BoardPointer selectedFeaturePointer;
 
@@ -61,14 +62,14 @@ public abstract class AbstractAreaLayer<T extends PlayerAction<?>> extends Abstr
     }
 
     @Override
-    public void setAction(boolean active, T action) {
-        this.action = action;
+    public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
+        this.actionWrapper = actionWrapper;
         refreshAreas = true;
     }
 
     @Override
-    public T getAction() {
-        return action;
+    public ActionWrapper getActionWrapper() {
+        return actionWrapper;
     }
 
     @Override
@@ -86,12 +87,13 @@ public abstract class AbstractAreaLayer<T extends PlayerAction<?>> extends Abstr
         cleanAreas();
     }
 
-    protected void addAreasToResult(Map<BoardPointer, FeatureArea> result, Map<Location, FeatureArea> locMap, Position pos, int sizeX, int sizeY) {
+    protected Map<BoardPointer, FeatureArea> addAreasToResult(Map<BoardPointer, FeatureArea> result, Map<Location, FeatureArea> locMap, Position pos, int sizeX, int sizeY) {
         AffineTransform translation = AffineTransform.getTranslateInstance(pos.x * sizeX, pos.y * sizeY);
-        locMap.forEach((loc, area) -> {
-            FeatureArea translated = area.transform(translation);
-            result.put(new FeaturePointer(pos, loc), translated);
-        });
+        for (Tuple2<Location, FeatureArea> t : locMap) {
+            FeatureArea translated = t._2.transform(translation);
+            result = result.put(new FeaturePointer(pos, t._1), translated);
+        }
+        return result;
     }
 
     class AreaLayerMouseMotionListener extends MouseInputAdapter {
@@ -106,12 +108,12 @@ public abstract class AbstractAreaLayer<T extends PlayerAction<?>> extends Abstr
             Point2D point = gridPanel.getRelativePoint(e.getPoint());
             int x = (int) point.getX();
             int y = (int) point.getY();
-            for (Entry<BoardPointer, FeatureArea> entry : areas.entrySet()) {
-                FeatureArea fa = entry.getValue();
+            for (Tuple2<BoardPointer, FeatureArea> entry : areas) {
+                FeatureArea fa = entry._2;
                 if (fa.getTrackingArea().contains(x, y)) {
                     if (swap == null) {
                         swap = fa;
-                        swapPointer = entry.getKey();
+                        swapPointer = entry._1;
                     } else {
                         if (swap.getzIndex() == fa.getzIndex()) {
                             // two overlapping areas at same point with same zIndex - select no one
@@ -120,7 +122,7 @@ public abstract class AbstractAreaLayer<T extends PlayerAction<?>> extends Abstr
                             break;
                         } else if (fa.getzIndex() > swap.getzIndex()) {
                            swap = fa;
-                           swapPointer = entry.getKey();
+                           swapPointer = entry._1;
                         } //else do nothing
                     }
                 }
@@ -146,7 +148,7 @@ public abstract class AbstractAreaLayer<T extends PlayerAction<?>> extends Abstr
     }
 
     private void cleanAreas() {
-        areas = Collections.emptyMap();
+        areas = HashMap.empty();
         selectedFeaturePointer = null;
         selectedArea = null;
     }

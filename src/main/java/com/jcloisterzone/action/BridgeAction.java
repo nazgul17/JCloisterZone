@@ -1,14 +1,14 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.ui.resources.DisplayableEntity;
+import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
 //TODO generic token action ?
 
-@DisplayableEntity("actions/bridge")
+@LinkedImage("actions/bridge")
 public class BridgeAction extends SelectFeatureAction {
 
     public BridgeAction(Set<FeaturePointer> options) {

@@ -2,15 +2,16 @@ package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.figure.neutral.Fairy;
-import com.jcloisterzone.ui.grid.ActionLayer;
+import com.jcloisterzone.ui.annotations.LinkedGridLayer;
+import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.ui.grid.layer.TileActionLayer;
-import com.jcloisterzone.ui.resources.DisplayableEntity;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
 //TODO generic NeutralMeepleAction
-@DisplayableEntity("actions/fairy")
+@LinkedImage("actions/fairy")
+@LinkedGridLayer(TileActionLayer.class)
 public class FairyOnTileAction extends SelectTileAction {
 
     public FairyOnTileAction(Set<Position> options) {
@@ -20,16 +21,6 @@ public class FairyOnTileAction extends SelectTileAction {
     @Override
     public void perform(RmiProxy server, Position p) {
         server.moveNeutralFigure(p.asFeaturePointer(), Fairy.class);
-    }
-
-    @Override
-    protected int getSortOrder() {
-        return 30;
-    }
-
-    @Override
-    protected Class<? extends ActionLayer<?>> getActionLayerType() {
-        return TileActionLayer.class;
     }
 
     @Override

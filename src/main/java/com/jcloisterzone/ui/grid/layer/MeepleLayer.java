@@ -203,7 +203,7 @@ public class MeepleLayer extends AbstractGridLayer {
             fp = mptr.asFeaturePointer();
         }
         if (count) {
-            offset = DefaultResourceManager.COUNT_OFFSETS.get(fp.getLocation());
+            offset = DefaultResourceManager.COUNT_OFFSETS.get(fp.getLocation()).get();
         } else if (fp != null) {
             Tile tile = getGame().getBoard().get(fp.getPosition());
             Feature feature = getGame().getBoard().get(fp);

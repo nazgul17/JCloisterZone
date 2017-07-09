@@ -30,10 +30,7 @@ public class TilePhase extends Phase {
     @Override
     public void enter() {
         TileDefinition tile = game.getState().getDrawnTile();
-        TilePlacementAction action = new TilePlacementAction(tile);
-
-        //getBoard().getAvailablePlacements(tile).flatMap(t )
-        getBoard().getTilePlacements(tile).forEach(tp -> action.add(tp));
+        TilePlacementAction action = new TilePlacementAction(tile, getBoard().getTilePlacements(tile).toSet());
 
         game.post(new SelectActionEvent(getActivePlayer(), action, false));
     }

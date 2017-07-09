@@ -10,10 +10,10 @@ import io.vavr.collection.Vector;
 public class SelectActionEvent extends PlayEvent {
 
     private final boolean passAllowed;
-    private final IndexedSeq<? extends PlayerAction<?>> actions;
+    private final IndexedSeq<PlayerAction<?>> actions;
 
 
-    public SelectActionEvent(Player targetPlayer, IndexedSeq<? extends PlayerAction<?>> actions, boolean passAllowed) {
+    public SelectActionEvent(Player targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean passAllowed) {
         super(null, targetPlayer);
         this.actions = actions;
         this.passAllowed = passAllowed;
@@ -23,7 +23,7 @@ public class SelectActionEvent extends PlayEvent {
         this(player, Vector.of(action), passAllowed);
     }
 
-    public IndexedSeq<? extends PlayerAction<?>> getActions() {
+    public IndexedSeq<PlayerAction<?>> getActions() {
         return actions;
     }
 

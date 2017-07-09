@@ -2,12 +2,6 @@ package com.jcloisterzone.ui.grid.layer;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import java.awt.geom.AffineTransform;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-
 import javax.swing.JOptionPane;
 
 import com.jcloisterzone.action.BridgeAction;
@@ -24,29 +18,43 @@ import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
-public class FeatureAreaLayer extends AbstractAreaLayer<SelectFeatureAction> {
 
-    private final Set<Position> abbotOption = new HashSet<>();
-    private final Set<Position> abbotOnlyOption = new HashSet<>();
+public class FeatureAreaLayer extends AbstractAreaLayer {
+
+    private Set<Position> abbotOption = HashSet.empty();
+    private Set<Position> abbotOnlyOption = HashSet.empty();
 
     public FeatureAreaLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
     }
 
     @Override
+    public SelectFeatureAction getAction() {
+        return (SelectFeatureAction) super.getAction();
+    }
+
+    @Override
     protected Map<BoardPointer, FeatureArea> prepareAreas() {
         SelectFeatureAction action = getAction();
-        Map<BoardPointer, FeatureArea> result = new HashMap<>();
-        abbotOption.clear();
-        abbotOnlyOption.clear();
+        Map<BoardPointer, FeatureArea> result = HashMap.empty();
+        abbotOption = HashSet.empty();
+        abbotOnlyOption = HashSet.empty();
 
-        action.groupByPosition().forEach((pos, locations) -> {
+        for (Tuple2<Position, Set<Location>> t : action.groupByPosition()) {
+            Position pos = t._1;
+            Set<Location> locations = t._2;
+
             if (locations.contains(Location.ABBOT)) {
-                abbotOption.add(pos);
+                abbotOption = abbotOption.add(pos);
                 if (!locations.contains(Location.CLOISTER)) {
                     locations.add(Location.CLOISTER);
-                    abbotOnlyOption.add(pos);
+                    abbotOnlyOption = abbotOnlyOption.add(pos);
                 }
                 locations.remove(Location.ABBOT);
             }
@@ -67,8 +75,8 @@ public class FeatureAreaLayer extends AbstractAreaLayer<SelectFeatureAction> {
             } else {
                 locMap = rm.getFeatureAreas(tile, sizeX, sizeY, locations);
             }
-            addAreasToResult(result, locMap, pos, sizeX, sizeY);
-        });
+            result = addAreasToResult(result, locMap, pos, sizeX, sizeY);
+        }
 
         return result;
     }
