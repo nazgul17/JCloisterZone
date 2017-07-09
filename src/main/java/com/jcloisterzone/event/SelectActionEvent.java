@@ -7,6 +7,7 @@ import io.vavr.collection.IndexedSeq;
 import io.vavr.collection.Vector;
 
 @Idempotent
+@Deprecated
 public class SelectActionEvent extends PlayEvent {
 
     private final boolean passAllowed;
@@ -17,6 +18,7 @@ public class SelectActionEvent extends PlayEvent {
         super(null, targetPlayer);
         this.actions = actions;
         this.passAllowed = passAllowed;
+        System.err.println("Replace with GameStateUpdate!");
     }
 
     public SelectActionEvent(Player player, PlayerAction<?> action, boolean passAllowed) {
