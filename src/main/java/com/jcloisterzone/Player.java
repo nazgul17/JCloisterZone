@@ -24,9 +24,7 @@ import io.vavr.control.Option;
  *
  * @author Roman Krejcik
  */
-public class Player implements IPlayer, Serializable {
-
-    private static final long serialVersionUID = -7276471952562769832L;
+public class Player implements IPlayer {
 
     private final Game game;
     private final PlayerAttributes attributes;
