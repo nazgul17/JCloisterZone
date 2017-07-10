@@ -20,7 +20,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.jcloisterzone.Expansion;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackFactory;
 import com.jcloisterzone.board.TilePackFactory.TileCount;
 import com.jcloisterzone.ui.Client;
@@ -30,6 +32,9 @@ import com.jcloisterzone.ui.gtk.ThemedJList;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.ui.theme.Theme;
+
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
@@ -109,9 +114,9 @@ public class TileDistributionWindow extends JFrame {
         private String count;
 
         public TileLabel(Theme theme, Expansion exp, TileCount tc) {
-            Tile tile = new Tile(exp, tc.tileId);
+            TileDefinition tile = new TileDefinition(exp, tc.tileId, HashMap.empty());
             this.theme = theme;
-            this.image = client.getResourceManager().getTileImage(tile);
+            this.image = client.getResourceManager().getTileImage(tile, Rotation.R0);
             this.count = tc.count == null ? "" : tc.count + "";
         }
 

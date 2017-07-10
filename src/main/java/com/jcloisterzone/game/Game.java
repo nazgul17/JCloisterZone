@@ -374,13 +374,13 @@ public class Game extends GameSettings implements EventProxy {
 
         List<Follower> followers = List.ofAll(stream);
 
-        followers = followers.appendAll(getCapabilities().flatMap(c -> createPlayerFollowers(p)));
+        followers = followers.appendAll(getCapabilities().flatMap(c -> c.createPlayerFollowers(p)));
 
         return followers;
     }
 
     public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
-        return getCapabilities().flatMap(c -> createPlayerSpecialMeeples(p));
+        return getCapabilities().flatMap(c -> c.createPlayerSpecialMeeples(p));
     }
 
     private void createCapabilityInstance(Class<? extends Capability> clazz) {
