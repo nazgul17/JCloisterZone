@@ -3,7 +3,9 @@ package com.jcloisterzone.game.phase;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.BridgeAction;
+import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -17,6 +19,8 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
+
+import io.vavr.collection.Vector;
 
 public class TilePhase extends Phase {
 
@@ -32,7 +36,13 @@ public class TilePhase extends Phase {
         TileDefinition tile = game.getState().getDrawnTile();
         TilePlacementAction action = new TilePlacementAction(tile, getBoard().getTilePlacements(tile).toSet());
 
-        game.post(new SelectActionEvent(getActivePlayer(), action, false));
+        game.replaceState(
+            state -> state.setPlayerAcrions(new ActionsState(
+                game.getTurnPlayer(),
+                Vector.of(action),
+                false
+            ))
+        );
     }
 
 //    @Override

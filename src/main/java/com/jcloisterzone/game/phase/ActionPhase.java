@@ -1,6 +1,8 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.LittleBuilding;
+import com.jcloisterzone.Player;
+import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
@@ -11,7 +13,6 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.FlierRollEvent;
-import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.visitor.IsOccupied;
@@ -58,23 +59,29 @@ public class ActionPhase extends Phase {
     @Override
     public void enter() {
         Vector<PlayerAction<?>> actions = Vector.empty();
+        Player player = game.getTurnPlayer();
 
         Set<FeaturePointer> followerLocations = game.prepareFollowerLocations();
-        if (getActivePlayer().hasFollower(SmallFollower.class)  && !followerLocations.isEmpty()) {
+        if (player.hasFollower(SmallFollower.class)  && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(SmallFollower.class, followerLocations);
             actions = actions.append(action);
         }
         //HACK put this directly here instead of BigFollower or Phatom capability - to avoid "priority" issues
-        if (game.getActivePlayer().hasFollower(BigFollower.class) && !followerLocations.isEmpty()) {
+        if (player.hasFollower(BigFollower.class) && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(BigFollower.class, followerLocations);
             actions = actions.append(action);
         }
-        if (getActivePlayer().hasFollower(Phantom.class)  && !followerLocations.isEmpty()) {
+        if (player.hasFollower(Phantom.class)  && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(Phantom.class, followerLocations);
             actions = actions.append(action);
         }
         actions = game.prepareActions(actions, followerLocations);
-        game.post(new SelectActionEvent(getActivePlayer(), actions, true));
+        game.replaceState(game.getState().setPlayerAcrions(
+            new ActionsState(
+                game.getTurnPlayer(),
+                actions, true
+            )
+        ));
     }
 
     @Override
@@ -91,7 +98,6 @@ public class ActionPhase extends Phase {
             next();
         }
     }
-
 
 
     @Override

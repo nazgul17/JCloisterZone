@@ -10,7 +10,7 @@ public abstract class Event {
     @Deprecated
     private final int type;
 
-    private GameState gameState;
+    protected GameState gameState;
 
     public Event() {
         this(0);

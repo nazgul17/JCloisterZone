@@ -23,6 +23,7 @@ import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
 import com.jcloisterzone.event.BazaarSelectTileEvent;
 import com.jcloisterzone.event.BazaarTileSelectedEvent;
 import com.jcloisterzone.event.CornCircleSelectOptionEvent;
+import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.GameListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.MageWitchSelectRemoval;
@@ -116,6 +117,19 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         controlPanel.clearActions();
         controlPanel.setShowConfirmRequest(false);
         client.getJMenuBar().setItemEnabled(MenuItem.UNDO, false);
+    }
+
+    @Subscribe
+    public void handleGameChanged(GameChangedEvent ev) {
+        if (gameView == null) {
+            logger.warn("gameView is null");
+            return;
+        }
+        if (ev.hasPlayerActionsChanged()) {
+            clearActions();
+        }
+        gameView.getControlPanel().handleGameChanged(ev);
+        gameView.getGridPanel().repaint();
     }
 
 
@@ -226,16 +240,16 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         }
     }
 
-    @Subscribe
-    public void handleSelectAction(SelectActionEvent ev) {
-        clearActions();
-        gameView.getControlPanel().selectAction(ev.getTargetPlayer(), ev.getActions(), ev.isPassAllowed());
-        gameView.getGridPanel().repaint();
-        //TODO generic solution
-        if (game.isUndoAllowed() && ev.getTargetPlayer().isLocalHuman()) {
-            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
-        }
-    }
+//    @Subscribe
+//    public void handleSelectAction(SelectActionEvent ev) {
+//        clearActions();
+//        gameView.getControlPanel().selectAction(ev.getTargetPlayer(), ev.getActions(), ev.isPassAllowed());
+//        gameView.getGridPanel().repaint();
+//        //TODO generic solution
+//        if (game.isUndoAllowed() && ev.getTargetPlayer().isLocalHuman()) {
+//            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
+//        }
+//    }
 
     @Subscribe
     public void handleSelectCornCircleOption(CornCircleSelectOptionEvent ev) {

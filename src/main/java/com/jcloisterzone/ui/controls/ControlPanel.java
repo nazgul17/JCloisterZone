@@ -28,6 +28,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.AbbeyPlacementAction;
+import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TilePack;
@@ -35,6 +36,7 @@ import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
 import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.FeatureCompletedEvent;
 import com.jcloisterzone.event.FeatureEvent;
+import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
 import com.jcloisterzone.event.ScoreEvent;
@@ -483,6 +485,15 @@ public class ControlPanel extends JPanel {
                     g2.drawImage(img, x, 0, 40, 40, null);
                     x += 45;
                 }
+            }
+        }
+    }
+
+    public void handleGameChanged(GameChangedEvent ev) {
+        if (ev.hasPlayerActionsChanged()) {
+            ActionsState actions = ev.getGameState().getPlayerActions();
+            if (actions != null) {
+                selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
             }
         }
     }

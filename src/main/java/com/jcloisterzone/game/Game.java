@@ -19,6 +19,7 @@ import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
@@ -31,6 +32,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.BridgeEvent;
 import com.jcloisterzone.event.Event;
+import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.GoldChangeEvent;
 import com.jcloisterzone.event.Idempotent;
 import com.jcloisterzone.event.MeepleEvent;
@@ -129,11 +131,13 @@ public class Game extends GameSettings implements EventProxy {
 
 
     public void replaceState(Function<GameState, GameState> f) {
-        this.state = f.apply(this.state);
+        replaceState(f.apply(this.state));
     }
 
     public void replaceState(GameState state) {
+        GameState prev = this.state;
         this.state = state;
+        post(new GameChangedEvent(prev, state));
     }
 
     public TilePack getTilePack() {
@@ -284,8 +288,14 @@ public class Game extends GameSettings implements EventProxy {
      * @return
      */
     public Player getActivePlayer() {
-        Phase phase = getPhase();
-        return phase == null ? null : phase.getActivePlayer();
+//        Phase phase = getPhase();
+//        return phase == null ? null : phase.getActivePlayer();
+        ActionsState actions = state.getPlayerActions();
+        if (actions == null) {
+            return getTurnPlayer();
+        } else {
+            return getPlayer(actions.getPlayer());
+        }
     }
 
 //    public List<NeutralFigure> getNeutralFigures() {

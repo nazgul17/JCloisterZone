@@ -48,6 +48,10 @@ public class Player implements IPlayer, Serializable {
         specialMeeples = game.createPlayerSpecialMeeples(attributes);
     }
 
+    public PlayerAttributes asPlayerAttributes() {
+        return attributes;
+    }
+
     public List<Follower> getFollowers() {
         return followers;
     }

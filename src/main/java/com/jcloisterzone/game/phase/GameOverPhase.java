@@ -57,11 +57,4 @@ public class GameOverPhase extends ServerAwarePhase {
 //        game.post(ev);
 //    }
 
-
-    @Override
-    public Player getActivePlayer() {
-        return null;
-    }
-
-
 }

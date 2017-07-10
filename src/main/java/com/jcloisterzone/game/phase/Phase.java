@@ -95,8 +95,16 @@ public abstract class Phase implements RmiProxy {
 //        return game.getCurrentTile();
 //    }
 
+//
+//    //TODO Use player saved in ActionPlayers
+//    @Deprecated
+//    public Player getActivePlayer() {
+//        return game.getTurnPlayer();
+//    }
+
+    @Deprecated
     public Player getActivePlayer() {
-        return game.getTurnPlayer();
+        return game.getActivePlayer();
     }
 
     /** handler called after game is load if this phase is active */

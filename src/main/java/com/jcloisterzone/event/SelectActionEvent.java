@@ -18,7 +18,7 @@ public class SelectActionEvent extends PlayEvent {
         super(null, targetPlayer);
         this.actions = actions;
         this.passAllowed = passAllowed;
-        System.err.println("Replace with GameStateUpdate!");
+        throw new UnsupportedOperationException("Replace with GameStateUpdate!");
     }
 
     public SelectActionEvent(Player player, PlayerAction<?> action, boolean passAllowed) {
