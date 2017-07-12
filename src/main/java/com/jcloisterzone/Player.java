@@ -1,17 +1,16 @@
 package com.jcloisterzone;
 
-import java.io.Serializable;
 import java.lang.reflect.Modifier;
 
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.ui.PlayerColor;
 
+import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
@@ -96,12 +95,16 @@ public class Player implements IPlayer {
 
     public void addPoints(int points, PointCategory category) {
         if (points != 0) {
-            game.replaceState(state -> state.addPoints(this, points, category));
+            game.replaceState(state -> {
+                Array<PlayerScore> score = state.getScore();
+                PlayerScore playerScore = score.get(getIndex());
+                return state.setScore(score.insert(getIndex(), playerScore.addPoints(points, category)));
+            });
         }
     }
 
     public int getPoints() {
-        return game.getState().getScore(this).getPoints();
+        return game.getState().getScore().get(getIndex()).getPoints();
     }
 
     public String getNick() {
@@ -130,7 +133,7 @@ public class Player implements IPlayer {
     }
 
     public int getPointsInCategory(PointCategory cat) {
-        HashMap<PointCategory, Integer> pointStats = game.getState().getScore(this).getStats();
+        HashMap<PointCategory, Integer> pointStats = game.getState().getScore().get(getIndex()).getStats();
         Option<Integer> points = pointStats.get(cat);
         return points.getOrElse(0);
     }

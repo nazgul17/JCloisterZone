@@ -21,8 +21,6 @@ import io.vavr.control.Option;
 
 
 public class Board {
-    //TODO move tiles inside and make it immutable ?
-
     private final Game game;
 
     private transient final java.util.Map<Position, Tile> tiles = new java.util.HashMap<>();

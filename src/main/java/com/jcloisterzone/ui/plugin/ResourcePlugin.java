@@ -350,8 +350,6 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             areas = areas.put(Location.FLIER, fa);
         }
 
-
-
         double ratioX;
         double ratioY;
         if (rot == Rotation.R90 || rot  == Rotation.R270) {

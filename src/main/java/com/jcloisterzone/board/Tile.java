@@ -6,30 +6,21 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.Expansion;
-import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.Bridge;
-import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.FeaturePredicates;
-import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
-import com.jcloisterzone.feature.visitor.IsOccupied;
-import com.jcloisterzone.feature.visitor.IsOccupiedAndUncompleted;
-import com.jcloisterzone.feature.visitor.IsOccupiedOrCompleted;
-import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
 
-import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 
-public class Tile /*implements Cloneable*/ {
+public class Tile {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 

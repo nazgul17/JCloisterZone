@@ -84,17 +84,10 @@ public class GameState {
         this.events = events;
     }
 
-    private GameState setScore(Array<PlayerScore> score) {
+    public GameState setScore(Array<PlayerScore> score) {
         return new GameState(
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
-        );
-    }
-
-    public GameState addPoints(IPlayer p, int points, PointCategory category) {
-        PlayerScore playerScore = this.score.get(p.getIndex());
-        return this.setScore(
-            this.score.insert(p.getIndex(), playerScore.addPoints(points, category))
         );
     }
 
@@ -172,8 +165,8 @@ public class GameState {
         return players;
     }
 
-    public PlayerScore getScore(IPlayer player) {
-        return score.get(player.getIndex());
+    public Array<PlayerScore> getScore() {
+        return score;
     }
 
     public int getTurnPlayer() {
