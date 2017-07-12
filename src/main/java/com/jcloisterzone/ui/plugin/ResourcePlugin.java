@@ -346,15 +346,11 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             areas = areas.put(loc.rotateCW(rot), fa);
         }
         if (locations.contains(Location.FLIER)) {
-            FeatureArea fa = new FeatureArea(getFeatureArea(tileDef, null, Location.FLIER));
+            FeatureArea fa = getFeatureArea(tileDef, null, Location.FLIER);
             areas = areas.put(Location.FLIER, fa);
         }
 
-        areas.forEach((key, fa) -> {
-            Area a = fa.getTrackingArea();
-            a = a.createTransformedArea(rot.getAffineTransform(NORMALIZED_SIZE));
-            fa.setTrackingArea(a);
-        });
+
 
         double ratioX;
         double ratioY;
@@ -365,15 +361,12 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             ratioX = (double) width / NORMALIZED_SIZE;
             ratioY = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
         }
-        AffineTransform resize = AffineTransform.getScaleInstance(ratioX, ratioY);
 
-        areas.forEach((key, fa) -> {
-            Area a = fa.getTrackingArea();
-            a = a.createTransformedArea(resize);
-            fa.setTrackingArea(a);
-        });
-
-        return areas;
+        // Apply rotation + resize
+        // (concatenate in reverse order)
+        AffineTransform tx = AffineTransform.getScaleInstance(ratioX, ratioY);
+        tx.concatenate(rot.getAffineTransform(NORMALIZED_SIZE));
+        return areas.mapValues(fa -> fa.transform(tx));
     }
 
     @Override

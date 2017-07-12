@@ -79,7 +79,7 @@ public class FollowerAreaLayer extends AbstractAreaLayer {
                     }
 
                     FeatureArea fa = new FeatureArea(trackingArea, displyArea, pfi.order);
-                    fa.setForceAreaColor(((Meeple) pfi.getFigure()).getPlayer().getColors().getMeepleColor());
+                    fa = fa.setForceAreaColor(((Meeple) pfi.getFigure()).getPlayer().getColors().getMeepleColor());
 
                     AffineTransform translation = AffineTransform.getTranslateInstance(pos.x * getTileWidth(), pos.y * getTileHeight());
                     FeatureArea translated = fa.transform(translation);

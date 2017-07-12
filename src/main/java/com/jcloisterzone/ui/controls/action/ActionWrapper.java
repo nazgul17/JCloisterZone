@@ -82,4 +82,9 @@ public class ActionWrapper implements Comparable<ActionWrapper> {
         return getOrderingKey() - o.getOrderingKey();
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName() + '(' + getAction().toString() + ')';
+    }
+
 }

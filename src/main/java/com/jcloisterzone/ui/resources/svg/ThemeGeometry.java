@@ -143,7 +143,7 @@ public class ThemeGeometry {
             public void processApply(Element node, FeatureDescriptor fd, AffineTransform transform, AreaRotationScaling rotationScaling) {
                 assert !areas.containsKey(fd) : "Duplicate key " + fd;
                 FeatureArea area = new FeatureArea(az.area.createTransformedArea(transform), getZIndex(az.zIndex, fd));
-                area.setRotationScaling(rotationScaling);
+                area = area.setRotationScaling(rotationScaling);
                 areas.put(fd, area);
             }
 
