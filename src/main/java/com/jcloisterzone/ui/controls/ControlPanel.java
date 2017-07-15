@@ -32,6 +32,7 @@ import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TilePack;
+import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
 import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.FeatureCompletedEvent;
@@ -234,13 +235,12 @@ public class ControlPanel extends JPanel {
 
         paintBackgroundBody(g2);
 
-        TilePack tilePack = game.getTilePack();
-        if (tilePack != null) { //null is possible for just loaded game
-            g2.setFont(FONT_PACK_SIZE);
-            g2.setColor(client.getTheme().getHeaderFontColor());
-            int packSize = tilePack.totalSize();
-            g2.drawString("" + packSize, w - 42, 24);
-        }
+        TilePackState tilePack = game.getState().getTilePack();
+        g2.setFont(FONT_PACK_SIZE);
+        g2.setColor(client.getTheme().getHeaderFontColor());
+        int packSize = tilePack.totalSize();
+        g2.drawString("" + packSize, w - 42, 24);
+
 
         boolean doRevalidate = false;
 
@@ -275,7 +275,7 @@ public class ControlPanel extends JPanel {
         IndexedSeq<ActionWrapper> actions = actionPanel.getActions();
         if (actions.isEmpty()) return false;
         if (!(actions.get().getAction() instanceof AbbeyPlacementAction)) return false;
-        return game.getTilePack().size() == 0;
+        return game.getState().getTilePack().size() == 0;
     }
 
     public void pass() {

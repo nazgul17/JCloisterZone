@@ -45,13 +45,6 @@ public abstract class Capability {
         //unpack data created by backup and fill itself
     }
 
-    protected TilePack getTilePack() {
-        return game.getTilePack();
-    }
-    protected Board getBoard() {
-        return game.getBoard();
-    }
-
 //    protected TileDefinition getCurrentTile() {
 //        return game.getCurrentTile();
 //    }

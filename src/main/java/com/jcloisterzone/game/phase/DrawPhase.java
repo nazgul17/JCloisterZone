@@ -8,6 +8,7 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TilePack;
+import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Game;
@@ -16,6 +17,8 @@ import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.RiverCapability;
 import com.jcloisterzone.ui.GameController;
+
+import io.vavr.Tuple2;
 
 
 public class DrawPhase extends ServerAwarePhase {
@@ -41,6 +44,20 @@ public class DrawPhase extends ServerAwarePhase {
         riverCap = game.getCapability(RiverCapability.class);
     }
 
+    public TileDefinition drawTile(int index) {
+        TilePackState tps = game.getState().getTilePack();
+        Tuple2<TileDefinition, TilePackState> t = tps.drawTile(index);
+        game.replaceState(state -> state.setTilePack(t._2).setDrawnTile(t._1));
+        return t._1;
+    }
+
+    public TileDefinition drawTile(String tileId) {
+        TilePackState tps = game.getState().getTilePack();
+        Tuple2<TileDefinition, TilePackState> t = tps.drawTile(tileId);
+        game.replaceState(state -> state.setTilePack(t._2).setDrawnTile(t._1));
+        return t._1;
+    }
+
     private boolean makeDebugDraw() {
         if (debugTiles != null && debugTiles.size() > 0) { //for debug purposes only
             String tileId = debugTiles.remove(0);
@@ -48,9 +65,8 @@ public class DrawPhase extends ServerAwarePhase {
                 next(GameOverPhase.class);
                 return true;
             }
-            TilePack tilePack = game.getTilePack();
             try {
-                TileDefinition tile = tilePack.drawTile(tileId);
+                TileDefinition tile = drawTile(tileId);
 //                boolean riverActive = tilePack.getGroupState("river-start") == TileGroupState.ACTIVE || tilePack.getGroupState("river") == TileGroupState.ACTIVE;
 //                if (game.hasCapability(RiverCapability.class) && tile.getRiver() == null && riverActive) {
 //                    game.getCapability(RiverCapability.class).activateNonRiverTiles();
@@ -76,7 +92,8 @@ public class DrawPhase extends ServerAwarePhase {
 //                return;
 //            }
 //        }
-        TilePack tilePack = game.getTilePack();
+
+        TilePackState tilePack = game.getState().getTilePack();
         if (tilePack.isEmpty()) {
             if (abbeyCap != null && !getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
                 if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
@@ -92,7 +109,7 @@ public class DrawPhase extends ServerAwarePhase {
             return;
         }
         int rndIndex = game.getRandom().nextInt(tilePack.size());
-        TileDefinition tile = tilePack.drawTile(rndIndex);
+        TileDefinition tile = drawTile(rndIndex);
         nextTile(tile);
     }
 

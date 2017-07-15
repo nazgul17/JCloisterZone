@@ -75,8 +75,6 @@ public class Game extends GameSettings implements EventProxy {
 
     //proxies
     private Array<Player> players;
-    private final TilePack tilePack;
-
 
     // -- old --
 
@@ -108,7 +106,6 @@ public class Game extends GameSettings implements EventProxy {
         super(gameId);
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
-        this.tilePack = new TilePack(this);
     }
 
     public GameState getState() {
@@ -132,10 +129,6 @@ public class Game extends GameSettings implements EventProxy {
         GameState prev = this.state;
         this.state = state;
         post(new GameChangedEvent(prev, state));
-    }
-
-    public TilePack getTilePack() {
-        return tilePack;
     }
 
     @Deprecated

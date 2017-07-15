@@ -172,7 +172,7 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         if (activePlayer != null) {
             title.append(" ⋅ ").append(activePlayer.getNick());
         }
-        int packSize = game.getTilePack().totalSize();
+        int packSize = game.getState().getTilePack().totalSize();
         title.append(" ⋅ ").append(String.format(_("%d tiles left"), packSize));
 
         client.setTitle(title.toString());
