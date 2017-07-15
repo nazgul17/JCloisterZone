@@ -28,6 +28,7 @@ import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.PigHerdCapability;
@@ -38,6 +39,7 @@ import com.jcloisterzone.wsio.message.SlotMessage;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
+import io.vavr.collection.HashMap;
 
 
 public class CreateGamePhase extends ServerAwarePhase {
@@ -147,7 +149,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         last.setDefaultNext(next); //after last phase, the first is default
     }
 
-    protected void preparePlayers() {
+    protected Array<PlayerAttributes> preparePlayers() {
         List<PlayerAttributes> players = new ArrayList<>();
         PlayerSlot[] sorted = new PlayerSlot[slots.length];
         System.arraycopy(slots, 0, sorted, 0, slots.length);
@@ -162,7 +164,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         if (players.isEmpty()) {
             throw new IllegalStateException("No players in game");
         }
-        game.setPlayers(Array.ofAll(players), 0);
+        return Array.ofAll(players);
     }
 
     protected Snapshot getSnapshot() {
@@ -241,15 +243,42 @@ public class CreateGamePhase extends ServerAwarePhase {
         }
     }
 
+    private Capability createCapabilityInstance(Class<? extends Capability> clazz) {
+        try {
+            return clazz.newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create " + clazz.getSimpleName(), e);
+        }
+    }
+
+    public HashMap<Class<? extends Capability>, Capability> createCapabilities() {
+        HashMap<Class<? extends Capability>, Capability> res = HashMap.empty();
+        for (Class<? extends Capability> cls: game.getCapabilityClasses()) {
+            res = res.put(cls, createCapabilityInstance(cls));
+        }
+        return res;
+    }
+
     public void startGame(boolean muteAi) {
         //temporary code should be configured by player as rules
         prepareCapabilities();
 
-        game.createCapabilities();
-        preparePlayers();
-        preparePhases();
+        HashMap<Class<? extends Capability>, Capability> capabilities = createCapabilities();
+        Array<PlayerAttributes> players = preparePlayers();
+
+        game.replaceState(GameState.createInitial(
+            capabilities,
+            players,
+            0
+        ));
+
         Tiles tiles = prepareTilePack();
         game.replaceState(state -> state.setTilePack(tiles.getTilePack()));
+
+        game.setPlayers(players);
+
+        preparePhases();
+
         game.begin();
         prepareAiPlayers(muteAi);
 

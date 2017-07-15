@@ -27,10 +27,6 @@ public class BridgeCapability extends Capability {
     private boolean bridgeUsed;
     private final Map<Player, Integer> bridges = new HashMap<>();
 
-    public BridgeCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public Object backup() {
         return new Object[] {

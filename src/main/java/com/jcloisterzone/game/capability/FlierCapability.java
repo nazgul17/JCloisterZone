@@ -31,23 +31,6 @@ public class FlierCapability extends Capability {
     private int flierDistance;
     private Class<? extends Meeple> meepleType;
 
-    public FlierCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return new Object[] { flierDistance, meepleType, flierUsed };
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        flierDistance = (Integer) a[0];
-        meepleType = (Class<? extends Meeple>) a[1];
-        flierUsed = (Boolean) a[2];
-    }
 
     public int getFlierDistance() {
         return flierDistance;

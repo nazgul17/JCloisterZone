@@ -17,10 +17,6 @@ import com.jcloisterzone.game.Game;
 
 public class PigCapability extends Capability {
 
-    public PigCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public void initPlayer(Player player) {
         player.addMeeple(new Pig(game, player));

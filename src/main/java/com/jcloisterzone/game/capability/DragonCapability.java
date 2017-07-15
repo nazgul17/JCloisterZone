@@ -30,9 +30,8 @@ public class DragonCapability extends Capability {
     private Player dragonPlayer;
     private Set<Position> dragonVisitedTiles;
 
-    public DragonCapability(final Game game) {
-        super(game);
-        dragon = new Dragon(game);
+    public DragonCapability() {);
+        dragon = new Dragon();
         game.getNeutralFigures().add(dragon);
     }
 
@@ -67,10 +66,10 @@ public class DragonCapability extends Capability {
     public void restore(Object data) {
         Object[] a = (Object[]) data;
         if (a[0] != null) {
-	        dragon.setFeaturePointer(((Position) a[0]).asFeaturePointer());
-	        dragonMovesLeft = (Integer) a[1];
-	        dragonPlayer = (Player) a[2];
-	        dragonVisitedTiles = a[3] == null ? null : new HashSet<>((Set<Position>) a[3]);
+            dragon.setFeaturePointer(((Position) a[0]).asFeaturePointer());
+            dragonMovesLeft = (Integer) a[1];
+            dragonPlayer = (Player) a[2];
+            dragonVisitedTiles = a[3] == null ? null : new HashSet<>((Set<Position>) a[3]);
         }
     }
 

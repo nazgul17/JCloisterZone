@@ -20,10 +20,6 @@ import com.jcloisterzone.game.Game;
 
 public final class BarnCapability extends Capability {
 
-    public BarnCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public void initPlayer(Player player) {
         /*if (game.hasCapability(Capability.FARM_PLACEMENT)) {

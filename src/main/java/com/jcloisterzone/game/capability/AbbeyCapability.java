@@ -18,27 +18,6 @@ public class AbbeyCapability extends Capability {
     private final Set<Player> unusedAbbey = new HashSet<>();
     private Player abbeyRoundLastPlayer; //when last tile is drawn all players can still place abbey
 
-    public AbbeyCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return new Object[] {
-            new HashSet<>(unusedAbbey),
-            abbeyRoundLastPlayer
-        };
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        unusedAbbey.clear();
-        unusedAbbey.addAll((Set<Player>) a[0]);
-        abbeyRoundLastPlayer = (Player) a[1];
-    }
-
     @Override
     public void initPlayer(Player player) {
         unusedAbbey.add(player);

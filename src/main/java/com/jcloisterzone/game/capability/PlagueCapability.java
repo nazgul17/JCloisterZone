@@ -18,20 +18,6 @@ public class PlagueCapability extends Capability {
 
     private final List<PlagueSource> plagueSources = new ArrayList<>(6);
 
-    public PlagueCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void restore(Object data) {
-        throw new UnsupportedOperationException();
-    }
-
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("plague").getLength() > 0) {

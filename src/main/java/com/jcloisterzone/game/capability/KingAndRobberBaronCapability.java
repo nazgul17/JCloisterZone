@@ -25,31 +25,6 @@ public final class KingAndRobberBaronCapability extends Capability {
 
     private Player king, robberBaron;
 
-    public KingAndRobberBaronCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return new Object[] {
-            new int[] { completedCities, biggestCitySize, completedRoads, longestRoadLength },
-            king,
-            robberBaron
-        };
-    }
-
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        int[] i = (int[]) a[0];
-        completedCities = i[0];
-        biggestCitySize = i[1];
-        completedRoads = i[2];
-        longestRoadLength = i[3];
-        king = (Player) a[1];
-        robberBaron = (Player) a[2];
-    }
-
     @Override
     public void begin() {
         if (game.hasExpansion(Expansion.COUNT)) {

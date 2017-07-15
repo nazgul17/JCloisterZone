@@ -13,10 +13,6 @@ import com.jcloisterzone.game.Game;
 
 public class PhantomCapability extends Capability {
 
-    public PhantomCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public void initPlayer(Player player) {
         player.addMeeple(new Phantom(game, null, player));

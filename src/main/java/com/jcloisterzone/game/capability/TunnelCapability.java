@@ -35,8 +35,7 @@ public final class TunnelCapability extends Capability {
 
     private final List<Road> tunnels = new ArrayList<>();
 
-    public TunnelCapability(Game game) {
-        super(game);
+    public TunnelCapability() {
         for (PlayerSlot slot : game.getPlayerSlots()) {
             if (!slot.isOccupied()) continue;
             int slotNumber = (slot.getNumber() + 2) % PlayerSlot.COUNT;

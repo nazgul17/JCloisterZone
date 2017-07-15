@@ -19,10 +19,6 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 
 public final class ShrineCapability extends Capability {
 
-    public ShrineCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {

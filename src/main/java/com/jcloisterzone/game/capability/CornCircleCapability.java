@@ -23,22 +23,6 @@ public class CornCircleCapability extends Capability {
     private Player cornCirclePlayer;
     private CornCicleOption cornCircleOption;
 
-    public CornCircleCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return new Object[] { cornCirclePlayer, cornCircleOption };
-    }
-
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        cornCirclePlayer = (Player) a[0];
-        cornCircleOption = (CornCicleOption) a[1];
-    }
-
 
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {

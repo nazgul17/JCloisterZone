@@ -17,10 +17,6 @@ import com.jcloisterzone.game.Game;
 
 public class MayorCapability extends Capability {
 
-    public MayorCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public void initPlayer(Player player) {
         player.addMeeple(new Mayor(game, null, player));

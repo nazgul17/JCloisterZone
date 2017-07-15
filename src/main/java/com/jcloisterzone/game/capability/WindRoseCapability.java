@@ -12,6 +12,7 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.event.Event;
+import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Capability;
@@ -25,12 +26,8 @@ public class WindRoseCapability extends Capability {
     private Rotation roseRotation;
     private Position rosePosition;
 
-    public WindRoseCapability(final Game game) {
-        super(game);
-    }
-
     @Override
-    public void handleEvent(Event event) {
+    public void handleEvent(PlayEvent event) {
        if (event instanceof TileEvent) {
            tilePlaced((TileEvent) event);
        }

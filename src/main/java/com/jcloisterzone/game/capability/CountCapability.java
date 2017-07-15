@@ -38,9 +38,8 @@ public class CountCapability extends Capability {
     // active player for pre score phase
     private Player moveOutPlayer;
 
-    public CountCapability(Game game) {
-        super(game);
-        count = new Count(game);
+    public CountCapability() {
+        count = new Count();
         game.getNeutralFigures().add(count);
     }
 

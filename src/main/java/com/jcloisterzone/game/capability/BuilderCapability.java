@@ -27,24 +27,9 @@ public class BuilderCapability extends Capability {
 
     protected BuilderState builderState = BuilderState.INACTIVE;
 
-    public BuilderCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return builderState;
-    }
-
-    @Override
-    public void restore(Object data) {
-        builderState = (BuilderState) data;
-    }
-
-
     @Override
     public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
-        return List.of((Special) new Builder(game, p))
+        return List.of((Special) new Builder(p));
     }
 
     public BuilderState getBuilderState() {

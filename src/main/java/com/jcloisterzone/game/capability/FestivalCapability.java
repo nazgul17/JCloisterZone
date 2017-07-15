@@ -22,9 +22,6 @@ public class FestivalCapability extends Capability {
 
     public final String UNDEPLOY_FESTIVAL = "festival";
 
-    public FestivalCapability(Game game) {
-        super(game);
-    }
 
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {

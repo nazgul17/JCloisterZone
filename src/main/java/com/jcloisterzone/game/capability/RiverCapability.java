@@ -32,10 +32,6 @@ public class RiverCapability extends Capability {
 
     private static List<String> STREAM_IDS =  Arrays.asList("R1.I.s", "R2.I.s", "GQ.RFI");
 
-    public RiverCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         NodeList nl;
@@ -73,11 +69,11 @@ public class RiverCapability extends Capability {
         Tile lake = getTilePack().drawTile(TilePack.INACTIVE_GROUP, getLakeId());
         getBoard().refreshAvailablePlacements(lake);
         if (!getBoard().getAvailablePlacements().isEmpty()) {
-	        Entry<Position, Set<Rotation>> entry = getBoard().getAvailablePlacements().entrySet().iterator().next();
-	        lake.setRotation(entry.getValue().iterator().next());
-	        getBoard().add(lake, entry.getKey());
-	        getBoard().mergeFeatures(lake);
-	        game.post(new TileEvent(TileEvent.PLACEMENT, null, lake, lake.getPosition()));
+            Entry<Position, Set<Rotation>> entry = getBoard().getAvailablePlacements().entrySet().iterator().next();
+            lake.setRotation(entry.getValue().iterator().next());
+            getBoard().add(lake, entry.getKey());
+            getBoard().mergeFeatures(lake);
+            game.post(new TileEvent(TileEvent.PLACEMENT, null, lake, lake.getPosition()));
         }
     }
 
@@ -95,79 +91,79 @@ public class RiverCapability extends Capability {
     }
 
     private Location getTileRiver(Tile tile) {
-    	Location loc = tile.getRiver();
-    	return loc == null ? null : loc.rotateCW(tile.getRotation());
+        Location loc = tile.getRiver();
+        return loc == null ? null : loc.rotateCW(tile.getRotation());
     }
 
 
     enum FollowResult {
-    	LEGAL_WITH_TILE,
-    	LEGAL,
-    	ILLEGAL
+        LEGAL_WITH_TILE,
+        LEGAL,
+        ILLEGAL
     }
 
     //direction is relative direction ^ < or >
     private FollowResult followPath(Tile riverTile, Position riverPos, Location forward, char direction, Tile checkTile, Position checkTilePos) {
-    	boolean checkTilePartOfRiver = false;
+        boolean checkTilePartOfRiver = false;
 
 
-    	while (forward != null) {
-    		riverPos = riverPos.add(forward);
-    		if (riverPos.equals(checkTilePos)) {
-    			riverTile = checkTile;
-    			checkTilePartOfRiver = true;
-    		} else {
-    			riverTile = getBoard().get(riverPos);
-    		}
-    		if (riverTile == null) {
-    			if (getBoard().get(riverPos.add(forward)) != null) return FollowResult.ILLEGAL; //too few space
-    			break;
-    		}
-    		Location prev = forward;
-    		Location riverLoc = getTileRiver(riverTile);
-    		if (riverLoc == null || !prev.rev().isPartOf(riverLoc)) return FollowResult.ILLEGAL; //river is not continuous;
-    		forward = riverLoc.substract(prev.rev());
-    		if (riverTile.getId().equals(R2_FORK_ID)) {
-    			for (Location part : forward.splitToSides()) {
-    				char branchDir = '^';
-    				for (Location turn : riverLoc.splitToSides()) {
-    					if (turn == part) continue;
-    					if (turn.prev() == part) branchDir = branchDir == '<' ? '!' : '>';
-    					if (turn.next() == part) branchDir = branchDir == '>' ? '!' : '<';
-    				}
-					FollowResult branchResult = followPath(riverTile, riverPos, part, branchDir, checkTile, checkTilePos);
-					if (branchResult == FollowResult.ILLEGAL) return FollowResult.ILLEGAL;
-					if (branchResult == FollowResult.LEGAL_WITH_TILE) checkTilePartOfRiver = true;
-    			}
-    			break;
-    		} else {
-	    		if (prev == forward) {
-	    			direction = '^';
-	    		} else if (prev.next() == forward) {
-	    			if (direction == '>' || direction == '!') return FollowResult.ILLEGAL; //U-turn
-	    			direction = '>';
-	    		} else if (prev.prev() == forward) {
-	    			if (direction == '<' || direction == '!') return FollowResult.ILLEGAL; //U-turn
-	    			direction = '<';
-	    		}
-    		}
-    	}
+        while (forward != null) {
+            riverPos = riverPos.add(forward);
+            if (riverPos.equals(checkTilePos)) {
+                riverTile = checkTile;
+                checkTilePartOfRiver = true;
+            } else {
+                riverTile = getBoard().get(riverPos);
+            }
+            if (riverTile == null) {
+                if (getBoard().get(riverPos.add(forward)) != null) return FollowResult.ILLEGAL; //too few space
+                break;
+            }
+            Location prev = forward;
+            Location riverLoc = getTileRiver(riverTile);
+            if (riverLoc == null || !prev.rev().isPartOf(riverLoc)) return FollowResult.ILLEGAL; //river is not continuous;
+            forward = riverLoc.substract(prev.rev());
+            if (riverTile.getId().equals(R2_FORK_ID)) {
+                for (Location part : forward.splitToSides()) {
+                    char branchDir = '^';
+                    for (Location turn : riverLoc.splitToSides()) {
+                        if (turn == part) continue;
+                        if (turn.prev() == part) branchDir = branchDir == '<' ? '!' : '>';
+                        if (turn.next() == part) branchDir = branchDir == '>' ? '!' : '<';
+                    }
+                    FollowResult branchResult = followPath(riverTile, riverPos, part, branchDir, checkTile, checkTilePos);
+                    if (branchResult == FollowResult.ILLEGAL) return FollowResult.ILLEGAL;
+                    if (branchResult == FollowResult.LEGAL_WITH_TILE) checkTilePartOfRiver = true;
+                }
+                break;
+            } else {
+                if (prev == forward) {
+                    direction = '^';
+                } else if (prev.next() == forward) {
+                    if (direction == '>' || direction == '!') return FollowResult.ILLEGAL; //U-turn
+                    direction = '>';
+                } else if (prev.prev() == forward) {
+                    if (direction == '<' || direction == '!') return FollowResult.ILLEGAL; //U-turn
+                    direction = '<';
+                }
+            }
+        }
 
-    	return checkTilePartOfRiver ? FollowResult.LEGAL_WITH_TILE : FollowResult.LEGAL;
+        return checkTilePartOfRiver ? FollowResult.LEGAL_WITH_TILE : FollowResult.LEGAL;
     }
 
     @Override
     public boolean isTilePlacementAllowed(Tile checkTile, Position checkTilePos) {
-    	if (checkTile.getRiver() == null) return true;
+        if (checkTile.getRiver() == null) return true;
 
-    	//find stream to start from
-    	for (Tile t : getBoard().getAllTiles()) {
-    		if (STREAM_IDS.contains(t.getId())) {
-    			return followPath(t, t.getPosition(), getTileRiver(t), '^', checkTile, checkTilePos) == FollowResult.LEGAL_WITH_TILE;
-    		}
-    	}
+        //find stream to start from
+        for (Tile t : getBoard().getAllTiles()) {
+            if (STREAM_IDS.contains(t.getId())) {
+                return followPath(t, t.getPosition(), getTileRiver(t), '^', checkTile, checkTilePos) == FollowResult.LEGAL_WITH_TILE;
+            }
+        }
 
-    	return true;
+        return true;
     }
 
 }

@@ -12,6 +12,7 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.FeatureCompletedEvent;
+import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.event.TradeResourceEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
@@ -24,12 +25,8 @@ public class ClothWineGrainCapability extends Capability {
 
     private final Map<Player, int[]> tradeResources = new HashMap<>();
 
-    public ClothWineGrainCapability(final Game game) {
-        super(game);
-    }
-
     @Override
-    public void handleEvent(Event event) {
+    public void handleEvent(PlayEvent event) {
        if (event instanceof FeatureCompletedEvent) {
            completed((FeatureCompletedEvent) event);
        }

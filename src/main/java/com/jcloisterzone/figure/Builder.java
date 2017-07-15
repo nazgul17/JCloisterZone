@@ -11,8 +11,8 @@ public class Builder extends Special {
 
     private static final long serialVersionUID = 1189566966196473830L;
 
-    public Builder(Game game, PlayerAttributes player) {
-        super(game, player);
+    public Builder(PlayerAttributes player) {
+        super(player);
     }
 
     @Override

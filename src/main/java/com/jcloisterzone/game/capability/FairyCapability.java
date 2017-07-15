@@ -35,14 +35,13 @@ public class FairyCapability extends Capability {
 
     public final Fairy fairy;
 
-    public FairyCapability(Game game) {
-        super(game);
-        fairy = new Fairy(game);
+    public FairyCapability() {
+        fairy = new Fairy();
         game.getNeutralFigures().add(fairy);
     }
 
     @Override
-    public void handleEvent(Event event) {
+    public void handleEvent(PlayEvent event) {
        if (event instanceof MeepleEvent) {
            undeployed((MeepleEvent) event);
        }

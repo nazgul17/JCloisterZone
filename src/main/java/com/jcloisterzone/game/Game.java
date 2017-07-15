@@ -1,7 +1,5 @@
 package com.jcloisterzone.game;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -26,7 +24,6 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
@@ -44,7 +41,6 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
@@ -56,6 +52,7 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
@@ -82,9 +79,6 @@ public class Game extends GameSettings implements EventProxy {
 //
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
     private Phase phase;
-//
-    private List<Capability> capabilities = List.empty(); //TODO change to map?
-    private FairyCapability fairyCapability; //shortcut - TODO remove
 
 //    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
 //    private Phase lastUndoablePhase;
@@ -191,8 +185,10 @@ public class Game extends GameSettings implements EventProxy {
 //        }
         // process capabilities after undo processing
         // capability can trigger another event and order is important! (eg. windrose scoring)
-        for (Capability capability: capabilities) {
-            capability.handleEvent(event);
+        if (event instanceof PlayEvent) {
+            for (Capability capability: getCapabilities()) {
+                capability.handleEvent((PlayEvent) event);
+            }
         }
     }
 
@@ -349,11 +345,8 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     // TODO rename
-    public void setPlayers(Array<PlayerAttributes> players, int turnPlayer) {
-//        Player[] plist = players.toArray(new Player[players.size()]);
-//        this.plist = plist;
-//        this.turnPlayer = getPlayer(turnPlayer);
-        state = GameState.createInitial(players, turnPlayer);
+    @Deprecated
+    public void setPlayers(Array<PlayerAttributes> players) {
         this.players = players.map(p -> new Player(this, p));
     }
 
@@ -368,36 +361,17 @@ public class Game extends GameSettings implements EventProxy {
         return followers;
     }
 
-    public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+    public Seq<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
         return getCapabilities().flatMap(c -> c.createPlayerSpecialMeeples(p));
     }
 
-    private void createCapabilityInstance(Class<? extends Capability> clazz) {
-        if (clazz == null) return;
-        try {
-            Capability capability = clazz.getConstructor(Game.class).newInstance(this);
-            capabilities = capabilities.append(capability);
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e); //should never happen
-        }
-    }
-
-    public List<Capability> getCapabilities() {
-        return capabilities;
+    public Seq<Capability> getCapabilities() {
+        return state.getCapabilities().values();
     }
 
     @SuppressWarnings("unchecked")
     public <T extends Capability> T getCapability(Class<T> clazz) {
-        for (Capability c : capabilities) {
-            if (c.getClass().equals(clazz)) return (T) c;
-        }
-        return null;
-    }
-
-    public void createCapabilities() {
-        for (Class<? extends Capability> capability: getCapabilityClasses()) {
-            createCapabilityInstance(capability);
-        }
+        return (T) state.getCapabilities().get(clazz).getOrNull();
     }
 
     public boolean isStarted() {
@@ -411,7 +385,7 @@ public class Game extends GameSettings implements EventProxy {
 
     public Set<FeaturePointer> prepareFollowerLocations() {
         Set<FeaturePointer> locations = prepareFollowerLocations(getCurrentTile(), false);
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             locations = cap.extendFollowOptions(locations);
         }
         return locations;
@@ -447,7 +421,7 @@ public class Game extends GameSettings implements EventProxy {
     // delegation to capabilities
 
     public TileDefinition initTile(TileDefinition tile, Element xml) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             tile = cap.initTile(tile, xml);
         }
         return tile;
@@ -458,28 +432,22 @@ public class Game extends GameSettings implements EventProxy {
             //this is not part of Count capability because it is integral behaviour valid also when capability is off
             feature = ((Farm) feature).setAdjoiningCityOfCarcassonne(true);
         }
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             feature = cap.initFeature(tileId, feature, xml);
         }
         return feature;
     }
 
     public List<Feature> extendFeatures(String tileId) {
-        List<Feature> result = null;
-        for (Capability cap: capabilities) {
-            List<Feature> list = cap.extendFeatures(tileId);
-            if (!list.isEmpty()) {
-                if (result == null) {
-                    result = new ArrayList<>();
-                }
-                result.addAll(list);
-            }
+        List<Feature> result = List.empty();
+        for (Capability cap: getCapabilities()) {
+            result.appendAll(cap.extendFeatures(tileId));
         }
-        return result == null ? Collections.emptyList() : result;
+        return result;
     }
 
     public String getTileGroup(TileDefinition tile) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             String group = cap.getTileGroup(tile);
             if (group != null) return group;
         }
@@ -487,17 +455,16 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public void begin() {
-        fairyCapability = getCapability(FairyCapability.class);
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.begin();
         }
     }
 
     public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             actions = cap.prepareActions(actions, followerOptions);
         }
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             actions = cap.postPrepareActions(actions);
         }
         //to simplify capability iterations, allow returning empty actions (eg tower can add empty meeple action when no open tower exists etc)
@@ -507,51 +474,51 @@ public class Game extends GameSettings implements EventProxy {
 
 
     public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             if (!cap.isDeployAllowed(tile, meepleType)) return false;
         }
         return true;
     }
 
     public void scoreCompleted(Completable ctx) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.scoreCompleted(ctx);
         }
     }
 
     public void turnPartCleanUp() {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.turnPartCleanUp();
         }
     }
 
     public void turnCleanUp() {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.turnCleanUp();
         }
     }
 
     public void finalScoring() {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.finalScoring();
         }
     }
 
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             if (!cap.isTilePlacementAllowed(tile, p)) return false;
         }
         return true;
     }
 
     public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.saveTileToSnapshot(tile, doc, tileNode);
         }
     }
 
     public void loadTileFromSnapshot(Tile tile, Element tileNode) {
-        for (Capability cap: capabilities) {
+        for (Capability cap: getCapabilities()) {
             cap.loadTileFromSnapshot(tile, tileNode);
         }
     }

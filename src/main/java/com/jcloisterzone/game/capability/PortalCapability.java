@@ -22,20 +22,6 @@ public class PortalCapability extends Capability {
 
     boolean portalUsed = false;
 
-    public PortalCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return portalUsed;
-    }
-
-    @Override
-    public void restore(Object data) {
-        portalUsed = (Boolean) data;
-    }
-
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("portal").getLength() > 0) {

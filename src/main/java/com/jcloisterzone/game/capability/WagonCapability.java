@@ -36,10 +36,6 @@ public class WagonCapability extends Capability {
 
     private final Map<Player, Feature> scoredWagons = new HashMap<>();
 
-    public WagonCapability(final Game game) {
-        super(game);
-    }
-
     public void wagonScored(Wagon m, Feature feature) {
         scoredWagons.put(m.getPlayer(), feature);
     }

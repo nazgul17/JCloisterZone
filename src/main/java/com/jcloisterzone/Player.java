@@ -13,6 +13,7 @@ import com.jcloisterzone.ui.PlayerColor;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
@@ -28,8 +29,8 @@ public class Player implements IPlayer {
     private final Game game;
     private final PlayerAttributes attributes;
 
-    private final List<Follower> followers;
-    private final List<Special> specialMeeples;
+    private final Seq<Follower> followers;
+    private final Seq<Special> specialMeeples;
 
 //    private final List<Follower> followers = new ArrayList<Follower>(SmallFollower.QUANTITY + 3);
 //    private final List<Special> specialMeeples = new ArrayList<Special>(3);
@@ -49,11 +50,11 @@ public class Player implements IPlayer {
         return attributes;
     }
 
-    public List<Follower> getFollowers() {
+    public Seq<Follower> getFollowers() {
         return followers;
     }
 
-    public List<Special> getSpecialMeeples() {
+    public Seq<Special> getSpecialMeeples() {
         return specialMeeples;
     }
 
@@ -86,7 +87,7 @@ public class Player implements IPlayer {
 
     public Meeple getMeepleFromSupply(Class<? extends Meeple> clazz) {
         assert !Modifier.isAbstract(clazz.getModifiers());
-        List<? extends Meeple> collection = (Follower.class.isAssignableFrom(clazz) ? followers : specialMeeples);
+        Seq <? extends Meeple> collection = (Follower.class.isAssignableFrom(clazz) ? followers : specialMeeples);
         return Stream.ofAll(collection)
             .filter(m -> m.getClass().equals(clazz))
             .find(m -> m.isInSupply(game.getState()))

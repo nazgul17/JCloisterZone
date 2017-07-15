@@ -28,6 +28,8 @@ import io.vavr.collection.Queue;
 @Immutable
 public class GameState {
 
+    private final HashMap<Class<? extends Capability>, Capability> capabilities;
+
     private final Array<PlayerAttributes> players;
     private final Array<PlayerScore> score;
     private final int turnPlayer;
@@ -45,9 +47,15 @@ public class GameState {
     private final ActionsState playerActions;
     private final Queue<PlayEvent> events;
 
-    public static GameState createInitial(Array<PlayerAttributes> players, int turnPlayer) {
+    public static GameState createInitial(
+            HashMap<Class<? extends Capability>, Capability> capabilities,
+            Array<PlayerAttributes> players,
+            int turnPlayer) {
         return new GameState(
-            players, players.map(p -> new PlayerScore()), turnPlayer,
+            capabilities,
+            players,
+            players.map(p -> new PlayerScore()),
+            turnPlayer,
             null,
             null,
             LinkedHashMap.empty(),
@@ -60,7 +68,9 @@ public class GameState {
         );
     }
 
-    private GameState(Array<PlayerAttributes> players, Array<PlayerScore> score, int turnPlayer,
+    private GameState(
+            HashMap<Class<? extends Capability>, Capability> capabilities,
+            Array<PlayerAttributes> players, Array<PlayerScore> score, int turnPlayer,
             TilePackState tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
@@ -68,6 +78,7 @@ public class GameState {
             LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures,
             ActionsState playerActions,
             Queue<PlayEvent> events) {
+        this.capabilities = capabilities;
         this.players = players;
         this.score = score;
         this.turnPlayer = turnPlayer;
@@ -82,8 +93,17 @@ public class GameState {
         this.events = events;
     }
 
+    public GameState setCapabilities(HashMap<Class<? extends Capability>, Capability> capabilities) {
+        return new GameState(
+            capabilities,
+            players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+        );
+    }
+
     public GameState setScore(Array<PlayerScore> score) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -91,6 +111,7 @@ public class GameState {
 
     public GameState setTurnPlayer(int turnPlayer) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -98,6 +119,7 @@ public class GameState {
 
     public GameState setTilePack(TilePackState tilePack) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -105,6 +127,7 @@ public class GameState {
 
     public GameState setDrawnTile(TileDefinition drawnTile) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -112,6 +135,7 @@ public class GameState {
 
     public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -119,6 +143,7 @@ public class GameState {
 
     public GameState setFeatures(Map<FeaturePointer, Feature> features) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -126,6 +151,7 @@ public class GameState {
 
     public GameState setDiscardedTiles(List<TileDefinition> discardedTiles) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -133,6 +159,7 @@ public class GameState {
 
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -140,6 +167,7 @@ public class GameState {
 
     public GameState setDeployedNeutralFigures(LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -147,6 +175,7 @@ public class GameState {
 
     public GameState setPlayerAcrions(ActionsState playerActions) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -154,6 +183,7 @@ public class GameState {
 
     public GameState setEvents(Queue<PlayEvent> events) {
         return new GameState(
+            capabilities,
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
@@ -161,6 +191,14 @@ public class GameState {
 
     public GameState appendEvent(PlayEvent ev) {
         return setEvents(events.append(ev));
+    }
+
+    public HashMap<Class<? extends Capability>, Capability> getCapabilities() {
+        return capabilities;
+    }
+
+    public Capability getCapability(Class<? extends Capability> cls) {
+        return capabilities.get(cls).getOrNull();
     }
 
     public Array<PlayerAttributes> getPlayers() {

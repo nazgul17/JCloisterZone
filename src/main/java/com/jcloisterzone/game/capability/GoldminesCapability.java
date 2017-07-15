@@ -38,30 +38,6 @@ public class GoldminesCapability  extends Capability {
 
     private final Map<Position, Set<Player>> claimedGold = new HashMap<>();
 
-    public GoldminesCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        Object[] a = new Object[2];
-        a[0] = new HashMap<>(boardGold);
-        a[1] = new HashMap<>(playerGold);
-        return a;
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        Map<Position, Integer> boardBackup = (Map<Position, Integer>) a[0];
-        boardGold.clear();
-        boardGold.putAll(boardBackup);
-        Map<Player, Integer> playerBackup = (Map<Player, Integer>) a[1];
-        playerGold.clear();
-        playerGold.putAll(playerBackup);
-    }
-
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("goldmine").getLength() > 0) {

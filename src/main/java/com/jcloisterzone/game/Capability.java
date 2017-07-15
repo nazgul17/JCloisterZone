@@ -10,13 +10,11 @@ import org.w3c.dom.Element;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.Event;
+import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
@@ -32,18 +30,6 @@ public abstract class Capability {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected final Game game;
-
-    public Capability(Game game) {
-        this.game = game;
-    }
-
-    public Object backup() {
-        return null;
-    }
-    public void restore(Object data) {
-        //unpack data created by backup and fill itself
-    }
 
 //    protected TileDefinition getCurrentTile() {
 //        return game.getCurrentTile();
@@ -52,18 +38,22 @@ public abstract class Capability {
     /* no @Subscribe for Capabilities
      * it cause post from another event handler and makes trouble with AI tasks
      * */
-    public void handleEvent(Event event) {
+    public void handleEvent(PlayEvent event) {
     }
 
+    @Deprecated
     public void saveToSnapshot(Document doc, Element node) {
     }
 
+    @Deprecated
     public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
     }
 
+    @Deprecated
     public void loadFromSnapshot(Document doc, Element node) throws SnapshotCorruptedException {
     }
 
+    @Deprecated
     public void loadTileFromSnapshot(Tile tile, Element tileNode) {
     }
 
@@ -139,6 +129,7 @@ public abstract class Capability {
         return actions;
     }
 
+    //TODO don't use Tile ? FeaturePointer shoudl be used
     public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
         return true;
     }

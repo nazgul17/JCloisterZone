@@ -26,20 +26,6 @@ public class PrincessCapability extends Capability {
 
     boolean princessUsed = false;
 
-    public PrincessCapability(Game game) {
-        super(game);
-    }
-
-    @Override
-    public Object backup() {
-        return princessUsed;
-    }
-
-    @Override
-    public void restore(Object data) {
-        princessUsed = (Boolean) data;
-    }
-
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "princess")) {

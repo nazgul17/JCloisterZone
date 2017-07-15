@@ -29,11 +29,10 @@ import com.jcloisterzone.game.Game;
 
 public class MageAndWitchCapability extends Capability {
 
-	private Mage mage;
-	private Witch witch;
+    private Mage mage;
+    private Witch witch;
 
-    public MageAndWitchCapability(Game game) {
-        super(game);
+    public MageAndWitchCapability() {
         mage = new Mage(game);
         witch = new Witch(game);
         game.getNeutralFigures().add(mage);
@@ -80,12 +79,12 @@ public class MageAndWitchCapability extends Capability {
     }
 
     public Mage getMage() {
-		return mage;
-	}
+        return mage;
+    }
 
     public Witch getWitch() {
-		return witch;
-	}
+        return witch;
+    }
 
     static class ContainsFeature implements FeatureVisitor<Boolean> {
 
@@ -142,21 +141,6 @@ public class MageAndWitchCapability extends Capability {
         }
     }
 
-
-    @Override
-    public Object backup() {
-        return new Object[] {
-            mage.getFeaturePointer(),
-            witch.getFeaturePointer()
-         };
-    }
-
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        mage.setFeaturePointer((FeaturePointer) a[0]);
-        witch.setFeaturePointer((FeaturePointer) a[1]);
-    }
 
     @Override
     public void saveToSnapshot(Document doc, Element node) {

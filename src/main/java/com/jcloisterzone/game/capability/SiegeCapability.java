@@ -15,10 +15,6 @@ public final class SiegeCapability extends Capability {
 
     public static final String UNDEPLOY_ESCAPE = "escape";
 
-    public SiegeCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "besieged")) {

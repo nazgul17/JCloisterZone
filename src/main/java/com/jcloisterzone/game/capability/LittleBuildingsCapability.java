@@ -26,8 +26,7 @@ public class LittleBuildingsCapability extends Capability {
     private final Map<Player, Integer>[] buildings = new Map[LittleBuilding.values().length];
     private final Map<Position, LittleBuilding> placedBuildings = new HashMap<Position, LittleBuilding>();
 
-    public LittleBuildingsCapability(Game game) {
-        super(game);
+    public LittleBuildingsCapability() {
         for (int i = 0; i < buildings.length; i++) {
             buildings[i] = new HashMap<>();
         }

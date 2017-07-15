@@ -12,10 +12,6 @@ import com.jcloisterzone.game.Game;
 
 public class PigHerdCapability extends Capability {
 
-    public PigHerdCapability(Game game) {
-        super(game);
-    }
-
     @Override
     public Feature initFeature(String tileId, Feature feature, Element xml) {
         if (feature instanceof Farm) {
