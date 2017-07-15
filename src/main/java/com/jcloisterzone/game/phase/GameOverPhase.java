@@ -1,10 +1,11 @@
 package com.jcloisterzone.game.phase;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.reducers.ScoreFeature;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.message.GameOverMessage;
 import com.jcloisterzone.wsio.message.ToggleClockMessage;
@@ -27,23 +28,23 @@ public class GameOverPhase extends ServerAwarePhase {
             getConnection().send(new GameOverMessage(game.getGameId()));
         }
 
-        Stream<Scoreable> scoreables = Stream.ofAll(game.getBoard().getAllFeatures())
-            .filter(Predicates.instanceOf(Scoreable.class))
-            .filter(f -> f.isOccupied())
-            .map(f -> (Scoreable) f);
+        GameState state = game.getState();
+
+        Stream<Scoreable> scoreables = state.getBoard().getOccupiedScoreables();
 
         //score first all except farms
         for (Scoreable feature : scoreables.filter(Predicates.<Scoreable>instanceOf(Farm.class).negate())) {
-            game.scoreFeature(feature);
+            state = (new ScoreFeature(feature)).apply(state);
         }
 
         //then score farms
         for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Farm.class))) {
-            game.scoreFeature(feature);
+            state = (new ScoreFeature(feature)).apply(state);
 
             //IMMUTABLE TODO solve Barn scoring
         }
 
+        game.replaceState(state);
         game.finalScoring();
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_OVER));
     }

@@ -1,5 +1,7 @@
 package com.jcloisterzone.game;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -9,7 +11,6 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.google.common.collect.ClassToInstanceMap;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.MutableClassToInstanceMap;
 import com.google.common.eventbus.EventBus;
 import com.google.common.hash.HashCode;
@@ -18,7 +19,6 @@ import com.jcloisterzone.EventProxy;
 import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerAttributes;
-import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
@@ -30,43 +30,31 @@ import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.event.BridgeEvent;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.event.GoldChangeEvent;
-import com.jcloisterzone.event.Idempotent;
-import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.event.PlayerTurnEvent;
-import com.jcloisterzone.event.ScoreEvent;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
-import com.jcloisterzone.feature.score.ScoringStrategy;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
-import com.jcloisterzone.feature.visitor.score.PositionCollectingScoreContext;
-import com.jcloisterzone.feature.visitor.score.ScoreContext;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.reducers.Reducer;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.LinkedHashMultimap;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
@@ -130,6 +118,14 @@ public class Game extends GameSettings implements EventProxy {
 
     public void replaceState(Function<GameState, GameState> f) {
         replaceState(f.apply(this.state));
+    }
+
+    public void replaceState(Reducer... fs) {
+        GameState state = this.state;
+        for (Reducer f : fs) {
+            state = f.apply(state);
+        }
+        replaceState(state);
     }
 
     public void replaceState(GameState state) {
@@ -449,76 +445,6 @@ public class Game extends GameSettings implements EventProxy {
         }
 
         return s.map(t -> new FeaturePointer(pos, t._1)).toSet();
-    }
-
-    public void undeployMeeples(Feature feature) {
-        for (Meeple m : feature.getMeeples()) {
-            m.undeploy(false);
-        }
-        // IMMUTABLE TOOD Mage and Witch undeployt
-//            if (ctx instanceof PositionCollectingScoreContext) {
-//                PositionCollectingScoreContext pctx = (PositionCollectingScoreContext) ctx;
-//                if (pctx.containsMage()) {
-//                    mageWitchCap.getMage().undeploy();
-//                }
-//                if (pctx.containsWitch()) {
-//                    mageWitchCap.getWitch().undeploy();
-//                }
-//            }
-//        }
-    }
-
-    //scoring helpers
-
-    private void scoreFeature(Scoreable feature, Player p) {
-        boolean finalScoring = isOver();
-
-        int points = feature.getPoints(p);
-        PointCategory pointCategory = feature.getPointCategory();
-        p.addPoints(points, pointCategory);
-
-        Follower follower = feature.getSampleFollower(p);
-        ScoreEvent scoreEvent;
-        boolean isFairyScore = false;
-        if (fairyCapability != null) {
-            for (Follower f : feature.getFollowers()) {
-                if (f.getPlayer().equals(p) && fairyCapability.isNextTo(f)) {
-                    isFairyScore = true;
-                    break;
-                }
-            }
-        }
-        if (isFairyScore && !finalScoring) {
-            p.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-            scoreEvent = new ScoreEvent(follower.getDeployment(), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
-            scoreEvent.setLabel(points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT);
-        } else {
-            scoreEvent = new ScoreEvent(follower.getDeployment(), points, pointCategory, follower);
-        }
-        scoreEvent.setFinal(finalScoring);
-        post(scoreEvent);
-    }
-
-    public void scoreFeature(Scoreable feature) {
-        Set<Player> players = feature.getOwners();
-        if (players.isEmpty()) return;
-
-        for (Player pl : players) {
-            scoreFeature(feature, pl);
-        }
-        if (fairyCapability != null && !isOver()) {
-            java.util.Set<Player> fairyPlayersWithoutMayority = new java.util.HashSet<>();
-            for (Follower f : feature.getFollowers()) {
-                Player owner = getPlayer(f.getPlayer());
-                if (fairyCapability.isNextTo(f) && !players.contains(owner)
-                    && !fairyPlayersWithoutMayority.contains(owner)) {
-                    fairyPlayersWithoutMayority.add(owner);
-
-                    owner.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-                    post(new ScoreEvent(f.getDeployment(), FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY, f));
-                }
-            }
-        }
     }
 
     public int idSequnceNextVal() {

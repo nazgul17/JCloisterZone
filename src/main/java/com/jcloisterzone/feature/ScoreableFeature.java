@@ -1,21 +1,12 @@
 package com.jcloisterzone.feature;
 
-import java.util.Map.Entry;
-import java.util.function.Predicate;
-
-import com.jcloisterzone.LittleBuilding;
-import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerAttributes;
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
-import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.LittleBuildingsCapability;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.Predicates;
 import io.vavr.collection.HashMap;
@@ -25,8 +16,8 @@ import io.vavr.collection.Stream;
 
 public abstract class ScoreableFeature extends TileFeature implements Scoreable {
 
-    public ScoreableFeature(Game game, List<FeaturePointer> places) {
-        super(game, places);
+    public ScoreableFeature(List<FeaturePointer> places) {
+        super(places);
     }
 
     protected int getPower(Follower f) {
@@ -34,10 +25,11 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
     }
 
     @Override
-    public abstract int getPoints(Player player);
+    public abstract int getPoints(GameState state, PlayerAttributes player);
 
-    public Set<Player> getOwners() {
-        HashMap<PlayerAttributes, Integer> powers = getFollowers()
+    @Override
+    public Set<PlayerAttributes> getOwners(GameState state) {
+        HashMap<PlayerAttributes, Integer> powers = getFollowers(state)
             .foldLeft(HashMap.<PlayerAttributes, Integer>empty(), (acc, m) -> {
                 PlayerAttributes player = m.getPlayer();
                 int power = getPower(m);
@@ -46,19 +38,18 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
 
         Integer maxPower = powers.values().max().getOrNull();
         return powers.keySet()
-            .filter(p -> powers.get(p).get() == maxPower)
-            .map(game::getPlayer);
+            .filter(p -> powers.get(p).get() == maxPower);
     }
 
     @Override
-    public Follower getSampleFollower(Player player) {
-        return getFollowers().find(f -> f.getPlayer().equals(player)).getOrNull();
+    public Follower getSampleFollower(GameState state, PlayerAttributes player) {
+        return getFollowers(state).find(f -> f.getPlayer().equals(player)).getOrNull();
     }
 
     //helpers
 
-    protected int getMageAndWitchPoints(int points) {
-        Stream<Special> specials = getSpecialMeeples();
+    protected int getMageAndWitchPoints(GameState state, int points) {
+        Stream<Special> specials = getSpecialMeeples(state);
         if (!specials.find(Predicates.instanceOf(Mage.class)).isEmpty()) {
             points += getPlaces().size();
         }
@@ -69,8 +60,8 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
         return points;
     }
 
-    protected int getLittleBuildingPoints() {
-        if (!game.hasCapability(LittleBuildingsCapability.class)) return 0;
+    protected int getLittleBuildingPoints(GameState state) {
+        //if (!state.hasCapability(LittleBuildingsCapability.class)) return 0;
         int points = 0;
         // IMMUTABLE TODO
 //        for (Entry<LittleBuilding, Integer> entry : littleBuildings.entrySet()) {

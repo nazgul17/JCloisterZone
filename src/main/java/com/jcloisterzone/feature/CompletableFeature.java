@@ -4,7 +4,7 @@ import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -14,13 +14,13 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
 
     protected final List<Edge> openEdges;
 
-    public CompletableFeature(Game game, List<FeaturePointer> places, List<Edge> openEdges) {
-        super(game, places);
+    public CompletableFeature(List<FeaturePointer> places, List<Edge> openEdges) {
+        super(places);
         this.openEdges = openEdges;
     }
 
     @Override
-    public boolean isOpen() {
+    public boolean isOpen(GameState state) {
         return !getOpenEdges().isEmpty();
     }
 

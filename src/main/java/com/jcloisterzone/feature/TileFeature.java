@@ -7,7 +7,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -17,16 +17,10 @@ import io.vavr.collection.Stream;
 @Immutable
 public abstract class TileFeature implements Feature {
 
-    protected final Game game; //Game is not immutable! is it ok?
     protected final List<FeaturePointer> places;
 
-    public TileFeature(Game game, List<FeaturePointer> places) {
-        this.game = game;
+    public TileFeature(List<FeaturePointer> places) {
         this.places = places;
-    }
-
-    public Game getGame() {
-        return game;
     }
 
     @Override
@@ -35,9 +29,9 @@ public abstract class TileFeature implements Feature {
     }
 
     @Override
-    public Stream<Meeple> getMeeples() {
+    public Stream<Meeple> getMeeples(GameState state) {
         Set<FeaturePointer> fps = HashSet.ofAll(places);
-        return Stream.ofAll(game.getDeployedMeeples())
+        return Stream.ofAll(state.getDeployedMeeples())
             .filter(t -> fps.contains(t._2))
             .map(t -> t._1);
     }
@@ -55,7 +49,6 @@ public abstract class TileFeature implements Feature {
             return feature.getSimpleName();
         }
     }
-
 
 
     // immutable helpers

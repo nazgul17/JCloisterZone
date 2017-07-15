@@ -178,7 +178,7 @@ public class ActionPhase extends Phase {
         Meeple m = getActivePlayer().getMeepleFromSupply(meepleType);
         //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
         if (m instanceof Follower) {
-            if (getBoard().get(fp).isOccupied()) {
+            if (getBoard().get(fp).isOccupied(game.getState())) {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }

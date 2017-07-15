@@ -11,6 +11,7 @@ import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.RiverCapability;
@@ -96,19 +97,24 @@ public class DrawPhase extends ServerAwarePhase {
     }
 
     private void nextTile(TileDefinition tile) {
-        if (game.getBoard().getAvailablePlacements(tile).isEmpty()) {
-            game.replaceState(state ->
-                state
+        GameState state = game.getState();
+        if (state.getBoard().getAvailablePlacements(tile).isEmpty()) {
+            state = state
                 .setDiscardedTiles(state.getDiscardedTiles().append(tile))
-                .setDrawnTile(null)
-            );
+                .setDrawnTile(null);
+
+            game.replaceState(state);
+
             if (riverCap != null) riverCap.turnPartCleanUp(); //force group activation if neeeded
             next(DrawPhase.class);
             return;
         }
         toggleClock(getActivePlayer());
         //TODO Separate draw event instead
-        game.post(new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null, null));
+        state = state.appendEvent(
+            new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null, null)
+        );
+        game.replaceState(state);
         next();
     }
 }

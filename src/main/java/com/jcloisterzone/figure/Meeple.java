@@ -40,7 +40,7 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     @Override
     public boolean at(GameState state, Feature feature) {
-        return feature.getMeeples().find(Predicates.is(this)).isDefined();
+        return feature.getMeeples(state).find(Predicates.is(this)).isDefined();
     }
 
     public boolean at(GameState state, MeeplePointer mp) {

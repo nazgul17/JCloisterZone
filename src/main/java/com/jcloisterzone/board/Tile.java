@@ -11,7 +11,6 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.FeaturePredicates;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.game.GameState;
@@ -223,14 +222,22 @@ public class Tile {
 //        edgePattern = edgePattern.removeBridgePattern(normalizedLoc);
 //    }
 
+    private boolean isValueNotCompleted(Tuple2<Location, ? extends Feature> t) {
+        if (t._2 instanceof Completable) {
+            return !((Completable)t._2).isCompleted(state);
+        } else {
+            return true;
+        }
+    }
+
     public Stream<Tuple2<Location, Scoreable>> getUnoccupiedScoreables(boolean excludeCompleted) {
         Stream<Tuple2<Location, Scoreable>> unoccupied = getFeatures()
             .filter(t -> t._2 instanceof Scoreable)
             .map(t -> t.map2(f -> (Scoreable) f))
-            .filter(t -> !t._2.isOccupied());
+            .filter(t -> !t._2.isOccupied(state));
 
         if (excludeCompleted) {
-            return unoccupied.filter(t -> FeaturePredicates.uncompleted().test(t._2));
+            return unoccupied.filter(this::isValueNotCompleted);
         } else {
             return unoccupied;
         }
@@ -239,12 +246,11 @@ public class Tile {
     public Stream<Tuple2<Location, Feature>> getPlayerFeatures(PlayerAttributes player, Class<? extends Feature> featureClass) {
         return getFeatures()
             .filter(t -> featureClass == null || featureClass.isInstance(t._2))
-            .filter(t -> t._2.isOccupiedBy(player));
+            .filter(t -> t._2.isOccupiedBy(state, player));
     }
 
     public Stream<Tuple2<Location, Feature>> getPlayerUncompletedFeatures(PlayerAttributes player, Class<? extends Feature> featureClass) {
-        return getPlayerFeatures(player, featureClass)
-            .filter(t -> FeaturePredicates.uncompleted().test(t._2));
+        return getPlayerFeatures(player, featureClass).filter(this::isValueNotCompleted);
     }
 
     @Override

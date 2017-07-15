@@ -4,6 +4,7 @@ import java.awt.Rectangle;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.GameState;
 
 import io.vavr.Predicates;
@@ -96,6 +97,13 @@ public class Board {
 
     public Set<Feature> getAllFeatures() {
         return HashSet.ofAll(state.getFeatures().values());
+    }
+
+    public Stream<Scoreable> getOccupiedScoreables() {
+        return Stream.ofAll(getAllFeatures())
+            .filter(Predicates.instanceOf(Scoreable.class))
+            .filter(f -> f.isOccupied(state))
+            .map(f -> (Scoreable) f);
     }
 
     public Option<Feature> getFeaturePartOf(FeaturePointer fp) {

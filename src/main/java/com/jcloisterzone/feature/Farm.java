@@ -2,13 +2,13 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Pig;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.collection.List;
 
@@ -20,13 +20,13 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
     protected final int pigHerds;
 
 
-    public Farm(Game game, List<FeaturePointer> places, List<FeaturePointer> adjoiningCities) {
-        this(game, places, adjoiningCities, false, 0);
+    public Farm(List<FeaturePointer> places, List<FeaturePointer> adjoiningCities) {
+        this(places, adjoiningCities, false, 0);
     }
 
-    public Farm(Game game, List<FeaturePointer> places, List<FeaturePointer> adjoiningCities,
+    public Farm(List<FeaturePointer> places, List<FeaturePointer> adjoiningCities,
             boolean adjoiningCityOfCarcassonne, int pigHerds) {
-        super(game, places);
+        super(places);
         this.adjoiningCities = adjoiningCities;
         this.adjoiningCityOfCarcassonne = adjoiningCityOfCarcassonne;
         this.pigHerds = pigHerds;
@@ -35,7 +35,6 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
     @Override
     public Farm merge(Farm farm) {
         return new Farm(
-            game,
             mergePlaces(farm),
             mergeAdjoiningCities(farm),
             adjoiningCityOfCarcassonne || farm.adjoiningCityOfCarcassonne,
@@ -46,7 +45,6 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
     @Override
     public Feature placeOnBoard(Position pos, Rotation rot) {
         return new Farm(
-            game,
             placeOnBoardPlaces(pos, rot),
             placeOnBoardAdjoiningCities(pos, rot),
             adjoiningCityOfCarcassonne,
@@ -59,7 +57,7 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
     }
 
     public Farm setAdjoiningCities(List<FeaturePointer> adjoiningCities) {
-        return new Farm(game, places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
+        return new Farm(places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
     public int getPigHerds() {
@@ -67,7 +65,7 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
     }
 
     public Farm setPigHerds(int pigHerds) {
-        return new Farm(game, places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
+        return new Farm(places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
     public boolean isAdjoiningCityOfCarcassonne() {
@@ -75,7 +73,7 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
     }
 
     public Farm setAdjoiningCityOfCarcassonne(boolean adjoiningCityOfCarcassonne) {
-        return new Farm(game, places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
+        return new Farm(places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
     @Override
@@ -83,25 +81,25 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
         return PointCategory.FARM;
     }
 
-    private int getPointsPerCity(Player player, int basePoints) {
+    private int getPointsPerCity(GameState state, PlayerAttributes player, int basePoints) {
         return basePoints + pigHerds
-            + getSpecialMeeples().count(m -> (m instanceof Pig) && m.getPlayer().equals(player));
+            + getSpecialMeeples(state).count(m -> (m instanceof Pig) && m.getPlayer().equals(player));
     }
 
     @Override
-    public int getPoints(Player player) {
-        return getPlayerPoints(player, getPointsPerCity(player, 3)) + getLittleBuildingPoints();
+    public int getPoints(GameState state, PlayerAttributes player) {
+        return getPlayerPoints(state, player, getPointsPerCity(state, player, 3)) + getLittleBuildingPoints(state);
     }
 
-    public int getPointsWhenBarnIsConnected(Player player) {
-        return getPlayerPoints(player, getPointsPerCity(player, 1)) + getLittleBuildingPoints();
+    public int getPointsWhenBarnIsConnected(GameState state, PlayerAttributes player) {
+        return getPlayerPoints(state, player, getPointsPerCity(state, player, 1)) + getLittleBuildingPoints(state);
     }
 
-    private int getPlayerPoints(Player player, int pointsPerCity) {
+    private int getPlayerPoints(GameState state, PlayerAttributes player, int pointsPerCity) {
         int points = adjoiningCityOfCarcassonne ? pointsPerCity : 0;
 
         for (FeaturePointer fp : adjoiningCities) {
-            Feature feature = game.getBoard().getFeaturePartOf(fp).get();
+            Feature feature = state.getBoard().getFeaturePartOf(fp).get();
             if (feature instanceof Castle) {
                 // adjoning Castle provides 1 more point then common city
                 points += pointsPerCity + 1;

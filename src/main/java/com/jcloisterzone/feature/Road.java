@@ -2,14 +2,13 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.visitor.score.RoadScoreContext;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
@@ -20,12 +19,12 @@ public class Road extends CompletableFeature<Road> {
     private final boolean inn;
     private final Map<FeaturePointer, TunnelEnd> tunnelEnds;
 
-    public Road(Game game, List<FeaturePointer> places, List<Edge> openEdges) {
-        this(game, places, openEdges, false, HashMap.<FeaturePointer, TunnelEnd>empty());
+    public Road(List<FeaturePointer> places, List<Edge> openEdges) {
+        this(places, openEdges, false, HashMap.<FeaturePointer, TunnelEnd>empty());
     }
 
-    public Road(Game game, List<FeaturePointer> places, List<Edge> openEdges, boolean inn, Map<FeaturePointer, TunnelEnd> tunnelEnds) {
-        super(game, places, openEdges);
+    public Road(List<FeaturePointer> places, List<Edge> openEdges, boolean inn, Map<FeaturePointer, TunnelEnd> tunnelEnds) {
+        super(places, openEdges);
         this.inn = inn;
         this.tunnelEnds = tunnelEnds;
     }
@@ -33,7 +32,6 @@ public class Road extends CompletableFeature<Road> {
     @Override
     public Road merge(Road road) {
         return new Road(
-            game,
             mergePlaces(road),
             mergeEdges(road),
             inn || road.inn,
@@ -44,7 +42,6 @@ public class Road extends CompletableFeature<Road> {
     @Override
     public Road placeOnBoard(Position pos, Rotation rot) {
         return new Road(
-            game,
             placeOnBoardPlaces(pos, rot),
             placeOnBoardEdges(pos, rot),
             inn,
@@ -58,7 +55,7 @@ public class Road extends CompletableFeature<Road> {
 
     public Road setInn(boolean inn) {
         if (this.inn == inn) return this;
-        return new Road(game, places, openEdges, inn, tunnelEnds);
+        return new Road(places, openEdges, inn, tunnelEnds);
     }
 
     public Map<FeaturePointer, TunnelEnd> getTunnelEnds() {
@@ -66,7 +63,7 @@ public class Road extends CompletableFeature<Road> {
     }
 
     public Road setTunnelEnds(Map<FeaturePointer, TunnelEnd> tunnelEnds) {
-        return new Road(game, places, openEdges, inn, tunnelEnds);
+        return new Road(places, openEdges, inn, tunnelEnds);
     }
 
 //
@@ -83,15 +80,15 @@ public class Road extends CompletableFeature<Road> {
 //    }
 
     @Override
-    public int getPoints(Player player) {
+    public int getPoints(GameState state, PlayerAttributes player) {
         int length = getPlaces().size();
         int points;
         if (inn) {
-            points = isCompleted() ? length * 2 : 0;
+            points = isCompleted(state) ? length * 2 : 0;
         } else {
             points = length;
         }
-        return getMageAndWitchPoints(points) + getLittleBuildingPoints();
+        return getMageAndWitchPoints(state, points) + getLittleBuildingPoints(state);
     }
 
     @Override

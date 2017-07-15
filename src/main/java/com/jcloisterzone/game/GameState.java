@@ -226,4 +226,11 @@ public class GameState {
         if (board == null) board = new Board(this);
         return board;
     }
+
+    // --- TODO ---
+
+    public boolean isGameOver() {
+        //TODO base on current phase
+        return false;
+    }
 }

@@ -98,7 +98,6 @@ public class TileDefinitionBuilder {
 
     private void processCloisterElement(Element e) {
         Cloister cloister = new Cloister(
-            game,
             List.of(new FeaturePointer(Position.ZERO, Location.CLOISTER))
         );
         cloister = (Cloister) game.initFeature(tileId, cloister, e);
@@ -108,7 +107,6 @@ public class TileDefinitionBuilder {
 
     private void processTowerElement(Element e) {
         Tower tower = new Tower(
-            game,
             List.of(new FeaturePointer(Position.ZERO, Location.TOWER))
         );
         tower = (Tower) game.initFeature(tileId, tower, e);
@@ -132,7 +130,6 @@ public class TileDefinitionBuilder {
     private void processRoadElement(Stream<Location> sides, Element e, boolean isTunnelActive) {
         FeaturePointer place = initPlaces(sides, Road.class);
         Road road = new Road(
-            game,
             List.of(place),
             initOpenEdges(sides)
         );
@@ -150,7 +147,6 @@ public class TileDefinitionBuilder {
         FeaturePointer place = initPlaces(sides, City.class);
 
         City city = new City(
-            game,
             List.of(place),
             initOpenEdges(sides),
             attributeIntValue(e, "pennant", 0)
@@ -188,7 +184,6 @@ public class TileDefinitionBuilder {
         }
 
         Farm farm = new Farm(
-            game,
             List.of(place),
             adjoiningCities
         );

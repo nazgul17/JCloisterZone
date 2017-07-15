@@ -33,6 +33,7 @@ import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
@@ -40,6 +41,8 @@ import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
+import com.jcloisterzone.reducers.ScoreFeature;
+import com.jcloisterzone.reducers.UndeployMeeples;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CommitMessage;
@@ -202,21 +205,25 @@ public class ScorePhase extends ServerAwarePhase {
 //    }
 
     private void scoreCompleted(Completable completable, boolean triggerBuilder) {
+        GameState state = game.getState();
         if (triggerBuilder && builderCap != null) {
-            if (!completable.getMeeples().find(Predicates.instanceOf(Builder.class)).isEmpty()) {
+            if (!completable.getMeeples(state).find(Predicates.instanceOf(Builder.class)).isEmpty()) {
                 builderCap.useBuilder();
             }
         }
-        if (completable.isCompleted() && !alreadyScored.contains(completable)) {
+        if (completable.isCompleted(state) && !alreadyScored.contains(completable)) {
             alreadyScored.add(completable);
             game.scoreCompleted(completable);
-            game.scoreFeature(completable);
+
+            game.replaceState(
+                new ScoreFeature(completable),
+                new UndeployMeeples(completable)
+            );
             //IMMUTABLE TODO
 //   notify scored wagon
 //          if (m instanceof Wagon && wagonCap != null) {
 //          wagonCap.wagonScored((Wagon) m, feature);
 //      	}
-            game.undeployMeeples(completable);
             game.post(new FeatureCompletedEvent(getActivePlayer(), completable));
         }
     }
