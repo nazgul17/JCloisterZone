@@ -2,7 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -81,21 +81,21 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
         return PointCategory.FARM;
     }
 
-    private int getPointsPerCity(GameState state, PlayerAttributes player, int basePoints) {
+    private int getPointsPerCity(GameState state, Player player, int basePoints) {
         return basePoints + pigHerds
             + getSpecialMeeples(state).count(m -> (m instanceof Pig) && m.getPlayer().equals(player));
     }
 
     @Override
-    public int getPoints(GameState state, PlayerAttributes player) {
+    public int getPoints(GameState state, Player player) {
         return getPlayerPoints(state, player, getPointsPerCity(state, player, 3)) + getLittleBuildingPoints(state);
     }
 
-    public int getPointsWhenBarnIsConnected(GameState state, PlayerAttributes player) {
+    public int getPointsWhenBarnIsConnected(GameState state, Player player) {
         return getPlayerPoints(state, player, getPointsPerCity(state, player, 1)) + getLittleBuildingPoints(state);
     }
 
-    private int getPlayerPoints(GameState state, PlayerAttributes player, int pointsPerCity) {
+    private int getPlayerPoints(GameState state, Player player, int pointsPerCity) {
         int points = adjoiningCityOfCarcassonne ? pointsPerCity : 0;
 
         for (FeaturePointer fp : adjoiningCities) {

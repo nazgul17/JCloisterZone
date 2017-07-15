@@ -2,7 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -71,7 +71,7 @@ public class Cloister extends ScoreableFeature implements Completable {
     }
 
     @Override
-    public int getPoints(GameState state, PlayerAttributes player) {
+    public int getPoints(GameState state, Player player) {
         Position p = places.get().getPosition();
         return state.getBoard().getAdjacentAndDiagonalTiles(p).size() + 1;
     }

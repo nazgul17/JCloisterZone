@@ -2,7 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.board.Edge;
@@ -114,7 +114,7 @@ public class City extends CompletableFeature<City> {
     }
 
     @Override
-    public int getPoints(GameState state, PlayerAttributes player) {
+    public int getPoints(GameState state, Player player) {
         boolean completed = isCompleted(state);
         int size = getPlaces().size();
 

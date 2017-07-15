@@ -1,7 +1,6 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.Player;
 
 import io.vavr.collection.Vector;
 
@@ -15,10 +14,6 @@ public class ActionsState {
         this.player = player;
         this.actions = actions;
         this.passAllowed = passAllowed;
-    }
-
-    public ActionsState(Player player, Vector<PlayerAction<?>> actions, boolean passAllowed) {
-        this(player.asPlayerAttributes(), actions, passAllowed);
     }
 
     public Player getPlayer() {

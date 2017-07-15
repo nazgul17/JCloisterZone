@@ -2,7 +2,7 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
@@ -80,7 +80,7 @@ public class Road extends CompletableFeature<Road> {
 //    }
 
     @Override
-    public int getPoints(GameState state, PlayerAttributes player) {
+    public int getPoints(GameState state, Player player) {
         int length = getPlaces().size();
         int points;
         if (inn) {
