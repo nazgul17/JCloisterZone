@@ -68,7 +68,6 @@ public class TilePhase extends Phase {
 //        if (tile.getTower() != null) {
 //            game.getCapability(TowerCapability.class).registerTower(p);
 //        }
-        game.post(new TileEvent(TileEvent.PLACEMENT, getActivePlayer(), tile, pos, rot));
 
 //        if (bridgeRequired) {
 //            BridgeAction action = bridgeCap.prepareMandatoryBridgeAction();

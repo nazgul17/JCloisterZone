@@ -28,9 +28,9 @@ public class DeployMeeple implements Reducer {
 
         LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
         state = state.setDeployedMeeples(deployedMeeples.put(meeple, fp));
-        state = state.setEvents(state.getEvents().append(
+        state = state.appendEvent(
             new MeepleEvent(state.getActivePlayer(), meeple, origin, fp)
-        ));
+        );
         return state;
     }
 

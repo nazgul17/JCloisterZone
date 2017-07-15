@@ -23,9 +23,9 @@ public class UndeployMeeple implements Reducer {
 
         LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
         state = state.setDeployedMeeples(deployedMeeples.remove(meeple));
-        state = state.setEvents(state.getEvents().append(
+        state = state.appendEvent(
             new MeepleEvent(state.getActivePlayer(), meeple, source, null)
-        ));
+        );
         return state;
 
 //         if (checkForLonelyBuilderOrPig) {

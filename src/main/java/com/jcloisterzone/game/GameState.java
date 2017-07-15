@@ -11,6 +11,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
@@ -156,6 +157,10 @@ public class GameState {
             players, score, turnPlayer, tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
+    }
+
+    public GameState appendEvent(PlayEvent ev) {
+        return setEvents(events.append(ev));
     }
 
     public Array<PlayerAttributes> getPlayers() {

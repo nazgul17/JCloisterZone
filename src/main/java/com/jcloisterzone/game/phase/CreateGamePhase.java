@@ -188,7 +188,6 @@ public class CreateGamePhase extends ServerAwarePhase {
     protected void preplaceTiles(Iterable<Tuple2<TileDefinition, Position>> preplacedTiles) {
         for (Tuple2<TileDefinition, Position> t : preplacedTiles) {
             game.replaceState(new PlaceTile(t._1, t._2, Rotation.R0));
-            game.post(new TileEvent(TileEvent.PLACEMENT, null, t._1, t._2, Rotation.R0));
         }
     }
 
