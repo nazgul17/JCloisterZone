@@ -1,6 +1,7 @@
 package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Completable;
 
 public class FeatureCompletedEvent extends PlayEvent {

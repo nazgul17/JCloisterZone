@@ -2,15 +2,11 @@ package com.jcloisterzone.game.phase;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TileGroupState;
-import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
-import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.event.play.TileDiscardedEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
@@ -93,11 +89,12 @@ public class DrawPhase extends ServerAwarePhase {
 //            }
 //        }
 
-        TilePackState tilePack = game.getState().getTilePack();
+        GameState state = game.getState();
+        TilePackState tilePack = state.getTilePack();
         if (tilePack.isEmpty()) {
-            if (abbeyCap != null && !getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
+            if (abbeyCap != null && !state.getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
                 if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
-                    abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(getActivePlayer()));
+                    abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(state.getActivePlayer()));
                 }
                 next(CleanUpTurnPartPhase.class);
                 return;
@@ -118,7 +115,8 @@ public class DrawPhase extends ServerAwarePhase {
         if (state.getBoard().getAvailablePlacements(tile).isEmpty()) {
             state = state
                 .setDiscardedTiles(state.getDiscardedTiles().append(tile))
-                .setDrawnTile(null);
+                .setDrawnTile(null)
+                .appendEvent(new TileDiscardedEvent(tile));
 
             game.replaceState(state);
 
@@ -126,11 +124,11 @@ public class DrawPhase extends ServerAwarePhase {
             next(DrawPhase.class);
             return;
         }
-        toggleClock(getActivePlayer());
+        toggleClock(state.getActivePlayer());
         //TODO Separate draw event instead
-        state = state.appendEvent(
-            new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null, null)
-        );
+//        state = state.appendEvent(
+//            new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null, null)
+//        );
         game.replaceState(state);
         next();
     }

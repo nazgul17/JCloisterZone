@@ -12,7 +12,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.PlayEvent;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;

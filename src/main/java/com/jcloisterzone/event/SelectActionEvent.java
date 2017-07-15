@@ -2,6 +2,7 @@ package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.event.play.PlayEvent;
 
 import io.vavr.collection.IndexedSeq;
 import io.vavr.collection.Vector;

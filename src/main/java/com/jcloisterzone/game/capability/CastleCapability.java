@@ -22,7 +22,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.CastleDeployedEvent;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.MeepleEvent;
-import com.jcloisterzone.event.PlayEvent;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;

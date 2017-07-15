@@ -2,6 +2,7 @@ package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.event.play.PlayEvent;
 
 @Idempotent
 public class CornCircleSelectOptionEvent extends PlayEvent {

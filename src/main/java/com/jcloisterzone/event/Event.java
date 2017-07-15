@@ -10,8 +10,6 @@ public abstract class Event {
     @Deprecated
     private final int type;
 
-    protected GameState gameState;
-
     public Event() {
         this(0);
     }
@@ -22,14 +20,6 @@ public abstract class Event {
 
     public int getType() {
         return type;
-    }
-
-    public GameState getGameState() {
-        return gameState;
-    }
-
-    public void setGameState(GameState gameState) {
-        this.gameState = gameState;
     }
 
     @Override

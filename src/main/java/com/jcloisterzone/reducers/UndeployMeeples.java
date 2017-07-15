@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.MeepleEvent;
-import com.jcloisterzone.event.PlayEvent;
+import com.jcloisterzone.event.play.MeepleReturned;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.GameState;
@@ -31,7 +31,7 @@ public class UndeployMeeples implements Reducer {
 
         for (Tuple2<Meeple, FeaturePointer> t : state.getDeployedMeeples().filter(t -> fps.contains(t._2))) {
             meeples.add(t._1);
-            events.add(new MeepleEvent(player, t._1, t._2, null));
+            events.add(new MeepleReturned(player, t._1, t._2));
         }
         state = state.setDeployedMeeples(
             state.getDeployedMeeples().removeAll(meeples)

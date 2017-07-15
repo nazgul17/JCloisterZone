@@ -8,9 +8,9 @@ import java.awt.image.BufferedImage;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.event.PlayEvent;
-import com.jcloisterzone.event.PlayerTurnEvent;
-import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.event.play.PlayEvent;
+import com.jcloisterzone.event.play.PlayerTurnEvent;
+import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.UiUtils;
@@ -49,7 +49,7 @@ public class PlacementHistory extends AbstractGridLayer {
                 turnEventSeen = true;
                 if (placedCurrentTurn == null) placedCurrentTurn = false;
 
-                Player p = ev.getTargetPlayer();
+                Player p = ev.getTriggeringPlayer();
                 if (p != null && getGame().getPrevPlayer(p).equals(turnPlayer)) {
                     if (placedCurrentTurn) {
                         break;
@@ -59,9 +59,8 @@ public class PlacementHistory extends AbstractGridLayer {
                 }
             }
 
-            if (!(ev instanceof TileEvent)) continue;
-            TileEvent te = (TileEvent) ev;
-            if (te.getType() != TileEvent.PLACEMENT) continue;
+            if (!(ev instanceof TilePlacedEvent)) continue;
+            TilePlacedEvent te = (TilePlacedEvent) ev;
 
             if (placedCurrentTurn == null && !turnEventSeen) {
                 placedCurrentTurn = true;
@@ -78,9 +77,7 @@ public class PlacementHistory extends AbstractGridLayer {
             gb.setComposite(AlphaComposite.DstOver);
             drawAntialiasedTextCentered(gb, text, 80, ZERO, SHADOW_POINT, Color.GRAY, null);
             g.drawImage(buf, null, getOffsetX(pos), getOffsetY(pos));
-
         }
-
         g.setComposite(oldComposite);
     }
 }

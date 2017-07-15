@@ -24,7 +24,7 @@ import com.jcloisterzone.board.TilePackFactory.Tiles;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
-import com.jcloisterzone.event.PlayerTurnEvent;
+import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
@@ -294,10 +294,13 @@ public class CreateGamePhase extends ServerAwarePhase {
         game.begin();
         prepareAiPlayers(muteAi);
 
+        Player player = game.getTurnPlayer();
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, getSnapshot()));
         preplaceTiles(tiles.getPreplacedTiles());
-        game.post(new PlayerTurnEvent(game.getTurnPlayer()));;
-        toggleClock(game.getTurnPlayer());
+        game.replaceState(
+            state -> state.appendEvent(new PlayerTurnEvent(player))
+        );
+        toggleClock(player);
         next();
     }
 

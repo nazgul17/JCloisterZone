@@ -27,8 +27,8 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.event.PlayEvent;
-import com.jcloisterzone.event.PlayerTurnEvent;
+import com.jcloisterzone.event.play.PlayEvent;
+import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
@@ -154,10 +154,6 @@ public class Game extends GameSettings implements EventProxy {
         if (state == null) {
             logger.warn("Null state " + event.toString());
         }
-        if (event instanceof PlayEvent) {
-            replaceState(state -> state == null ? null : state.appendEvent((PlayEvent) event));
-        }
-        event.setGameState(state);
         eventQueue.add(event);
 //        if (event instanceof PlayEvent && !event.isUndo()) {
 //            if (isUiSupportedUndo(event)) {
@@ -180,11 +176,11 @@ public class Game extends GameSettings implements EventProxy {
 //        }
         // process capabilities after undo processing
         // capability can trigger another event and order is important! (eg. windrose scoring)
-        if (event instanceof PlayEvent) {
-            for (Capability capability: getCapabilities()) {
-                capability.handleEvent((PlayEvent) event);
-            }
-        }
+//        if (event instanceof PlayEvent) {
+//            for (Capability capability: getCapabilities()) {
+//                capability.handleEvent((PlayEvent) event);
+//            }
+//        }
     }
 
     public void flushEventQueue() {
@@ -468,12 +464,6 @@ public class Game extends GameSettings implements EventProxy {
     public void turnPartCleanUp() {
         for (Capability cap: getCapabilities()) {
             cap.turnPartCleanUp();
-        }
-    }
-
-    public void turnCleanUp() {
-        for (Capability cap: getCapabilities()) {
-            cap.turnCleanUp();
         }
     }
 

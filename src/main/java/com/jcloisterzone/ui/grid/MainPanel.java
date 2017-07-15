@@ -7,8 +7,7 @@ import javax.swing.JPanel;
 
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.event.CornCirclesOptionEvent;
-import com.jcloisterzone.event.ScoreEvent;
-import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.AbbeyCapability;
@@ -176,7 +175,7 @@ public class MainPanel extends JPanel {
         gridPanel.removeInteractionPanels();
     }
 
-    public void tileEvent(TileEvent ev) {
+    public void tileEvent(/*TileEvent ev*/) {
         gridPanel.tileEvent(ev);
     }
 

@@ -16,7 +16,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.event.PlayEvent;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Feature;

@@ -35,7 +35,6 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.config.ConfigLoader;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
@@ -459,7 +458,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 
     // delegated UI methods
 
-    public void tileEvent(TileEvent ev) {
+    public void tileEvent(/*TileEvent ev*/) {
         hideLayer(AbstractTilePlacementLayer.class);
 
         if (ev.getType() == TileEvent.PLACEMENT) {

@@ -3,6 +3,7 @@ package com.jcloisterzone.event;
 import java.util.List;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.game.capability.BazaarItem;
 
 @Idempotent

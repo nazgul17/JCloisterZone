@@ -14,7 +14,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.PlayEvent;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
@@ -35,11 +35,11 @@ public abstract class Capability {
 //        return game.getCurrentTile();
 //    }
 
-    /* no @Subscribe for Capabilities
-     * it cause post from another event handler and makes trouble with AI tasks
-     * */
-    public void handleEvent(PlayEvent event) {
-    }
+//    /* no @Subscribe for Capabilities
+//     * it cause post from another event handler and makes trouble with AI tasks
+//     * */
+//    public void handleEvent(PlayEvent event) {
+//    }
 
     @Deprecated
     public void saveToSnapshot(Document doc, Element node) {
@@ -138,10 +138,12 @@ public abstract class Capability {
     public void scoreCompleted(Completable feature) {
     }
 
-    public void turnCleanUp() {
+    public GameState turnCleanUp(GameState state) {
+        return state;
     }
 
-    public void turnPartCleanUp() {
+    public GameState turnPartCleanUp(GameState state) {
+        return state;
     }
 
     public GameState finalScoring(GameState state) {

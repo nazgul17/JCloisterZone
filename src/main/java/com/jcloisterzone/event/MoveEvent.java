@@ -1,7 +1,9 @@
 package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.event.play.PlayEvent;
 
+@Deprecated
 public class MoveEvent<T> extends PlayEvent {
 
     final T from, to;

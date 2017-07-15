@@ -8,8 +8,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.FlierRollEvent;
-import com.jcloisterzone.event.ScoreEvent;
-import com.jcloisterzone.event.TileEvent;
+import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
@@ -58,8 +57,8 @@ public class AnimationLayer extends AbstractGridLayer {
         }
     }
 
-    @Subscribe
-    public void onTileEvent(TileEvent ev) {
+    //@Subscribe
+    public void onTileEvent(/*TileEvent ev*/) {
         if (ev.getType() == TileEvent.PLACEMENT) {
             TileDefinition tile = ev.getTileDefinition();
             Position pos = ev.getPosition();
@@ -91,7 +90,7 @@ public class AnimationLayer extends AbstractGridLayer {
     }
 
     private void scored(Position pos, Player player, String points, boolean finalScoring) {
-    service.registerAnimation(new ScoreAnimation(
+        service.registerAnimation(new ScoreAnimation(
             pos,
             points,
             new ImmutablePoint(50, 50),

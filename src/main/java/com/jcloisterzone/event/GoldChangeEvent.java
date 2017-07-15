@@ -2,6 +2,7 @@ package com.jcloisterzone.event;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 

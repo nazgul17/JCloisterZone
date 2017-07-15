@@ -4,6 +4,7 @@ import java.util.Set;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.event.play.PlayEvent;
 
 @Idempotent
 public class SelectDragonMoveEvent extends PlayEvent {

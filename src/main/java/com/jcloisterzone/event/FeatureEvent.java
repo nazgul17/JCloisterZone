@@ -4,6 +4,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.event.play.PlayEvent;
 
 public class FeatureEvent extends PlayEvent {
 

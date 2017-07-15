@@ -16,7 +16,7 @@ import com.jcloisterzone.config.Config.ConfirmConfig;
 import com.jcloisterzone.event.FeatureCompletedEvent;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
-import com.jcloisterzone.event.ScoreEvent;
+import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;

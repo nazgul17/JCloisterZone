@@ -2,7 +2,7 @@ package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.ScoreEvent;
+import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;

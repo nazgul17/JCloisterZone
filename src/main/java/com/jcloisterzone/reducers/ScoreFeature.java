@@ -1,9 +1,8 @@
 package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
-import com.jcloisterzone.event.ScoreEvent;
+import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.GameState;
@@ -44,12 +43,23 @@ public class ScoreFeature implements Reducer {
                 p, FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY
             )).apply(state);
 
-            scoreEvent = new ScoreEvent(follower.getDeployment(state), points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, pointCategory, follower);
-            scoreEvent.setLabel(points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT);
+            scoreEvent = new ScoreEvent(
+                points+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT,
+                points+" + "+FairyCapability.FAIRY_POINTS_FINISHED_OBJECT,
+                pointCategory,
+                finalScoring,
+                follower.getDeployment(state),
+                follower
+            );
         } else {
-            scoreEvent = new ScoreEvent(follower.getDeployment(state), points, pointCategory, follower);
+            scoreEvent = new ScoreEvent(
+                points,
+                pointCategory,
+                finalScoring,
+                follower.getDeployment(state),
+                follower
+            );
         }
-        scoreEvent.setFinal(finalScoring);
 
         state = state.appendEvent(scoreEvent);
         return state;

@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.event.ScoreEvent;
+import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;

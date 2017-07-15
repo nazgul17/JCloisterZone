@@ -16,7 +16,6 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
 import com.google.common.eventbus.Subscribe;
@@ -28,15 +27,9 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
-import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
 import com.jcloisterzone.event.ClockUpdateEvent;
-import com.jcloisterzone.event.FeatureCompletedEvent;
-import com.jcloisterzone.event.FeatureEvent;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
-import com.jcloisterzone.event.ScoreEvent;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
@@ -392,7 +385,7 @@ public class ControlPanel extends JPanel {
 
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasPlayerActionsChanged()) {
-            ActionsState actions = ev.getGameState().getPlayerActions();
+            ActionsState actions = ev.getCurrentState().getPlayerActions();
             if (actions != null) {
                 selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
             }

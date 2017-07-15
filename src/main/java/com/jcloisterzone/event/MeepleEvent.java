@@ -4,6 +4,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 
+@Deprecated
 public class MeepleEvent extends MoveEvent<FeaturePointer> {
 
     private final Meeple meeple;

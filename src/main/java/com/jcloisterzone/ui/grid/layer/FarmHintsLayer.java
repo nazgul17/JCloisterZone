@@ -24,7 +24,6 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.event.MeepleEvent;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.visitor.FeatureVisitor;
@@ -90,8 +89,8 @@ public class FarmHintsLayer extends AbstractGridLayer {
         g2.setComposite(old);
     }
 
-    @Subscribe
-    public void onTileEvent(TileEvent ev) {
+    //@Subscribe
+    public void onTileEvent(/*TileEvent ev*/) {
         //IMMUTABLE TODO
         logger.warn("IMMUTABLE TODO");
 //

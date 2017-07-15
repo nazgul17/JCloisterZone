@@ -27,6 +27,7 @@ import com.jcloisterzone.event.LittleBuildingEvent;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.NeutralFigureMoveEvent;
 import com.jcloisterzone.event.TunnelPiecePlacedEvent;
+import com.jcloisterzone.event.play.MeepleDeployed;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.BigFollower;
@@ -81,7 +82,7 @@ public class MeepleLayer extends AbstractGridLayer {
 
     @Subscribe
     @Deprecated
-    public void onMeepleEvent(MeepleEvent ev) {
+    public void onMeepleEvent(MeepleDeployed ev) {
         //TODO IMMUTABLE action layers are just function of state
         gridPanel.clearActionDecorations();
 //

@@ -28,12 +28,11 @@ import com.jcloisterzone.event.GameListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.MageWitchSelectRemoval;
 import com.jcloisterzone.event.MeeplePrisonEvent;
-import com.jcloisterzone.event.PlayerTurnEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
 import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.event.SelectDragonMoveEvent;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.event.TowerIncreasedEvent;
+import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarItem;
@@ -121,12 +120,24 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
+
         if (gameView == null) {
             logger.warn("gameView is null");
             return;
         }
+        com.jcloisterzone.game.GameState state = ev.getCurrentState();
         if (ev.hasPlayerActionsChanged()) {
             clearActions();
+        }
+        if (ev.hasDiscardedTilesChanged()) {
+            DiscardedTilesDialog discardedTilesDialog = client.getDiscardedTilesDialog();
+            if (discardedTilesDialog == null) {
+                discardedTilesDialog = new DiscardedTilesDialog(client);
+                client.setDiscardedTilesDialog(discardedTilesDialog);
+                client.getJMenuBar().setItemEnabled(MenuItem.DISCARDED_TILES, true);
+            }
+            discardedTilesDialog.setDiscardedTiles(state.getDiscardedTiles());
+            discardedTilesDialog.setVisible(true);
         }
         gameView.getControlPanel().handleGameChanged(ev);
         gameView.getGridPanel().repaint();
@@ -178,22 +189,12 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         client.setTitle(title.toString());
     }
 
-    @Subscribe
-    public void handleTileEvent(TileEvent ev) {
+    //@Subscribe
+    public void handleTileEvent(/*TileEvent ev*/) {
         switch (ev.getType()) {
         case TileEvent.DRAW:
             clearActions();
             refreshWindowTitle();
-            break;
-        case TileEvent.DISCARD:
-            DiscardedTilesDialog discardedTilesDialog = client.getDiscardedTilesDialog();
-            if (discardedTilesDialog == null) {
-                discardedTilesDialog = new DiscardedTilesDialog(client);
-                client.setDiscardedTilesDialog(discardedTilesDialog);
-                client.getJMenuBar().setItemEnabled(MenuItem.DISCARDED_TILES, true);
-            }
-            discardedTilesDialog.addTile(ev.getTileDefinition());
-            discardedTilesDialog.setVisible(true);
             break;
         case TileEvent.PLACEMENT:
         case TileEvent.REMOVE:
