@@ -14,7 +14,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.FeaturePredicates;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
@@ -24,17 +24,24 @@ public class Tile {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    protected final Game game;
+    protected final GameState state;
     private final Position position;
 
+    private final Tuple2<TileDefinition, Rotation> placedTile;
 
-    public Tile(Game game, Position position) {
-        this.game = game;
+
+    public Tile(GameState state, Position position) {
+        this(state, position, state.getPlacedTiles().get(position).getOrNull());
+    }
+
+    public Tile(GameState state, Position position, Tuple2<TileDefinition, Rotation> placedTile) {
+        this.state = state;
         this.position = position;
+        this.placedTile = placedTile;
     }
 
     private Tuple2<TileDefinition, Rotation> getPlacedTile() {
-        return game.getState().getPlacedTiles().get(position).getOrNull();
+        return placedTile;
     }
 
     public TileDefinition getTileDefinition() {
@@ -73,7 +80,7 @@ public class Tile {
     public Feature getFeature(Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
-        return game.getState().getFeatures()
+        return state.getFeatures()
             .get(new FeaturePointer(position, loc))
             .getOrNull();
 
@@ -95,7 +102,7 @@ public class Tile {
 
     public Stream<Tuple2<Location, Feature>> getFeatures() {
         Rotation rot = getRotation();
-        Map<FeaturePointer, Feature> allFeatures = game.getState().getFeatures();
+        Map<FeaturePointer, Feature> allFeatures = state.getFeatures();
         return Stream.ofAll(getTileDefinition().getInitialFeatures())
             .map(t -> t.update1(t._1.rotateCW(rot)))
             .map(t -> t.update2(
@@ -188,10 +195,6 @@ public class Tile {
 
     public Tower getTower() {
         return (Tower) getFeature(Location.TOWER);
-    }
-
-    public Game getGame() {
-        return game;
     }
 
     public Position getPosition() {

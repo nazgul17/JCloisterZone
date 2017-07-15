@@ -1,6 +1,6 @@
 package com.jcloisterzone.event;
 
-import com.jcloisterzone.Player;
+import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 
@@ -8,7 +8,7 @@ public class MeepleEvent extends MoveEvent<FeaturePointer> {
 
     private final Meeple meeple;
 
-    public MeepleEvent(Player triggeringPlayer, Meeple meeple, FeaturePointer from, FeaturePointer to) {
+    public MeepleEvent(IPlayer triggeringPlayer, Meeple meeple, FeaturePointer from, FeaturePointer to) {
         super(triggeringPlayer, from, to);
         this.meeple = meeple;
     }

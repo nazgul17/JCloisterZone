@@ -3,12 +3,10 @@ package com.jcloisterzone.figure;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 import io.vavr.Predicates;
-import io.vavr.collection.LinkedHashMap;
 
 public abstract class Meeple extends Figure<FeaturePointer> {
 
@@ -18,9 +16,7 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     private transient final PlayerAttributes player;
 
-
-    public Meeple(Game game, Integer idSuffix, PlayerAttributes player) {
-        super(game);
+    public Meeple(Integer idSuffix, PlayerAttributes player) {
         StringBuilder idBuilder = new StringBuilder();
         idBuilder.append(player.getIndex());
         idBuilder.append(".");
@@ -38,58 +34,28 @@ public abstract class Meeple extends Figure<FeaturePointer> {
     }
 
     @Override
-    public FeaturePointer getDeployment() {
-        return game.getDeployedMeeples().get(this).getOrNull();
+    public FeaturePointer getDeployment(GameState state) {
+        return state.getDeployedMeeples().get(this).getOrNull();
     }
 
     @Override
-    public boolean at(Feature feature) {
+    public boolean at(GameState state, Feature feature) {
         return feature.getMeeples().find(Predicates.is(this)).isDefined();
     }
 
-    public boolean at(MeeplePointer mp) {
-        if (!at(mp.asFeaturePointer())) return false;
+    public boolean at(GameState state, MeeplePointer mp) {
+        if (!at(state, mp.asFeaturePointer())) return false;
         if (!mp.getMeepleId().equals(id)) return false;
         return true;
     }
 
-    public boolean canBeEatenByDragon() {
+    public boolean canBeEatenByDragon(GameState state) {
         return true;
     }
 
-    public DeploymentCheckResult isDeploymentAllowed(Feature feature) {
+    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp) {
         return DeploymentCheckResult.OK;
     }
-
-    @Override
-    public void deploy(FeaturePointer at) {
-        FeaturePointer origin = getDeployment();
-        DeploymentCheckResult check = isDeploymentAllowed(game.getBoard().get(at));
-        if (!check.result) {
-          throw new IllegalArgumentException(check.error);
-        }
-        game.replaceState(state -> {
-            LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
-            return state.setDeployedMeeples(deployedMeeples.put(this, at));
-        });
-        game.post(new MeepleEvent(game.getActivePlayer(), this, origin, at));
-    }
-
-    @Override
-    public void undeploy() {
-        undeploy(true);
-    }
-
-    public void undeploy(boolean checkForLonelyBuilderOrPig) {
-        FeaturePointer source = getDeployment();
-        assert source != null;
-        game.replaceState(state -> {
-            LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
-            return state.setDeployedMeeples(deployedMeeples.remove(this));
-        });
-        game.post(new MeepleEvent(game.getActivePlayer(), this, source, null));
-    }
-
 
     public PlayerAttributes getPlayer() {
         return player;

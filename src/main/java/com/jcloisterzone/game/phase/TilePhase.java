@@ -19,6 +19,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.reducers.PlaceTile;
 
 import io.vavr.collection.Vector;
 
@@ -55,19 +56,19 @@ public class TilePhase extends Phase {
 //    }
 
     @Override
-    public void placeTile(Rotation rotation, Position p) {
+    public void placeTile(Rotation rot, Position pos) {
         TileDefinition tile = game.getState().getDrawnTile();
 
         //IMMUTABLE TODO bridge
         //boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
 
-        getBoard().add(tile, p, rotation);
+        game.replaceState(new PlaceTile(tile, pos, rot));
 
         //IMMUTABLE TODO bridge
 //        if (tile.getTower() != null) {
 //            game.getCapability(TowerCapability.class).registerTower(p);
 //        }
-        game.post(new TileEvent(TileEvent.PLACEMENT, getActivePlayer(), tile, p, rotation));
+        game.post(new TileEvent(TileEvent.PLACEMENT, getActivePlayer(), tile, pos, rot));
 
 //        if (bridgeRequired) {
 //            BridgeAction action = bridgeCap.prepareMandatoryBridgeAction();

@@ -11,6 +11,7 @@ import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
@@ -42,7 +43,7 @@ public class NeutralFigurePanel extends JComponent {
     private final MageAndWitchCapability mwCap;
 
     public NeutralFigurePanel(Client client, Game game, PlayerPanelImageCache cache) {
-    	this.client = client;
+        this.client = client;
         this.game = game;
         this.cache = cache;
         dragonCap = game.getCapability(DragonCapability.class);
@@ -85,17 +86,19 @@ public class NeutralFigurePanel extends JComponent {
         bx = PADDING_L;
         by = PADDING_L;
 
-        if (dragonCap != null && dragonCap.getDragon().isInSupply()) {
+        GameState state = game.getState();
+
+        if (dragonCap != null && dragonCap.getDragon().isInSupply(state)) {
             drawMeepleBox(g2, "dragon", -7, -6);
         }
-        if (fairyCap != null && fairyCap.getFairy().isInSupply()) {
+        if (fairyCap != null && fairyCap.getFairy().isInSupply(state)) {
             drawMeepleBox(g2, "fairy");
         }
         if (mwCap != null) {
-            if (mwCap.getMage().isInSupply()) {
+            if (mwCap.getMage().isInSupply(state)) {
                 drawMeepleBox(g2, "mage");
             }
-            if (mwCap.getWitch().isInSupply()) {
+            if (mwCap.getWitch().isInSupply(state)) {
                 drawMeepleBox(g2, "witch");
             }
         }

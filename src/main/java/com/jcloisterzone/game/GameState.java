@@ -1,12 +1,10 @@
 package com.jcloisterzone.game;
 
-import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.PlayerScore;
-import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.ActionsState;
-import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
@@ -25,7 +23,6 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
-import io.vavr.collection.Vector;
 
 @Immutable
 public class GameState {
@@ -207,5 +204,21 @@ public class GameState {
 
     public Queue<PlayEvent> getEvents() {
         return events;
+    }
+
+    // ------ helpers -------------
+
+    private Board board;
+
+    public PlayerAttributes getActivePlayer() {
+        if (playerActions != null) {
+            return playerActions.getPlayer();
+        }
+        return players.get(turnPlayer);
+    }
+
+    public Board getBoard() {
+        if (board == null) board = new Board(this);
+        return board;
     }
 }

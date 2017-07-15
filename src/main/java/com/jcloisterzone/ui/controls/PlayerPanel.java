@@ -1,5 +1,8 @@
 package com.jcloisterzone.ui.controls;
 
+import static com.jcloisterzone.ui.I18nUtils._;
+import static com.jcloisterzone.ui.controls.ControlPanel.CORNER_DIAMETER;
+
 import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Dimension;
@@ -17,16 +20,15 @@ import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
 
-import com.google.common.collect.Iterables;
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
@@ -40,9 +42,6 @@ import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.view.GameView;
-
-import static com.jcloisterzone.ui.I18nUtils._;
-import static com.jcloisterzone.ui.controls.ControlPanel.CORNER_DIAMETER;
 
 public class PlayerPanel extends MouseTrackingComponent implements RegionMouseListener {
 
@@ -248,7 +247,9 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
         int small = 0;
         String smallImgKey = SmallFollower.class.getSimpleName();
-        for (Follower f : Iterables.filter(player.getFollowers(), MeeplePredicates.inSupply())) {
+        GameState state = game.getState();
+
+        for (Follower f : player.getFollowers().filter(f -> f.isInSupply(state))) {
             //instanceof cannot be used because of Phantom
             if (f.getClass().equals(SmallFollower.class)) {
                 small++;
@@ -262,7 +263,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
 //		gp.profile(" > followers");
 
-        for (Special meeple : Iterables.filter(player.getSpecialMeeples(), MeeplePredicates.inSupply())) {
+        for (Special meeple : player.getSpecialMeeples().filter(f -> f.isInSupply(state))) {
             drawMeepleBox(player, meeple.getClass().getSimpleName(), 1, false);
         }
 

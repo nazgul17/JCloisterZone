@@ -88,7 +88,6 @@ public class Game extends GameSettings implements EventProxy {
     //proxies
     private Array<Player> players;
     private final TilePack tilePack;
-    private final Board board;
 
 
     // -- old --
@@ -122,7 +121,6 @@ public class Game extends GameSettings implements EventProxy {
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
         this.tilePack = new TilePack(this);
-        this.board = new Board(this);
     }
 
     public GameState getState() {
@@ -144,8 +142,10 @@ public class Game extends GameSettings implements EventProxy {
         return tilePack;
     }
 
+    @Deprecated
+    //call ir directly on state
     public Board getBoard() {
-        return board;
+        return state.getBoard();
     }
 
     @Override
@@ -240,7 +240,7 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public Tile getCurrentTile() {
-        return board.get(state.getPlacedTiles().takeRight(1).get()._1);
+        return getBoard().get(state.getPlacedTiles().takeRight(1).get()._1);
     }
 
     public PlayerSlot[] getPlayerSlots() {
@@ -370,7 +370,7 @@ public class Game extends GameSettings implements EventProxy {
 
     public List<Follower> createPlayerFollowers(PlayerAttributes p) {
         Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
-                .map(i -> (Follower) new SmallFollower(this, i, p));
+                .map(i -> (Follower) new SmallFollower(i, p));
 
         List<Follower> followers = List.ofAll(stream);
 

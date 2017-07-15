@@ -8,70 +8,52 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 public abstract class Figure<T extends BoardPointer> implements Serializable {
 
     private static final long serialVersionUID = 3264248810294656662L;
 
-    protected transient final Game game;
+    public abstract T getDeployment(GameState state);
 
-    public Figure(Game game) {
-        assert game != null;
-        this.game = game;
-    }
-
-    public abstract void deploy(T at);
-    public abstract void undeploy();
-
-    public abstract T getDeployment();
-
-    public Feature getFeature() {
-        T at = getDeployment();
+    public Feature getFeature(GameState state) {
+        T at = getDeployment(state);
         FeaturePointer fp = at == null ? null : at.asFeaturePointer();
-        return fp == null ? null : game.getBoard().get(fp);
+        if (fp == null) {
+            return null;
+        }
+        return state.getFeatures().get(fp).getOrNull();
     }
 
-    public Location getLocation() {
-        T at = getDeployment();
+    public Location getLocation(GameState state) {
+        T at = getDeployment(state);
         FeaturePointer fp = at == null ? null : at.asFeaturePointer();
         return fp == null ? null : fp.getLocation();
     }
 
-    public Position getPosition() {
-        T at = getDeployment();
+    public Position getPosition(GameState state) {
+        T at = getDeployment(state);
         return at == null ? null : at.getPosition();
     }
 
-
-    public boolean at(Position p) {
-        return Objects.equals(p, getPosition());
+    public boolean at(GameState state, Position p) {
+        return Objects.equals(p, getPosition(state));
     }
 
-    public boolean at(FeaturePointer fp) {
-        T at = getDeployment();
+    public boolean at(GameState state, FeaturePointer fp) {
+        T at = getDeployment(state);
         return Objects.equals(fp, at == null ? null : at.asFeaturePointer());
     }
 
-    public abstract boolean at(Feature feature);
+    public abstract boolean at(GameState state, Feature feature);
 
     /** true if meeple is deployed on board */
-    public boolean isDeployed() {
-        return getDeployment() != null;
+    public boolean isDeployed(GameState state) {
+        return getDeployment(state) != null;
     }
 
     //deployed is not opposite of supply, mind imprisoned followers
-    public boolean isInSupply() {
-        return getDeployment() == null;
-    }
-
-    @Override
-    public String toString() {
-        T at = getDeployment();
-        if (at == null) {
-            return getClass().getSimpleName();
-        } else {
-            return getClass().getSimpleName() + at.toString();
-        }
+    public boolean isInSupply(GameState state) {
+        return getDeployment(state) == null;
     }
 }

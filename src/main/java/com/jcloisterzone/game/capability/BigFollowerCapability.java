@@ -17,6 +17,6 @@ public class BigFollowerCapability extends Capability {
 
     @Override
     public List<Follower> createPlayerFollowers(PlayerAttributes p) {
-        return List.of((Follower) new BigFollower(game, null, p));
+        return List.of((Follower) new BigFollower(null, p));
     }
 }

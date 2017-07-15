@@ -33,6 +33,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.PigHerdCapability;
+import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.SlotMessage;
@@ -186,7 +187,7 @@ public class CreateGamePhase extends ServerAwarePhase {
 
     protected void preplaceTiles(Iterable<Tuple2<TileDefinition, Position>> preplacedTiles) {
         for (Tuple2<TileDefinition, Position> t : preplacedTiles) {
-            game.getBoard().add(t._1, t._2, Rotation.R0);
+            game.replaceState(new PlaceTile(t._1, t._2, Rotation.R0));
             game.post(new TileEvent(TileEvent.PLACEMENT, null, t._1, t._2, Rotation.R0));
         }
     }

@@ -65,13 +65,13 @@ public class Player implements IPlayer {
         assert !Modifier.isAbstract(clazz.getModifiers());
         return !Stream.ofAll(specialMeeples)
             .filter(m -> m.getClass().equals(clazz))
-            .filter(m -> m.isInSupply())
+            .filter(m -> m.isInSupply(game.getState()))
             .isEmpty();
     }
 
     public boolean hasFollower() {
         return !Stream.ofAll(followers)
-            .filter(m -> m.isInSupply())
+            .filter(m -> m.isInSupply(game.getState()))
             .isEmpty();
     }
 
@@ -80,7 +80,7 @@ public class Player implements IPlayer {
         //check equality not instanceOf - phantom is subclass of small follower
         return !Stream.ofAll(followers)
                 .filter(m -> m.getClass().equals(clazz))
-                .filter(m -> m.isInSupply())
+                .filter(m -> m.isInSupply(game.getState()))
                 .isEmpty();
     }
 
@@ -89,10 +89,11 @@ public class Player implements IPlayer {
         List<? extends Meeple> collection = (Follower.class.isAssignableFrom(clazz) ? followers : specialMeeples);
         return Stream.ofAll(collection)
             .filter(m -> m.getClass().equals(clazz))
-            .find(m -> m.isInSupply())
+            .find(m -> m.isInSupply(game.getState()))
             .getOrNull();
     }
 
+    @Deprecated
     public void addPoints(int points, PointCategory category) {
         if (points != 0) {
             game.replaceState(state -> {

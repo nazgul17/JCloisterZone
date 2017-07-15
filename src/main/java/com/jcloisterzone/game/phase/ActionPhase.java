@@ -34,6 +34,7 @@ import com.jcloisterzone.game.capability.PortalCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
+import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
@@ -181,7 +182,7 @@ public class ActionPhase extends Phase {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }
-        m.deploy(fp);
+        game.replaceState(new DeployMeeple(m, fp));
         Tile tile = game.getCurrentTile();
         if (portalCap != null && fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
             //magic gate usage

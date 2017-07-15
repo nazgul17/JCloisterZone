@@ -8,8 +8,6 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.visitor.score.CloisterScoreContext;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.game.Game;
 
 import io.vavr.collection.List;
