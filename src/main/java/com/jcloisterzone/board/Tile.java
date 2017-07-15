@@ -6,7 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.Expansion;
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
@@ -243,13 +243,13 @@ public class Tile {
         }
     }
 
-    public Stream<Tuple2<Location, Feature>> getPlayerFeatures(PlayerAttributes player, Class<? extends Feature> featureClass) {
+    public Stream<Tuple2<Location, Feature>> getPlayerFeatures(Player player, Class<? extends Feature> featureClass) {
         return getFeatures()
             .filter(t -> featureClass == null || featureClass.isInstance(t._2))
             .filter(t -> t._2.isOccupiedBy(state, player));
     }
 
-    public Stream<Tuple2<Location, Feature>> getPlayerUncompletedFeatures(PlayerAttributes player, Class<? extends Feature> featureClass) {
+    public Stream<Tuple2<Location, Feature>> getPlayerUncompletedFeatures(Player player, Class<? extends Feature> featureClass) {
         return getPlayerFeatures(player, featureClass).filter(this::isValueNotCompleted);
     }
 

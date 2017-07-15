@@ -433,11 +433,15 @@ public class SimpleServer extends WebSocketServer  {
             List<Player> players = snapshot.getPlayers();
             clocks = new long[players.size()];
             for (int i = 0; i < clocks.length; i++) {
-                PlayerClock clock = players.get(i).getClock();
-                clocks[i] = clock.resetRunning();
-                if (clock.isRunning()) {
-                    runningClock = i;
-                }
+                //IMMUTABLE TODO
+                //PlayerClock clock = players.get(i).getClock();
+                //clocks[i] = clock.resetRunning();
+//                if (clock.isRunning()) {
+//                    runningClock = i;
+//                }
+                // ---- just dev fix
+                clocks[i] = 0;
+                runningClock = -1;
             }
             runningSince = System.currentTimeMillis();
         }
@@ -509,9 +513,9 @@ public class SimpleServer extends WebSocketServer  {
             replay.add(payload);
         }
         for (WebSocket ws : connections.keySet()) {
-        	if (ws.isOpen()) { //prevent exception when server is closing
-        		ws.send(payload);
-        	}
+            if (ws.isOpen()) { //prevent exception when server is closing
+                ws.send(payload);
+            }
         }
     }
 

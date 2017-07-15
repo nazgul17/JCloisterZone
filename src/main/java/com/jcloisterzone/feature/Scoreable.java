@@ -1,6 +1,6 @@
 package com.jcloisterzone.feature;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.GameState;
@@ -11,10 +11,10 @@ public interface Scoreable extends Feature {
 
     PointCategory getPointCategory();
 
-    Set<PlayerAttributes> getOwners(GameState state);
-    int getPoints(GameState state, PlayerAttributes player);
+    Set<Player> getOwners(GameState state);
+    int getPoints(GameState state, Player player);
 
-    Follower getSampleFollower(GameState state, PlayerAttributes player);
+    Follower getSampleFollower(GameState state, Player player);
 
 
 

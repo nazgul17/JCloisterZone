@@ -1,6 +1,6 @@
 package com.jcloisterzone.reducers;
 
-import com.jcloisterzone.IPlayer;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerScore;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.game.GameState;
@@ -9,11 +9,11 @@ import io.vavr.collection.Array;
 
 public class AddPoints implements Reducer {
 
-    final IPlayer player;
+    final Player player;
     final int points;
     final PointCategory category;
 
-    public AddPoints(IPlayer player, int points, PointCategory category) {
+    public AddPoints(Player player, int points, PointCategory category) {
         this.player = player;
         this.points = points;
         this.category = category;

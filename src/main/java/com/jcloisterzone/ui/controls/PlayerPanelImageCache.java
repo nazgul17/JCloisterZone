@@ -12,6 +12,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.ClothWineGrainCapability;
@@ -60,10 +61,11 @@ public class PlayerPanelImageCache {
     }
 
     private void scaleImages(Game game) {
-        for (Player player : game.getAllPlayers()) {
+        GameState state = game.getState();
+        for (Player player : state.getPlayers()) {
             Color color = player.getColors().getMeepleColor();
-            scaleFigureImages(player, color, player.getFollowers());
-            scaleFigureImages(player, color, player.getSpecialMeeples());
+            scaleFigureImages(player, color, player.getFollowers(state));
+            scaleFigureImages(player, color, player.getSpecialMeeples(state));
             if (game.hasCapability(TunnelCapability.class)) {
                 Image tunnelA = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", player.getColors().getMeepleColor()));
                 Image tunnelB = rm.getLayeredImage(new LayeredImageDescriptor("player-meeples/tunnel", player.getColors().getTunnelBColor()));

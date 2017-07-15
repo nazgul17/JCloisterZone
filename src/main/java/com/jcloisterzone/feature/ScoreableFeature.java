@@ -1,6 +1,6 @@
 package com.jcloisterzone.feature;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Special;
@@ -25,13 +25,13 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
     }
 
     @Override
-    public abstract int getPoints(GameState state, PlayerAttributes player);
+    public abstract int getPoints(GameState state, Player player);
 
     @Override
-    public Set<PlayerAttributes> getOwners(GameState state) {
-        HashMap<PlayerAttributes, Integer> powers = getFollowers(state)
-            .foldLeft(HashMap.<PlayerAttributes, Integer>empty(), (acc, m) -> {
-                PlayerAttributes player = m.getPlayer();
+    public Set<Player> getOwners(GameState state) {
+        HashMap<Player, Integer> powers = getFollowers(state)
+            .foldLeft(HashMap.<Player, Integer>empty(), (acc, m) -> {
+                Player player = m.getPlayer();
                 int power = getPower(m);
                 return acc.put(player, acc.get(player).getOrElse(0) + power);
             });
@@ -42,7 +42,7 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
     }
 
     @Override
-    public Follower getSampleFollower(GameState state, PlayerAttributes player) {
+    public Follower getSampleFollower(GameState state, Player player) {
         return getFollowers(state).find(f -> f.getPlayer().equals(player)).getOrNull();
     }
 

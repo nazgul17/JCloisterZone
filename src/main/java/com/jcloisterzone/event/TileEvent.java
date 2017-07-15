@@ -1,16 +1,9 @@
 package com.jcloisterzone.event;
 
-import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePack;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.AbbeyCapability;
-import com.jcloisterzone.game.capability.TowerCapability;
 
 public class TileEvent extends PlayEvent {
 
@@ -23,7 +16,7 @@ public class TileEvent extends PlayEvent {
     private final Position position;
     private final Rotation rotation;
 
-    public TileEvent(int type, IPlayer player, TileDefinition tile, Position position, Rotation rotation) {
+    public TileEvent(int type, Player player, TileDefinition tile, Position position, Rotation rotation) {
         super(type, player, type == DRAW ? player : null);
         this.tile = tile;
         this.position = position;

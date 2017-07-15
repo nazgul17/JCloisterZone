@@ -1,6 +1,6 @@
 package com.jcloisterzone.figure;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.game.GameState;
 
@@ -10,7 +10,7 @@ public abstract class Follower extends Meeple {
 
     //private boolean inPrison;
 
-    public Follower(Integer idSuffix, PlayerAttributes player) {
+    public Follower(Integer idSuffix, Player player) {
         super(idSuffix, player);
     }
 

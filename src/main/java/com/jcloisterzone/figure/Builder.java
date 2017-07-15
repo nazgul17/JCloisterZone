@@ -1,6 +1,6 @@
 package com.jcloisterzone.figure;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
@@ -11,7 +11,7 @@ public class Builder extends Special {
 
     private static final long serialVersionUID = 1189566966196473830L;
 
-    public Builder(PlayerAttributes player) {
+    public Builder(Player player) {
         super(player);
     }
 

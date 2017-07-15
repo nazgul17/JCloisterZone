@@ -1,6 +1,6 @@
 package com.jcloisterzone.figure;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.Feature;
@@ -14,9 +14,9 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     private final String id;
 
-    private transient final PlayerAttributes player;
+    private transient final Player player;
 
-    public Meeple(Integer idSuffix, PlayerAttributes player) {
+    public Meeple(Integer idSuffix, Player player) {
         StringBuilder idBuilder = new StringBuilder();
         idBuilder.append(player.getIndex());
         idBuilder.append(".");
@@ -57,7 +57,7 @@ public abstract class Meeple extends Figure<FeaturePointer> {
         return DeploymentCheckResult.OK;
     }
 
-    public PlayerAttributes getPlayer() {
+    public Player getPlayer() {
         return player;
     }
 

@@ -1,30 +1,30 @@
 package com.jcloisterzone.event;
 
-import com.jcloisterzone.IPlayer;
+import com.jcloisterzone.Player;
 
 /**
  * Ancestor for all in-game event.
  */
 public abstract class PlayEvent extends Event {
 
-    private final IPlayer triggeringPlayer;
-    private final IPlayer targetPlayer;
+    private final Player triggeringPlayer;
+    private final Player targetPlayer;
 
-    public PlayEvent(IPlayer triggeringPlayer, IPlayer targetPlayer) {
+    public PlayEvent(Player triggeringPlayer, Player targetPlayer) {
         this(0, triggeringPlayer, targetPlayer);
     }
 
-    public PlayEvent(int type, IPlayer triggeringPlayer, IPlayer targetPlayer) {
+    public PlayEvent(int type, Player triggeringPlayer, Player targetPlayer) {
         super(type);
         this.triggeringPlayer = triggeringPlayer;
         this.targetPlayer = targetPlayer;
     }
 
-    public IPlayer getTargetPlayer() {
+    public Player getTargetPlayer() {
         return targetPlayer;
     }
 
-    public IPlayer getTriggeringPlayer() {
+    public Player getTriggeringPlayer() {
         return triggeringPlayer;
     }
 }

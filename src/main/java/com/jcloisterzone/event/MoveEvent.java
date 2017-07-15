@@ -1,16 +1,16 @@
 package com.jcloisterzone.event;
 
-import com.jcloisterzone.IPlayer;
+import com.jcloisterzone.Player;
 
 public class MoveEvent<T> extends PlayEvent {
 
     final T from, to;
 
-    public MoveEvent(IPlayer triggeringPlayer, T from, T to) {
+    public MoveEvent(Player triggeringPlayer, T from, T to) {
         this(0, triggeringPlayer, from, to);
     }
 
-    public MoveEvent(int type, IPlayer triggeringPlayer, T from, T to) {
+    public MoveEvent(int type, Player triggeringPlayer, T from, T to) {
         super(type, triggeringPlayer, null);
         this.from = from;
         this.to = to;

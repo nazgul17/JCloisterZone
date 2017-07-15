@@ -433,13 +433,15 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleClockMessage(ClockMessage msg) {
         Game game = getGame(msg);
-        Array<Player> players = game.getAllPlayers();
+        Array<Player> players = game.getState().getPlayers();
         Player runningClockPlayer = msg.getRunning() == null ? null : players.get(msg.getRunning());
-        for (Player player : players) {
-            PlayerClock clock = player.getClock();
-            clock.setTime(msg.getClocks()[player.getIndex()]);
-            clock.setRunning(player == runningClockPlayer);
-        }
+
+        game.replaceState(state -> state.setClocks(
+          players.map(p -> new PlayerClock(
+            msg.getClocks()[p.getIndex()],
+            p.equals(runningClockPlayer)
+          ))
+        ));
         game.post(new ClockUpdateEvent(runningClockPlayer));
     }
 

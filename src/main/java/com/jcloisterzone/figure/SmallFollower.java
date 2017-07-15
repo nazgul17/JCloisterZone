@@ -1,6 +1,6 @@
 package com.jcloisterzone.figure;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 
 public class SmallFollower extends Follower {
 
@@ -8,7 +8,7 @@ public class SmallFollower extends Follower {
 
     public static final int QUANTITY = 7;
 
-    public SmallFollower(Integer idSuffix, PlayerAttributes player) {
+    public SmallFollower(Integer idSuffix, Player player) {
         super(idSuffix, player);
     }
 

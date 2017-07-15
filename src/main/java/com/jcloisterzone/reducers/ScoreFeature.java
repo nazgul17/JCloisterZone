@@ -1,7 +1,7 @@
 package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.feature.Scoreable;
@@ -19,7 +19,7 @@ public class ScoreFeature implements Reducer {
         this.feature = feature;
     }
 
-     private GameState scorePlayer(GameState state, PlayerAttributes p) {
+     private GameState scorePlayer(GameState state, Player p) {
         boolean finalScoring = state.isGameOver();
 
         int points = feature.getPoints(state, p);
@@ -57,10 +57,10 @@ public class ScoreFeature implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        Set<PlayerAttributes> players = feature.getOwners(state);
+        Set<Player> players = feature.getOwners(state);
         if (players.isEmpty()) return state;
 
-        for (PlayerAttributes pl : players) {
+        for (Player pl : players) {
             state = scorePlayer(state, pl);
         }
 //        if (fairyCapability != null && !isOver()) {

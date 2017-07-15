@@ -1,7 +1,7 @@
 package com.jcloisterzone.feature;
 
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -37,7 +37,7 @@ public interface Feature {
         return !getMeeples(state).isEmpty();
     }
 
-    default boolean isOccupiedBy(GameState state, PlayerAttributes p) {
+    default boolean isOccupiedBy(GameState state, Player p) {
         return !getMeeples(state).filter(m -> m.getPlayer().equals(p)).isEmpty();
     }
 }

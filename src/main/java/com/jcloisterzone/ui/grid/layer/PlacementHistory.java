@@ -6,7 +6,7 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 
-import com.jcloisterzone.IPlayer;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.event.PlayEvent;
 import com.jcloisterzone.event.PlayerTurnEvent;
@@ -35,7 +35,7 @@ public class PlacementHistory extends AbstractGridLayer {
         Composite oldComposite = g.getComposite();
         g.setComposite(ALPHA_COMPOSITE);
 
-        IPlayer turnPlayer = getGame().getTurnPlayer();
+        Player turnPlayer = getGame().getTurnPlayer();
         int counter = 0;
 
         boolean breakOnTurnEvent = false;
@@ -49,7 +49,7 @@ public class PlacementHistory extends AbstractGridLayer {
                 turnEventSeen = true;
                 if (placedCurrentTurn == null) placedCurrentTurn = false;
 
-                IPlayer p = ev.getTargetPlayer();
+                Player p = ev.getTargetPlayer();
                 if (p != null && getGame().getPrevPlayer(p).equals(turnPlayer)) {
                     if (placedCurrentTurn) {
                         break;
@@ -68,7 +68,7 @@ public class PlacementHistory extends AbstractGridLayer {
             }
 
             Position pos = te.getPosition();
-            IPlayer player = te.getTriggeringPlayer();
+            Player player = te.getTriggeringPlayer();
             String text = String.valueOf(++counter);
             Color color = player != null ?  player.getColors().getFontColor() : DEFAULT_COLOR;
 

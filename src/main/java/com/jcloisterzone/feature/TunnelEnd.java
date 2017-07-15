@@ -1,6 +1,6 @@
 package com.jcloisterzone.feature;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 
 public class TunnelEnd {
 
@@ -8,19 +8,19 @@ public class TunnelEnd {
         A, B
     }
 
-    private final PlayerAttributes occupiedBy;
+    private final Player occupiedBy;
     private final TunnelToken token;
 
     public TunnelEnd() {
         this(null, null);
     }
 
-    public TunnelEnd(PlayerAttributes occupiedBy, TunnelToken token) {
+    public TunnelEnd(Player occupiedBy, TunnelToken token) {
         this.occupiedBy = occupiedBy;
         this.token = token;
     }
 
-    public PlayerAttributes getOccupiedBy() {
+    public Player getOccupiedBy() {
         return occupiedBy;
     }
 

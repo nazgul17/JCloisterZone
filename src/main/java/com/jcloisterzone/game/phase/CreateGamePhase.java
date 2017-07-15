@@ -12,7 +12,8 @@ import java.util.Set;
 import com.google.common.collect.ClassToInstanceMap;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.PlayerClock;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.ai.AiPlayer;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -149,15 +150,15 @@ public class CreateGamePhase extends ServerAwarePhase {
         last.setDefaultNext(next); //after last phase, the first is default
     }
 
-    protected Array<PlayerAttributes> preparePlayers() {
-        List<PlayerAttributes> players = new ArrayList<>();
+    protected Array<Player> preparePlayers() {
+        List<Player> players = new ArrayList<>();
         PlayerSlot[] sorted = new PlayerSlot[slots.length];
         System.arraycopy(slots, 0, sorted, 0, slots.length);
         Arrays.sort(sorted, new PlayerSlotComparator());
         for (int i = 0; i < sorted.length; i++) {
             PlayerSlot slot = sorted[i];
             if (slot.isOccupied()) {
-                PlayerAttributes player = new PlayerAttributes(slot.getNickname(), i, slot);
+                Player player = new Player(slot.getNickname(), i, slot);
                 players.add(player);
             }
         }
@@ -264,7 +265,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         prepareCapabilities();
 
         HashMap<Class<? extends Capability>, Capability> capabilities = createCapabilities();
-        Array<PlayerAttributes> players = preparePlayers();
+        Array<Player> players = preparePlayers();
 
         game.replaceState(GameState.createInitial(
             capabilities,
@@ -272,10 +273,21 @@ public class CreateGamePhase extends ServerAwarePhase {
             0
         ));
 
+        game.replaceState(state -> {
+            state = state.setFollowers(
+                players.map(p -> game.createPlayerFollowers(p))
+            );
+            state = state.setSpecialMeeples(
+                players.map(p -> game.createPlayerSpecialMeeples(p))
+            );
+            state = state.setClocks(
+                players.map(p -> new PlayerClock(0))
+            );
+            return state;
+        });
+
         Tiles tiles = prepareTilePack();
         game.replaceState(state -> state.setTilePack(tiles.getTilePack()));
-
-        game.setPlayers(players);
 
         preparePhases();
 

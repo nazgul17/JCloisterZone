@@ -14,9 +14,7 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.hash.HashCode;
 import com.jcloisterzone.EventBusExceptionHandler;
 import com.jcloisterzone.EventProxy;
-import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerAttributes;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
@@ -69,9 +67,6 @@ public class Game extends GameSettings implements EventProxy {
     // -- new --
 
     private GameState state;
-
-    //proxies
-    private Array<Player> players;
 
     // -- old --
 
@@ -259,11 +254,13 @@ public class Game extends GameSettings implements EventProxy {
         return state.getDeployedNeutralFigures();
     }
 
+    @Deprecated
     public Player getTurnPlayer() {
-        return players.get(state.getTurnPlayer());
+        return state.getPlayers().get(state.getTurnPlayer());
     }
 
-    public void setTurnPlayer(IPlayer player) {
+    @Deprecated
+    public void setTurnPlayer(Player player) {
         this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
         post(new PlayerTurnEvent(getTurnPlayer()));
     }
@@ -272,15 +269,9 @@ public class Game extends GameSettings implements EventProxy {
      * Returns player who is allowed to make next action.
      * @return
      */
+    @Deprecated
     public Player getActivePlayer() {
-//        Phase phase = getPhase();
-//        return phase == null ? null : phase.getActivePlayer();
-        ActionsState actions = state.getPlayerActions();
-        if (actions == null) {
-            return getTurnPlayer();
-        } else {
-            return getPlayer(actions.getPlayer());
-        }
+        return state.getActivePlayer();
     }
 
 //    public List<NeutralFigure> getNeutralFigures() {
@@ -291,15 +282,15 @@ public class Game extends GameSettings implements EventProxy {
         return getNextPlayer(getTurnPlayer());
     }
 
-    public Player getNextPlayer(IPlayer p) {
+    public Player getNextPlayer(Player p) {
         int playerIndex = p.getIndex();
-        int nextPlayerIndex = playerIndex == (players.length() - 1) ? 0 : playerIndex + 1;
+        int nextPlayerIndex = playerIndex == (state.getPlayers().length() - 1) ? 0 : playerIndex + 1;
         return getPlayer(nextPlayerIndex);
     }
 
-    public Player getPrevPlayer(IPlayer p) {
+    public Player getPrevPlayer(Player p) {
         int playerIndex = p.getIndex();
-        int prevPlayerIndex = playerIndex == 0 ? players.length() - 1 : playerIndex - 1;
+        int prevPlayerIndex = playerIndex == 0 ? state.getPlayers().length() - 1 : playerIndex - 1;
         return getPlayer(prevPlayerIndex);
     }
 
@@ -310,19 +301,16 @@ public class Game extends GameSettings implements EventProxy {
      * @return demand player
      */
     public Player getPlayer(int index) {
-        return players.get(index);
-    }
-
-    public Player getPlayer(PlayerAttributes attrs) {
-        return players.get(attrs.getIndex());
+        return state.getPlayers().get(index);
     }
 
     /**
      * Returns whole player list
      * @return player list
      */
+    @Deprecated
     public Array<Player> getAllPlayers() {
-        return players;
+        return state.getPlayers();
     }
 
     public Random getRandom() {
@@ -344,24 +332,15 @@ public class Game extends GameSettings implements EventProxy {
         return match == null ? null : match._1;
     }
 
-    // TODO rename
-    @Deprecated
-    public void setPlayers(Array<PlayerAttributes> players) {
-        this.players = players.map(p -> new Player(this, p));
-    }
-
-    public List<Follower> createPlayerFollowers(PlayerAttributes p) {
+    public List<Follower> createPlayerFollowers(Player p) {
         Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
                 .map(i -> (Follower) new SmallFollower(i, p));
-
         List<Follower> followers = List.ofAll(stream);
-
         followers = followers.appendAll(getCapabilities().flatMap(c -> c.createPlayerFollowers(p)));
-
         return followers;
     }
 
-    public Seq<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+    public Seq<Special> createPlayerSpecialMeeples(Player p) {
         return getCapabilities().flatMap(c -> c.createPlayerSpecialMeeples(p));
     }
 

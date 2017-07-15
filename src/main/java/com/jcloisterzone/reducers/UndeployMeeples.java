@@ -2,7 +2,7 @@ package com.jcloisterzone.reducers;
 
 import java.util.ArrayList;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.PlayEvent;
@@ -24,7 +24,7 @@ public class UndeployMeeples implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        PlayerAttributes player = state.getActivePlayer();
+        Player player = state.getActivePlayer();
         Set<FeaturePointer> fps = HashSet.ofAll(feature.getPlaces());
         ArrayList<Meeple> meeples = new ArrayList<>();
         ArrayList<PlayEvent> events = new ArrayList<>();

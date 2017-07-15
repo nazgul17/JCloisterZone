@@ -211,7 +211,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         drawDelimiter(DELIMITER_Y);
 
         g2.setFont(FONT_POINTS);
-        drawTextShadow(""+player.getPoints(), PADDING_L, 27);
+        drawTextShadow(""+player.getPoints(game.getState()), PADDING_L, 27);
 
 
         //TODO cache ref (also would be fine to cache capabilities above)
@@ -235,8 +235,10 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         bx = PADDING_L;
         by = 43;
 
+        GameState state = game.getState();
+
         if (timeLimit != null) {
-            long remainingMs = timeLimit*1000 - player.getClock().getTime();
+            long remainingMs = timeLimit*1000 - player.getClock(state).getTime();
             if (remainingMs <= 0) {
                 drawTimeTextBox("00.00", Color.RED);
             } else {
@@ -247,9 +249,8 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
         int small = 0;
         String smallImgKey = SmallFollower.class.getSimpleName();
-        GameState state = game.getState();
 
-        for (Follower f : player.getFollowers().filter(f -> f.isInSupply(state))) {
+        for (Follower f : player.getFollowers(state).filter(f -> f.isInSupply(state))) {
             //instanceof cannot be used because of Phantom
             if (f.getClass().equals(SmallFollower.class)) {
                 small++;
@@ -263,7 +264,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
 //		gp.profile(" > followers");
 
-        for (Special meeple : player.getSpecialMeeples().filter(f -> f.isInSupply(state))) {
+        for (Special meeple : player.getSpecialMeeples(state).filter(f -> f.isInSupply(state))) {
             drawMeepleBox(player, meeple.getClass().getSimpleName(), 1, false);
         }
 

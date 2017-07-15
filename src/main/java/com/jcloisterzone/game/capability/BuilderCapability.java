@@ -5,7 +5,7 @@ import org.w3c.dom.Element;
 
 import com.google.common.collect.Iterables;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
@@ -28,7 +28,7 @@ public class BuilderCapability extends Capability {
     protected BuilderState builderState = BuilderState.INACTIVE;
 
     @Override
-    public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+    public List<Special> createPlayerSpecialMeeples(Player p) {
         return List.of((Special) new Builder(p));
     }
 

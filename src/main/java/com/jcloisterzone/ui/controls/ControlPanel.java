@@ -10,7 +10,6 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -20,10 +19,7 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import javax.swing.Timer;
 
-import net.miginfocom.swing.MigLayout;
-
 import com.google.common.eventbus.Subscribe;
-import com.jcloisterzone.IPlayer;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.PointCategory;
@@ -31,7 +27,6 @@ import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
 import com.jcloisterzone.event.ClockUpdateEvent;
@@ -63,6 +58,7 @@ import com.jcloisterzone.wsio.message.CommitMessage;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.IndexedSeq;
+import net.miginfocom.swing.MigLayout;
 
 public class ControlPanel extends JPanel {
 
@@ -305,7 +301,7 @@ public class ControlPanel extends JPanel {
     }
 
 
-    public void selectAction(IPlayer targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean canPass) {
+    public void selectAction(Player targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean canPass) {
         // direct collection sort can be unsupported - so copy to array first!
         int i = 0;
         actionPanel.setActions(targetPlayer.isLocalHuman(), actions);
@@ -380,7 +376,7 @@ public class ControlPanel extends JPanel {
     public void handleClockUpdateEvent(ClockUpdateEvent ev) {
         timer.stop();
         if (ev.isClockRunning() && game.getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME) != null) {
-            PlayerClock runningClock = ev.getRunningClockPlayer().getClock();
+            PlayerClock runningClock = ev.getRunningClockPlayer().getClock(game.getState());
             //this solution is not much accurate - TODO fix
             //+clean time from roundtrip!!!
             timer.setInitialDelay((int) runningClock.getTime() % 1000);

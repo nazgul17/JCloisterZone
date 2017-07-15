@@ -1,6 +1,6 @@
 package com.jcloisterzone.reducers;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.figure.Meeple;

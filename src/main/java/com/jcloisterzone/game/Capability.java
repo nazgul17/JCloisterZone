@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-import com.jcloisterzone.PlayerAttributes;
+import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Position;
@@ -73,11 +73,11 @@ public abstract class Capability {
         return null;
     }
 
-    public List<Follower> createPlayerFollowers(PlayerAttributes p) {
+    public List<Follower> createPlayerFollowers(Player p) {
         return List.empty();
     }
 
-    public List<Special> createPlayerSpecialMeeples(PlayerAttributes p) {
+    public List<Special> createPlayerSpecialMeeples(Player p) {
         return List.empty();
     }
 

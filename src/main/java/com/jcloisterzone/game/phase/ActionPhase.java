@@ -23,9 +23,9 @@ import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.FlierCapability;
@@ -60,26 +60,27 @@ public class ActionPhase extends Phase {
     @Override
     public void enter() {
         Vector<PlayerAction<?>> actions = Vector.empty();
+        GameState state = game.getState();
         Player player = game.getTurnPlayer();
 
         Set<FeaturePointer> followerLocations = game.prepareFollowerLocations();
-        if (player.hasFollower(SmallFollower.class)  && !followerLocations.isEmpty()) {
+        if (player.hasFollower(state, SmallFollower.class)  && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(SmallFollower.class, followerLocations);
             actions = actions.append(action);
         }
         //HACK put this directly here instead of BigFollower or Phatom capability - to avoid "priority" issues
-        if (player.hasFollower(BigFollower.class) && !followerLocations.isEmpty()) {
+        if (player.hasFollower(state, BigFollower.class) && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(BigFollower.class, followerLocations);
             actions = actions.append(action);
         }
-        if (player.hasFollower(Phantom.class)  && !followerLocations.isEmpty()) {
+        if (player.hasFollower(state, Phantom.class)  && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(Phantom.class, followerLocations);
             actions = actions.append(action);
         }
         actions = game.prepareActions(actions, followerLocations);
         game.replaceState(game.getState().setPlayerAcrions(
             new ActionsState(
-                game.getTurnPlayer(),
+                player,
                 actions, true
             )
         ));
@@ -175,7 +176,8 @@ public class ActionPhase extends Phase {
 
     @Override
     public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
-        Meeple m = getActivePlayer().getMeepleFromSupply(meepleType);
+        GameState state = game.getState();
+        Meeple m = state.getActivePlayer().getMeepleFromSupply(state, meepleType);
         //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
         if (m instanceof Follower) {
             if (getBoard().get(fp).isOccupied(game.getState())) {
