@@ -22,11 +22,11 @@ import javax.swing.Timer;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
-import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.Rotation;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
 import com.jcloisterzone.event.ClockUpdateEvent;
@@ -37,19 +37,11 @@ import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
 import com.jcloisterzone.event.ScoreEvent;
 import com.jcloisterzone.event.TileEvent;
-import com.jcloisterzone.feature.Castle;
-import com.jcloisterzone.feature.Completable;
-import com.jcloisterzone.feature.Farm;
-import com.jcloisterzone.feature.score.ScoreAllCallback;
-import com.jcloisterzone.feature.score.ScoreAllFeatureFinder;
-import com.jcloisterzone.feature.score.ScoringStrategy;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
-import com.jcloisterzone.feature.visitor.score.FarmScoreContext;
-import com.jcloisterzone.figure.Barn;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BazaarCapability;
+import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
@@ -86,7 +78,8 @@ public class ControlPanel extends JPanel {
     private JButton passButton;
     private boolean showConfirmRequest;
     private boolean canPass;
-    private boolean showProjectedPoints, projectedPointsValid = true;
+    private boolean showProjectedPoints;
+    private GameState projectedPointsSource = null;
 
     private ActionPanel actionPanel;
     private PlayerPanel[] playerPanels;
@@ -329,27 +322,18 @@ public class ControlPanel extends JPanel {
 
     private void refreshPotentialPoints() {
         if (!showProjectedPoints) return;
-        projectedPointsValid = false;
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                //run only once in one time - refreshPotentialPoints can be triggered by more events
-                if (!projectedPointsValid) {
-                    projectedPointsValid = true;
 
-                    for (PlayerPanel playerPanel : playerPanels) {
-                        playerPanel.setPotentialPoints(playerPanel.getPlayer().getPoints());
-                    }
+        GameState state = game.getState();
+        if (projectedPointsSource == state) return;
 
-                    PotentialPointScoringStrategy strategy = new PotentialPointScoringStrategy();
-                    ScoreAllFeatureFinder scoreAll = new ScoreAllFeatureFinder();
-                    scoreAll.scoreAll(game, strategy);
-                    game.finalScoring(strategy);
+        projectedPointsSource = state;
+        GameState scored = (new FinalScoring()).apply(state);
 
-                    repaint();
-                }
-            }
-        });
+        for (PlayerPanel playerPanel : playerPanels) {
+            playerPanel.setPotentialPoints(playerPanel.getPlayer().getPoints(scored));
+        }
+
+        repaint();
     }
 
     public void setShowConfirmRequest(boolean showConfirmRequest) {
@@ -378,88 +362,9 @@ public class ControlPanel extends JPanel {
         if (ev.isClockRunning() && game.getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME) != null) {
             PlayerClock runningClock = ev.getRunningClockPlayer().getClock(game.getState());
             //this solution is not much accurate - TODO fix
-            //+clean time from roundtrip!!!
+            //+clean time from round trip!!!
             timer.setInitialDelay((int) runningClock.getTime() % 1000);
             timer.start();
-        }
-    }
-
-    @Subscribe
-    public void handleScoreEvent(ScoreEvent ev) {
-        refreshPotentialPoints();
-    }
-
-    @Subscribe
-    public void handleTileEvent(TileEvent ev) {
-        if (ev.getType() == TileEvent.PLACEMENT || ev.getType() == TileEvent.REMOVE) {
-            refreshPotentialPoints();
-        }
-    }
-
-    @Subscribe
-    public void handleMeepleEvent(MeepleEvent ev) {
-        refreshPotentialPoints();
-    }
-
-    @Subscribe
-    public void handleBazaarSelectBuyOrSellEvent(BazaarSelectBuyOrSellEvent ev) {
-        refreshPotentialPoints();
-    }
-
-    @Subscribe
-    public void handleFeatureCompletedEvent(FeatureCompletedEvent ev) { //needs eg for King score
-        refreshPotentialPoints();
-    }
-
-    @Subscribe
-    public void handleFeatureEvent(FeatureEvent ev) {
-        refreshPotentialPoints();
-    }
-
-    @Subscribe
-    public void handleMeeplePrisonEvent(FeatureEvent ev) {
-        refreshPotentialPoints();
-    }
-
-    class PotentialPointScoringStrategy implements ScoringStrategy, ScoreAllCallback {
-
-        @Override
-        public void addPoints(Player player, int points, PointCategory category) {
-            playerPanels[player.getIndex()].addPotentialPoints(points);
-        }
-
-        @Override
-        public void scoreCompletableFeature(CompletableScoreContext ctx) {
-            int points = ctx.getPoints();
-            for (Player p : ctx.getMajorOwners()) {
-                addPoints(p, points, null);
-            }
-        }
-
-        @Override
-        public void scoreFarm(FarmScoreContext ctx, Player player) {
-            addPoints(player, ctx.getPoints(player), null);
-
-        }
-
-        @Override
-        public void scoreBarn(FarmScoreContext ctx, Barn meeple) {
-            addPoints(meeple.getPlayer(), ctx.getBarnPoints(), null);
-        }
-
-        @Override
-        public void scoreCastle(Meeple meeple, Castle castle) {
-            //empty
-        }
-
-        @Override
-        public CompletableScoreContext getCompletableScoreContext(Completable completable) {
-            return completable.getScoreContext();
-        }
-
-        @Override
-        public FarmScoreContext getFarmScoreContext(Farm farm) {
-            return farm.getScoreContext();
         }
     }
 
@@ -473,11 +378,11 @@ public class ControlPanel extends JPanel {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D)g;
             super.paintComponent(g);
-            List<Tile> queue = bcb.getDrawQueue();
+            List<TileDefinition> queue = bcb.getDrawQueue();
             if (!queue.isEmpty()) {
                 int x = LEFT_MARGIN+LEFT_PADDING;
-                for (Tile tile : queue) {
-                    Image img = client.getResourceManager().getTileImage(tile).getImage();
+                for (TileDefinition tile : queue) {
+                    Image img = client.getResourceManager().getTileImage(tile, Rotation.R0).getImage();
                     g2.drawImage(img, x, 0, 40, 40, null);
                     x += 45;
                 }
@@ -492,5 +397,6 @@ public class ControlPanel extends JPanel {
                 selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
             }
         }
+        refreshPotentialPoints();
     }
 }

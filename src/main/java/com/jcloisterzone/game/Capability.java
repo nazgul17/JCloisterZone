@@ -144,7 +144,8 @@ public abstract class Capability {
     public void turnPartCleanUp() {
     }
 
-    public void finalScoring() {
+    public GameState finalScoring(GameState state) {
+        return state;
     }
 
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {

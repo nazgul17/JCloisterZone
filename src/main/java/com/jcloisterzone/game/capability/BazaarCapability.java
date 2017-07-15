@@ -179,7 +179,7 @@ public class BazaarCapability extends Capability {
         return tile;
     }
 
-    public List<Tile> getDrawQueue() {
+    public List<TileDefinition> getDrawQueue() {
         if (bazaarSupply == null) return Collections.emptyList();
         List<Tile> result = new ArrayList<>();
         Player turnPlayer = game.getTurnPlayer();
