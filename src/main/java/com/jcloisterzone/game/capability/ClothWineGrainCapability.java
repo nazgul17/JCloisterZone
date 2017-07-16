@@ -11,38 +11,51 @@ import com.jcloisterzone.event.FeatureCompletedEvent;
 import com.jcloisterzone.event.TradeResourceEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.City;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.visitor.score.CityScoreContext;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
+import com.jcloisterzone.game.GameState;
 
+import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
 public class ClothWineGrainCapability extends Capability {
 
-    private final Map<Player, int[]> tradeResources = new HashMap<>();
+    private final Array<Map<TradeResource, Integer>> tradeResources;
+
+    public ClothWineGrainCapability() {
+        this(null);
+    }
+
+    public ClothWineGrainCapability(Array<Map<TradeResource, Integer>> tradeResources) {
+        this.tradeResources = tradeResources;
+    }
 
     @Override
-    public void handleEvent(PlayEvent event) {
-       if (event instanceof FeatureCompletedEvent) {
-           completed((FeatureCompletedEvent) event);
-       }
+    public GameState onCompleted(GameState state, Completable feature) {
+        if (!(feature instanceof City)) return state;
 
+        // TODO assign resources
+
+        return state;
     }
 
-    private void completed(FeatureCompletedEvent ev) {
-        if (ev.getFeature() instanceof City) {
-            int cityTradeResources[] = ((CityScoreContext)ev.getScoreContent()).getCityTradeResources();
-            if (cityTradeResources != null) {
-                Player player = game.getActivePlayer();
-                int playersTradeResources[] = tradeResources.get(player);
-                for (int i = 0; i < cityTradeResources.length; i++) {
-                    playersTradeResources[i] += cityTradeResources[i];
-                    game.post(new TradeResourceEvent(player, TradeResource.values()[i], cityTradeResources[i]));
-                }
-            }
-        }
-    }
+//    private void completed(FeatureCompletedEvent ev) {
+//        if (ev.getFeature() instanceof City) {
+//            int cityTradeResources[] = ((CityScoreContext)ev.getScoreContent()).getCityTradeResources();
+//            if (cityTradeResources != null) {
+//                Player player = game.getActivePlayer();
+//                int playersTradeResources[] = tradeResources.get(player);
+//                for (int i = 0; i < cityTradeResources.length; i++) {
+//                    playersTradeResources[i] += cityTradeResources[i];
+//                    game.post(new TradeResourceEvent(player, TradeResource.values()[i], cityTradeResources[i]));
+//                }
+//            }
+//        }
+//    }
 
 
 

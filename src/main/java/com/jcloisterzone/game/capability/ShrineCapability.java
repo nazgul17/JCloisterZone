@@ -14,6 +14,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
+import com.jcloisterzone.game.GameState;
 
 
 public final class ShrineCapability extends Capability {
@@ -53,7 +54,7 @@ public final class ShrineCapability extends Capability {
     }
 
     @Override
-    public void scoreCompleted(Completable feature) {
+    public GameState onCompleted(GameState state, Completable feature) {
         if (feature instanceof Cloister) {
             resolveChallengedCloisters((Cloister) feature);
         }

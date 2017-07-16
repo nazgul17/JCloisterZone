@@ -32,6 +32,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
+import com.jcloisterzone.game.GameState;
 
 public class CastleCapability extends Capability {
 
@@ -164,7 +165,7 @@ public class CastleCapability extends Capability {
     }
 
     @Override
-    public void scoreCompleted(Completable ctx) {
+    public GameState onCompleted(GameState state, Completable ctx) {
         checkCastleVicinity(ctx.getPositions(), ctx.getPoints());
     }
 

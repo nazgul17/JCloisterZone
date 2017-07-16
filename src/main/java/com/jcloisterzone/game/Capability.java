@@ -133,8 +133,8 @@ public abstract class Capability {
         return true;
     }
 
-    //NICE TO HAVE RENAME it - hook invoked before scoring is made on completed completable
-    public void scoreCompleted(Completable feature) {
+    public GameState onCompleted(GameState state, Completable feature) {
+        return state;
     }
 
     public GameState turnCleanUp(GameState state) {
