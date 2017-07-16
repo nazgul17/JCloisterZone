@@ -34,6 +34,7 @@ import com.jcloisterzone.event.TowerIncreasedEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.ui.MenuBar.MenuItem;
@@ -50,7 +51,6 @@ import com.jcloisterzone.ui.view.ChannelView;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.ui.view.StartView;
 import com.jcloisterzone.wsio.RmiProxy;
-import com.jcloisterzone.wsio.message.GameMessage.GameState;
 import com.jcloisterzone.wsio.message.LeaveGameMessage;
 import com.jcloisterzone.wsio.message.RmiMessage;
 
@@ -59,7 +59,7 @@ public class GameController extends EventProxyUiController<Game> implements Invo
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Game game;
-    private GameState gameState;
+    private com.jcloisterzone.wsio.message.GameMessage.GameState gameState;
     private String channel;
     private boolean passwordProtected;
 
@@ -79,11 +79,11 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         return game;
     }
 
-    public GameState getGameState() {
+    public com.jcloisterzone.wsio.message.GameMessage.GameState getGameState() {
         return gameState;
     }
 
-    public void setGameState(GameState gameState) {
+    public void setGameState(com.jcloisterzone.wsio.message.GameMessage.GameState gameState) {
         this.gameState = gameState;
     }
 
@@ -117,7 +117,8 @@ public class GameController extends EventProxyUiController<Game> implements Invo
             logger.warn("gameView is null");
             return;
         }
-        com.jcloisterzone.game.GameState state = ev.getCurrentState();
+        GameState state = ev.getCurrentState();
+
         if (ev.hasDiscardedTilesChanged()) {
             DiscardedTilesDialog discardedTilesDialog = client.getDiscardedTilesDialog();
             if (discardedTilesDialog == null) {
@@ -128,8 +129,30 @@ public class GameController extends EventProxyUiController<Game> implements Invo
             discardedTilesDialog.setDiscardedTiles(state.getDiscardedTiles());
             discardedTilesDialog.setVisible(true);
         }
+
+        if (ev.hasPlayerActionsChanged()) {
+            Player pl = state.getActivePlayer();
+            if (pl != null && pl.isLocalHuman()) {
+                if (game.isUndoAllowed()) {
+                    client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
+                }
+            }
+        }
+
+        //TODO move to Gridpanl
         gameView.getGridPanel().repaint();
     }
+
+//    @Subscribe
+//    public void handleSelectAction(SelectActionEvent ev) {
+//        clearActions();
+//        gameView.getControlPanel().selectAction(ev.getTargetPlayer(), ev.getActions(), ev.isPassAllowed());
+//        gameView.getGridPanel().repaint();
+//        //TODO generic solution
+//        if (game.isUndoAllowed() && ev.getTargetPlayer().isLocalHuman()) {
+//            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
+//        }
+//    }
 
 
     @Subscribe
@@ -213,25 +236,7 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         }
     }
 
-    @Subscribe
-    public void handleRequestConfirm(RequestConfirmEvent ev) {
-        if (ev.getTargetPlayer().isLocalHuman()) {
-            if (game.isUndoAllowed()) { //should be true during game, but immediately after load it can be false
-                client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
-            }
-        }
-    }
 
-//    @Subscribe
-//    public void handleSelectAction(SelectActionEvent ev) {
-//        clearActions();
-//        gameView.getControlPanel().selectAction(ev.getTargetPlayer(), ev.getActions(), ev.isPassAllowed());
-//        gameView.getGridPanel().repaint();
-//        //TODO generic solution
-//        if (game.isUndoAllowed() && ev.getTargetPlayer().isLocalHuman()) {
-//            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
-//        }
-//    }
 
     @Subscribe
     public void handleSelectCornCircleOption(CornCircleSelectOptionEvent ev) {

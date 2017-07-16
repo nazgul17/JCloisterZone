@@ -78,7 +78,7 @@ public class ActionPhase extends Phase {
             actions = actions.append(action);
         }
         actions = game.prepareActions(actions, followerLocations);
-        game.replaceState(game.getState().setPlayerAcrions(
+        game.replaceState(game.getState().setPlayerActions(
             new ActionsState(
                 player,
                 actions, true
@@ -184,7 +184,10 @@ public class ActionPhase extends Phase {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }
-        game.replaceState(new DeployMeeple(m, fp));
+        game.replaceState(
+            new DeployMeeple(m, fp),
+            s -> s.setPlayerActions(null)
+        );
         Tile tile = game.getCurrentTile();
         if (portalCap != null && fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
             //magic gate usage

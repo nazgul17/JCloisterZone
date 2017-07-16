@@ -239,7 +239,7 @@ public class GameState {
         );
     }
 
-    public GameState setPlayerAcrions(ActionsState playerActions) {
+    public GameState setPlayerActions(ActionsState playerActions) {
         return new GameState(
             capabilities,
             players, score, turnPlayerIndex,
@@ -340,10 +340,10 @@ public class GameState {
     }
 
     public Player getActivePlayer() {
-        if (playerActions != null) {
-            return playerActions.getPlayer();
+        if (playerActions == null) {
+            return null;
         }
-        return getTurnPlayer();
+        return playerActions.getPlayer();
     }
 
     public Board getBoard() {

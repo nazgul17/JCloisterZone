@@ -3,7 +3,6 @@ package com.jcloisterzone.event.play;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.pointer.BoardPointer;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 
 public class MeepleDeployed extends PlayEvent {

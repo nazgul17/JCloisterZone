@@ -124,7 +124,7 @@ public class DrawPhase extends ServerAwarePhase {
             next(DrawPhase.class);
             return;
         }
-        toggleClock(state.getActivePlayer());
+        toggleClock(state.getTurnPlayer());
         //TODO Separate draw event instead
 //        state = state.appendEvent(
 //            new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null, null)

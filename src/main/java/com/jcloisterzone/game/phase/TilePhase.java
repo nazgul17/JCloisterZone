@@ -1,24 +1,12 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.Map.Entry;
-import java.util.Set;
-
 import com.jcloisterzone.action.ActionsState;
-import com.jcloisterzone.action.BridgeAction;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePlacement;
-import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.SelectActionEvent;
-import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.BridgeCapability;
-import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.reducers.PlaceTile;
 
 import io.vavr.collection.Vector;
@@ -38,8 +26,8 @@ public class TilePhase extends Phase {
         TilePlacementAction action = new TilePlacementAction(tile, getBoard().getTilePlacements(tile).toSet());
 
         game.replaceState(
-            state -> state.setPlayerAcrions(new ActionsState(
-                game.getTurnPlayer(),
+            state -> state.setPlayerActions(new ActionsState(
+                state.getTurnPlayer(),
                 Vector.of(action),
                 false
             ))
@@ -57,12 +45,17 @@ public class TilePhase extends Phase {
 
     @Override
     public void placeTile(Rotation rot, Position pos) {
+        game.markUndo();
+
         TileDefinition tile = game.getState().getDrawnTile();
 
         //IMMUTABLE TODO bridge
         //boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
 
-        game.replaceState(new PlaceTile(tile, pos, rot));
+        game.replaceState(
+            new PlaceTile(tile, pos, rot),
+            s -> s.setPlayerActions(null)
+        );
 
         //IMMUTABLE TODO bridge
 //        if (tile.getTower() != null) {

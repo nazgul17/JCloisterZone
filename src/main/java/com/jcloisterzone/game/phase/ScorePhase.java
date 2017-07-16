@@ -54,6 +54,8 @@ import com.jcloisterzone.wsio.message.CommitMessage;
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
 
+
+//TODO split into CommitActionPhase a ScorePhase
 public class ScorePhase extends ServerAwarePhase {
 
     private Set<Completable> alreadyScored = new HashSet<>();
@@ -139,7 +141,7 @@ public class ScorePhase extends ServerAwarePhase {
                 }
             }
             if (needsConfirm) {
-                game.replaceState(state.setPlayerAcrions(
+                game.replaceState(state.setPlayerActions(
                     new ActionsState(player, new ConfirmAction(), false)
                 ));
             } else {
@@ -147,7 +149,7 @@ public class ScorePhase extends ServerAwarePhase {
             }
         } else {
             //if player is not active, always trigger event and wait for remote CommitMessage
-            game.replaceState(state.setPlayerAcrions(
+            game.replaceState(state.setPlayerActions(
                 new ActionsState(player, new ConfirmAction(), false)
             ));
         }
@@ -155,6 +157,7 @@ public class ScorePhase extends ServerAwarePhase {
 
     @WsSubscribe
     public void handleCommit(CommitMessage msg) {
+        game.clearUndo();
         game.updateRandomSeed(msg.getCurrentTime());
 
         Tile tile = game.getCurrentTile();

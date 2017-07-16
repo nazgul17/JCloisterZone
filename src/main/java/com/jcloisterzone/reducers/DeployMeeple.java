@@ -1,7 +1,6 @@
 package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.play.MeepleDeployed;
 import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Meeple;
@@ -21,7 +20,6 @@ public class DeployMeeple implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        FeaturePointer origin = state.getDeployedMeeples().get(meeple).getOrNull();
         DeploymentCheckResult check = meeple.isDeploymentAllowed(state, fp);
         if (!check.result) {
           throw new IllegalArgumentException(check.error);

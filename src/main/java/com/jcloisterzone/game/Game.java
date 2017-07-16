@@ -75,6 +75,8 @@ public class Game extends GameSettings implements EventProxy {
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
     private Phase phase;
 
+    private List<GameState> undoState = List.empty();
+
 //    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
 //    private Phase lastUndoablePhase;
 
@@ -145,13 +147,32 @@ public class Game extends GameSettings implements EventProxy {
         return eventBus;
     }
 
+    public void markUndo() {
+        undoState = undoState.prepend(state);
+    }
+
+    public void clearUndo() {
+        undoState = List.empty();
+    }
+
+    public boolean isUndoAllowed() {
+        return !undoState.isEmpty();
+    }
+
+    public void undo() {
+        if (undoState.isEmpty()) {
+            throw new IllegalStateException();
+        }
+        Tuple2<GameState, List<GameState>> head = undoState.pop2();
+        undoState = head._2;
+        replaceState(head._1);
+    }
+
 //    public Undoable getLastUndoable() {
 //        return lastUndoable.size() == 0 ? null : lastUndoable.get(lastUndoable.size()-1);
 //    }
 //
-//    public void clearLastUndoable() {
-//        lastUndoable.clear();
-//    }
+
 //
 //    private boolean isUiSupportedUndo(Event event) {
 //        if (event instanceof TileEvent && event.getType() == TileEvent.PLACEMENT) return true;
@@ -204,13 +225,9 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public boolean isUndoAllowed() {
-        //return lastUndoable.size() > 0;
-        return false;
-        //IMMUTABLE TODO
-    }
 
-    public void undo() {
+
+//    public void undo() {
 //        if (!isUndoAllowed()) {
 //            logger.warn("Undo is not allowed");
 //            return;
@@ -227,7 +244,7 @@ public class Game extends GameSettings implements EventProxy {
 //        lastUndoable.clear();
 //        lastUndoablePhase = null;
 //        phase.reenter();
-    }
+//    }
 
     public Tile getCurrentTile() {
         return getBoard().get(state.getPlacedTiles().takeRight(1).get()._1);
