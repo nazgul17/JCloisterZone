@@ -110,13 +110,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         game.flushEventQueue();
     }
 
-    void clearActions() {
-        ControlPanel controlPanel = gameView.getControlPanel();
-        controlPanel.clearActions();
-        controlPanel.setShowConfirmRequest(false);
-        client.getJMenuBar().setItemEnabled(MenuItem.UNDO, false);
-    }
-
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         //TODO probabaly can be removed
@@ -125,9 +118,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
             return;
         }
         com.jcloisterzone.game.GameState state = ev.getCurrentState();
-        if (ev.hasPlayerActionsChanged()) {
-            clearActions();
-        }
         if (ev.hasDiscardedTilesChanged()) {
             DiscardedTilesDialog discardedTilesDialog = client.getDiscardedTilesDialog();
             if (discardedTilesDialog == null) {
@@ -191,7 +181,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
     public void handleTileEvent(/*TileEvent ev*/) {
         switch (ev.getType()) {
         case TileEvent.DRAW:
-            clearActions();
             refreshWindowTitle();
             break;
         case TileEvent.PLACEMENT:
@@ -199,11 +188,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
             gameView.getMainPanel().tileEvent(ev);
             break;
         }
-    }
-
-    @Subscribe
-    public void handleTowerIncreased(TowerIncreasedEvent ev) {
-        clearActions();
     }
 
     @Subscribe
@@ -221,7 +205,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     @Subscribe
     public void handleSelectDragonMove(SelectDragonMoveEvent ev) {
-        clearActions();
         gameView.getControlPanel().getActionPanel().setFakeAction("dragonmove");
         gameView.getGridPanel().repaint();
 
@@ -252,7 +235,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     @Subscribe
     public void handleSelectCornCircleOption(CornCircleSelectOptionEvent ev) {
-        clearActions();
         CornCirclesPanel panel = new CornCirclesPanel(this);
         GridPanel gridPanel = gameView.getGridPanel();
         gridPanel.add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
@@ -261,7 +243,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     @Subscribe
     public void handleSelectMageAndWitchRemoval(MageWitchSelectRemoval ev) {
-        clearActions();
         SelectMageWitchRemovalPanel panel = new SelectMageWitchRemovalPanel(this);
         GridPanel gridPanel = gameView.getGridPanel();
         gridPanel.setMageWitchPanel(panel);
@@ -283,7 +264,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     @Subscribe
     public void handleSelectBazaarTile(BazaarSelectTileEvent ev) {
-        clearActions();
         BazaarPanel bazaarPanel = showBazaarPanel();
         if (ev.getTargetPlayer().isLocalHuman()) {
             List<BazaarItem> supply = ev.getBazaarSupply();
@@ -317,7 +297,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         } else {
             bazaarPanel.setState(BazaarPanelState.INACTIVE);
         }
-        clearActions();
         gameView.getGridPanel().repaint();
     }
 

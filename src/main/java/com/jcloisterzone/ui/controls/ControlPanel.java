@@ -23,6 +23,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
@@ -297,6 +298,7 @@ public class ControlPanel extends JPanel {
     public void clearActions() {
         actionPanel.clearActions();
         actionPanel.setFakeAction(null);
+        setShowConfirmRequest(false);
         setCanPass(false);
     }
 
@@ -338,16 +340,25 @@ public class ControlPanel extends JPanel {
     }
 
     @Subscribe
-    public void handleRequestConfirm(RequestConfirmEvent ev) {
-        clearActions();
-        if (ev.getTargetPlayer().isLocalHuman()) {
-            setShowConfirmRequest(true);
-        } else {
-            actionPanel.setShowConfirmRequest(true, true);
-            repaint();
+    public void handleGameChanged(GameChangedEvent ev) {
+        if (ev.hasPlayerActionsChanged()) {
+            ActionsState actions = ev.getCurrentState().getPlayerActions();
+            if (actions == null) {
+                clearActions();
+            } else if (actions.getActions().get() instanceof ConfirmAction) {
+                clearActions();
+                if (actions.getPlayer().isLocalHuman()) {
+                    setShowConfirmRequest(true);
+                } else {
+                    actionPanel.setShowConfirmRequest(true, true);
+                    repaint();
+                }
+            } else {
+                selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
+            }
         }
+        refreshPotentialPoints();
     }
-
 
     @Subscribe
     public void handleClockUpdateEvent(ClockUpdateEvent ev) {
@@ -384,14 +395,5 @@ public class ControlPanel extends JPanel {
     }
 
 
-    @Subscribe
-    public void handleGameChanged(GameChangedEvent ev) {
-        if (ev.hasPlayerActionsChanged()) {
-            ActionsState actions = ev.getCurrentState().getPlayerActions();
-            if (actions != null) {
-                selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
-            }
-        }
-        refreshPotentialPoints();
-    }
+
 }

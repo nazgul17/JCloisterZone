@@ -18,6 +18,8 @@ import com.jcloisterzone.config.Config.ConfirmConfig;
 import com.jcloisterzone.event.FeatureCompletedEvent;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
+import com.jcloisterzone.event.play.MeepleDeployed;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
@@ -124,17 +126,18 @@ public class ScorePhase extends ServerAwarePhase {
         if (isLocalPlayer(player)) {
             boolean needsConfirm = false;
             // IMMUTABLE TODO
-//            if (game.getLastUndoable() instanceof MeepleEvent) {
-//                ConfirmConfig cfg =  getConfig().getConfirm();
-//                MeepleEvent ev = (MeepleEvent) game.getLastUndoable();
-//                if (cfg.getAny_deployment()) {
-//                    needsConfirm = true;
-//                } else if (cfg.getFarm_deployment() && ev.getTo().getLocation().isFarmLocation()) {
-//                    needsConfirm = true;
-//                } else if (cfg.getOn_tower_deployment() && ev.getTo().getLocation() == Location.TOWER) {
-//                    needsConfirm = true;
-//                }
-//            }
+            PlayEvent last = state.getEvents().last();
+            if (last instanceof MeepleDeployed) {
+                ConfirmConfig cfg =  getConfig().getConfirm();
+                MeepleDeployed ev = (MeepleDeployed) last;
+                if (cfg.getAny_deployment()) {
+                    needsConfirm = true;
+                } else if (cfg.getFarm_deployment() && ev.getLocation().isFarmLocation()) {
+                    needsConfirm = true;
+                } else if (cfg.getOn_tower_deployment() && ev.getLocation() == Location.TOWER) {
+                    needsConfirm = true;
+                }
+            }
             if (needsConfirm) {
                 game.replaceState(state.setPlayerAcrions(
                     new ActionsState(player, new ConfirmAction(), false)
