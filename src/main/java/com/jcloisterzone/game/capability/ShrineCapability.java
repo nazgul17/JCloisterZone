@@ -1,5 +1,7 @@
 package com.jcloisterzone.game.capability;
 
+import static com.jcloisterzone.XMLUtils.attributeBoolValue;
+
 import org.w3c.dom.Element;
 
 import com.jcloisterzone.PointCategory;
@@ -9,18 +11,15 @@ import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
-
-import static com.jcloisterzone.XMLUtils.attributeBoolValue;
+import com.jcloisterzone.game.GameSettings;
 
 
 public final class ShrineCapability extends Capability {
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {
             ((Cloister)feature).setShrine(attributeBoolValue(xml, "shrine"));
         }

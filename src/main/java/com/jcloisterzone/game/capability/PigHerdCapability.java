@@ -9,14 +9,15 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameSettings;
 
 public class PigHerdCapability extends Capability {
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof Farm) {
             if (attributeBoolValue(xml, "pig")) {
-                if (game.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId)) {
+                if (gs.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId)) {
                     feature = ((Farm) feature).setPigHerds(1);
                 }
             }

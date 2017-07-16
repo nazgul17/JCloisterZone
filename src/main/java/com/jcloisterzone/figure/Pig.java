@@ -17,18 +17,17 @@ public class Pig extends Special {
     }
 
     @Override
-    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp) {
-        Feature farm= state.getBoard().get(fp);
-        if (!(farm instanceof Farm)) {
+    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp, Feature feature) {
+        if (!(feature instanceof Farm)) {
             return new DeploymentCheckResult("Pig must be placed on a farm only.");
         }
-        Option<Follower> follower = farm.getFollowers(state).find(f -> {
+        Option<Follower> follower = feature.getFollowers(state).find(f -> {
             return f.getPlayer().equals(getPlayer());
         });
         if (follower.isEmpty()) {
             return new DeploymentCheckResult("Feature is not occupied by follower.");
         }
-        return super.isDeploymentAllowed(state, fp);
+        return super.isDeploymentAllowed(state, fp, feature);
     }
 
 

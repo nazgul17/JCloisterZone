@@ -22,6 +22,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.ui.Client;
 
@@ -50,25 +51,6 @@ public final class TunnelCapability extends Capability {
         }
     }
 
-    @Override
-    public Object backup() {
-        return new Object[] {
-            placedTunnelCurrentTurn,
-            new HashMap<>(tunnelTokensA),
-            new HashMap<>(tunnelTokensB)
-        };
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        placedTunnelCurrentTurn = (Road) a[0];
-        tunnelTokensA.clear();
-        tunnelTokensA.putAll((Map<Player, Integer>)a[1]);
-        tunnelTokensA.clear();
-        tunnelTokensA.putAll((Map<Player, Integer>)a[2]);
-    }
 
     @Override
     public void initPlayer(Player player) {
@@ -77,7 +59,7 @@ public final class TunnelCapability extends Capability {
     }
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (!(feature instanceof Road)) return;
         Road road = (Road) feature;
         if (road.isTunnelEnd()) {

@@ -61,7 +61,7 @@ public abstract class Capability {
         return tile;
     }
 
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings settings, String tileId, Feature feature, Element xml) {
         return feature;
     }
 

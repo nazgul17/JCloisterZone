@@ -400,7 +400,7 @@ public class Game extends GameSettings implements EventProxy {
             feature = ((Farm) feature).setAdjoiningCityOfCarcassonne(true);
         }
         for (Capability cap: getCapabilities()) {
-            feature = cap.initFeature(tileId, feature, xml);
+            feature = cap.initFeature(this, tileId, feature, xml);
         }
         return feature;
     }

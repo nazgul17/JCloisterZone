@@ -18,6 +18,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.SnapshotCorruptedException;
 
 import static com.jcloisterzone.XMLUtils.attributeBoolValue;
@@ -27,7 +28,7 @@ public class PrincessCapability extends Capability {
     boolean princessUsed = false;
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "princess")) {
             feature = ((City)feature).setPrincess(true);
         }

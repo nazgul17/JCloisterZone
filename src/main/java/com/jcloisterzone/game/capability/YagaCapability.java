@@ -8,11 +8,12 @@ import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameSettings;
 
 public class YagaCapability extends Capability {
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {
             feature = ((Cloister)feature).setYagaHut(attributeBoolValue(xml, "yaga"));
         }

@@ -2,6 +2,7 @@ package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.MeepleDeployed;
+import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.GameState;
@@ -20,7 +21,12 @@ public class DeployMeeple implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        DeploymentCheckResult check = meeple.isDeploymentAllowed(state, fp);
+        Feature feature = state.getBoard().get(fp);
+        if (feature == null) {
+            throw new IllegalArgumentException("There is no feature on " + fp);
+        }
+
+        DeploymentCheckResult check = meeple.isDeploymentAllowed(state, fp, feature);
         if (!check.result) {
           throw new IllegalArgumentException(check.error);
         }

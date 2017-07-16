@@ -1,5 +1,7 @@
 package com.jcloisterzone.game.capability;
 
+import static com.jcloisterzone.XMLUtils.attributeBoolValue;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,7 +22,6 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.CastleDeployedEvent;
-import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Castle;
@@ -28,12 +29,9 @@ import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
-
-import static com.jcloisterzone.XMLUtils.attributeBoolValue;
+import com.jcloisterzone.game.GameSettings;
 
 public class CastleCapability extends Capability {
 
@@ -79,7 +77,7 @@ public class CastleCapability extends Capability {
     }
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof City) {
             ((City) feature).setCastleBase(attributeBoolValue(xml, "castle-base"));
         }

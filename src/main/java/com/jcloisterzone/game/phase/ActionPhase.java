@@ -1,6 +1,7 @@
 package com.jcloisterzone.game.phase;
 
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
@@ -20,9 +21,11 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.visitor.IsOccupied;
 import com.jcloisterzone.figure.BigFollower;
+import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
+import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
@@ -42,6 +45,8 @@ import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
+import io.vavr.Function1;
+import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
@@ -79,17 +84,10 @@ public class ActionPhase extends Phase {
     public void enter(GameState state) {
         Player player = state.getTurnPlayer();
 
-        Vector<Class<? extends Meeple>> availMeeples = Vector.empty();
-
-        if (player.hasFollower(state, SmallFollower.class)) {
-            availMeeples = availMeeples.append(SmallFollower.class);
-        }
-        if (player.hasFollower(state, BigFollower.class)) {
-            availMeeples = availMeeples.append(BigFollower.class);
-        }
-        if (player.hasFollower(state, Phantom.class)) {
-            availMeeples = availMeeples.append(Phantom.class);
-        }
+        Vector<Meeple> availMeeples = Vector
+            .of(SmallFollower.class, BigFollower.class, Phantom.class, Pig.class)
+            .map(cls -> player.getMeepleFromSupply(state, cls))
+            .filter(Predicates.isNotNull());
 
         Tile currentTile = state.getBoard().getLastPlaced();
         Position pos = currentTile.getPosition();
@@ -113,18 +111,23 @@ public class ActionPhase extends Phase {
             places = Stream.empty();
         }
 
-        Set<FeaturePointer> locations = places.map(t -> new FeaturePointer(pos, t._1)).toSet();
-        Vector<PlayerAction<?>> actions = availMeeples.map(meepleType -> {
-            PlayerAction<?> action = new MeepleAction(meepleType, locations);
+        Stream<Tuple2<FeaturePointer, Scoreable>> placesFp = places.map(t -> t.map1(loc -> new FeaturePointer(pos, loc)));
+
+        Vector<PlayerAction<?>> actions = availMeeples.map(meeple -> {
+            Set<FeaturePointer> locations = placesFp
+                .filter(t -> meeple.isDeploymentAllowed(state, t._1, t._2) == DeploymentCheckResult.OK)
+                .map(t -> t._1)
+                .toSet();
+
+            PlayerAction<?> action = new MeepleAction(meeple.getClass(), locations);
             return action;
         });
 
         actions = actions.filter(action -> !action.isEmpty());
 
-        state = state.setPlayerActions(
+        promote(state.setPlayerActions(
             new ActionsState(player, actions, true)
-        );
-        promote(state);
+        ));
     }
 
     @Override

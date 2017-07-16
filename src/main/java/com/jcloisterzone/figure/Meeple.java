@@ -53,7 +53,7 @@ public abstract class Meeple extends Figure<FeaturePointer> {
         return true;
     }
 
-    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp) {
+    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp, Feature feature) {
         return DeploymentCheckResult.OK;
     }
 

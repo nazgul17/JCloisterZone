@@ -7,6 +7,7 @@ import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameSettings;
 
 import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 
@@ -16,7 +17,7 @@ public final class SiegeCapability extends Capability {
     public static final String UNDEPLOY_ESCAPE = "escape";
 
     @Override
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "besieged")) {
             City city = (City) feature;
             city.setBesieged(true);

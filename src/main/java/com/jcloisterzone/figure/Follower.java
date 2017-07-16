@@ -1,8 +1,12 @@
 package com.jcloisterzone.figure;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.feature.Castle;
+import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.GameState;
+
+import io.vavr.Tuple2;
 
 public abstract class Follower extends Meeple {
 
@@ -33,4 +37,5 @@ public abstract class Follower extends Meeple {
     public boolean isInSupply(GameState state) {
         return !isInPrison(state) && super.isInSupply(state);
     }
+
 }
