@@ -9,6 +9,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.FlierRollEvent;
 import com.jcloisterzone.event.play.ScoreEvent;
+import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
@@ -51,23 +52,21 @@ public class AnimationLayer extends AbstractGridLayer {
     @Subscribe
     public void onScoreEvent(ScoreEvent ev) {
         if (ev.getFeaturePointer() == null) {
-            scored(ev.getPosition(), ev.getTargetPlayer(), ev.getLabel(), ev.isFinal());
+            scored(ev.getPosition(), ev.getReceiver(), ev.getLabel(), ev.isFinal());
         } else {
-            scored(ev.getFeaturePointer(), ev.getTargetPlayer(), ev.getLabel(), ev.getMeepleType(), ev.isFinal());
+            scored(ev.getFeaturePointer(), ev.getReceiver(), ev.getLabel(), ev.getMeeple().getClass(), ev.isFinal());
         }
     }
 
-    //@Subscribe
-    public void onTileEvent(/*TileEvent ev*/) {
-        if (ev.getType() == TileEvent.PLACEMENT) {
-            TileDefinition tile = ev.getTileDefinition();
-            Position pos = ev.getPosition();
+    @Subscribe
+    public void onTileEvent(TilePlacedEvent ev) {
+        TileDefinition tile = ev.getTile();
+        Position pos = ev.getPosition();
 
-            boolean initialPlacement = ev.getTriggeringPlayer() == null;//if triggering player is null we are placing initial tiles
-            if ((!initialPlacement && !ev.getTriggeringPlayer().isLocalHuman()) ||
-                (initialPlacement && tile.equals(getGame().getCurrentTile().getTileDefinition()))) {
-                service.registerAnimation(new RecentPlacement(pos));
-            }
+        boolean initialPlacement = ev.getTriggeringPlayer() == null;//if triggering player is null we are placing initial tiles
+        if ((!initialPlacement && !ev.getTriggeringPlayer().isLocalHuman()) ||
+            (initialPlacement && tile.equals(getGame().getCurrentTile().getTileDefinition()))) {
+            service.registerAnimation(new RecentPlacement(pos));
         }
     }
 

@@ -9,6 +9,8 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.bugreport.ReportingTool;
 import com.jcloisterzone.event.Event;
+import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.event.play.PlayEvent;
 
 
 public class InvokeInSwingUiAdapter {
@@ -28,7 +30,14 @@ public class InvokeInSwingUiAdapter {
         if (reportingTool != null) {
             reportingTool.report("event: " + event);
         }
-        SwingUtilities.invokeLater(() -> { uiEventBus.post(event); });
+        SwingUtilities.invokeLater(() -> {
+            uiEventBus.post(event);
+            if (event instanceof GameChangedEvent) {
+                for (PlayEvent pe : ((GameChangedEvent) event).getNewPlayEvents()) {
+                    uiEventBus.post(pe);
+                }
+            }
+        });
     }
 
     public void setReportingTool(ReportingTool reportingTool) {

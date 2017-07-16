@@ -12,6 +12,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.grid.ForwardBackwardListener;
@@ -53,7 +54,8 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> {
     }
 
     @Override
-    public void perform(RmiProxy server, TilePlacement tp) {
+    public void perform(GameController gc, TilePlacement tp) {
+        RmiProxy server = gc.getRmiProxy();
         server.placeTile(tp.getRotation(), tp.getPosition());
     }
 

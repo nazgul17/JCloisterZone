@@ -9,6 +9,8 @@ import java.util.Set;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
@@ -117,7 +119,9 @@ public class ScorePhase extends ServerAwarePhase {
 
     @Override
     public void enter() {
-        if (isLocalPlayer(getActivePlayer())) {
+        GameState state = game.getState();
+        Player player = state.getActivePlayer();
+        if (isLocalPlayer(player)) {
             boolean needsConfirm = false;
             // IMMUTABLE TODO
 //            if (game.getLastUndoable() instanceof MeepleEvent) {
@@ -132,13 +136,17 @@ public class ScorePhase extends ServerAwarePhase {
 //                }
 //            }
             if (needsConfirm) {
-                game.post(new RequestConfirmEvent(getActivePlayer()));
+                game.replaceState(state.setPlayerAcrions(
+                    new ActionsState(player, new ConfirmAction(), false)
+                ));
             } else {
                 getConnection().send(new CommitMessage(game.getGameId()));
             }
         } else {
             //if player is not active, always trigger event and wait for remote CommitMessage
-            game.post(new RequestConfirmEvent(getActivePlayer()));
+            game.replaceState(state.setPlayerAcrions(
+                new ActionsState(player, new ConfirmAction(), false)
+            ));
         }
     }
 
@@ -224,7 +232,7 @@ public class ScorePhase extends ServerAwarePhase {
 //          if (m instanceof Wagon && wagonCap != null) {
 //          wagonCap.wagonScored((Wagon) m, feature);
 //      	}
-            game.post(new FeatureCompletedEvent(getActivePlayer(), completable));
+            //game.post(new FeatureCompletedEvent(getActivePlayer(), completable));
         }
     }
 

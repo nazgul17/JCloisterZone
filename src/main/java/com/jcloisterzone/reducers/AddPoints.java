@@ -28,7 +28,7 @@ public class AddPoints implements Reducer {
         int idx = player.getIndex();
         Array<PlayerScore> score = state.getScore();
         PlayerScore playerScore = score.get(idx);
-        score = score.insert(idx, playerScore.addPoints(points, category));
+        score = score.update(idx, playerScore.addPoints(points, category));
         return state.setScore(score);
     }
 

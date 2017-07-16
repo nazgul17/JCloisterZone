@@ -35,7 +35,7 @@ public class GameState {
 
     private final Array<Player> players;
     private final Array<PlayerScore> score;
-    private final int turnPlayer;
+    private final int turnPlayerIndex;
 
     private final Array<Seq<Follower>> followers;
     private final Array<Seq<Special>> specialMeeples;
@@ -57,12 +57,12 @@ public class GameState {
     public static GameState createInitial(
             HashMap<Class<? extends Capability>, Capability> capabilities,
             Array<Player> players,
-            int turnPlayer) {
+            int turnPlayerIndex) {
         return new GameState(
             capabilities,
             players,
             players.map(p -> new PlayerScore()),
-            turnPlayer,
+            turnPlayerIndex,
             null,
             null,
             null,
@@ -80,7 +80,7 @@ public class GameState {
 
     private GameState(
             HashMap<Class<? extends Capability>, Capability> capabilities,
-            Array<Player> players, Array<PlayerScore> score, int turnPlayer,
+            Array<Player> players, Array<PlayerScore> score, int turnPlayerIndex,
             Array<Seq<Follower>> followers,
             Array<Seq<Special>> specialMeeples,
             Array<PlayerClock> clocks,
@@ -94,7 +94,7 @@ public class GameState {
         this.capabilities = capabilities;
         this.players = players;
         this.score = score;
-        this.turnPlayer = turnPlayer;
+        this.turnPlayerIndex = turnPlayerIndex;
         this.followers = followers;
         this.specialMeeples = specialMeeples;
         this.clocks = clocks;
@@ -112,7 +112,7 @@ public class GameState {
     public GameState setCapabilities(HashMap<Class<? extends Capability>, Capability> capabilities) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -122,17 +122,17 @@ public class GameState {
     public GameState setScore(Array<PlayerScore> score) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
         );
     }
 
-    public GameState setTurnPlayer(int turnPlayer) {
+    public GameState setTurnPlayerIndex(int turnPlayerIndex) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -142,7 +142,7 @@ public class GameState {
     public GameState setFollowers(Array<Seq<Follower>> followers) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -152,7 +152,7 @@ public class GameState {
     public GameState setSpecialMeeples(Array<Seq<Special>> specialMeeples) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -162,7 +162,7 @@ public class GameState {
     public GameState setClocks(Array<PlayerClock> clocks) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -172,7 +172,7 @@ public class GameState {
     public GameState setTilePack(TilePackState tilePack) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -182,7 +182,7 @@ public class GameState {
     public GameState setDrawnTile(TileDefinition drawnTile) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -192,7 +192,7 @@ public class GameState {
     public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -202,7 +202,7 @@ public class GameState {
     public GameState setFeatures(Map<FeaturePointer, Feature> features) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -212,7 +212,7 @@ public class GameState {
     public GameState setDiscardedTiles(List<TileDefinition> discardedTiles) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -222,7 +222,7 @@ public class GameState {
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -232,7 +232,7 @@ public class GameState {
     public GameState setDeployedNeutralFigures(LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -242,7 +242,7 @@ public class GameState {
     public GameState setPlayerAcrions(ActionsState playerActions) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -252,7 +252,7 @@ public class GameState {
     public GameState setEvents(Queue<PlayEvent> events) {
         return new GameState(
             capabilities,
-            players, score, turnPlayer,
+            players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events
@@ -279,8 +279,8 @@ public class GameState {
         return score;
     }
 
-    public int getTurnPlayer() {
-        return turnPlayer;
+    public int getTurnPlayerIndex() {
+        return turnPlayerIndex;
     }
 
     public Array<Seq<Follower>> getFollowers() {
@@ -335,11 +335,15 @@ public class GameState {
 
     private Board board;
 
+    public Player getTurnPlayer() {
+        return players.get(turnPlayerIndex);
+    }
+
     public Player getActivePlayer() {
         if (playerActions != null) {
             return playerActions.getPlayer();
         }
-        return players.get(turnPlayer);
+        return getTurnPlayer();
     }
 
     public Board getBoard() {

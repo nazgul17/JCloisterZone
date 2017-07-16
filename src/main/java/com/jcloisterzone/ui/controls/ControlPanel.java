@@ -383,6 +383,8 @@ public class ControlPanel extends JPanel {
         }
     }
 
+
+    @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasPlayerActionsChanged()) {
             ActionsState actions = ev.getCurrentState().getPlayerActions();

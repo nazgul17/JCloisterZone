@@ -16,6 +16,10 @@ public class ActionsState {
         this.passAllowed = passAllowed;
     }
 
+    public ActionsState(Player player, PlayerAction<?> action, boolean passAllowed) {
+        this(player, Vector.of(action), passAllowed);
+    }
+
     public Player getPlayer() {
         return player;
     }

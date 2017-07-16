@@ -1,12 +1,6 @@
 package com.jcloisterzone.action;
 
-import java.awt.Color;
-import java.awt.Image;
-
-import com.jcloisterzone.Player;
-import com.jcloisterzone.ui.annotations.LinkedImage;
-import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
-import com.jcloisterzone.ui.resources.ResourceManager;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Iterator;
@@ -21,7 +15,7 @@ public abstract class PlayerAction<T> implements Iterable<T> {
        this.options = options;
     }
 
-    public abstract void perform(RmiProxy server, T target);
+    public abstract void perform(GameController gc, T target);
 
     @Override
     public Iterator<T> iterator() {

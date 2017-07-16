@@ -113,7 +113,7 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
                 }
             }
         }
-        action.perform(getRmiProxy(), fp);
+        action.perform(gc, fp);
         return;
     }
 

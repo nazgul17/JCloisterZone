@@ -175,14 +175,6 @@ public class MainPanel extends JPanel {
         gridPanel.removeInteractionPanels();
     }
 
-    public void tileEvent(/*TileEvent ev*/) {
-        gridPanel.tileEvent(ev);
-    }
-
-    @Subscribe
-    public void scored(ScoreEvent ev) {
-        repaint();
-    }
 
 //    private void hideMageWitchPanel() {
 //        if (gridPanel.getMageWitchPanel() != null) {

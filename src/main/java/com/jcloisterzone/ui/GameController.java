@@ -29,7 +29,6 @@ import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.MageWitchSelectRemoval;
 import com.jcloisterzone.event.MeeplePrisonEvent;
 import com.jcloisterzone.event.RequestConfirmEvent;
-import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.event.SelectDragonMoveEvent;
 import com.jcloisterzone.event.TowerIncreasedEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
@@ -120,7 +119,7 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
-
+        //TODO probabaly can be removed
         if (gameView == null) {
             logger.warn("gameView is null");
             return;
@@ -139,7 +138,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
             discardedTilesDialog.setDiscardedTiles(state.getDiscardedTiles());
             discardedTilesDialog.setVisible(true);
         }
-        gameView.getControlPanel().handleGameChanged(ev);
         gameView.getGridPanel().repaint();
     }
 
@@ -166,12 +164,12 @@ public class GameController extends EventProxyUiController<Game> implements Invo
     public void handleTurnChanged(PlayerTurnEvent ev) {
         gameView.getGridPanel().repaint();
 
-        if (ev.getTargetPlayer().isLocalHuman()) {
+        if (ev.getPlayer().isLocalHuman()) {
             client.beep();
         }
 
         // TODO better image quality ?
-        Color c = ev.getTargetPlayer().getColors().getMeepleColor();
+        Color c = ev.getPlayer().getColors().getMeepleColor();
         Image image = client.getResourceManager().getLayeredImage(new LayeredImageDescriptor(SmallFollower.class, c));
         client.setIconImage(image);
     }

@@ -62,6 +62,16 @@ public class Player {
         return false;
     }
 
+    public Player getNextPlayer(GameState state) {
+        int nextPlayerIndex = index == (state.getPlayers().length() - 1) ? 0 : index + 1;
+        return state.getPlayers().get(nextPlayerIndex);
+    }
+
+    public Player getPrevPlayer(GameState state) {
+        int prevPlayerIndex = index == 0 ? state.getPlayers().length() - 1 : index - 1;
+        return state.getPlayers().get(prevPlayerIndex);
+    }
+
     public int getPoints(GameState state) {
         return state.getScore().get(index).getPoints();
     }

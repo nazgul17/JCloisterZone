@@ -102,17 +102,31 @@ public class Game extends GameSettings implements EventProxy {
     }
 
 
-    public void replaceState(Function<GameState, GameState> f) {
-        replaceState(f.apply(this.state));
+    public void replaceState(Function<GameState, GameState> f1) {
+        replaceState(f1.apply(this.state));
     }
 
-    public void replaceState(Reducer... fs) {
-        GameState state = this.state;
-        for (Reducer f : fs) {
-            state = f.apply(state);
-        }
-        replaceState(state);
+    public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2) {
+        replaceState(f2.apply(f1.apply(this.state)));
     }
+
+    public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2,
+        Function<GameState, GameState> f3) {
+        replaceState(f3.apply(f2.apply(f1.apply(this.state))));
+    }
+
+    public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2,
+        Function<GameState, GameState> f3, Function<GameState, GameState> f4) {
+        replaceState(f4.apply(f3.apply(f2.apply(f1.apply(this.state)))));
+    }
+
+//    public void replaceState(Reducer... fs) {
+//        GameState state = this.state;
+//        for (Reducer f : fs) {
+//            state = f.apply(state);
+//        }
+//        replaceState(state);
+//    }
 
     public void replaceState(GameState state) {
         GameState prev = this.state;
@@ -252,13 +266,7 @@ public class Game extends GameSettings implements EventProxy {
 
     @Deprecated
     public Player getTurnPlayer() {
-        return state.getPlayers().get(state.getTurnPlayer());
-    }
-
-    @Deprecated
-    public void setTurnPlayer(Player player) {
-        this.replaceState(state -> state.setTurnPlayer(player.getIndex()));
-        post(new PlayerTurnEvent(getTurnPlayer()));
+        return state.getTurnPlayer();
     }
 
     /**
@@ -274,16 +282,19 @@ public class Game extends GameSettings implements EventProxy {
 //        return neutralFigures;
 //    }
 
+    @Deprecated
     public Player getNextPlayer() {
         return getNextPlayer(getTurnPlayer());
     }
 
+    @Deprecated
     public Player getNextPlayer(Player p) {
         int playerIndex = p.getIndex();
         int nextPlayerIndex = playerIndex == (state.getPlayers().length() - 1) ? 0 : playerIndex + 1;
         return getPlayer(nextPlayerIndex);
     }
 
+    @Deprecated
     public Player getPrevPlayer(Player p) {
         int playerIndex = p.getIndex();
         int prevPlayerIndex = playerIndex == 0 ? state.getPlayers().length() - 1 : playerIndex - 1;
@@ -461,11 +472,6 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public void turnPartCleanUp() {
-        for (Capability cap: getCapabilities()) {
-            cap.turnPartCleanUp();
-        }
-    }
 
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
         for (Capability cap: getCapabilities()) {
