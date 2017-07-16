@@ -1,5 +1,7 @@
 package com.jcloisterzone.game.phase;
 
+import java.util.ArrayList;
+
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
@@ -15,6 +17,7 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.FlierRollEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.visitor.IsOccupied;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Follower;
@@ -23,6 +26,7 @@ import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
+import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
@@ -38,7 +42,10 @@ import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
 
 
@@ -57,31 +64,65 @@ public class ActionPhase extends Phase {
         princessCapability = game.getCapability(PrincessCapability.class);
     }
 
+    private Stream<Tuple2<Location, Scoreable>> excludePrincess(Stream<Tuple2<Location, Scoreable>> s) {
+        return s.filter(t -> {
+            if (t._2 instanceof City) {
+                City c = (City) t._2;
+                return !c.isPrincess();
+            } else {
+                return true;
+            }
+        });
+    }
+
     @Override
     public void enter(GameState state) {
-        Vector<PlayerAction<?>> actions = Vector.empty();
         Player player = state.getTurnPlayer();
 
-        Set<FeaturePointer> followerLocations = game.prepareFollowerLocations(state);
-        if (player.hasFollower(state, SmallFollower.class)  && !followerLocations.isEmpty()) {
-            PlayerAction<?> action = new MeepleAction(SmallFollower.class, followerLocations);
-            actions = actions.append(action);
+        Vector<Class<? extends Meeple>> availMeeples = Vector.empty();
+
+        if (player.hasFollower(state, SmallFollower.class)) {
+            availMeeples = availMeeples.append(SmallFollower.class);
         }
-        //HACK put this directly here instead of BigFollower or Phatom capability - to avoid "priority" issues
-        if (player.hasFollower(state, BigFollower.class) && !followerLocations.isEmpty()) {
-            PlayerAction<?> action = new MeepleAction(BigFollower.class, followerLocations);
-            actions = actions.append(action);
+        if (player.hasFollower(state, BigFollower.class)) {
+            availMeeples = availMeeples.append(BigFollower.class);
         }
-        if (player.hasFollower(state, Phantom.class)  && !followerLocations.isEmpty()) {
-            PlayerAction<?> action = new MeepleAction(Phantom.class, followerLocations);
-            actions = actions.append(action);
+        if (player.hasFollower(state, Phantom.class)) {
+            availMeeples = availMeeples.append(Phantom.class);
         }
-        actions = game.prepareActions(actions, followerLocations);
+
+        Tile currentTile = state.getBoard().getLastPlaced();
+        Position pos = currentTile.getPosition();
+
+        boolean placementAllowed = true;
+        for (Capability cap : state.getCapabilities().values()) {
+            if (!cap.isDeployAllowed(state, pos)) {
+                placementAllowed = false;
+                break;
+            }
+        }
+
+        Stream<Tuple2<Location, Scoreable>> places;
+
+        if (placementAllowed) {
+            places = currentTile.getUnoccupiedScoreables(false);
+            if (game.hasCapability(PrincessCapability.class) && game.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
+                places = excludePrincess(places);
+            }
+        } else {
+            places = Stream.empty();
+        }
+
+        Set<FeaturePointer> locations = places.map(t -> new FeaturePointer(pos, t._1)).toSet();
+        Vector<PlayerAction<?>> actions = availMeeples.map(meepleType -> {
+            PlayerAction<?> action = new MeepleAction(meepleType, locations);
+            return action;
+        });
+
+        actions = actions.filter(action -> !action.isEmpty());
+
         state = state.setPlayerActions(
-            new ActionsState(
-                player,
-                actions, true
-            )
+            new ActionsState(player, actions, true)
         );
         promote(state);
     }
@@ -177,6 +218,7 @@ public class ActionPhase extends Phase {
 
     @Override
     public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+        game.markUndo();
         GameState state = game.getState();
         Meeple m = state.getActivePlayer().getMeepleFromSupply(state, meepleType);
         //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)

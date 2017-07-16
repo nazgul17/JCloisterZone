@@ -98,17 +98,17 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         return null;
     }
 
-//    void phaseLoop() {
-//        Phase phase = game.getPhase();
-//        while (phase != null && !phase.isEntered()) {
-//            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
-//            phase.setEntered(true);
-//            phase.enter();
-//            phase = game.getPhase();
-//            game.flushEventQueue();
-//        }
-//        game.flushEventQueue();
-//    }
+    void phaseLoop() {
+        Phase phase = game.getPhase();
+        while (phase != null && !phase.isEntered()) {
+            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
+            phase.setEntered(true);
+            phase.enter();
+            phase = game.getPhase();
+            game.flushEventQueue();
+        }
+        game.flushEventQueue();
+    }
 
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
@@ -132,27 +132,14 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
         if (ev.hasPlayerActionsChanged()) {
             Player pl = state.getActivePlayer();
-            if (pl != null && pl.isLocalHuman()) {
-                if (game.isUndoAllowed()) {
-                    client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
-                }
-            }
+            boolean canUndo = pl != null && pl.isLocalHuman() && game.isUndoAllowed();
+            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, canUndo);
         }
 
         //TODO move to Gridpanl
         gameView.getGridPanel().repaint();
     }
 
-//    @Subscribe
-//    public void handleSelectAction(SelectActionEvent ev) {
-//        clearActions();
-//        gameView.getControlPanel().selectAction(ev.getTargetPlayer(), ev.getActions(), ev.isPassAllowed());
-//        gameView.getGridPanel().repaint();
-//        //TODO generic solution
-//        if (game.isUndoAllowed() && ev.getTargetPlayer().isLocalHuman()) {
-//            client.getJMenuBar().setItemEnabled(MenuItem.UNDO, true);
-//        }
-//    }
 
 
     @Subscribe

@@ -342,19 +342,19 @@ public class ControlPanel extends JPanel {
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasPlayerActionsChanged()) {
+            clearActions();
             ActionsState actions = ev.getCurrentState().getPlayerActions();
-            if (actions == null) {
-                clearActions();
-            } else if (actions.getActions().get() instanceof ConfirmAction) {
-                clearActions();
-                if (actions.getPlayer().isLocalHuman()) {
-                    setShowConfirmRequest(true);
+            if (actions != null) {
+                if (actions.getActions().get() instanceof ConfirmAction) {
+                    if (actions.getPlayer().isLocalHuman()) {
+                        setShowConfirmRequest(true);
+                    } else {
+                        actionPanel.setShowConfirmRequest(true, true);
+                        repaint();
+                    }
                 } else {
-                    actionPanel.setShowConfirmRequest(true, true);
-                    repaint();
+                    selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
                 }
-            } else {
-                selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
             }
         }
         refreshPotentialPoints();

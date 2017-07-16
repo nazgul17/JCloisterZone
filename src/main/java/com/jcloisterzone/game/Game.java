@@ -381,39 +381,6 @@ public class Game extends GameSettings implements EventProxy {
         return getPhase() instanceof GameOverPhase;
     }
 
-
-    public Set<FeaturePointer> prepareFollowerLocations(GameState state) {
-        Set<FeaturePointer> locations = prepareFollowerLocations(state.getBoard().getLastPlaced(), false);
-        //TODO solve portal
-//        for (Capability cap: getCapabilities()) {
-//            locations = cap.extendFollowOptions(locations);
-//        }
-        return locations;
-    }
-
-    public Set<FeaturePointer> prepareFollowerLocations(Tile tile, boolean excludeFinished) {
-        if (!isDeployAllowed(tile, Follower.class)) return HashSet.empty();
-
-        Position pos = tile.getPosition();
-        Stream<Tuple2<Location, Scoreable>> s = tile.getUnoccupiedScoreables(excludeFinished);
-
-        //exclude finished == false -> just placed tile - it means do not check princess for magic portal
-        //TODO very cryptic, refactor
-        //IMMUTABLE TODO
-        if (!excludeFinished && hasCapability(PrincessCapability.class) && getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
-            s = s.filter(t -> {
-                if (t._2 instanceof City) {
-                    City c = (City) t._2;
-                    return !c.isPrincess();
-                } else {
-                    return true;
-                }
-            });
-        }
-
-        return s.map(t -> new FeaturePointer(pos, t._1)).toSet();
-    }
-
     public int idSequnceNextVal() {
         return ++idSequenceCurrVal;
     }
@@ -460,17 +427,17 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-        for (Capability cap: getCapabilities()) {
-            actions = cap.prepareActions(actions, followerOptions);
-        }
-        for (Capability cap: getCapabilities()) {
-            actions = cap.postPrepareActions(actions);
-        }
-        //to simplify capability iterations, allow returning empty actions (eg tower can add empty meeple action when no open tower exists etc)
-        //and then filter them out at end
-        return actions.filter(action -> !action.isEmpty());
-    }
+//    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+//        for (Capability cap: getCapabilities()) {
+//            actions = cap.prepareActions(actions, followerOptions);
+//        }
+//        for (Capability cap: getCapabilities()) {
+//            actions = cap.postPrepareActions(actions);
+//        }
+//        //to simplify capability iterations, allow returning empty actions (eg tower can add empty meeple action when no open tower exists etc)
+//        //and then filter them out at end
+//        return actions.filter(action -> !action.isEmpty());
+//    }
 
 
     public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {

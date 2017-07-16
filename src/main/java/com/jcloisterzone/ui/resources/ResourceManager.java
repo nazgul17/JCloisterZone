@@ -21,6 +21,7 @@ public interface ResourceManager {
     Image getImage(String path);
     Image getLayeredImage(LayeredImageDescriptor lid);
 
+    //TODO do not use Tile, use TileDefinition + Rotation instead
     Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations);
     Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners);
     Map<Location, FeatureArea> getBridgeAreas(Tile tile, int width, int height, Set<Location> locations);

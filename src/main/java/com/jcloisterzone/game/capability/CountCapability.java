@@ -10,7 +10,9 @@ import java.util.stream.Collectors;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.TileEvent;
@@ -25,6 +27,9 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
+
+import io.vavr.Tuple2;
 
 public class CountCapability extends Capability {
 
@@ -55,7 +60,7 @@ public class CountCapability extends Capability {
         return Collections.emptyList();
     }
 
-    public static boolean isTileForbidden(Tile tile) {
+    public static boolean isTileForbidden(TileDefinition tile) {
         String id = tile.getId();
         for (String forbidden : FORBIDDEN_TILES) {
             if (forbidden.equals(id)) return true;
@@ -64,8 +69,9 @@ public class CountCapability extends Capability {
     }
 
     @Override
-    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
-        return !isTileForbidden(tile);
+    public boolean isDeployAllowed(GameState state, Position pos) {
+        Tuple2<TileDefinition, Rotation> t = state.getPlacedTiles().get(pos).getOrNull();
+        return t == null || !isTileForbidden(t._1);
     }
 
     @Override

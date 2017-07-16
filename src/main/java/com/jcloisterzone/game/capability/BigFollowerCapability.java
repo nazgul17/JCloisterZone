@@ -10,7 +10,7 @@ import io.vavr.collection.List;
 public class BigFollowerCapability extends Capability {
 
     @Override
-    public List<Follower> createPlayerFollowers(Player p) {
-        return List.of((Follower) new BigFollower(null, p));
+    public List<Follower> createPlayerFollowers(Player player) {
+        return List.of((Follower) new BigFollower(player));
     }
 }

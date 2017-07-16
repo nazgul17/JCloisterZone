@@ -6,8 +6,8 @@ public class BigFollower extends Follower {
 
     private static final long serialVersionUID = -5506815500027084904L;
 
-    public BigFollower(Integer idSuffix, Player player) {
-        super(idSuffix, player);
+    public BigFollower(Player player) {
+        super(null, player);
     }
 
     @Override

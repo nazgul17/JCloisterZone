@@ -13,6 +13,7 @@ import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 public class PlagueCapability extends Capability {
 
@@ -37,9 +38,9 @@ public class PlagueCapability extends Capability {
     }
 
     @Override
-    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
+    public boolean isDeployAllowed(GameState state, Position pos) {
         for (PlagueSource ps : plagueSources) {
-            if (ps.active && ps.pos.equals(tile.getPosition())) return false;
+            if (ps.active && ps.pos.equals(pos)) return false;
         }
         //TODO check flea locations
         return true;

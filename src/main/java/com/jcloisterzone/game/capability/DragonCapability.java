@@ -20,6 +20,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 public class DragonCapability extends Capability {
 
@@ -93,8 +94,8 @@ public class DragonCapability extends Capability {
     }
 
     @Override
-    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
-        return !dragon.at(tile.getPosition());
+    public boolean isDeployAllowed(GameState state, Position pos) {
+        return !dragon.at(pos);
     }
 
     public Player getDragonPlayer() {

@@ -73,11 +73,11 @@ public abstract class Capability {
         return null;
     }
 
-    public List<Follower> createPlayerFollowers(Player p) {
+    public List<Follower> createPlayerFollowers(Player player) {
         return List.empty();
     }
 
-    public List<Special> createPlayerSpecialMeeples(Player p) {
+    public List<Special> createPlayerSpecialMeeples(Player player) {
         return List.empty();
     }
 
@@ -129,8 +129,7 @@ public abstract class Capability {
         return actions;
     }
 
-    //TODO don't use Tile ? FeaturePointer shoudl be used
-    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
+    public boolean isDeployAllowed(GameState state, Position pos) {
         return true;
     }
 
