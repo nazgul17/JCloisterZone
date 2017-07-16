@@ -10,9 +10,6 @@ import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
@@ -20,6 +17,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.wsio.RmiProxy;
@@ -31,19 +29,10 @@ public abstract class Phase implements RmiProxy {
 
     protected final Game game;
 
-    private boolean entered;
     private Phase defaultNext;
 
     public Phase(Game game) {
         this.game = game;
-    }
-
-    public boolean isEntered() {
-        return entered;
-    }
-
-    public void setEntered(boolean entered) {
-        this.entered = entered;
     }
 
     public Phase getDefaultNext() {
@@ -54,23 +43,23 @@ public abstract class Phase implements RmiProxy {
         this.defaultNext = defaultNext;
     }
 
-    public void next() {
-        next(defaultNext);
+    public void next(GameState state) {
+        next(state, defaultNext);
     }
 
-    public void next(Class<? extends Phase> phaseClass) {
-        next(game.getPhases().get(phaseClass));
+    public void next(GameState state, Class<? extends Phase> phaseClass) {
+        next(state, game.getPhases().get(phaseClass));
     }
 
-    public void next(Phase phase) {
-        game.setPhase(phase);
+    public void next(GameState state, Phase phase) {
+        phase.enter(state);
     }
 
-    public void enter() { }
-    /** enter caused eg by undo, can ommit some parts
-     */
-    public void reenter() {
-        enter();
+    public abstract void enter(GameState state);
+
+    protected void promote(GameState state) {
+        state = state.setPhase(this.getClass());
+        game.replaceState(state);
     }
 
     /**
@@ -87,25 +76,6 @@ public abstract class Phase implements RmiProxy {
 
     //shortcuts
 
-    protected Board getBoard() {
-        return game.getBoard();
-    }
-
-//    protected TileDefinition getTile() {
-//        return game.getCurrentTile();
-//    }
-
-//
-//    //TODO Use player saved in ActionPlayers
-//    @Deprecated
-//    public Player getActivePlayer() {
-//        return game.getTurnPlayer();
-//    }
-
-    @Deprecated
-    public Player getActivePlayer() {
-        return game.getActivePlayer();
-    }
 
     /** handler called after game is load if this phase is active */
     public void loadGame(Snapshot snapshot) {

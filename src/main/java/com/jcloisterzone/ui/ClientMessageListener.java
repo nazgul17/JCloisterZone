@@ -142,8 +142,12 @@ public class ClientMessageListener implements MessageListener {
         EventProxyUiController<?> controller = getController(msg);
         if (controller instanceof GameController) {
             GameController gc = (GameController) controller;
-            dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
-            gc.phaseLoop();
+            // TODO IMMUTABLE temp hack
+            if (gc.getGame().getCreateGamePhase() != null) {
+                dispatcher.dispatch(msg, conn, this, gc.getGame().getCreateGamePhase());
+            } else {
+                dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
+            }
         } else {
             dispatcher.dispatch(msg, conn, this);
         }
@@ -199,7 +203,7 @@ public class ClientMessageListener implements MessageListener {
             slots[number] = slot;
             updateSlot(slots, slotMsg);
         }
-        ((CreateGamePhase)gc.getGame().getPhase()).setSlots(slots);
+        gc.getGame().getCreateGamePhase().setSlots(slots);
     }
 
     private GameController createGameController(GameMessage msg) {
@@ -235,7 +239,7 @@ public class ClientMessageListener implements MessageListener {
             }
         }
         game.getPhases().put(phase.getClass(), phase);
-        game.setPhase(phase);
+        game.setCreateGamePhase(phase);
         if (msg.getSlots() != null) {
             createGameSlots(gc, msg);
         }
@@ -244,10 +248,11 @@ public class ClientMessageListener implements MessageListener {
 
     private void handleGameStarted(final GameController gc, String[] replay) throws InvocationTargetException, InterruptedException {
         conn.getReportingTool().setGame(gc.getGame());
-        CreateGamePhase phase = (CreateGamePhase)gc.getGame().getPhase();
+        CreateGamePhase phase = gc.getGame().getCreateGamePhase();
         phase.startGame(replay != null);
 
         if (replay != null) {
+            //TODO IMMUTABLE
             gc.setConnection(new MutedConnection(conn));
 
             SwingUtilities.invokeAndWait(new Runnable() {
@@ -259,7 +264,7 @@ public class ClientMessageListener implements MessageListener {
                 }
             });
 
-            gc.phaseLoop();
+            //gc.phaseLoop();
             for (int i = 0; i < replay.length; i++) {
                 if (i == replay.length - 1) {
                     for (PlayerSlot slot : phase.getPlayerSlots()) {
@@ -271,7 +276,7 @@ public class ClientMessageListener implements MessageListener {
 
                 WsMessage msg = conn.getParser().fromJson(replay[i]);
                 dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
-                gc.phaseLoop();
+                //gc.phaseLoop();
             }
             gc.setConnection(conn);
         }
@@ -316,10 +321,7 @@ public class ClientMessageListener implements MessageListener {
         handleGameSetup(msg.getGameSetup());
         if (msg.getSlots() != null) {
             createGameSlots(gc, msg);
-            CreateGamePhase phase = null;
-            if (!gc.getGame().isStarted()) {
-                phase = (CreateGamePhase)gc.getGame().getPhase();
-            }
+            CreateGamePhase phase = gc.getGame().getCreateGamePhase();
             for (SlotMessage slotMsg : msg.getSlots()) {
                 handleSlot(slotMsg);
                 if (phase != null) {
@@ -566,7 +568,7 @@ public class ClientMessageListener implements MessageListener {
           int i = 0;
           for (String name: players) {
               Class<?> clazz = null;;
-              PlayerSlot slot = ((CreateGamePhase) game.getPhase()).getPlayerSlots()[i];
+              PlayerSlot slot = game.getCreateGamePhase().getPlayerSlots()[i];
               try {
                   clazz = Class.forName(name);
                   slot.setAiClassName(name);

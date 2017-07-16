@@ -201,4 +201,8 @@ public class Board {
         return size;
     }
 
+    public Tile getLastPlaced() {
+        return get(state.getPlacedTiles().takeRight(1).get()._1);
+    }
+
 }

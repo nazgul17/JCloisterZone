@@ -18,6 +18,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
+import com.jcloisterzone.game.phase.Phase;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -54,6 +55,8 @@ public class GameState {
     private final ActionsState playerActions;
     private final Queue<PlayEvent> events;
 
+    private final Class<? extends Phase> phase;
+
     public static GameState createInitial(
             HashMap<Class<? extends Capability>, Capability> capabilities,
             Array<Player> players,
@@ -74,7 +77,8 @@ public class GameState {
             LinkedHashMap.empty(),
             LinkedHashMap.empty(),
             null,
-            Queue.empty()
+            Queue.empty(),
+            null
         );
     }
 
@@ -90,7 +94,8 @@ public class GameState {
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
             LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures,
             ActionsState playerActions,
-            Queue<PlayEvent> events) {
+            Queue<PlayEvent> events,
+            Class<? extends Phase> phase) {
         this.capabilities = capabilities;
         this.players = players;
         this.score = score;
@@ -107,6 +112,7 @@ public class GameState {
         this.deployedNeutralFigures = deployedNeutralFigures;
         this.playerActions = playerActions;
         this.events = events;
+        this.phase = phase;
     }
 
     public GameState setCapabilities(HashMap<Class<? extends Capability>, Capability> capabilities) {
@@ -115,7 +121,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -125,7 +132,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -135,7 +143,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -145,7 +154,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -155,7 +165,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -165,7 +176,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -175,7 +187,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -185,7 +198,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -195,7 +209,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -205,7 +220,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -215,7 +231,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -225,7 +242,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -235,7 +253,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -245,7 +264,8 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -255,7 +275,19 @@ public class GameState {
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, deployedMeeples, deployedNeutralFigures, playerActions, events
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
+        );
+    }
+
+    public GameState setPhase(Class<? extends Phase> phase) {
+        return new GameState(
+            capabilities,
+            players, score, turnPlayerIndex,
+            followers, specialMeeples, clocks,
+            tilePack, drawnTile, placedTiles, discardedTiles,
+            features, deployedMeeples, deployedNeutralFigures, playerActions, events,
+            phase
         );
     }
 
@@ -329,6 +361,10 @@ public class GameState {
 
     public Queue<PlayEvent> getEvents() {
         return events;
+    }
+
+    public Class<? extends Phase> getPhase() {
+        return phase;
     }
 
     // ------ helpers -------------

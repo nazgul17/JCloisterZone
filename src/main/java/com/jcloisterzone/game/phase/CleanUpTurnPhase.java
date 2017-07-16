@@ -1,7 +1,8 @@
 package com.jcloisterzone.game.phase;
 
+import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.reducers.ForEachCapability;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.reducers.SetNextPlayer;
 
 /**
@@ -14,11 +15,13 @@ public class CleanUpTurnPhase extends Phase {
     }
 
     @Override
-    public void enter() {
-        game.replaceState(
-            new ForEachCapability((cap, s) -> cap.turnCleanUp(s)),
-            new SetNextPlayer()
-        );
-        next();
+    public void enter(GameState state) {
+
+        for (Capability cap : state.getCapabilities().values()) {
+            state = cap.turnCleanUp(state);
+        }
+        state = (new SetNextPlayer()).apply(state);
+
+        next(state);
     }
 }

@@ -55,7 +55,7 @@ public class GameSetupView extends AbstractUiView {
     @Override
     public void show(Container pane, Object ctx) {
         Game game = gc.getGame();
-        CreateGamePhase phase = (CreateGamePhase)game.getPhase();
+        CreateGamePhase phase = game.getCreateGamePhase();
 
         BackgroundPanel bg = new BackgroundPanel();
         bg.setLayout(new BorderLayout());

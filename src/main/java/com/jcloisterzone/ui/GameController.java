@@ -98,17 +98,17 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         return null;
     }
 
-    void phaseLoop() {
-        Phase phase = game.getPhase();
-        while (phase != null && !phase.isEntered()) {
-            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
-            phase.setEntered(true);
-            phase.enter();
-            phase = game.getPhase();
-            game.flushEventQueue();
-        }
-        game.flushEventQueue();
-    }
+//    void phaseLoop() {
+//        Phase phase = game.getPhase();
+//        while (phase != null && !phase.isEntered()) {
+//            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
+//            phase.setEntered(true);
+//            phase.enter();
+//            phase = game.getPhase();
+//            game.flushEventQueue();
+//        }
+//        game.flushEventQueue();
+//    }
 
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {

@@ -2,6 +2,7 @@ package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.message.GameOverMessage;
@@ -15,24 +16,17 @@ public class GameOverPhase extends ServerAwarePhase {
     }
 
     @Override
-    public void enter() {
-        if (isLocalPlayer(game.getTurnPlayer())) {
+    public void enter(GameState state) {
+        if (isLocalPlayer(state.getTurnPlayer())) {
             //invoke only by single client
             getConnection().send(new ToggleClockMessage(game.getGameId(), null));
             getConnection().send(new GameOverMessage(game.getGameId()));
         }
 
-        game.replaceState(new FinalScoring());
+        state = state.setPlayerActions(null);
+        state = (new FinalScoring()).apply(state);
+        promote(state);
+
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_OVER));
     }
-
-//    @Override
-//    public void scoreBarn(FarmScoreContext ctx, Barn meeple) {
-//        int points = ctx.getBarnPoints();
-//        meeple.getPlayer().addPoints(points, PointCategory.FARM);
-//        ScoreEvent ev = new ScoreEvent(meeple.getFeature(), points, PointCategory.FARM, meeple);
-//        ev.setFinal(true);
-//        game.post(ev);
-//    }
-
 }

@@ -13,7 +13,6 @@ import com.google.common.collect.ClassToInstanceMap;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
-import com.jcloisterzone.Player;
 import com.jcloisterzone.ai.AiPlayer;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -107,7 +106,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         return phase;
     }
 
-    protected void preparePhases() {
+    protected Phase preparePhases() {
         GameController gc = getGameController();
         Phase last, next = null;
         //if there isn't assignment - phase is out of standard flow
@@ -146,8 +145,8 @@ public class CreateGamePhase extends ServerAwarePhase {
         next = addPhase(next, new DrawPhase(game, gc));
         next = addPhase(next, new AbbeyPhase(game, gc));
         next = addPhase(next, new FairyPhase(game));
-        setDefaultNext(next); //set next phase for this (CreateGamePhase) instance
         last.setDefaultNext(next); //after last phase, the first is default
+        return next;
     }
 
     protected Array<Player> preparePlayers() {
@@ -289,7 +288,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         Tiles tiles = prepareTilePack();
         game.replaceState(state -> state.setTilePack(tiles.getTilePack()));
 
-        preparePhases();
+        Phase first = preparePhases();
 
         game.begin();
         prepareAiPlayers(muteAi);
@@ -298,10 +297,12 @@ public class CreateGamePhase extends ServerAwarePhase {
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, getSnapshot()));
         preplaceTiles(tiles.getPreplacedTiles());
         game.replaceState(
-            state -> state.appendEvent(new PlayerTurnEvent(player))
+            state -> state.appendEvent(new PlayerTurnEvent(player)),
+            state -> state.setPhase(first.getClass())
         );
         toggleClock(player);
-        next();
+        game.setCreateGamePhase(null);
+        first.enter(game.getState());
     }
 
 }

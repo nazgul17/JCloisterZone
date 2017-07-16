@@ -6,11 +6,13 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.reducers.PlaceTile;
 
 import io.vavr.collection.Vector;
 
+//TODO should be merged with DrawPhase ?
 public class TilePhase extends Phase {
 
     private final BridgeCapability bridgeCap;
@@ -21,17 +23,17 @@ public class TilePhase extends Phase {
     }
 
     @Override
-    public void enter() {
-        TileDefinition tile = game.getState().getDrawnTile();
-        TilePlacementAction action = new TilePlacementAction(tile, getBoard().getTilePlacements(tile).toSet());
+    public void enter(GameState state) {
+        TileDefinition tile = state.getDrawnTile();
+        TilePlacementAction action = new TilePlacementAction(tile, state.getBoard().getTilePlacements(tile).toSet());
 
-        game.replaceState(
-            state -> state.setPlayerActions(new ActionsState(
-                state.getTurnPlayer(),
-                Vector.of(action),
-                false
-            ))
-        );
+        state = state.setPlayerActions(new ActionsState(
+            state.getTurnPlayer(),
+            Vector.of(action),
+            false
+        ));
+
+        promote(state);
     }
 
 //    @Override
@@ -46,16 +48,15 @@ public class TilePhase extends Phase {
     @Override
     public void placeTile(Rotation rot, Position pos) {
         game.markUndo();
+        GameState state = game.getState();
 
-        TileDefinition tile = game.getState().getDrawnTile();
+        TileDefinition tile = state.getDrawnTile();
 
         //IMMUTABLE TODO bridge
         //boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
 
-        game.replaceState(
-            new PlaceTile(tile, pos, rot),
-            s -> s.setPlayerActions(null)
-        );
+        state = (new PlaceTile(tile, pos, rot)).apply(state);
+        state = state.setPlayerActions(null);
 
         //IMMUTABLE TODO bridge
 //        if (tile.getTower() != null) {
@@ -73,6 +74,6 @@ public class TilePhase extends Phase {
 //        }
         //getBoard().mergeFeatures(tile);
 
-        next();
+        next(state);
     }
 }

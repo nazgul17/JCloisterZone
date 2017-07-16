@@ -11,6 +11,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.ConfirmAction;
+import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
@@ -79,23 +80,25 @@ public class ScorePhase extends ServerAwarePhase {
         gldCap = game.getCapability(GoldminesCapability.class);
     }
 
-    private void scoreCompletedOnTile(Tile tile) {
-        tile.getCompletableFeatures().forEach(t -> {
-            scoreCompleted(t._2, true);
-        });
+    private GameState scoreCompletedOnTile(GameState state, Tile tile) {
+        for (Tuple2<Location, Completable> t : tile.getCompletableFeatures()) {
+            state = scoreCompleted(state, t._2, true);
+        }
+        return state;
     }
 
-    private void scoreCompletedNearAbbey(Position pos) {
-        for (Tuple2<Location, Tile> t : getBoard().getAdjacentTilesMap(pos)) {
+    private GameState scoreCompletedNearAbbey(GameState state, Position pos) {
+        for (Tuple2<Location, Tile> t : state.getBoard().getAdjacentTilesMap(pos)) {
             Tile tile = t._2;
             Feature feature = tile.getFeaturePartOf(t._1.rev());
             if (feature instanceof Completable) {
-                scoreCompleted((Completable) feature, false);
+                state = scoreCompleted(state, (Completable) feature, false);
             }
         }
+        return state;
     }
 
-    private void scoreFollowersOnBarnFarm(Farm farm, Map<City, CityScoreContext> cityCache) {
+    private GameState scoreFollowersOnBarnFarm(GameState state, Farm farm, Map<City, CityScoreContext> cityCache) {
         // IMMUTABLE TODO
 //        FarmScoreContext ctx = farm.getScoreContext();
 //        ctx.setCityCache(cityCache);
@@ -119,11 +122,11 @@ public class ScorePhase extends ServerAwarePhase {
 //                }
 //            }
 //        }
+        return state;
     }
 
     @Override
-    public void enter() {
-        GameState state = game.getState();
+    public void enter(GameState state) {
         Player player = state.getActivePlayer();
         if (isLocalPlayer(player)) {
             boolean needsConfirm = false;
@@ -140,19 +143,18 @@ public class ScorePhase extends ServerAwarePhase {
                     needsConfirm = true;
                 }
             }
-            if (needsConfirm) {
-                game.replaceState(state.setPlayerActions(
-                    new ActionsState(player, new ConfirmAction(), false)
-                ));
-            } else {
+            if (!needsConfirm) {
                 getConnection().send(new CommitMessage(game.getGameId()));
+                promote(state);
+                return;
             }
-        } else {
-            //if player is not active, always trigger event and wait for remote CommitMessage
-            game.replaceState(state.setPlayerActions(
-                new ActionsState(player, new ConfirmAction(), false)
-            ));
         }
+
+        //if player is not active, always trigger event and wait for remote CommitMessage
+        state = state.setPlayerActions(
+            new ActionsState(player, new ConfirmAction(), false)
+        );
+        promote(state);
     }
 
     @WsSubscribe
@@ -160,34 +162,36 @@ public class ScorePhase extends ServerAwarePhase {
         game.clearUndo();
         game.updateRandomSeed(msg.getCurrentTime());
 
-        Tile tile = game.getCurrentTile();
+        GameState state = game.getState();
+        Board board = state.getBoard(); //can keep ref because only points are changed
+        Tile tile = board.getLastPlaced();
         Position pos = tile.getPosition();
         //TODO separate event here ??? and move this code to abbey and mayor game
         if (barnCap != null) {
             Map<City, CityScoreContext> cityCache = new HashMap<>();
             for (Tuple2<Location, Feature> t : tile.getFeatures()) {
                 if (t._2 instanceof Farm) {
-                    scoreFollowersOnBarnFarm((Farm) t._2, cityCache);
+                    state = scoreFollowersOnBarnFarm(state, (Farm) t._2, cityCache);
                 }
             }
         }
 
-        scoreCompletedOnTile(tile);
+        state = scoreCompletedOnTile(state, tile);
         if (tile.isAbbeyTile()) {
-            scoreCompletedNearAbbey(pos);
+            state = scoreCompletedNearAbbey(state, pos);
         }
 
         if (tunnelCap != null) {
             Road r = tunnelCap.getPlacedTunnel();
             if (r != null) {
-                scoreCompleted(r, true);
+                state = scoreCompleted(state, r, true);
             }
         }
 
-        for (Tile neighbour : getBoard().getAdjacentAndDiagonalTiles(pos)) {
+        for (Tile neighbour : board.getAdjacentAndDiagonalTiles(pos)) {
             Cloister cloister = neighbour.getCloister();
             if (cloister != null) {
-                scoreCompleted(cloister, false);
+                state = scoreCompleted(state, cloister, false);
             }
         }
 
@@ -203,7 +207,7 @@ public class ScorePhase extends ServerAwarePhase {
         }
 
         alreadyScored.clear();
-        next();
+        next(state);
     }
 
 //    private void scoreCastle(Castle castle, int points) {
@@ -218,8 +222,7 @@ public class ScorePhase extends ServerAwarePhase {
 //        undeloyMeeple(m);
 //    }
 
-    private void scoreCompleted(Completable completable, boolean triggerBuilder) {
-        GameState state = game.getState();
+    private GameState scoreCompleted(GameState state, Completable completable, boolean triggerBuilder) {
         if (triggerBuilder && builderCap != null) {
             if (!completable.getMeeples(state).find(Predicates.instanceOf(Builder.class)).isEmpty()) {
                 builderCap.useBuilder();
@@ -227,12 +230,13 @@ public class ScorePhase extends ServerAwarePhase {
         }
         if (completable.isCompleted(state) && !alreadyScored.contains(completable)) {
             alreadyScored.add(completable);
+
+            //TODO change to reducer
             game.scoreCompleted(completable);
 
-            game.replaceState(
-                new ScoreFeature(completable),
-                new UndeployMeeples(completable)
-            );
+            state = (new ScoreFeature(completable)).apply(state);
+            state = (new UndeployMeeples(completable)).apply(state);
+
             //IMMUTABLE TODO
 //   notify scored wagon
 //          if (m instanceof Wagon && wagonCap != null) {
@@ -240,6 +244,8 @@ public class ScorePhase extends ServerAwarePhase {
 //      	}
             //game.post(new FeatureCompletedEvent(getActivePlayer(), completable));
         }
+
+        return state;
     }
 
 }

@@ -68,12 +68,16 @@ public class Game extends GameSettings implements EventProxy {
 
     private GameState state;
 
+
+    // -- temporary dev --
+
+    private CreateGamePhase createGamePhase;
+
     // -- old --
 
 //    private final List<NeutralFigure> neutralFigures = new ArrayList<>();
 //
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
-    private Phase phase;
 
     private List<GameState> undoState = List.empty();
 
@@ -82,7 +86,7 @@ public class Game extends GameSettings implements EventProxy {
 
     private final EventBus eventBus = new EventBus(new EventBusExceptionHandler("game event bus"));
     //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before switch is done
-    private final java.util.Deque<Event> eventQueue = new java.util.ArrayDeque<>();
+    //private final java.util.Deque<Event> eventQueue = new java.util.ArrayDeque<>();
 
     private int idSequenceCurrVal = 0;
 
@@ -185,11 +189,9 @@ public class Game extends GameSettings implements EventProxy {
 
     @Override
     public void post(Event event) {
+        eventBus.post(event);
         //IMMUTABLE TOTO make state always be not null
-        if (state == null) {
-            logger.warn("Null state " + event.toString());
-        }
-        eventQueue.add(event);
+ //       eventQueue.add(event);
 //        if (event instanceof PlayEvent && !event.isUndo()) {
 //            if (isUiSupportedUndo(event)) {
 //                if ((event instanceof BridgeEvent && ((BridgeEvent)event).isForced()) ||
@@ -218,12 +220,12 @@ public class Game extends GameSettings implements EventProxy {
 //        }
     }
 
-    public void flushEventQueue() {
-        Event event;
-        while ((event = eventQueue.poll()) != null) {
-            eventBus.post(event);
-        }
-    }
+//    public void flushEventQueue() {
+//        Event event;
+//        while ((event = eventQueue.poll()) != null) {
+//            eventBus.post(event);
+//        }
+//    }
 
 
 
@@ -246,9 +248,6 @@ public class Game extends GameSettings implements EventProxy {
 //        phase.reenter();
 //    }
 
-    public Tile getCurrentTile() {
-        return getBoard().get(state.getPlacedTiles().takeRight(1).get()._1);
-    }
 
     public PlayerSlot[] getPlayerSlots() {
         // need to match subtypes, can't use getInstance on phases
@@ -261,12 +260,7 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public Phase getPhase() {
-        return phase;
-    }
-
-    public void setPhase(Phase phase) {
-        phase.setEntered(false);
-        this.phase = phase;
+        return phases.get(state.getPhase());
     }
 
     public ClassToInstanceMap<Phase> getPhases() {
@@ -377,20 +371,23 @@ public class Game extends GameSettings implements EventProxy {
         return (T) state.getCapabilities().get(clazz).getOrNull();
     }
 
+    @Deprecated
     public boolean isStarted() {
-        return !(phase instanceof CreateGamePhase);
+        return !(getPhase() instanceof CreateGamePhase);
     }
 
+    @Deprecated
     public boolean isOver() {
-        return phase instanceof GameOverPhase;
+        return getPhase() instanceof GameOverPhase;
     }
 
 
-    public Set<FeaturePointer> prepareFollowerLocations() {
-        Set<FeaturePointer> locations = prepareFollowerLocations(getCurrentTile(), false);
-        for (Capability cap: getCapabilities()) {
-            locations = cap.extendFollowOptions(locations);
-        }
+    public Set<FeaturePointer> prepareFollowerLocations(GameState state) {
+        Set<FeaturePointer> locations = prepareFollowerLocations(state.getBoard().getLastPlaced(), false);
+        //TODO solve portal
+//        for (Capability cap: getCapabilities()) {
+//            locations = cap.extendFollowOptions(locations);
+//        }
         return locations;
     }
 
@@ -489,7 +486,6 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
         for (Capability cap: getCapabilities()) {
             if (!cap.isTilePlacementAllowed(tile, p)) return false;
@@ -509,8 +505,13 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    @Override
-    public String toString() {
-        return "Game in " + phase.getClass().getSimpleName() + " phase.";
+    public CreateGamePhase getCreateGamePhase() {
+        return createGamePhase;
     }
+
+    public void setCreateGamePhase(CreateGamePhase createGamePhase) {
+        this.createGamePhase = createGamePhase;
+    }
+
+
 }

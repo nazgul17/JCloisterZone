@@ -40,96 +40,96 @@ public class DrawPhase extends ServerAwarePhase {
         riverCap = game.getCapability(RiverCapability.class);
     }
 
-    public TileDefinition drawTile(int index) {
-        TilePackState tps = game.getState().getTilePack();
+    public GameState drawTile(GameState state, int index) {
+        TilePackState tps = state.getTilePack();
         Tuple2<TileDefinition, TilePackState> t = tps.drawTile(index);
-        game.replaceState(state -> state.setTilePack(t._2).setDrawnTile(t._1));
-        return t._1;
+        return state.setTilePack(t._2).setDrawnTile(t._1);
     }
 
-    public TileDefinition drawTile(String tileId) {
-        TilePackState tps = game.getState().getTilePack();
+    public GameState drawTile(GameState state, String tileId) {
+        TilePackState tps = state.getTilePack();
         Tuple2<TileDefinition, TilePackState> t = tps.drawTile(tileId);
-        game.replaceState(state -> state.setTilePack(t._2).setDrawnTile(t._1));
-        return t._1;
+        return state.setTilePack(t._2).setDrawnTile(t._1);
     }
 
-    private boolean makeDebugDraw() {
+    private String pullDebugDrawTileId() {
+//        boolean riverActive = tilePack.getGroupState("river-start") == TileGroupState.ACTIVE || tilePack.getGroupState("river") == TileGroupState.ACTIVE;
+//        if (game.hasCapability(RiverCapability.class) && tile.getRiver() == null && riverActive) {
+//            game.getCapability(RiverCapability.class).activateNonRiverTiles();
+//            tilePack.setGroupState("river-start", TileGroupState.RETIRED);
+//            game.setCurrentTile(tile); //recovery from lake placement
+//        }
         if (debugTiles != null && debugTiles.size() > 0) { //for debug purposes only
-            String tileId = debugTiles.remove(0);
-            if (tileId.equals(DEBUG_END_OF_PACK)) {
-                next(GameOverPhase.class);
-                return true;
-            }
-            try {
-                TileDefinition tile = drawTile(tileId);
-//                boolean riverActive = tilePack.getGroupState("river-start") == TileGroupState.ACTIVE || tilePack.getGroupState("river") == TileGroupState.ACTIVE;
-//                if (game.hasCapability(RiverCapability.class) && tile.getRiver() == null && riverActive) {
-//                    game.getCapability(RiverCapability.class).activateNonRiverTiles();
-//                    tilePack.setGroupState("river-start", TileGroupState.RETIRED);
-//                    game.setCurrentTile(tile); //recovery from lake placement
-//                }
-                nextTile(tile);
-                return true;
-            } catch (IllegalArgumentException e) {
-                logger.warn("Invalid debug draw id: " + tileId);
-            }
+            return debugTiles.remove(0);
         }
-        return false;
+        return null;
+    }
+
+
+    private boolean isDebugForcedEnd() {
+        return debugTiles != null && !debugTiles.isEmpty() && debugTiles.get(0).equals(DEBUG_END_OF_PACK);
     }
 
     @Override
-    public void enter() {
-        //IMMUTABLE TODO
-//        if (bazaarCap != null) {
-//            Tile tile = bazaarCap.drawNextTile();
-//            if (tile != null) {
-//                nextTile(tile);
-//                return;
-//            }
-//        }
+    public void enter(GameState state) {
+        for (;;) {
+            //IMMUTABLE TODO
+    //        if (bazaarCap != null) {
+    //            Tile tile = bazaarCap.drawNextTile();
+    //            if (tile != null) {
+    //                nextTile(tile);
+    //                return;
+    //            }
+    //        }
 
-        GameState state = game.getState();
-        TilePackState tilePack = state.getTilePack();
-        if (tilePack.isEmpty()) {
-            if (abbeyCap != null && !state.getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
-                if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
-                    abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(state.getActivePlayer()));
+            TilePackState tilePack = state.getTilePack();
+
+            //Abbey special case, every player has opportunity to place own abbey at the end.
+            if (tilePack.isEmpty()) {
+                if (abbeyCap != null && !state.getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
+                    if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
+                        abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(state.getActivePlayer()));
+                    }
+                    next(state, CleanUpTurnPartPhase.class);
+                    return;
                 }
-                next(CleanUpTurnPartPhase.class);
+            }
+
+            // Tile Pack is empty
+            if (tilePack.isEmpty() || isDebugForcedEnd()) {
+                next(state, GameOverPhase.class);
                 return;
             }
-            next(GameOverPhase.class);
-            return;
-        }
-        if (makeDebugDraw()) {
-            return;
-        }
-        int rndIndex = game.getRandom().nextInt(tilePack.size());
-        TileDefinition tile = drawTile(rndIndex);
-        nextTile(tile);
-    }
 
-    private void nextTile(TileDefinition tile) {
-        GameState state = game.getState();
-        if (state.getBoard().getAvailablePlacements(tile).isEmpty()) {
-            state = state
-                .setDiscardedTiles(state.getDiscardedTiles().append(tile))
-                .setDrawnTile(null)
-                .appendEvent(new TileDiscardedEvent(tile));
+            // Handle forced debug draw
+            String debugDrawTileId = pullDebugDrawTileId();
+            boolean makeRegularDraw = true;
+            if (debugDrawTileId != null) {
+                try {
+                    state = drawTile(state, debugDrawTileId);
+                    makeRegularDraw = false;
+                } catch (IllegalArgumentException e) {
+                    logger.warn("Invalid debug draw id: " + debugDrawTileId);
+                }
+            }
 
-            game.replaceState(state);
+            if (makeRegularDraw) {
+                int rndIndex = game.getRandom().nextInt(tilePack.size());
+                state = drawTile(state, rndIndex);
+            }
 
-            if (riverCap != null) riverCap.turnPartCleanUp(); //force group activation if neeeded
-            next(DrawPhase.class);
-            return;
+            TileDefinition tile = state.getDrawnTile();
+            if (state.getBoard().getAvailablePlacements(tile).isEmpty()) {
+                state = state
+                    .setDiscardedTiles(state.getDiscardedTiles().append(tile))
+                    .appendEvent(new TileDiscardedEvent(tile));
+
+                //if (riverCap != null) riverCap.turnPartCleanUp(); //force group activation if neeeded
+            } else {
+                toggleClock(state.getTurnPlayer());
+                next(state);
+                return;
+            }
         }
-        toggleClock(state.getTurnPlayer());
-        //TODO Separate draw event instead
-//        state = state.appendEvent(
-//            new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null, null)
-//        );
-        game.replaceState(state);
-        next();
     }
 }

@@ -58,12 +58,11 @@ public class ActionPhase extends Phase {
     }
 
     @Override
-    public void enter() {
+    public void enter(GameState state) {
         Vector<PlayerAction<?>> actions = Vector.empty();
-        GameState state = game.getState();
-        Player player = game.getTurnPlayer();
+        Player player = state.getTurnPlayer();
 
-        Set<FeaturePointer> followerLocations = game.prepareFollowerLocations();
+        Set<FeaturePointer> followerLocations = game.prepareFollowerLocations(state);
         if (player.hasFollower(state, SmallFollower.class)  && !followerLocations.isEmpty()) {
             PlayerAction<?> action = new MeepleAction(SmallFollower.class, followerLocations);
             actions = actions.append(action);
@@ -78,12 +77,13 @@ public class ActionPhase extends Phase {
             actions = actions.append(action);
         }
         actions = game.prepareActions(actions, followerLocations);
-        game.replaceState(game.getState().setPlayerActions(
+        state = state.setPlayerActions(
             new ActionsState(
                 player,
                 actions, true
             )
-        ));
+        );
+        promote(state);
     }
 
     @Override
@@ -93,11 +93,12 @@ public class ActionPhase extends Phase {
 
     @Override
     public void pass() {
+        GameState state = game.getState();
         if (getDefaultNext() instanceof PhantomPhase) {
             //skip PhantomPhase if user pass turn
-            getDefaultNext().next();
+            getDefaultNext().next(state);
         } else {
-            next();
+            next(state);
         }
     }
 
@@ -180,20 +181,19 @@ public class ActionPhase extends Phase {
         Meeple m = state.getActivePlayer().getMeepleFromSupply(state, meepleType);
         //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
         if (m instanceof Follower) {
-            if (getBoard().get(fp).isOccupied(game.getState())) {
+            if (state.getBoard().get(fp).isOccupied(state)) {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }
-        game.replaceState(
-            new DeployMeeple(m, fp),
-            s -> s.setPlayerActions(null)
-        );
-        Tile tile = game.getCurrentTile();
+        Tile tile = state.getBoard().getLastPlaced();
+
+        state = (new DeployMeeple(m, fp)).apply(state);
+
         if (portalCap != null && fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
             //magic gate usage
             portalCap.setPortalUsed(true);
         }
-        next();
+        next(state);
     }
 
     @Override

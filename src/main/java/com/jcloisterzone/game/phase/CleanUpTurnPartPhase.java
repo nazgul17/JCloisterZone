@@ -1,9 +1,10 @@
 package com.jcloisterzone.game.phase;
 
+import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
-import com.jcloisterzone.reducers.ForEachCapability;
 
 /**
  *  end of turn part. For double turn, second part starts otherways proceed to real end of turn
@@ -18,7 +19,7 @@ public class CleanUpTurnPartPhase extends Phase {
     }
 
     @Override
-    public void enter() {
+    public void enter(GameState state) {
         boolean builderTakeAnotherTurn = builderCap != null && builderCap.hasPlayerAnotherTurn();
 
 
@@ -28,14 +29,14 @@ public class CleanUpTurnPartPhase extends Phase {
 //            game.setCurrentTile(null);
 //        }
 
-        game.replaceState(
-            new ForEachCapability((cap, s) -> cap.turnPartCleanUp(s))
-        );
+        for (Capability cap : state.getCapabilities().values()) {
+            state = cap.turnPartCleanUp(state);
+        }
 
         if (builderTakeAnotherTurn) {
-            next(game.hasCapability(AbbeyCapability.class) ? AbbeyPhase.class : DrawPhase.class);
+            next(state, game.hasCapability(AbbeyCapability.class) ? AbbeyPhase.class : DrawPhase.class);
         } else {
-            next();
+            next(state);
         }
     }
 }
