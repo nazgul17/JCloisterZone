@@ -76,6 +76,6 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     @Override
     public String toString() {
-        return super.toString() + "(" + player.getNick() + "," + id + ")";
+        return id;
     }
 }

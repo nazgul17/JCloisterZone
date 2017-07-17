@@ -58,4 +58,9 @@ public abstract class Figure<T extends BoardPointer> implements Serializable {
     public boolean isInSupply(GameState state) {
         return getDeployment(state) == null;
     }
+
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
 }

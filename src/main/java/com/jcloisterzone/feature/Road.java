@@ -33,6 +33,7 @@ public class Road extends CompletableFeature<Road> {
 
     @Override
     public Road merge(Road road) {
+        assert road != this;
         return new Road(
             mergePlaces(road),
             mergeEdges(road),

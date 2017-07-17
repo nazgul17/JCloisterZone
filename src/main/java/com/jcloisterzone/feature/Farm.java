@@ -34,6 +34,7 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     @Override
     public Farm merge(Farm farm) {
+        assert farm != this;
         return new Farm(
             mergePlaces(farm),
             mergeAdjoiningCities(farm),

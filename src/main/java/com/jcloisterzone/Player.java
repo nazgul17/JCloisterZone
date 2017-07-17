@@ -138,4 +138,9 @@ public class Player implements Serializable {
             .getCapability(ClothWineGrainCapability.class)
             .getTradeResources().get(index).get(res).getOrElse(0);
     }
+
+    @Override
+    public String toString() {
+        return nick;
+    }
 }

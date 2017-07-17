@@ -41,6 +41,7 @@ public class City extends CompletableFeature<City> {
 
     @Override
     public City merge(City city) {
+        assert city != this;
         return new City(
             mergePlaces(city),
             mergeEdges(city),

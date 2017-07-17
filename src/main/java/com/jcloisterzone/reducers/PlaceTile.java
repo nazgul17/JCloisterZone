@@ -29,6 +29,7 @@ public class PlaceTile implements Reducer {
         this.rot = rot;
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public GameState apply(GameState state) {
         LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
@@ -55,11 +56,15 @@ public class PlaceTile implements Reducer {
             .map(f -> f.placeOnBoard(pos, rot))
             .forEach(feature -> {
                 if (feature instanceof MultiTileFeature) {
+                    java.util.Set<Feature> alreadyMerged = new java.util.HashSet<>();
                     Stream<FeaturePointer> adjacent = feature.getPlaces().get().getAdjacent(feature.getClass());
                     feature = adjacent.foldLeft((MultiTileFeature) feature, (f, adjFp) -> {
-                        Option<Feature> adj = board.getFeaturePartOf(adjFp);
-                        if (adj.isEmpty()) return f;
-                        return f.merge((MultiTileFeature) adj.get());
+                        Option<Feature> adjOption = board.getFeaturePartOf(adjFp);
+                        if (adjOption.isEmpty()) return f;
+                        MultiTileFeature adj = (MultiTileFeature) adjOption.get();
+                        if (alreadyMerged.contains(adj)) return f;
+                        alreadyMerged.add(adj);
+                        return f.merge(adj);
                     });
                 }
                 for (FeaturePointer fp : feature.getPlaces()) {
