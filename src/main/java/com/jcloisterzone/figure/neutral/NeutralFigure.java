@@ -13,7 +13,7 @@ import io.vavr.collection.LinkedHashMap;
 
 public class NeutralFigure<T extends BoardPointer> extends Figure<T> {
 
-    private static final long serialVersionUID = 3458278495952412845L;
+    private static final long serialVersionUID = 1L;
 
     public NeutralFigure(Game game) {
         super(game);

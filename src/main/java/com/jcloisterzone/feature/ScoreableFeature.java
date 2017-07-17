@@ -16,6 +16,8 @@ import io.vavr.collection.Stream;
 
 public abstract class ScoreableFeature extends TileFeature implements Scoreable {
 
+    private static final long serialVersionUID = 1L;
+
     public ScoreableFeature(List<FeaturePointer> places) {
         super(places);
     }

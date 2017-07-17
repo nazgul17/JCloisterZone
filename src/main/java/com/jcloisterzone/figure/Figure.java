@@ -11,8 +11,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.GameState;
 
 public abstract class Figure<T extends BoardPointer> implements Serializable {
-
-    private static final long serialVersionUID = 3264248810294656662L;
+    private static final long serialVersionUID = 1L;
 
     public abstract T getDeployment(GameState state);
 

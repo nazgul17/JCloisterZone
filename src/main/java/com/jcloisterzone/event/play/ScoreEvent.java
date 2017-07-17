@@ -9,6 +9,8 @@ import com.jcloisterzone.figure.Meeple;
 
 public class ScoreEvent extends PlayEvent  {
 
+    private static final long serialVersionUID = 1L;
+
     private final int points;
     private final String label;
     private final PointCategory category;

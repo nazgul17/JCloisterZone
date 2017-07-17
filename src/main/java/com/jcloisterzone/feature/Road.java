@@ -16,6 +16,8 @@ import io.vavr.collection.Map;
 
 public class Road extends CompletableFeature<Road> {
 
+    private static final long serialVersionUID = 1L;
+
     private final boolean inn;
     private final Map<FeaturePointer, TunnelEnd> tunnelEnds;
 

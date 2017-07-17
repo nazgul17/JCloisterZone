@@ -1,5 +1,8 @@
 package com.jcloisterzone.game;
 
+import java.io.Serializable;
+import java.util.function.Function;
+
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
@@ -18,6 +21,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
+import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
 
 import io.vavr.Tuple2;
@@ -30,7 +34,9 @@ import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 
 @Immutable
-public class GameState {
+public class GameState implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final HashMap<Class<? extends Capability>, Capability> capabilities;
 
@@ -123,6 +129,12 @@ public class GameState {
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, deployedMeeples, deployedNeutralFigures, playerActions, events,
             phase
+        );
+    }
+
+    public <C extends Capability> GameState updateCapability(Class<C> cls, Function<C, C> fn) {
+        return setCapabilities(
+            capabilities.put(cls, fn.apply(getCapability(cls)))
         );
     }
 
@@ -299,8 +311,9 @@ public class GameState {
         return capabilities;
     }
 
-    public Capability getCapability(Class<? extends Capability> cls) {
-        return capabilities.get(cls).getOrNull();
+    @SuppressWarnings("unchecked")
+    public <C extends Capability> C getCapability(Class<C> cls) {
+        return (C) capabilities.get(cls).getOrNull();
     }
 
     public Array<Player> getPlayers() {
@@ -387,10 +400,7 @@ public class GameState {
         return board;
     }
 
-    // --- TODO ---
-
     public boolean isGameOver() {
-        //TODO base on current phase
-        return false;
+        return GameOverPhase.class.equals(phase);
     }
 }

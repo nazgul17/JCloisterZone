@@ -6,10 +6,9 @@ import com.jcloisterzone.ai.AiPlayer;
 import com.jcloisterzone.ui.PlayerColor;
 
 public class PlayerSlot implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     public enum SlotState { OPEN, OWN, REMOTE };
-
-    private static final long serialVersionUID = 6093356973595538191L;
 
     public static final int COUNT = 6;
 
@@ -111,11 +110,11 @@ public class PlayerSlot implements Serializable {
         this.aiPlayer = aiPlayer;
     }
 
-	public String getClientId() {
-		return clientId;
-	}
+    public String getClientId() {
+        return clientId;
+    }
 
-	public void setClientId(String clientId) {
-		this.clientId = clientId;
-	}
+    public void setClientId(String clientId) {
+        this.clientId = clientId;
+    }
 }

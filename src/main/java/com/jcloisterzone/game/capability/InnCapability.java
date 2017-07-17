@@ -11,6 +11,8 @@ import com.jcloisterzone.game.GameSettings;
 
 public class InnCapability extends Capability {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
         if (feature instanceof Road) {

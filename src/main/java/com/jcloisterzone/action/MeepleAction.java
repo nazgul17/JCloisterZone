@@ -9,6 +9,8 @@ import io.vavr.collection.Set;
 
 public class MeepleAction extends SelectFeatureAction {
 
+    private static final long serialVersionUID = 1L;
+
     private final Class<? extends Meeple> meepleType;
 
     public MeepleAction(Class<? extends Meeple> meepleType, Set<FeaturePointer> options) {

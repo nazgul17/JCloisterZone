@@ -12,6 +12,8 @@ import io.vavr.collection.Set;
 
 public abstract class CompletableFeature<T extends CompletableFeature<?>> extends ScoreableFeature implements Completable, MultiTileFeature<T> {
 
+    private static final long serialVersionUID = 1L;
+
     protected final List<Edge> openEdges;
 
     public CompletableFeature(List<FeaturePointer> places, List<Edge> openEdges) {

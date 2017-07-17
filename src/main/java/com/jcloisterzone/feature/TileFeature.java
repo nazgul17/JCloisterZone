@@ -1,5 +1,6 @@
 package com.jcloisterzone.feature;
 
+import java.io.Serializable;
 import java.lang.reflect.Method;
 
 import com.jcloisterzone.Immutable;
@@ -15,7 +16,9 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
 @Immutable
-public abstract class TileFeature implements Feature {
+public abstract class TileFeature implements Feature, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     protected final List<FeaturePointer> places;
 

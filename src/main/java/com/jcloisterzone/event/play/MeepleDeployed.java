@@ -7,6 +7,8 @@ import com.jcloisterzone.figure.Meeple;
 
 public class MeepleDeployed extends PlayEvent {
 
+    private static final long serialVersionUID = 1L;
+
     private Meeple meeple;
     private BoardPointer ptr;
 

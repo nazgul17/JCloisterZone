@@ -8,6 +8,8 @@ import io.vavr.collection.List;
 
 public class Quarter extends TileFeature {
 
+    private static final long serialVersionUID = 1L;
+
     //final Class<? extends Feature> targetFeature;
 
     public Quarter(List<FeaturePointer> places) {

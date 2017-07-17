@@ -7,6 +7,8 @@ import com.jcloisterzone.board.TileDefinition;
 
 public class TilePlacedEvent extends PlayEvent {
 
+    private static final long serialVersionUID = 1L;
+
     private final TileDefinition tile;
     private final Position position;
     private final Rotation rotation;

@@ -1,5 +1,7 @@
 package com.jcloisterzone.board;
 
+import java.io.Serializable;
+
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
@@ -8,7 +10,9 @@ import com.jcloisterzone.feature.Road;
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 
-public class TileDefinition {
+public class TileDefinition implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static final String ABBEY_TILE_ID = "AM.A";
 

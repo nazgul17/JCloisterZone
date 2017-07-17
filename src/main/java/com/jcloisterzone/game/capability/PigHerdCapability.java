@@ -8,10 +8,11 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameSettings;
 
 public class PigHerdCapability extends Capability {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
     public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {

@@ -1,14 +1,17 @@
 package com.jcloisterzone.event.play;
 
+import java.io.Serializable;
+
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.event.Event;
 
 /**
  * Ancestor for all in-game event.
  */
 @Immutable
-public abstract class PlayEvent {
+public abstract class PlayEvent implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final long time;
     /** triggering player */

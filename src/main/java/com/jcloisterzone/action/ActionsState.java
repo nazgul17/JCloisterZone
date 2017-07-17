@@ -1,10 +1,14 @@
 package com.jcloisterzone.action;
 
+import java.io.Serializable;
+
 import com.jcloisterzone.Player;
 
 import io.vavr.collection.Vector;
 
-public class ActionsState {
+public class ActionsState implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final Player player;
     private final Vector<PlayerAction<?>> actions;

@@ -14,6 +14,8 @@ import io.vavr.collection.List;
 
 public class Cloister extends ScoreableFeature implements Completable {
 
+    private static final long serialVersionUID = 1L;
+
     protected final boolean shrine;
     protected final boolean monastery;
     protected final boolean yagaHut;

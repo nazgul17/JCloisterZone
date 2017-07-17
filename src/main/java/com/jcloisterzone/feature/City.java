@@ -17,6 +17,8 @@ import io.vavr.collection.Map;
 
 public class City extends CompletableFeature<City> {
 
+    private static final long serialVersionUID = 1L;
+
     private final int pennants;
     private final Map<TradeResource, Integer> tradeResources;
     private final boolean besieged, cathedral, princess, castleBase;
@@ -61,8 +63,7 @@ public class City extends CompletableFeature<City> {
     }
 
     protected Map<TradeResource, Integer> mergeTradeResources(City city) {
-        // IMMUTABLE TODO
-        return null;
+        return tradeResources.merge(city.tradeResources, (a, b) -> a + b);
     }
 
     public boolean isBesieged() {

@@ -1,16 +1,11 @@
 package com.jcloisterzone.figure;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.Location;
 import com.jcloisterzone.feature.Castle;
-import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.GameState;
 
-import io.vavr.Tuple2;
-
 public abstract class Follower extends Meeple {
-
-    private static final long serialVersionUID = -659337195197201811L;
+    private static final long serialVersionUID = 1L;
 
     //private boolean inPrison;
 

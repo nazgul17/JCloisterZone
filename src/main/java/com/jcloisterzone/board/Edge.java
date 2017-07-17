@@ -1,13 +1,16 @@
 package com.jcloisterzone.board;
 
 
+import java.io.Serializable;
 import java.util.Objects;
 
 import com.jcloisterzone.Immutable;
 
+/** Edge between to positions */
 @Immutable
-public class Edge {
-    /** Edge between to positions */
+public class Edge implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     final Position p1, p2;
 

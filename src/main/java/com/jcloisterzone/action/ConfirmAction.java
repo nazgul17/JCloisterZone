@@ -8,6 +8,8 @@ import io.vavr.collection.HashSet;
 
 public class ConfirmAction extends PlayerAction<Boolean> {
 
+    private static final long serialVersionUID = 1L;
+
     public ConfirmAction() {
         super(HashSet.empty());
     }

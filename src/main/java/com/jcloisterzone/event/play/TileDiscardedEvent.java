@@ -4,6 +4,8 @@ import com.jcloisterzone.board.TileDefinition;
 
 public class TileDiscardedEvent extends PlayEvent {
 
+    private static final long serialVersionUID = 1L;
+
     private final TileDefinition tile;
 
     public TileDiscardedEvent(TileDefinition tile) {

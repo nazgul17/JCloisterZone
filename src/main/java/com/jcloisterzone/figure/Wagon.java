@@ -8,10 +8,10 @@ import com.jcloisterzone.game.Game;
 
 public class Wagon extends Follower {
 
-    private static final long serialVersionUID = 2585914429763599776L;
+    private static final long serialVersionUID = 1L;
 
-    public Wagon(Game game, Integer idSuffix, Player player) {
-        super(game, idSuffix, player);
+    public Wagon(Player player) {
+        super(null, player);
     }
 
     @Override

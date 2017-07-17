@@ -15,7 +15,7 @@ import io.vavr.collection.Stream;
 @Immutable
 public class FeaturePointer implements BoardPointer {
 
-    private static final long serialVersionUID = -3616884893003114766L;
+    private static final long serialVersionUID = 1L;
 
     private final Position position;
     private final Location location;

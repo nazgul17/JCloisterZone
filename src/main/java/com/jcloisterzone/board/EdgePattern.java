@@ -1,20 +1,21 @@
 package com.jcloisterzone.board;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.stream.Stream;
 
 import com.jcloisterzone.Immutable;
 
-import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Map;
 
 @Immutable
-public class EdgePattern {
+public class EdgePattern implements Serializable {
 
-    //bit mask, concatenated edges W,S,E,N
+    private static final long serialVersionUID = 1L;
+
+    /** bit mask, concatenated edges W,S,E,N */
     int mask;
-
 
     public EdgePattern(int mask) {
         this.mask = mask;

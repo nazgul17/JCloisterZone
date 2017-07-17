@@ -1,5 +1,6 @@
 package com.jcloisterzone.board;
 
+import java.io.Serializable;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -11,7 +12,9 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
-public class TilePackState {
+public class TilePackState implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     static final String INACTIVE_GROUP = "inactive";
 

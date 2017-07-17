@@ -1,5 +1,6 @@
 package com.jcloisterzone;
 
+import java.io.Serializable;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
 
@@ -8,6 +9,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.PlayerSlot;
+import com.jcloisterzone.game.capability.ClothWineGrainCapability;
 import com.jcloisterzone.ui.PlayerColor;
 
 import io.vavr.collection.HashMap;
@@ -16,7 +18,8 @@ import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
 @Immutable
-public class Player {
+public class Player implements Serializable {
+    private static final long serialVersionUID = 1L;
 
     final private String nick;
     final private int index;
@@ -130,4 +133,9 @@ public class Player {
             .getOrNull();
     }
 
+    public int getTradeResources(GameState state, TradeResource res) {
+        return state
+            .getCapability(ClothWineGrainCapability.class)
+            .getTradeResources().get(index).get(res).getOrElse(0);
+    }
 }

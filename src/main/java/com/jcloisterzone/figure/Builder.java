@@ -9,10 +9,10 @@ import com.jcloisterzone.game.Game;
 
 public class Builder extends Special {
 
-    private static final long serialVersionUID = 1189566966196473830L;
+    private static final long serialVersionUID = 1L;
 
     public Builder(Player player) {
-        super(player);
+        super(null, player);
     }
 
     @Override

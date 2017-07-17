@@ -1,24 +1,12 @@
 package com.jcloisterzone.action;
 
-import java.awt.Color;
-import java.awt.Graphics2D;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.geom.AffineTransform;
-import java.awt.image.BufferedImage;
-
-import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
-import com.jcloisterzone.ui.grid.ForwardBackwardListener;
 import com.jcloisterzone.ui.grid.layer.TilePlacementLayer;
-import com.jcloisterzone.ui.resources.ResourceManager;
-import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Map;
@@ -28,6 +16,8 @@ import io.vavr.collection.Stream;
 
 @LinkedGridLayer(TilePlacementLayer.class)
 public class TilePlacementAction extends PlayerAction<TilePlacement> {
+
+    private static final long serialVersionUID = 1L;
 
     private final TileDefinition tile;
 
@@ -63,6 +53,4 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> {
     public String toString() {
         return "place tile " + tile.getId();
     }
-
-
 }

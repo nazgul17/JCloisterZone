@@ -13,6 +13,8 @@ import io.vavr.collection.Set;
 @LinkedGridLayer(FeatureAreaLayer.class)
 public abstract class SelectFeatureAction extends PlayerAction<FeaturePointer> {
 
+    private static final long serialVersionUID = 1L;
+
     public SelectFeatureAction(Set<FeaturePointer> options) {
         super(options);
     }

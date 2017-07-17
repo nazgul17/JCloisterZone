@@ -14,6 +14,8 @@ import io.vavr.collection.List;
 
 public class Castle extends ScoreableFeature {
 
+    private static final long serialVersionUID = 1L;
+
     public Castle(Game game, List<FeaturePointer> places) {
         super(game, places);
         assert places.size() == 2;

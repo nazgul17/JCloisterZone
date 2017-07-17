@@ -7,11 +7,10 @@ import com.jcloisterzone.feature.visitor.FeatureVisitor;
 import com.jcloisterzone.game.Game;
 
 public class Mayor extends Follower {
+    private static final long serialVersionUID = 1L;
 
-    private static final long serialVersionUID = -7602411772187519451L;
-
-    public Mayor(Game game, Integer idSuffix, Player player) {
-        super(game, idSuffix, player);
+    public Mayor(Player player) {
+        super(null, player);
     }
 
     static class PennatsCountingVisitor implements FeatureVisitor<Integer> {

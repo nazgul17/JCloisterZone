@@ -1,5 +1,7 @@
 package com.jcloisterzone.action;
 
+import java.io.Serializable;
+
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.RmiProxy;
 
@@ -7,7 +9,9 @@ import io.vavr.collection.Iterator;
 import io.vavr.collection.Set;
 
 //TODO decouple UI ordering (comparable) outside actions
-public abstract class PlayerAction<T> implements Iterable<T> {
+public abstract class PlayerAction<T> implements Iterable<T>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     protected final Set<T> options;
 

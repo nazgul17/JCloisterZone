@@ -9,6 +9,8 @@ import io.vavr.collection.List;
 
 public class BigFollowerCapability extends Capability {
 
+    private static final long serialVersionUID = 1L;
+
     @Override
     public List<Follower> createPlayerFollowers(Player player) {
         return List.of((Follower) new BigFollower(player));

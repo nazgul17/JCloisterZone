@@ -1,5 +1,6 @@
 package com.jcloisterzone.game;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import org.slf4j.Logger;
@@ -26,36 +27,10 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
 
 
-public abstract class Capability {
+public abstract class Capability implements Serializable {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-
-//    protected TileDefinition getCurrentTile() {
-//        return game.getCurrentTile();
-//    }
-
-//    /* no @Subscribe for Capabilities
-//     * it cause post from another event handler and makes trouble with AI tasks
-//     * */
-//    public void handleEvent(PlayEvent event) {
-//    }
-
-    @Deprecated
-    public void saveToSnapshot(Document doc, Element node) {
-    }
-
-    @Deprecated
-    public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
-    }
-
-    @Deprecated
-    public void loadFromSnapshot(Document doc, Element node) throws SnapshotCorruptedException {
-    }
-
-    @Deprecated
-    public void loadTileFromSnapshot(Tile tile, Element tileNode) {
-    }
 
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         return tile;
@@ -85,6 +60,7 @@ public abstract class Capability {
     }
 
     /** convenient method to find follower action in all actions */
+    @Deprecated
     protected java.util.List<MeepleAction> findFollowerActions(java.util.List<PlayerAction<?>> actions) {
         java.util.List<MeepleAction> followerActions = new ArrayList<>();
         for (PlayerAction<?> a : actions) {
@@ -99,6 +75,7 @@ public abstract class Capability {
     }
 
     /** convenient method to find follower action in all actions, or create new if player has follower and action doesn't exists*/
+    @Deprecated
     protected java.util.List<MeepleAction> findAndFillFollowerActions(java.util.List<PlayerAction<?>> actions) {
         java.util.List<MeepleAction> followerActions = findFollowerActions(actions);
         java.util.Set<Class<? extends Meeple>> hasAction = new java.util.HashSet<>();
@@ -121,10 +98,12 @@ public abstract class Capability {
         return locations;
     }
 
+    @Deprecated
     public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
         return actions;
     }
 
+    @Deprecated
     public Vector<PlayerAction<?>> postPrepareActions(Vector<PlayerAction<?>> actions) {
         return actions;
     }
