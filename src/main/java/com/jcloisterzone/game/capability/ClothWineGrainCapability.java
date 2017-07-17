@@ -41,6 +41,15 @@ public class ClothWineGrainCapability extends Capability {
     }
 
     @Override
+    public GameState onStartGame(GameState state) {
+        return state.updateCapability(ClothWineGrainCapability.class, cap ->
+            cap.setTradeResources(
+                state.getPlayers().map(p -> HashMap.empty())
+            )
+        );
+    }
+
+    @Override
     public GameState onCompleted(GameState state, Completable feature) {
         if (!(feature instanceof City)) return state;
 
@@ -51,13 +60,13 @@ public class ClothWineGrainCapability extends Capability {
         }
 
         int playerIdx = state.getTurnPlayerIndex();
-        state = state.updateCapability(ClothWineGrainCapability.class, cap -> {
-            return cap.setTradeResources(
+        state = state.updateCapability(ClothWineGrainCapability.class, cap ->
+            cap.setTradeResources(
                 cap.getTradeResources().update(playerIdx,
                     res -> res.merge(cityResources, (a, b) -> a+b)
                 )
-            );
-        });
+            )
+        );
 
         return state;
     }

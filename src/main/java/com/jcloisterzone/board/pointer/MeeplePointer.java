@@ -1,5 +1,6 @@
 package com.jcloisterzone.board.pointer;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.figure.Meeple;
@@ -7,7 +8,10 @@ import com.jcloisterzone.figure.Meeple;
 /**
  * Points on feature on board or placed meeple.
  */
+@Immutable
 public class MeeplePointer implements BoardPointer {
+
+    private static final long serialVersionUID = 1L;
 
     private final FeaturePointer featurePointer;
     private final String meepleId;

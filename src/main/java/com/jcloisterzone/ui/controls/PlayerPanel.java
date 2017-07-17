@@ -324,9 +324,9 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
             }
         }
         if (cwgCap != null) {
-            drawMeepleBox(null, "cloth", cwgCap.getTradeResources(player, TradeResource.CLOTH), true);
-            drawMeepleBox(null, "grain", cwgCap.getTradeResources(player, TradeResource.GRAIN), true);
-            drawMeepleBox(null, "wine", cwgCap.getTradeResources(player, TradeResource.WINE), true);
+            drawMeepleBox(null, "cloth", player.getTradeResources(state, TradeResource.CLOTH), true);
+            drawMeepleBox(null, "grain", player.getTradeResources(state, TradeResource.GRAIN), true);
+            drawMeepleBox(null, "wine", player.getTradeResources(state, TradeResource.WINE), true);
         }
         if (gldCap != null) {
             drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);

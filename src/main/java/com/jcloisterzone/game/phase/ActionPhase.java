@@ -21,6 +21,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.visitor.IsOccupied;
 import com.jcloisterzone.figure.BigFollower;
+import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
@@ -69,11 +70,13 @@ public class ActionPhase extends Phase {
         princessCapability = game.getCapability(PrincessCapability.class);
     }
 
-    private Stream<Tuple2<Location, Scoreable>> excludePrincess(Stream<Tuple2<Location, Scoreable>> s) {
+    private Stream<Tuple2<Location, Scoreable>> excludePrincess(Tile currentTile, Stream<Tuple2<Location, Scoreable>> s) {
         return s.filter(t -> {
             if (t._2 instanceof City) {
-                City c = (City) t._2;
-                return !c.isPrincess();
+                //TODO move getIntial... helper on Tile
+                Location initLoc = t._1.rotateCCW(currentTile.getRotation());
+                City part = (City) currentTile.getTileDefinition().getInitialFeatures().get(initLoc);
+                return !part.isPrincess();
             } else {
                 return true;
             }
@@ -85,7 +88,7 @@ public class ActionPhase extends Phase {
         Player player = state.getTurnPlayer();
 
         Vector<Meeple> availMeeples = Vector
-            .of(SmallFollower.class, BigFollower.class, Phantom.class, Pig.class)
+            .of(SmallFollower.class, BigFollower.class, Phantom.class, Builder.class, Pig.class)
             .map(cls -> player.getMeepleFromSupply(state, cls))
             .filter(Predicates.isNotNull());
 
@@ -103,9 +106,9 @@ public class ActionPhase extends Phase {
         Stream<Tuple2<Location, Scoreable>> places;
 
         if (placementAllowed) {
-            places = currentTile.getUnoccupiedScoreables(false);
+            places = currentTile.getScoreables(false);
             if (game.hasCapability(PrincessCapability.class) && game.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
-                places = excludePrincess(places);
+                places = excludePrincess(currentTile, places);
             }
         } else {
             places = Stream.empty();

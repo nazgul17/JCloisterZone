@@ -1,12 +1,15 @@
 package com.jcloisterzone.figure;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.visitor.FeatureVisitor;
 import com.jcloisterzone.game.Game;
 
+@Immutable
 public class Mayor extends Follower {
+
     private static final long serialVersionUID = 1L;
 
     public Mayor(Player player) {

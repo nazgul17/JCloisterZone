@@ -1,11 +1,14 @@
 package com.jcloisterzone.figure;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
+
+import io.vavr.control.Option;
 
 public class Builder extends Special {
 
@@ -16,18 +19,18 @@ public class Builder extends Special {
     }
 
     @Override
-    public DeploymentCheckResult isDeploymentAllowed(Feature f) {
-        if (!(f instanceof City || f instanceof Road) ) {
+    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp, Feature feature) {
+        if (!(feature instanceof City || feature instanceof Road) ) {
             return new DeploymentCheckResult("Builder must be placed in city or on road only.");
         }
-        Completable cf = (Completable) f;
-        if (cf.isCompleted()) {
+        Completable cf = (Completable) feature;
+        if (cf.isCompleted(state)) {
             return new DeploymentCheckResult("Feature is completed.");
         }
-        if (cf.getMeeples().find(m -> Follower.class.isInstance(m)).isEmpty()) {
+        if (!feature.isOccupiedBy(state, getPlayer())) {
             return new DeploymentCheckResult("Feature is not occupied by follower.");
         }
-        return super.isDeploymentAllowed(f);
+        return super.isDeploymentAllowed(state, fp, feature);
     }
 
 }

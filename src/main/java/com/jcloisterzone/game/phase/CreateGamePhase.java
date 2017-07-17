@@ -25,6 +25,9 @@ import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
+import com.jcloisterzone.figure.Follower;
+import com.jcloisterzone.figure.SmallFollower;
+import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
@@ -40,6 +43,8 @@ import com.jcloisterzone.wsio.message.SlotMessage;
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Stream;
 
 
 public class CreateGamePhase extends ServerAwarePhase {
@@ -259,46 +264,64 @@ public class CreateGamePhase extends ServerAwarePhase {
         return res;
     }
 
+    private io.vavr.collection.List<Follower> createPlayerFollowers(Player p, Seq<Capability> capabilities) {
+        Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
+                .map(i -> (Follower) new SmallFollower(i, p));
+        io.vavr.collection.List<Follower> followers = io.vavr.collection.List.ofAll(stream);
+        followers = followers.appendAll(capabilities.flatMap(c -> c.createPlayerFollowers(p)));
+        return followers;
+    }
+
+    public Seq<Special> createPlayerSpecialMeeples(Player p, Seq<Capability> capabilities) {
+        return capabilities.flatMap(c -> c.createPlayerSpecialMeeples(p));
+    }
+
     public void startGame(boolean muteAi) {
         //temporary code should be configured by player as rules
         prepareCapabilities();
 
-        HashMap<Class<? extends Capability>, Capability> capabilities = createCapabilities();
+        HashMap<Class<? extends Capability>, Capability> capabilityMap = createCapabilities();
+        Seq<Capability> capabilities = capabilityMap.values();
         Array<Player> players = preparePlayers();
 
-        game.replaceState(GameState.createInitial(
-            capabilities,
+        GameState state = GameState.createInitial(
+            capabilityMap,
             players,
             0
-        ));
+        );
 
-        game.replaceState(state -> {
-            state = state.setFollowers(
-                players.map(p -> game.createPlayerFollowers(p))
-            );
-            state = state.setSpecialMeeples(
-                players.map(p -> game.createPlayerSpecialMeeples(p))
-            );
-            state = state.setClocks(
-                players.map(p -> new PlayerClock(0))
-            );
-            return state;
-        });
+        state = state.setFollowers(
+            players.map(p -> createPlayerFollowers(p, capabilities))
+        );
+        state = state.setSpecialMeeples(
+            players.map(p -> createPlayerSpecialMeeples(p, capabilities))
+        );
+        state = state.setClocks(
+            players.map(p -> new PlayerClock(0))
+        );
+
+        //TODO tile pack creation is touching state from game
+        //TOOD IMMUTABLE clean it
+        game.replaceState(state);
 
         Tiles tiles = prepareTilePack();
-        game.replaceState(state -> state.setTilePack(tiles.getTilePack()));
+        state = state.setTilePack(tiles.getTilePack());
+
+        for (Capability cap : capabilities) {
+            state = cap.onStartGame(state);
+        }
+
+        game.replaceState(state);
 
         Phase first = preparePhases();
-
-        game.begin();
         prepareAiPlayers(muteAi);
 
-        Player player = game.getTurnPlayer();
+        Player player = state.getTurnPlayer();
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, getSnapshot()));
         preplaceTiles(tiles.getPreplacedTiles());
         game.replaceState(
-            state -> state.appendEvent(new PlayerTurnEvent(player)),
-            state -> state.setPhase(first.getClass())
+            s -> s.appendEvent(new PlayerTurnEvent(player)),
+            s -> s.setPhase(first.getClass())
         );
         toggleClock(player);
         game.setCreateGamePhase(null);

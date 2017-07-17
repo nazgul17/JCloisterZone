@@ -34,7 +34,7 @@ public class AbbeyPhase extends ServerAwarePhase {
     @Override
     public void enter() {
         boolean baazaarInProgress = bazaarCap != null && bazaarCap.getBazaarSupply() != null;
-        boolean builderSecondTurnPart = builderCap != null && builderCap.getBuilderState() == BuilderState.BUILDER_TURN;
+        boolean builderSecondTurnPart = builderCap != null && builderCap.getBuilderState() == BuilderState.SECOND_TURN;
         if (builderSecondTurnPart || !baazaarInProgress) {
             if (abbeyCap.hasUnusedAbbey(getActivePlayer()) && !getBoard().getHoles().isEmpty()) {
                 toggleClock(getActivePlayer());

@@ -1,5 +1,6 @@
 package com.jcloisterzone.board;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 
@@ -13,6 +14,7 @@ import io.vavr.collection.Map;
  *
  * @author Roman Krejcik
  */
+@Immutable
 public class Position implements BoardPointer, Comparable<Position> {
 
     private static final long serialVersionUID = 1L;

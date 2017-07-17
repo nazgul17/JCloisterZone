@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
@@ -26,7 +27,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
 
-
+@Immutable
 public abstract class Capability implements Serializable {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
@@ -54,9 +55,6 @@ public abstract class Capability implements Serializable {
 
     public List<Special> createPlayerSpecialMeeples(Player player) {
         return List.empty();
-    }
-
-    public void begin() {
     }
 
     /** convenient method to find follower action in all actions */
@@ -110,6 +108,10 @@ public abstract class Capability implements Serializable {
 
     public boolean isDeployAllowed(GameState state, Position pos) {
         return true;
+    }
+
+    public GameState onStartGame(GameState state) {
+        return state;
     }
 
     public GameState onCompleted(GameState state, Completable feature) {

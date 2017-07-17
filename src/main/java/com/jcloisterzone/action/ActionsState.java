@@ -2,10 +2,12 @@ package com.jcloisterzone.action;
 
 import java.io.Serializable;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 
 import io.vavr.collection.Vector;
 
+@Immutable
 public class ActionsState implements Serializable {
 
     private static final long serialVersionUID = 1L;

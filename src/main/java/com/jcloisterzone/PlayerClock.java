@@ -1,7 +1,11 @@
 package com.jcloisterzone;
 
+import java.io.Serializable;
 
-public class PlayerClock {
+@Immutable
+public class PlayerClock implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final long time;
     private final boolean running;

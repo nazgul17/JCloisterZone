@@ -38,6 +38,6 @@ public interface Feature {
     }
 
     default boolean isOccupiedBy(GameState state, Player p) {
-        return !getMeeples(state).filter(m -> m.getPlayer().equals(p)).isEmpty();
+        return !getFollowers(state).filter(m -> m.getPlayer().equals(p)).isEmpty();
     }
 }

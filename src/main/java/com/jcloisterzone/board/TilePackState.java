@@ -6,12 +6,15 @@ import java.util.function.Predicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.jcloisterzone.Immutable;
+
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
+@Immutable
 public class TilePackState implements Serializable {
 
     private static final long serialVersionUID = 1L;

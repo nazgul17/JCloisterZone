@@ -5,22 +5,21 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
+import com.jcloisterzone.game.capability.BuilderCapability.BuilderState;
 
 /**
- *  end of turn part. For double turn, second part starts otherways proceed to real end of turn
+ *  End of turn part. For builder double repeat turn otherwise proceed to real end of turn.
  */
 public class CleanUpTurnPartPhase extends Phase {
 
-    private final BuilderCapability builderCap;
-
     public CleanUpTurnPartPhase(Game game) {
         super(game);
-        builderCap = game.getCapability(BuilderCapability.class);
     }
 
     @Override
     public void enter(GameState state) {
-        boolean builderTakeAnotherTurn = builderCap != null && builderCap.hasPlayerAnotherTurn();
+        BuilderCapability builderCap = state.getCapability(BuilderCapability.class);
+        boolean builderTakeAnotherTurn = builderCap != null && builderCap.getBuilderState() == BuilderState.USED;
 
 
         // IMMUTABLE TODO Abbeys at end

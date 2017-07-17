@@ -2,13 +2,10 @@ package com.jcloisterzone.game.phase;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.board.Board;
@@ -16,13 +13,8 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.config.Config.ConfirmConfig;
-import com.jcloisterzone.event.FeatureCompletedEvent;
-import com.jcloisterzone.event.MeepleEvent;
-import com.jcloisterzone.event.RequestConfirmEvent;
 import com.jcloisterzone.event.play.MeepleDeployed;
 import com.jcloisterzone.event.play.PlayEvent;
-import com.jcloisterzone.event.play.ScoreEvent;
-import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
@@ -30,13 +22,8 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.visitor.score.CityScoreContext;
-import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
-import com.jcloisterzone.feature.visitor.score.FarmScoreContext;
-import com.jcloisterzone.feature.visitor.score.PositionCollectingScoreContext;
-import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
@@ -53,8 +40,8 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CommitMessage;
 
-import io.vavr.Predicates;
 import io.vavr.Tuple2;
+import io.vavr.control.Option;
 
 
 //TODO split into CommitActionPhase a ScorePhase
@@ -63,7 +50,6 @@ public class ScorePhase extends ServerAwarePhase {
     private Set<Completable> alreadyScored = new HashSet<>();
 
     private final BarnCapability barnCap;
-    private final BuilderCapability builderCap;
     private final CastleCapability castleCap;
     private final TunnelCapability tunnelCap;
     private final WagonCapability wagonCap;
@@ -73,7 +59,6 @@ public class ScorePhase extends ServerAwarePhase {
     public ScorePhase(Game game, GameController gc) {
         super(game, gc);
         barnCap = game.getCapability(BarnCapability.class);
-        builderCap = game.getCapability(BuilderCapability.class);
         tunnelCap = game.getCapability(TunnelCapability.class);
         castleCap = game.getCapability(CastleCapability.class);
         wagonCap = game.getCapability(WagonCapability.class);
@@ -83,7 +68,7 @@ public class ScorePhase extends ServerAwarePhase {
 
     private GameState scoreCompletedOnTile(GameState state, Tile tile) {
         for (Tuple2<Location, Completable> t : tile.getCompletableFeatures()) {
-            state = scoreCompleted(state, t._2, true);
+            state = scoreCompleted(state, t._2, tile);
         }
         return state;
     }
@@ -93,7 +78,7 @@ public class ScorePhase extends ServerAwarePhase {
             Tile tile = t._2;
             Feature feature = tile.getFeaturePartOf(t._1.rev());
             if (feature instanceof Completable) {
-                state = scoreCompleted(state, (Completable) feature, false);
+                state = scoreCompleted(state, (Completable) feature, null);
             }
         }
         return state;
@@ -185,14 +170,14 @@ public class ScorePhase extends ServerAwarePhase {
         if (tunnelCap != null) {
             Road r = tunnelCap.getPlacedTunnel();
             if (r != null) {
-                state = scoreCompleted(state, r, true);
+                state = scoreCompleted(state, r, tile);
             }
         }
 
         for (Tile neighbour : board.getAdjacentAndDiagonalTiles(pos)) {
             Cloister cloister = neighbour.getCloister();
             if (cloister != null) {
-                state = scoreCompleted(state, cloister, false);
+                state = scoreCompleted(state, cloister, null);
             }
         }
 
@@ -223,12 +208,22 @@ public class ScorePhase extends ServerAwarePhase {
 //        undeloyMeeple(m);
 //    }
 
-    private GameState scoreCompleted(GameState state, Completable completable, boolean triggerBuilder) {
-        if (triggerBuilder && builderCap != null) {
-            if (!completable.getMeeples(state).find(Predicates.instanceOf(Builder.class)).isEmpty()) {
-                builderCap.useBuilder();
+    private GameState scoreCompleted(GameState state, Completable completable, Tile triggerBuilderForPlaced) {
+        if (triggerBuilderForPlaced != null && state.hasCapability(BuilderCapability.class)) {
+            Player player = state.getTurnPlayer();
+            GameState _state = state;
+            Option<Meeple> builder = completable
+                .getMeeples(state)
+                .find(m -> {
+                    return m instanceof Builder
+                        && m.getPlayer().equals(player)
+                        && !m.getPosition(_state).equals(triggerBuilderForPlaced.getPosition());
+                });
+            if (!builder.isEmpty()) {
+                state = state.updateCapability(BuilderCapability.class, cap -> cap.useBuilder());
             }
         }
+
         if (completable.isCompleted(state) && !alreadyScored.contains(completable)) {
             alreadyScored.add(completable);
 

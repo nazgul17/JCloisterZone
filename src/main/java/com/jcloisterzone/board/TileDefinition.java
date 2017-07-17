@@ -3,6 +3,7 @@ package com.jcloisterzone.board;
 import java.io.Serializable;
 
 import com.jcloisterzone.Expansion;
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
@@ -10,6 +11,7 @@ import com.jcloisterzone.feature.Road;
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
 
+@Immutable
 public class TileDefinition implements Serializable {
 
     private static final long serialVersionUID = 1L;

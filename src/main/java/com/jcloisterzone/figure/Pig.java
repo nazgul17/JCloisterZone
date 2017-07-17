@@ -21,14 +21,9 @@ public class Pig extends Special {
         if (!(feature instanceof Farm)) {
             return new DeploymentCheckResult("Pig must be placed on a farm only.");
         }
-        Option<Follower> follower = feature.getFollowers(state).find(f -> {
-            return f.getPlayer().equals(getPlayer());
-        });
-        if (follower.isEmpty()) {
-            return new DeploymentCheckResult("Feature is not occupied by follower.");
+        if (!feature.isOccupiedBy(state, getPlayer())) {
+            return new DeploymentCheckResult("Farm is not occupied by follower.");
         }
         return super.isDeploymentAllowed(state, fp, feature);
     }
-
-
 }

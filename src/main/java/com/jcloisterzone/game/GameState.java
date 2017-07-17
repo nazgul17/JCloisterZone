@@ -133,9 +133,13 @@ public class GameState implements Serializable {
     }
 
     public <C extends Capability> GameState updateCapability(Class<C> cls, Function<C, C> fn) {
-        return setCapabilities(
-            capabilities.put(cls, fn.apply(getCapability(cls)))
-        );
+        C prev = getCapability(cls);
+        C next = fn.apply(prev);
+        if (prev == next) {
+            return this;
+        } else {
+            return setCapabilities(capabilities.put(cls, next));
+        }
     }
 
     public GameState setScore(Array<PlayerScore> score) {
@@ -314,6 +318,10 @@ public class GameState implements Serializable {
     @SuppressWarnings("unchecked")
     public <C extends Capability> C getCapability(Class<C> cls) {
         return (C) capabilities.get(cls).getOrNull();
+    }
+
+    public boolean hasCapability(Class<? extends Capability> cls) {
+        return capabilities.containsKey(cls);
     }
 
     public Array<Player> getPlayers() {

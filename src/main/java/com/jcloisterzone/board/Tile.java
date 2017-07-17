@@ -230,11 +230,23 @@ public class Tile {
         }
     }
 
-    public Stream<Tuple2<Location, Scoreable>> getUnoccupiedScoreables(boolean excludeCompleted) {
+//    public Stream<Tuple2<Location, Scoreable>> getUnoccupiedScoreables(boolean excludeCompleted) {
+//        Stream<Tuple2<Location, Scoreable>> unoccupied = getFeatures()
+//            .filter(t -> t._2 instanceof Scoreable)
+//            .map(t -> t.map2(f -> (Scoreable) f))
+//            .filter(t -> !t._2.isOccupied(state));
+//
+//        if (excludeCompleted) {
+//            return unoccupied.filter(this::isValueNotCompleted);
+//        } else {
+//            return unoccupied;
+//        }
+//    }
+
+    public Stream<Tuple2<Location, Scoreable>> getScoreables(boolean excludeCompleted) {
         Stream<Tuple2<Location, Scoreable>> unoccupied = getFeatures()
             .filter(t -> t._2 instanceof Scoreable)
-            .map(t -> t.map2(f -> (Scoreable) f))
-            .filter(t -> !t._2.isOccupied(state));
+            .map(t -> t.map2(f -> (Scoreable) f));
 
         if (excludeCompleted) {
             return unoccupied.filter(this::isValueNotCompleted);

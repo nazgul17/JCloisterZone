@@ -350,18 +350,7 @@ public class Game extends GameSettings implements EventProxy {
         return match == null ? null : match._1;
     }
 
-    public List<Follower> createPlayerFollowers(Player p) {
-        Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
-                .map(i -> (Follower) new SmallFollower(i, p));
-        List<Follower> followers = List.ofAll(stream);
-        followers = followers.appendAll(getCapabilities().flatMap(c -> c.createPlayerFollowers(p)));
-        return followers;
-    }
-
-    public Seq<Special> createPlayerSpecialMeeples(Player p) {
-        return getCapabilities().flatMap(c -> c.createPlayerSpecialMeeples(p));
-    }
-
+    @Deprecated
     public Seq<Capability> getCapabilities() {
         return state.getCapabilities().values();
     }
@@ -419,12 +408,6 @@ public class Game extends GameSettings implements EventProxy {
             if (group != null) return group;
         }
         return null;
-    }
-
-    public void begin() {
-        for (Capability cap: getCapabilities()) {
-            cap.begin();
-        }
     }
 
 //    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {

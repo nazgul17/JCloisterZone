@@ -1,12 +1,16 @@
 package com.jcloisterzone;
 
+import java.io.Serializable;
+
 import com.jcloisterzone.PointCategory;
 
 import io.vavr.collection.HashMap;
 import io.vavr.control.Option;
 
 @Immutable
-public class PlayerScore {
+public class PlayerScore implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private final int points;
     private final HashMap<PointCategory, Integer> stats;
@@ -32,11 +36,11 @@ public class PlayerScore {
         return new PlayerScore(this.points + points, stats);
     }
 
-	public int getPoints() {
-		return points;
-	}
+    public int getPoints() {
+        return points;
+    }
 
-	public HashMap<PointCategory, Integer> getStats() {
-		return stats;
-	}
+    public HashMap<PointCategory, Integer> getStats() {
+        return stats;
+    }
 }

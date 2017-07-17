@@ -30,7 +30,6 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.event.RequestConfirmEvent;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
@@ -44,6 +43,7 @@ import com.jcloisterzone.wsio.message.CommitMessage;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.IndexedSeq;
+import io.vavr.collection.Vector;
 import net.miginfocom.swing.MigLayout;
 
 public class ControlPanel extends JPanel {
@@ -343,17 +343,18 @@ public class ControlPanel extends JPanel {
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasPlayerActionsChanged()) {
             clearActions();
-            ActionsState actions = ev.getCurrentState().getPlayerActions();
-            if (actions != null) {
-                if (actions.getActions().get() instanceof ConfirmAction) {
-                    if (actions.getPlayer().isLocalHuman()) {
+            ActionsState actionsState = ev.getCurrentState().getPlayerActions();
+            if (actionsState != null) {
+                Vector<PlayerAction<?>> actions = actionsState.getActions();
+                if (actions.getOrNull() instanceof ConfirmAction) {
+                    if (actionsState.getPlayer().isLocalHuman()) {
                         setShowConfirmRequest(true);
                     } else {
                         actionPanel.setShowConfirmRequest(true, true);
                         repaint();
                     }
                 } else {
-                    selectAction(actions.getPlayer(), actions.getActions(), actions.isPassAllowed());
+                    selectAction(actionsState.getPlayer(), actions, actionsState.isPassAllowed());
                 }
             }
         }

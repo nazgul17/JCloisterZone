@@ -1,5 +1,6 @@
 package com.jcloisterzone.figure;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
@@ -8,6 +9,7 @@ import com.jcloisterzone.game.GameState;
 
 import io.vavr.Predicates;
 
+@Immutable
 public abstract class Meeple extends Figure<FeaturePointer> {
 
     private static final long serialVersionUID = 251811435063355665L;

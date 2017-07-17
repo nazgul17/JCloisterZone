@@ -620,7 +620,7 @@ public class LegacyRanking implements GameRanking {
 
         BuilderCapability bc = game.getCapability(BuilderCapability.class);
         //builder used on object
-        if (bc.getBuilderState() == BuilderState.ACTIVATED) {
+        if (bc.getBuilderState() == BuilderState.USED) {
             rating += 3.5;
         }
         return rating;

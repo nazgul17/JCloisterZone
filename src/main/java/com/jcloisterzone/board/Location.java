@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.jcloisterzone.Immutable;
+
 
 /**
  * bite order                     corresponding constants
@@ -20,6 +22,7 @@ import java.util.Map;
  *  city & road locations are shifted by 8 bit left
  *  so farm and road location has no intersection
  */
+@Immutable
 public class Location implements Serializable {
 
     private static final long serialVersionUID = -8348910171518350353L;
