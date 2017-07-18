@@ -1,8 +1,11 @@
 package com.jcloisterzone.game.capability;
 
+import org.w3c.dom.Element;
+
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.figure.neutral.Dragon;
@@ -19,11 +22,7 @@ public class DragonCapability extends Capability {
 
     public static final int DRAGON_MOVES = 6;
 
-    // Visited positions can be derived
     private final Vector<Position> dragonMoves;
-//    private int dragonMovesLeft;
-//    private Player dragonPlayer;
-//    private Set<Position> dragonVisitedTiles;
 
     public DragonCapability() {
         this(Vector.empty());
@@ -40,6 +39,23 @@ public class DragonCapability extends Capability {
     public Vector<Position> getDragonMoves() {
         return dragonMoves;
     }
+
+    @Override
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
+        if (xml.getElementsByTagName("volcano").getLength() > 0) {
+            tile = tile.setTileTrigger(TileTrigger.VOLCANO);
+        }
+        if (xml.getElementsByTagName("dragon").getLength() > 0) {
+            tile = tile.setTileTrigger(TileTrigger.DRAGON);
+        }
+        return tile;
+    }
+
+    @Override
+    public String getTileGroup(TileDefinition tile) {
+        return tile.getTrigger() == TileTrigger.DRAGON ? "dragon" : null;
+    }
+
 
     @Override
     public GameState onStartGame(GameState state) {
@@ -62,80 +78,8 @@ public class DragonCapability extends Capability {
         return state;
     }
 
-    /*
-    public Dragon getDragon() {
-        return dragon;
-    }
-
-    @Override
-    public String getTileGroup(Tile tile) {
-        return tile.hasTrigger(TileTrigger.DRAGON) ? "dragon" : null;
-    }
-
-    @Override
-    public TileDefinition initTile(TileDefinition tile, Element xml) {
-        if (xml.getElementsByTagName("volcano").getLength() > 0) {
-            tile.setTrigger(TileTrigger.VOLCANO);
-        }
-        if (xml.getElementsByTagName("dragon").getLength() > 0) {
-            tile.setTrigger(TileTrigger.DRAGON);
-        }
-    }
-
     @Override
     public boolean isDeployAllowed(GameState state, Position pos) {
-        return !dragon.at(pos);
+        return !pos.equals(state.getNeutralFigures().getDragonDeployment());
     }
-
-    public Player getDragonPlayer() {
-        return dragonPlayer;
-    }
-
-    public int getDragonMovesLeft() {
-        return dragonMovesLeft;
-    }
-
-    public Set<Position> getDragonVisitedTiles() {
-        return dragonVisitedTiles;
-    }
-
-    public void triggerDragonMove() {
-        dragonMovesLeft = DRAGON_MOVES;
-        dragonPlayer = game.getTurnPlayer();
-        dragonVisitedTiles = new HashSet<>();
-        dragonVisitedTiles.add(dragon.getPosition());
-    }
-
-    public void endDragonMove() {
-        dragonMovesLeft = 0;
-        dragonVisitedTiles = null;
-        dragonPlayer = null;
-    }
-
-    public void moveDragon(Position p) {
-        dragonVisitedTiles.add(p);
-        dragonPlayer = game.getNextPlayer(dragonPlayer);
-        dragonMovesLeft--;
-        dragon.deploy(p);
-    }
-
-    public Set<Position> getAvailDragonMoves() {
-        Set<Position> result = new HashSet<>();
-        FairyCapability fairyCap = game.getCapability(FairyCapability.class);
-        for (Position offset: Position.ADJACENT.values()) {
-            Position position = dragon.getPosition().add(offset);
-            Tile tile = getBoard().get(position);
-            if (tile == null || CountCapability.isTileForbidden(tile)) continue;
-            if (dragonVisitedTiles != null && dragonVisitedTiles.contains(position)) { continue; }
-            if (fairyCap != null && position.equals(fairyCap.getFairy().getPosition())) { continue; }
-            result.add(position);
-        }
-        return result;
-    }
-
-
-
-
-    */
-
 }

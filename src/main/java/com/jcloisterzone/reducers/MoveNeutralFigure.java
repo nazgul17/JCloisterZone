@@ -39,7 +39,7 @@ public class MoveNeutralFigure<P extends BoardPointer> implements Reducer {
             );
         }
 
-        state.setNeutralFigures(nfState);
+        state = state.setNeutralFigures(nfState);
         state = state.appendEvent(
             new NeutralFigureMoved(PlayEventMeta.createWithPlayer(triggeringPlayer), figure, from, pointer)
         );
