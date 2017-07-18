@@ -9,11 +9,8 @@ import com.jcloisterzone.game.capability.DragonCapability;
 
 public class DragonPhase extends Phase {
 
-    private final DragonCapability dragonCap;
-
     public DragonPhase(Game game) {
         super(game);
-        dragonCap = game.getCapability(DragonCapability.class);
     }
 
     @Override
@@ -25,7 +22,7 @@ public class DragonPhase extends Phase {
     public void enter(GameState state) {
         Tile tile = state.getBoard().getLastPlaced();
         if (tile.hasTrigger(TileTrigger.DRAGON)) {
-            Position pos = (Position) state.getNeutralFigureDeployment(Dragon.class);
+            Position pos = state.getNeutralFigures().getDragonDeployment();
             if (pos != null) {
                 next(state, DragonMovePhase.class);
                 return;

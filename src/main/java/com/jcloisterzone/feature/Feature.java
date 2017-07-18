@@ -10,7 +10,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.GameState;
 
-import io.vavr.Predicates;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 
@@ -18,18 +18,34 @@ public interface Feature {
 
     List<FeaturePointer> getPlaces();
     Feature placeOnBoard(Position pos, Rotation rot);
-    Stream<Meeple> getMeeples(GameState state);
+    Stream<Tuple2<Meeple, FeaturePointer>> getMeeples2(GameState state);
+
+    default Stream<Meeple> getMeeples(GameState state) {
+        return getMeeples2(state).map(t -> t._1);
+    }
+
+    default Stream<Tuple2<Follower, FeaturePointer>> getFollowers2(GameState state) {
+        return
+            Stream.narrow(
+                getMeeples2(state)
+                .filter(t -> t._1 instanceof Follower)
+            );
+    }
 
     default Stream<Follower> getFollowers(GameState state) {
-        return getMeeples(state)
-            .filter(Predicates.instanceOf(Follower.class))
-            .map(m -> (Follower) m);
+        return getFollowers2(state).map(t -> t._1);
+    }
+
+    default Stream<Tuple2<Special, FeaturePointer>> getSpecial2(GameState state) {
+        return
+            Stream.narrow(
+                getMeeples2(state)
+                .filter(t -> t._1 instanceof Special)
+            );
     }
 
     default Stream<Special> getSpecialMeeples(GameState state) {
-        return getMeeples(state)
-            .filter(Predicates.instanceOf(Special.class))
-            .map(m -> (Special) m);
+        return getSpecial2(state).map(t -> t._1);
     }
 
 

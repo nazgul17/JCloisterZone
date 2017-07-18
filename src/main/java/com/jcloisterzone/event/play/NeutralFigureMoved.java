@@ -1,8 +1,6 @@
 package com.jcloisterzone.event.play;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.BoardPointer;
-import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 
 public class NeutralFigureMoved extends PlayEvent {
@@ -11,9 +9,9 @@ public class NeutralFigureMoved extends PlayEvent {
     private final BoardPointer to;
     private final NeutralFigure<?> neutralFigure;
 
-    public NeutralFigureMoved(Player triggeringPlayer, NeutralFigure<?> neutralFigure,
+    public NeutralFigureMoved(PlayEventMeta metadata, NeutralFigure<?> neutralFigure,
             BoardPointer from, BoardPointer to) {
-        super(triggeringPlayer);
+        super(metadata);
         this.neutralFigure = neutralFigure;
         this.from = from;
         this.to = to;

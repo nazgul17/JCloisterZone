@@ -12,7 +12,7 @@ public class NeutralFigure<T extends BoardPointer> extends Figure<T> {
 
     @SuppressWarnings("unchecked")
     public T getDeployment(GameState state) {
-        return (T) state.getDeployedNeutralFigures().get(this).getOrNull();
+        return (T) state.getNeutralFigures().getDeployedNeutralFigures().get(this).getOrNull();
     }
 
     @Override

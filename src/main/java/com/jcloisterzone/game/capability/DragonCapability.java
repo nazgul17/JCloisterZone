@@ -1,13 +1,14 @@
 package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Immutable;
-import com.jcloisterzone.board.Location;
+import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.reducers.MoveNeutralFigure;
 
 import io.vavr.collection.Vector;
 
@@ -19,7 +20,7 @@ public class DragonCapability extends Capability {
     public static final int DRAGON_MOVES = 6;
 
     // Visited positions can be derived
-    private final Vector<Location> dragonMoves;
+    private final Vector<Position> dragonMoves;
 //    private int dragonMovesLeft;
 //    private Player dragonPlayer;
 //    private Set<Position> dragonVisitedTiles;
@@ -28,21 +29,23 @@ public class DragonCapability extends Capability {
         this(Vector.empty());
     }
 
-    public DragonCapability(Vector<Location> dragonMoves) {
+    public DragonCapability(Vector<Position> dragonMoves) {
         this.dragonMoves = dragonMoves;
     }
 
-    public DragonCapability setDragonMoves(Vector<Location> dragonMoves) {
+    public DragonCapability setDragonMoves(Vector<Position> dragonMoves) {
         return new DragonCapability(dragonMoves);
     }
 
-    public Vector<Location> getDragonMoves() {
+    public Vector<Position> getDragonMoves() {
         return dragonMoves;
     }
 
     @Override
     public GameState onStartGame(GameState state) {
-        return state.appendNeutralFigure(new Dragon());
+        return state.setNeutralFigures(
+            state.getNeutralFigures().setDragon(new Dragon())
+        );
     }
 
     @Override
@@ -50,12 +53,16 @@ public class DragonCapability extends Capability {
         Tile tile = state.getBoard().getLastPlaced();
         if (tile.hasTrigger(TileTrigger.VOLCANO)) {
             state = state.setTilePack(
-                state.getTilePack().setGroupState("dragon", TileGroupState.ACTIVE);
+                state.getTilePack().setGroupState("dragon", TileGroupState.ACTIVE)
             );
-            //dragon.deploy(tile.getPosition());
+            state = (
+                new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), tile.getPosition())
+            ).apply(state);
         }
+        return state;
     }
 
+    /*
     public Dragon getDragon() {
         return dragon;
     }
@@ -128,43 +135,7 @@ public class DragonCapability extends Capability {
 
 
 
-    @Override
-    public void saveToSnapshot(Document doc, Element node) {
-        if (dragon.isDeployed()) {
-            Element dragonEl = doc.createElement("dragon");
-            XMLUtils.injectPosition(dragonEl, dragon.getPosition());
-            if (dragonMovesLeft > 0) {
-                dragonEl.setAttribute("moves", "" + dragonMovesLeft);
-                dragonEl.setAttribute("movingPlayer", "" + dragonPlayer.getIndex());
-                if (dragonVisitedTiles != null) {
-                    for (Position visited : dragonVisitedTiles) {
-                        Element ve = doc.createElement("visited");
-                        XMLUtils.injectPosition(ve, visited);
-                        dragonEl.appendChild(ve);
-                    }
-                }
-            }
-            node.appendChild(dragonEl);
-        }
-    }
 
-    @Override
-    public void loadFromSnapshot(Document doc, Element node) {
-        NodeList nl = node.getElementsByTagName("dragon");
-        if (nl.getLength() > 0) {
-            Element dragonEl = (Element) nl.item(0);
-            dragon.deploy(XMLUtils.extractPosition(dragonEl));
-            if (dragonEl.hasAttribute("moves")) {
-                dragonMovesLeft  = Integer.parseInt(dragonEl.getAttribute("moves"));
-                dragonPlayer = game.getPlayer(Integer.parseInt(dragonEl.getAttribute("movingPlayer")));
-                dragonVisitedTiles = new HashSet<>();
-                NodeList vl = dragonEl.getElementsByTagName("visited");
-                for (int i = 0; i < vl.getLength(); i++) {
-                    dragonVisitedTiles.add(XMLUtils.extractPosition((Element) vl.item(i)));
-                }
-            }
-        }
-    }
     */
 
 }

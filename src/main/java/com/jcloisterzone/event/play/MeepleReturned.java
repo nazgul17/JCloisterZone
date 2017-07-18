@@ -2,6 +2,7 @@ package com.jcloisterzone.event.play;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.BoardPointer;
+import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.figure.Meeple;
 
 public class MeepleReturned extends PlayEvent {
@@ -11,8 +12,8 @@ public class MeepleReturned extends PlayEvent {
     private Meeple meeple;
     private BoardPointer from;
 
-    public MeepleReturned(Player triggeringPlayer, Meeple meeple, BoardPointer from) {
-        super(triggeringPlayer);
+    public MeepleReturned(PlayEventMeta metadata, Meeple meeple, BoardPointer from) {
+        super(metadata);
         this.meeple = meeple;
         this.from = from;
     }

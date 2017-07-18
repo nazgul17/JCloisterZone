@@ -58,9 +58,8 @@ public class GameState implements Serializable {
     private final List<TileDefinition> discardedTiles;
     private final Map<FeaturePointer, Feature> features;
 
-    private final Seq<NeutralFigure<?>> neutralFigures;
+    private final NeutralFiguresState neutralFigures;
     private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
-    private final LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures;
 
     //Flags for marking once per turn actions (like princess, portal, ransom ...)
     private final Set<Flag> flags;
@@ -87,8 +86,7 @@ public class GameState implements Serializable {
             LinkedHashMap.empty(),
             List.empty(),
             HashMap.empty(),
-            Vector.empty(),
-            LinkedHashMap.empty(),
+            new NeutralFiguresState(),
             LinkedHashMap.empty(),
             null,
             HashSet.empty(),
@@ -106,9 +104,8 @@ public class GameState implements Serializable {
             TilePackState tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
-            Seq<NeutralFigure<?>> neutralFigures,
+            NeutralFiguresState neutralFigures,
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
-            LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures,
             ActionsState playerActions,
             Set<Flag> flags,
             Queue<PlayEvent> events,
@@ -127,7 +124,6 @@ public class GameState implements Serializable {
         this.features = features;
         this.neutralFigures = neutralFigures;
         this.deployedMeeples = deployedMeeples;
-        this.deployedNeutralFigures = deployedNeutralFigures;
         this.playerActions = playerActions;
         this.flags = flags;
         this.events = events;
@@ -141,7 +137,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -168,7 +164,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -181,7 +177,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -194,7 +190,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -207,7 +203,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -220,7 +216,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -233,7 +229,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -246,7 +242,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -259,7 +255,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -272,7 +268,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -285,27 +281,23 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
     }
 
-    public GameState setNeutralFigures(Seq<NeutralFigure<?>> neutralFigures) {
+    public GameState setNeutralFigures(NeutralFiguresState neutralFigures) {
         return new GameState(
             capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
-    }
-
-    public GameState appendNeutralFigure(NeutralFigure<?> fig) {
-        return setNeutralFigures(getNeutralFigures().append(fig));
     }
 
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
@@ -315,20 +307,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
-            flags, events,
-            phase
-        );
-    }
-
-    public GameState setDeployedNeutralFigures(LinkedHashMap<NeutralFigure<?>, BoardPointer> deployedNeutralFigures) {
-        return new GameState(
-            capabilities,
-            players, score, turnPlayerIndex,
-            followers, specialMeeples, clocks,
-            tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -341,7 +320,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -354,7 +333,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -371,7 +350,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -384,7 +363,7 @@ public class GameState implements Serializable {
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
             features, neutralFigures,
-            deployedMeeples, deployedNeutralFigures, playerActions,
+            deployedMeeples, playerActions,
             flags, events,
             phase
         );
@@ -451,16 +430,12 @@ public class GameState implements Serializable {
         return features;
     }
 
-    public Seq<NeutralFigure<?>> getNeutralFigures() {
+    public NeutralFiguresState getNeutralFigures() {
         return neutralFigures;
     }
 
     public LinkedHashMap<Meeple, FeaturePointer> getDeployedMeeples() {
         return deployedMeeples;
-    }
-
-    public LinkedHashMap<NeutralFigure<?>, BoardPointer> getDeployedNeutralFigures() {
-        return deployedNeutralFigures;
     }
 
     public ActionsState getPlayerActions() {
@@ -505,15 +480,6 @@ public class GameState implements Serializable {
 
     public boolean isGameOver() {
         return GameOverPhase.class.equals(phase);
-    }
-
-    //TODO better IP, lookup by class is not nice
-    @Deprecated
-    public BoardPointer getNeutralFigureDeployment(Class<? extends NeutralFigure<?>> cls) {
-        return getDeployedNeutralFigures()
-            .find(t -> cls.isInstance(t))
-            .map(t -> t._2)
-            .getOrNull();
     }
 
     //TODO use two builder keys for it?

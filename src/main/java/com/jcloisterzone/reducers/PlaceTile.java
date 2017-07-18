@@ -6,6 +6,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
@@ -73,7 +74,9 @@ public class PlaceTile implements Reducer {
                 }
             });
         state = state.setFeatures(HashMap.ofAll(fpUpdate).merge(state.getFeatures()));
-        state = state.appendEvent(new TilePlacedEvent(state.getActivePlayer(), tile, pos, rot));
+        state = state.appendEvent(
+            new TilePlacedEvent(PlayEventMeta.createWithActivePlayer(state), tile, pos, rot)
+        );
         for (Capability cap : state.getCapabilities().values()) {
             state = cap.onTilePlaced(state);
         }

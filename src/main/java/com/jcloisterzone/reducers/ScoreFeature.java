@@ -2,12 +2,18 @@ package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.pointer.BoardPointer;
+import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.FairyCapability;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.Set;
 
 public class ScoreFeature implements Reducer {
@@ -18,27 +24,17 @@ public class ScoreFeature implements Reducer {
         this.feature = feature;
     }
 
-     private GameState scorePlayer(GameState state, Player p) {
-        boolean finalScoring = state.isGameOver();
-
+    private GameState scorePlayer(GameState state, Player p, Follower nextToFairy, boolean finalScoring) {
         int points = feature.getPoints(state, p);
         PointCategory pointCategory = feature.getPointCategory();
 
         state = (new AddPoints(p, points, pointCategory)).apply(state);
 
-        Follower follower = feature.getSampleFollower(state, p);
+        Follower follower = nextToFairy == null ? feature.getSampleFollower(state, p) : nextToFairy;
         ScoreEvent scoreEvent;
-        boolean isFairyScore = false;
-// IMMUTABLE TODO
-//        if (fairyCapability != null) {
-//            for (Follower f : feature.getFollowers()) {
-//                if (f.getPlayer().equals(p) && fairyCapability.isNextTo(f)) {
-//                    isFairyScore = true;
-//                    break;
-//                }
-//            }
-//        }
-        if (isFairyScore && !finalScoring) {
+
+
+        if (nextToFairy != null && !finalScoring) {
             state = (new AddPoints(
                 p, FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY
             )).apply(state);
@@ -67,24 +63,53 @@ public class ScoreFeature implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
+        boolean finalScoring = state.isGameOver();
+
         Set<Player> players = feature.getOwners(state);
         if (players.isEmpty()) return state;
 
-        for (Player pl : players) {
-            state = scorePlayer(state, pl);
+        HashMap<Player, Follower> playersWithFairyBonus = HashMap.empty();
+
+        BoardPointer ptr = state.getNeutralFigures().getFairyDeployment();
+        if (ptr != null && !finalScoring) {
+            boolean onTileRule = ptr instanceof Position;
+            FeaturePointer fairyFp = ptr.asFeaturePointer();
+
+            for (Tuple2<Follower, FeaturePointer> t : feature.getFollowers2(state)) {
+                Follower m = t._1;
+                if (!t._2.equals(fairyFp)) continue;
+
+                if (!onTileRule) {
+                    if (!((MeeplePointer) ptr).getMeepleId().equals(m.getId())) continue;
+                }
+
+                playersWithFairyBonus = playersWithFairyBonus.put(m.getPlayer(), m);
+            }
         }
-//        if (fairyCapability != null && !isOver()) {
-//            java.util.Set<Player> fairyPlayersWithoutMayority = new java.util.HashSet<>();
-//            for (Follower f : feature.getFollowers()) {
-//                Player owner = getPlayer(f.getPlayer());
-//                if (fairyCapability.isNextTo(f) && !players.contains(owner)
-//                    && !fairyPlayersWithoutMayority.contains(owner)) {
-//                    fairyPlayersWithoutMayority.add(owner);
-//
-//                    owner.addPoints(FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY);
-//                }
-//            }
-//        }
+
+        for (Player pl : players) {
+            Follower nextToFairy = playersWithFairyBonus.get(pl).getOrNull();
+            state = scorePlayer(state, pl, nextToFairy, finalScoring);
+        }
+
+        for (Player pl : playersWithFairyBonus.keySet().removeAll(players)) {
+            // player is not owner but next to fairy -> add just fairy points
+            Follower nextToFairy = playersWithFairyBonus.get(pl).getOrNull();
+
+            state = (new AddPoints(
+                pl, FairyCapability.FAIRY_POINTS_FINISHED_OBJECT, PointCategory.FAIRY
+            )).apply(state);
+
+            ScoreEvent scoreEvent = new ScoreEvent(
+                FairyCapability.FAIRY_POINTS_FINISHED_OBJECT,
+                PointCategory.FAIRY,
+                false,
+                nextToFairy.getDeployment(state),
+                nextToFairy
+            );
+            state = state.appendEvent(scoreEvent);
+        }
+
         return state;
     }
 

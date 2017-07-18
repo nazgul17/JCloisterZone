@@ -8,8 +8,8 @@ public class PlayerTurnEvent extends PlayEvent {
 
     private Player player;
 
-    public PlayerTurnEvent(Player player) {
-        super(null);
+    public PlayerTurnEvent(PlayEventMeta metadata, Player player) {
+        super(metadata);
         this.player = player;
     }
 

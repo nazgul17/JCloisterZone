@@ -1,12 +1,13 @@
 package com.jcloisterzone.game.phase;
 
+import org.mockito.internal.matchers.InstanceOf;
+
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
@@ -29,14 +30,15 @@ public class FairyPhase extends Phase {
 
     @Override
     public void enter(GameState state) {
-        BoardPointer ptr = state.getNeutralFigureDeployment(Fairy.class);
+        BoardPointer ptr = state.getNeutralFigures().getFairyDeployment();
         if (ptr == null) {
             next(state);
             return;
         }
 
+        boolean onTileRule = ptr instanceof Position;
         FeaturePointer fairyFp = ptr.asFeaturePointer();
-        boolean onTileRule = game.getBooleanValue(CustomRule.FAIRY_ON_TILE);
+
         for (Tuple2<Meeple, FeaturePointer> t : state.getDeployedMeeples()) {
             Meeple m = t._1;
             if (!m.getPlayer().equals(state.getTurnPlayer())) continue;

@@ -23,7 +23,7 @@ public class ScoreEvent extends PlayEvent  {
 
     public ScoreEvent(int points, String label, PointCategory category, boolean isFinal,
             BoardPointer pointer, Meeple meeple, Player receiver) {
-        super(null);
+        super(PlayEventMeta.createWithoutPlayer());
         this.points = points;
         this.category = category;
         this.label = label;

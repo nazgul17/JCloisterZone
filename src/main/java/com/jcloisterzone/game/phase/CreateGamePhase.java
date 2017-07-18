@@ -23,6 +23,7 @@ import com.jcloisterzone.board.TilePackFactory.Tiles;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
+import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
 import com.jcloisterzone.figure.Follower;
@@ -320,7 +321,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, getSnapshot()));
         preplaceTiles(tiles.getPreplacedTiles());
         game.replaceState(
-            s -> s.appendEvent(new PlayerTurnEvent(player)),
+            s -> s.appendEvent(new PlayerTurnEvent(PlayEventMeta.createWithoutPlayer(), player)),
             s -> s.setPhase(first.getClass())
         );
         toggleClock(player);

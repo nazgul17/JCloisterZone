@@ -1,6 +1,5 @@
 package com.jcloisterzone.event.play;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
@@ -13,8 +12,8 @@ public class TilePlacedEvent extends PlayEvent {
     private final Position position;
     private final Rotation rotation;
 
-    public TilePlacedEvent(Player triggeringPlayer, TileDefinition tile, Position position, Rotation rotation) {
-        super(triggeringPlayer);
+    public TilePlacedEvent(PlayEventMeta metadata, TileDefinition tile, Position position, Rotation rotation) {
+        super(metadata);
         this.tile = tile;
         this.position = position;
         this.rotation = rotation;

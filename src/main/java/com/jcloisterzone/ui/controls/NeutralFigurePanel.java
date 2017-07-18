@@ -19,6 +19,7 @@ import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.NeutralFiguresState;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
@@ -95,18 +96,19 @@ public class NeutralFigurePanel extends JComponent {
 
         GameState state = game.getState();
 
-        Seq<NeutralFigure<?>> figs = state.getNeutralFigures().removeAll(state.getDeployedNeutralFigures().keySet());
+        NeutralFiguresState nfState = state.getNeutralFigures();
 
-        for (NeutralFigure<?> fig : figs) {
-            if (fig instanceof Dragon) {
-                drawMeepleBox(g2, "dragon", -7, -6);
-            } else if (fig instanceof Fairy) {
-                drawMeepleBox(g2, "fairy");
-            } else if (fig instanceof Mage) {
-                drawMeepleBox(g2, "mage");
-            } else if (fig instanceof Witch) {
-                drawMeepleBox(g2, "witch");
-            }
+        if (nfState.getDragon() != null && nfState.getDragonDeployment() == null) {
+            drawMeepleBox(g2, "dragon", -7, -6);
+        }
+        if (nfState.getFairy() != null && nfState.getFairyDeployment() == null) {
+            drawMeepleBox(g2, "fairy");
+        }
+        if (nfState.getMage() != null && nfState.getMageDeployment() == null) {
+            drawMeepleBox(g2, "mage");
+        }
+        if (nfState.getWitch() != null && nfState.getWitchDeployment() == null) {
+            drawMeepleBox(g2, "witch");
         }
 
         //TODO show unassigned gold mines

@@ -43,6 +43,7 @@ public class ServerAwarePhase extends Phase {
         return player.getSlot().isOwn();
     }
 
+    //IMMUTABLE TODO - toggle can be derived from players action !!!
     public void toggleClock(Player player) {
         if (isLocalPlayer(player)) {
             getConnection().send(new ToggleClockMessage(game.getGameId(), player.getIndex()));

@@ -15,7 +15,9 @@ public class FairyCapability extends Capability {
 
     @Override
     public GameState onStartGame(GameState state) {
-        return state.appendNeutralFigure(new Fairy());
+        return state.setNeutralFigures(
+            state.getNeutralFigures().setFairy(new Fairy())
+        );
     }
 
 //    @Override

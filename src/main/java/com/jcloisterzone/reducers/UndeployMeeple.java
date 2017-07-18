@@ -2,6 +2,7 @@ package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.MeepleReturned;
+import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.GameState;
 
@@ -23,7 +24,7 @@ public class UndeployMeeple implements Reducer {
         LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
         state = state.setDeployedMeeples(deployedMeeples.remove(meeple));
         state = state.appendEvent(
-            new MeepleReturned(state.getActivePlayer(), meeple, source)
+            new MeepleReturned(PlayEventMeta.createWithActivePlayer(state), meeple, source)
         );
         return state;
 
