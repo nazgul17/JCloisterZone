@@ -34,6 +34,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.GameState.Flag;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.FlierCapability;
@@ -59,23 +60,19 @@ public class ActionPhase extends Phase {
 
     private final TowerCapability towerCap;
     private final FlierCapability flierCap;
-    private final PortalCapability portalCap;
     private final PrincessCapability princessCapability;
 
     public ActionPhase(Game game) {
         super(game);
         towerCap = game.getCapability(TowerCapability.class);
         flierCap = game.getCapability(FlierCapability.class);
-        portalCap = game.getCapability(PortalCapability.class);
         princessCapability = game.getCapability(PrincessCapability.class);
     }
 
     private Stream<Tuple2<Location, Scoreable>> excludePrincess(Tile currentTile, Stream<Tuple2<Location, Scoreable>> s) {
         return s.filter(t -> {
             if (t._2 instanceof City) {
-                //TODO move getIntial... helper on Tile
-                Location initLoc = t._1.rotateCCW(currentTile.getRotation());
-                City part = (City) currentTile.getTileDefinition().getInitialFeatures().get(initLoc);
+                City part = (City) currentTile.getInitialFeaturePartOf(t._1);
                 return !part.isPrincess();
             } else {
                 return true;
@@ -209,6 +206,7 @@ public class ActionPhase extends Phase {
             if (princess) {
                 princessCapability.setPrincessUsed(true);
             }
+            //TODO skip PhantomPhase there!!!
             next();
         } else {
             throw new IllegalArgumentException();
@@ -237,9 +235,8 @@ public class ActionPhase extends Phase {
 
         state = (new DeployMeeple(m, fp)).apply(state);
 
-        if (portalCap != null && fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
-            //magic gate usage
-            portalCap.setPortalUsed(true);
+        if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
+            state = state.addFlag(Flag.PORTAL);
         }
         next(state);
     }

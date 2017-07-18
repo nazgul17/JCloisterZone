@@ -1,5 +1,7 @@
 package com.jcloisterzone.ui.controls;
 
+import static com.jcloisterzone.ui.controls.ControlPanel.CORNER_DIAMETER;
+
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -10,6 +12,11 @@ import java.awt.image.BufferedImage;
 
 import javax.swing.JComponent;
 
+import com.jcloisterzone.figure.neutral.Dragon;
+import com.jcloisterzone.figure.neutral.Fairy;
+import com.jcloisterzone.figure.neutral.Mage;
+import com.jcloisterzone.figure.neutral.NeutralFigure;
+import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.DragonCapability;
@@ -18,7 +25,7 @@ import com.jcloisterzone.game.capability.MageAndWitchCapability;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.UiUtils;
 
-import static com.jcloisterzone.ui.controls.ControlPanel.CORNER_DIAMETER;
+import io.vavr.collection.Seq;
 
 public class NeutralFigurePanel extends JComponent {
 
@@ -88,17 +95,16 @@ public class NeutralFigurePanel extends JComponent {
 
         GameState state = game.getState();
 
-        if (dragonCap != null && dragonCap.getDragon().isInSupply(state)) {
-            drawMeepleBox(g2, "dragon", -7, -6);
-        }
-        if (fairyCap != null && fairyCap.getFairy().isInSupply(state)) {
-            drawMeepleBox(g2, "fairy");
-        }
-        if (mwCap != null) {
-            if (mwCap.getMage().isInSupply(state)) {
+        Seq<NeutralFigure<?>> figs = state.getNeutralFigures().removeAll(state.getDeployedNeutralFigures().keySet());
+
+        for (NeutralFigure<?> fig : figs) {
+            if (fig instanceof Dragon) {
+                drawMeepleBox(g2, "dragon", -7, -6);
+            } else if (fig instanceof Fairy) {
+                drawMeepleBox(g2, "fairy");
+            } else if (fig instanceof Mage) {
                 drawMeepleBox(g2, "mage");
-            }
-            if (mwCap.getWitch().isInSupply(state)) {
+            } else if (fig instanceof Witch) {
                 drawMeepleBox(g2, "witch");
             }
         }

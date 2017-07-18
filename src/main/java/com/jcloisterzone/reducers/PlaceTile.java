@@ -9,6 +9,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
+import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameState;
 
 import io.vavr.Tuple2;
@@ -73,6 +74,9 @@ public class PlaceTile implements Reducer {
             });
         state = state.setFeatures(HashMap.ofAll(fpUpdate).merge(state.getFeatures()));
         state = state.appendEvent(new TilePlacedEvent(state.getActivePlayer(), tile, pos, rot));
+        for (Capability cap : state.getCapabilities().values()) {
+            state = cap.onTilePlaced(state);
+        }
         return state;
     }
 

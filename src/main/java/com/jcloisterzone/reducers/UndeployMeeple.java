@@ -1,8 +1,6 @@
 package com.jcloisterzone.reducers;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.play.MeepleReturned;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.GameState;
@@ -28,6 +26,8 @@ public class UndeployMeeple implements Reducer {
             new MeepleReturned(state.getActivePlayer(), meeple, source)
         );
         return state;
+
+        //TODO check lonely Pig / Builder / Fairy
 
 //         if (checkForLonelyBuilderOrPig) {
 //            boolean builder = game.hasCapability(BuilderCapability.class) && (piece instanceof City || piece instanceof Road);

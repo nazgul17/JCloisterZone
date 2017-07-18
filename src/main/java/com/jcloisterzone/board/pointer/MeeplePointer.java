@@ -25,11 +25,6 @@ public class MeeplePointer implements BoardPointer {
         this(new FeaturePointer(position, location), meepleId);
     }
 
-    public MeeplePointer(Meeple m) {
-        this(m.getPosition(), m.getLocation(), m.getId());
-        assert meepleId != null;
-    }
-
     public FeaturePointer asFeaturePointer() {
         return featurePointer;
     }

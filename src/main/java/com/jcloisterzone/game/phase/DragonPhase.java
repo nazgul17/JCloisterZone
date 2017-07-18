@@ -1,7 +1,10 @@
 package com.jcloisterzone.game.phase;
 
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.DragonCapability;
 
 public class DragonPhase extends Phase {
@@ -19,14 +22,15 @@ public class DragonPhase extends Phase {
     }
 
     @Override
-    public void enter() {
-        if (getTile().hasTrigger(TileTrigger.DRAGON)) {
-            if (dragonCap.getDragon().getPosition() != null) {
-                dragonCap.triggerDragonMove();
-                next(DragonMovePhase.class);
+    public void enter(GameState state) {
+        Tile tile = state.getBoard().getLastPlaced();
+        if (tile.hasTrigger(TileTrigger.DRAGON)) {
+            Position pos = (Position) state.getNeutralFigureDeployment(Dragon.class);
+            if (pos != null) {
+                next(state, DragonMovePhase.class);
                 return;
             }
         }
-        next();
+        next(state);
     }
 }

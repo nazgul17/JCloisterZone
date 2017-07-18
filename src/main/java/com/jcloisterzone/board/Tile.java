@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
@@ -68,14 +69,6 @@ public class Tile {
         return getTileDefinition().getOrigin();
     }
 
-//    protected boolean check(Tile tile, Location rel, Board board) {
-//        return getEdge(rel) == tile.getEdge(rel.rev());
-//    }
-//
-//    public List<Feature> getFeatures() {
-//        return features;
-//    }
-
     public Feature getFeature(Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
@@ -97,6 +90,15 @@ public class Tile {
         if (initial == null) return null;
 
         return getFeature(initial._1);
+    }
+
+    public Feature getInitialFeaturePartOf(Location loc) {
+        Location initialLoc = loc.rotateCCW(getRotation());
+        return getTileDefinition()
+            .getInitialFeatures()
+            .find(t -> initialLoc.isPartOf(t._1))
+            .map(t -> t._2)
+            .getOrNull();
     }
 
     public Stream<Tuple2<Location, Feature>> getFeatures() {

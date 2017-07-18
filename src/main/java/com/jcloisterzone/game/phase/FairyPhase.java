@@ -1,21 +1,25 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.reducers.AddPoints;
+
+import io.vavr.Tuple2;
 
 
 public class FairyPhase extends Phase {
 
-    private final FairyCapability fairyCap;
-
     public FairyPhase(Game game) {
         super(game);
-        fairyCap = game.getCapability(FairyCapability.class);
     }
 
     @Override
@@ -24,25 +28,31 @@ public class FairyPhase extends Phase {
     }
 
     @Override
-    public void enter() {
-        FeaturePointer fp = fairyCap.getFairy().getFeaturePointer();
-        if (fp != null && !getTilePack().isEmpty()) { //do not add 1 point in last additional abbey only round
-            boolean onTileRule = game.getBooleanValue(CustomRule.FAIRY_ON_TILE);
-            for (Meeple m : game.getDeployedMeeples()) {
-                if (m.getPlayer() == getActivePlayer()) {
-                    boolean match = onTileRule ?
-                            m.at(fp.getPosition()) :
-                            m.at(fp) && m == fairyCap.getFairy().getNextTo();
-                    if (match) {
-                        m.getPlayer().addPoints(FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN, PointCategory.FAIRY);
-                        //don't bind score event with exact feature
-                        //score box should be always draw in the center of tile to not hide followers - propagate just position even fairy stands next to a follower
-                        game.post(new ScoreEvent(m.getPosition(), m.getPlayer(), FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN, PointCategory.FAIRY));
-                        break;
-                    }
-                }
-            }
+    public void enter(GameState state) {
+        BoardPointer ptr = state.getNeutralFigureDeployment(Fairy.class);
+        if (ptr == null) {
+            next(state);
+            return;
         }
-        next();
+
+        FeaturePointer fairyFp = ptr.asFeaturePointer();
+        boolean onTileRule = game.getBooleanValue(CustomRule.FAIRY_ON_TILE);
+        for (Tuple2<Meeple, FeaturePointer> t : state.getDeployedMeeples()) {
+            Meeple m = t._1;
+            if (!m.getPlayer().equals(state.getTurnPlayer())) continue;
+            if (!t._2.equals(fairyFp)) continue;
+
+            if (!onTileRule) {
+                if (!((MeeplePointer) ptr).getMeepleId().equals(m.getId())) continue;
+            }
+
+            state = new AddPoints(
+                m.getPlayer(),
+                FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN,
+                PointCategory.FAIRY
+            ).apply(state);
+        }
+
+        next(state);
     }
 }

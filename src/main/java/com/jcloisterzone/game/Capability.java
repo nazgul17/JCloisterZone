@@ -114,6 +114,10 @@ public abstract class Capability implements Serializable {
         return state;
     }
 
+    public GameState onTilePlaced(GameState state) {
+        return state;
+    }
+
     public GameState onCompleted(GameState state, Completable feature) {
         return state;
     }

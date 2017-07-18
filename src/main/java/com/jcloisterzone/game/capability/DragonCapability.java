@@ -1,76 +1,58 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-
-import com.jcloisterzone.Player;
-import com.jcloisterzone.XMLUtils;
-import com.jcloisterzone.board.Position;
+import com.jcloisterzone.Immutable;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;
-import com.jcloisterzone.event.Event;
-import com.jcloisterzone.event.TileEvent;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 
+import io.vavr.collection.Vector;
+
+@Immutable
 public class DragonCapability extends Capability {
+
+    private static final long serialVersionUID = 1L;
 
     public static final int DRAGON_MOVES = 6;
 
-    private final Dragon dragon;
-    private int dragonMovesLeft;
-    private Player dragonPlayer;
-    private Set<Position> dragonVisitedTiles;
+    // Visited positions can be derived
+    private final Vector<Location> dragonMoves;
+//    private int dragonMovesLeft;
+//    private Player dragonPlayer;
+//    private Set<Position> dragonVisitedTiles;
 
-    public DragonCapability() {);
-        dragon = new Dragon();
-        game.getNeutralFigures().add(dragon);
+    public DragonCapability() {
+        this(Vector.empty());
+    }
+
+    public DragonCapability(Vector<Location> dragonMoves) {
+        this.dragonMoves = dragonMoves;
+    }
+
+    public DragonCapability setDragonMoves(Vector<Location> dragonMoves) {
+        return new DragonCapability(dragonMoves);
+    }
+
+    public Vector<Location> getDragonMoves() {
+        return dragonMoves;
     }
 
     @Override
-    public void handleEvent(Event event) {
-       if (event instanceof TileEvent) {
-           tilePlaced((TileEvent) event);
-       }
-
-    }
-
-    private void tilePlaced(TileEvent ev) {
-        Tile tile = ev.getTile();
-        if (ev.getType() == TileEvent.PLACEMENT && tile.hasTrigger(TileTrigger.VOLCANO)) {
-            getTilePack().setGroupState("dragon", TileGroupState.ACTIVE);
-            dragon.deploy(tile.getPosition());
-        }
+    public GameState onStartGame(GameState state) {
+        return state.appendNeutralFigure(new Dragon());
     }
 
     @Override
-    public Object backup() {
-        return new Object[] {
-            dragon.getPosition(),
-            dragonMovesLeft,
-            dragonPlayer,
-            dragonVisitedTiles == null ? null : new HashSet<>(dragonVisitedTiles)
-         };
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void restore(Object data) {
-        Object[] a = (Object[]) data;
-        if (a[0] != null) {
-            dragon.setFeaturePointer(((Position) a[0]).asFeaturePointer());
-            dragonMovesLeft = (Integer) a[1];
-            dragonPlayer = (Player) a[2];
-            dragonVisitedTiles = a[3] == null ? null : new HashSet<>((Set<Position>) a[3]);
+    public GameState onTilePlaced(GameState state) {
+        Tile tile = state.getBoard().getLastPlaced();
+        if (tile.hasTrigger(TileTrigger.VOLCANO)) {
+            state = state.setTilePack(
+                state.getTilePack().setGroupState("dragon", TileGroupState.ACTIVE);
+            );
+            //dragon.deploy(tile.getPosition());
         }
     }
 
@@ -183,6 +165,6 @@ public class DragonCapability extends Capability {
             }
         }
     }
-
+    */
 
 }

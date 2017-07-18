@@ -5,6 +5,8 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.reducers.SetNextPlayer;
 
+import io.vavr.collection.HashSet;
+
 /**
  * real end of turn and switch to next player
  */
@@ -19,6 +21,9 @@ public class CleanUpTurnPhase extends Phase {
 
         for (Capability cap : state.getCapabilities().values()) {
             state = cap.turnCleanUp(state);
+        }
+        if (!state.getFlags().isEmpty()) {
+            state = state.setFlags(HashSet.empty());
         }
         state = (new SetNextPlayer()).apply(state);
 

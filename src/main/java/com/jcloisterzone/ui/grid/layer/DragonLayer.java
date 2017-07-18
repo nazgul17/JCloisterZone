@@ -87,11 +87,11 @@ public class DragonLayer extends AbstractGridLayer implements GridMouseListener 
     }
 
     private void toggleVisibility() {
-    if (dragonPosition == null || movesLeft == 0) {
-        onHide();
-    } else {
-        onShow();
-    }
+        if (dragonPosition == null || movesLeft == 0) {
+            if (isVisible()) onHide();
+        } else {
+            if (!isVisible()) onShow();
+        }
     }
 
     @Override
