@@ -44,4 +44,13 @@ public class GameChangedEvent extends Event {
     public boolean hasDiscardedTilesChanged() {
         return prev.getDiscardedTiles() != curr.getDiscardedTiles();
     }
+
+    public boolean hasMeeplesChanged() {
+        return prev.getDeployedMeeples() != curr.getDeployedMeeples();
+    }
+
+    public boolean hasNeutralFiguresChanged() {
+        return prev.getNeutralFigures().getDeployedNeutralFigures() !=
+            curr.getNeutralFigures().getDeployedNeutralFigures();
+    }
 }

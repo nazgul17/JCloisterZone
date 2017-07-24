@@ -7,6 +7,7 @@ import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +24,7 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
+import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.LittleBuildingEvent;
 import com.jcloisterzone.event.MeepleEvent;
 import com.jcloisterzone.event.NeutralFigureMoveEvent;
@@ -41,6 +43,7 @@ import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
@@ -55,14 +58,19 @@ import io.vavr.collection.Vector;
 
 public class MeepleLayer extends AbstractGridLayer {
 
+    public static class MeppleLayerModel {
+        ArrayList<PositionedFigureImage> outsideBridge = new ArrayList<>();
+        ArrayList<PositionedFigureImage> onBridge = new ArrayList<>();
+    }
+
     public static final double FIGURE_SIZE_RATIO = 0.35;
 
     /**
      * Corn circles allows multiple meeples on single feature.
      * In such case double meeple should be displayed after common ones.
      */
-    private LinkedList<PositionedFigureImage> images = new LinkedList<>();
-    private PositionedFigureImage fairyOnFeature = null;
+    private MeppleLayerModel model = new MeppleLayerModel();
+    //private PositionedFigureImage fairyOnFeature = null;
 
 
     public MeepleLayer(GridPanel gridPanel, GameController gc) {
@@ -81,21 +89,47 @@ public class MeepleLayer extends AbstractGridLayer {
 //    }
 
     @Subscribe
-    @Deprecated
-    public void onMeepleEvent(MeepleDeployed ev) {
-        //TODO IMMUTABLE action layers are just function of state
-        gridPanel.clearActionDecorations();
-//
-//        if (ev.getFrom() != null) {
-//            meepleUndeployed(ev);
-//        }
-//        if (ev.getTo() != null) {
-//            meepleDeployed(ev);
-//        }
+    public void handleGameChanged(GameChangedEvent ev) {
+        if (ev.hasMeeplesChanged() || ev.hasNeutralFiguresChanged()) {
+            updateModel(ev.getCurrentState());
+            gridPanel.repaint();
+        }
     }
 
-    public LinkedList<PositionedFigureImage> getPositionedFigures() {
-        return images;
+    private void updateModel(GameState state) {
+        model = new MeppleLayerModel();
+
+        HashMap<FeaturePointer, LinkedList<Figure<?>>> onFeature = new HashMap<>();
+        LinkedList<Tuple2<Position, NeutralFigure<?>>> onTile = new LinkedList<>();
+
+        for (Tuple2<Meeple, FeaturePointer> t : gc.getGame().getState().getDeployedMeeples()) {
+            LinkedList<Figure<?>> list = onFeature.get(t._2);
+            if (list == null) {
+                list = new LinkedList<>();
+                onFeature.put(t._2, list);
+            }
+            list.add(t._1);
+        }
+
+        for (Tuple2<NeutralFigure<?>, BoardPointer> t : gc.getGame().getState().getNeutralFigures().getDeployedNeutralFigures()) {
+            if (t._2 instanceof Position) {
+                onTile.add(new Tuple2<>((Position) t._2, t._1));
+            } else {
+                FeaturePointer fp = t._2.asFeaturePointer();
+                LinkedList<Figure<?>> list = onFeature.get(fp);
+                if (list == null) {
+                    list = new LinkedList<>();
+                    onFeature.put(fp, list);
+                }
+                list.add(t._1);
+            }
+        }
+
+        throw new UnsupportedOperationException("TODO IMMUTABLE");
+    }
+
+    public MeppleLayerModel getPositionedFigures() {
+        return model;
     }
 
     public Vector<Tuple3<Meeple, FeaturePointer, ImmutablePoint>> getMeeplePostions() {
@@ -119,6 +153,23 @@ public class MeepleLayer extends AbstractGridLayer {
         return Vector.ofAll(result);
     }
 
+    //Move to separate layer ? No it need to calculate offsets together with meeples
+    //TODO IMMUTABLE
+    public Vector<Tuple3<NeutralFigure<?>, BoardPointer, ImmutablePoint>> getNeutralFigurePostions() {
+        java.util.ArrayList<Tuple3<NeutralFigure<?>, BoardPointer, ImmutablePoint>> result = new java.util.ArrayList<>();
+
+        for (Tuple2<NeutralFigure<?>, BoardPointer> t : gc.getGame().getState().getNeutralFigures().getDeployedNeutralFigures()) {
+            FeaturePointer fp = t._2.asFeaturePointer();
+
+            int offsetX = getOffsetX(fp.getPosition());
+            int offsetY = getOffsetY(fp.getPosition());
+
+            result.add(new Tuple3<>(t._1, t._2, new ImmutablePoint(offsetX, offsetY)));
+        }
+
+        return Vector.ofAll(result);
+    }
+
     @Override
     public void paint(Graphics2D g) {
         int tileWidth = getTileWidth();
@@ -130,6 +181,17 @@ public class MeepleLayer extends AbstractGridLayer {
 
             Color color = m.getPlayer().getColors().getMeepleColor();
             PositionedFigureImage pfi = createMeepleImage(m, color, fp);
+            if (pfi.bridgePlacement) continue;
+
+            paintPositionedImage(g, pfi, tileWidth);
+        }
+
+        for (Tuple3<NeutralFigure<?>, BoardPointer, ImmutablePoint> t : getNeutralFigurePostions()) {
+            //process each places separately
+            NeutralFigure<?> m = t._1;
+            BoardPointer ptr = t._2;
+
+            PositionedFigureImage pfi = createNeutralFigureImage(m, ptr);
             if (pfi.bridgePlacement) continue;
 
             paintPositionedImage(g, pfi, tileWidth);
@@ -147,6 +209,17 @@ public class MeepleLayer extends AbstractGridLayer {
 
             Color color = m.getPlayer().getColors().getMeepleColor();
             PositionedFigureImage pfi = createMeepleImage(m, color, fp);
+            if (!pfi.bridgePlacement) continue;
+
+            paintPositionedImage(g, pfi, tileWidth);
+        }
+
+        for (Tuple3<NeutralFigure<?>, BoardPointer, ImmutablePoint> t : getNeutralFigurePostions()) {
+            //process each places separately
+            NeutralFigure<?> m = t._1;
+            BoardPointer ptr = t._2;
+
+            PositionedFigureImage pfi = createNeutralFigureImage(m, ptr);
             if (!pfi.bridgePlacement) continue;
 
             paintPositionedImage(g, pfi, tileWidth);
