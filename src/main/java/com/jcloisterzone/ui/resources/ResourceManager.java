@@ -28,5 +28,6 @@ public interface ResourceManager {
 
     //TODO change to 1000x1000
     /** returns meeple offset on tile, normalized to 100x100 tile size */
+    //TODO why there is meeple type? just because of Barn, nice to have to split it into 2 methods
     ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Meeple> type, Location loc);
 }

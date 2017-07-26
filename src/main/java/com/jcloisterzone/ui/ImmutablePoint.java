@@ -21,6 +21,10 @@ public class ImmutablePoint {
         return y;
     }
 
+    public ImmutablePoint add(int tx, int ty) {
+        return new ImmutablePoint(x + tx, y + ty);
+    }
+
     public ImmutablePoint scale(int tileWidth, int tileHeight) {
         return scale(tileWidth, tileHeight, 0, 0);
     }
@@ -92,7 +96,7 @@ public class ImmutablePoint {
     }
 
     @Override
-	public String toString() {
+    public String toString() {
         return getClass().getName() + "[x=" + x + ",y=" + y + "]";
     }
 }
