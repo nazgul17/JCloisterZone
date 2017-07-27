@@ -17,6 +17,8 @@ public class FigureImage {
 
     public FigureImage(Figure<?> fig) {
         this.fig = fig;
+        this.scaleX = 1.0;
+        this.scaleY = 1.0;
     }
 
     public Image getScaledInstance(int baseSize) {

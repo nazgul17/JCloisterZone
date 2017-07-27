@@ -9,25 +9,18 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 
-import javax.swing.JEditorPane;
-
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.feature.Bridge;
-import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Figure;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.neutral.Count;
-import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
@@ -36,13 +29,9 @@ import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
-import com.jcloisterzone.ui.resources.DefaultResourceManager;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
 import io.vavr.Tuple2;
-import io.vavr.Tuple3;
-import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.Vector;
 
 public class MeepleLayer extends AbstractGridLayer {
 
@@ -132,9 +121,20 @@ public class MeepleLayer extends AbstractGridLayer {
                 fillFigureImage(fi, tile, fig, fp);
 
                 model.outsideBridge.add(fi);
-
                 order++;
             }
+        });
+
+        onTile.forEach(t -> {
+            Position pos = t._1;
+            NeutralFigure<?> fig = t._2;
+            Tile tile = state.getBoard().get(pos);
+
+            FigureImage fi = new FigureImage(fig);
+            fi.offset = getFigureOffset(tile, fig, pos);
+            fillFigureImage(fi, tile, fig, pos);
+
+            model.outsideBridge.add(fi);
         });
 
         this.model = model;
@@ -166,20 +166,16 @@ public class MeepleLayer extends AbstractGridLayer {
 
     private void fillFigureImage(FigureImage fi, Tile tile, Figure<?> fig, BoardPointer ptr) {
         if (fig instanceof NeutralFigure<?>) {
-//            final boolean mageOrWitch = fig instanceof Mage || fig instanceof Witch;
-//            final boolean count = fig instanceof Count;
+            final boolean mageOrWitch = fig instanceof Mage || fig instanceof Witch;
+            final boolean count = fig instanceof Count;
 
             Image image = rm.getImage("neutral/"+fig.getClass().getSimpleName().toLowerCase());
-
-//            if (fig instanceof Dragon) {
-//            	pfi.sizeRatio = 1.0;
-//            }
-//
-//            if (mageOrWitch || count) {
-//            	pfi.xScaleFactor = pfi.yScaleFactor = 1.2;
-//            }
-
             fi.img = image;
+
+            if (mageOrWitch || count) {
+                fi.scaleX = 1.2;
+                fi.scaleY = 1.2;
+            }
         } else {
             Meeple m = (Meeple) fig;
             FeaturePointer fp = ptr.asFeaturePointer();
@@ -192,9 +188,9 @@ public class MeepleLayer extends AbstractGridLayer {
                 image = rotate(image, 90);
             }
             fi.img = image;
+            fi.scaleX = FIGURE_SIZE_RATIO * gridPanel.getMeepleScaleFactor();
+            fi.scaleY = fi.scaleX;
         }
-        fi.scaleX = FIGURE_SIZE_RATIO * gridPanel.getMeepleScaleFactor();
-        fi.scaleY = fi.scaleX;
         return;
     }
 

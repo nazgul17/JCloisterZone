@@ -20,6 +20,12 @@ public class FairyCapability extends Capability {
         );
     }
 
+    @Override
+    public GameState onActionPhaseEntered(GameState state) {
+        // TODO pepare fairy action
+        return state;
+    }
+
 //    @Override
 //    public void handleEvent(PlayEvent event) {
 //       if (event instanceof MeepleEvent) {

@@ -92,19 +92,20 @@ public abstract class Capability implements Serializable {
         return followerActions;
     }
 
+    @Deprecated
     public Set<FeaturePointer> extendFollowOptions(Set<FeaturePointer> locations) {
         return locations;
     }
 
-    @Deprecated
-    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-        return actions;
-    }
-
-    @Deprecated
-    public Vector<PlayerAction<?>> postPrepareActions(Vector<PlayerAction<?>> actions) {
-        return actions;
-    }
+//    @Deprecated
+//    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+//        return actions;
+//    }
+//
+//    @Deprecated
+//    public Vector<PlayerAction<?>> postPrepareActions(Vector<PlayerAction<?>> actions) {
+//        return actions;
+//    }
 
     public boolean isDeployAllowed(GameState state, Position pos) {
         return true;
@@ -119,6 +120,10 @@ public abstract class Capability implements Serializable {
     }
 
     public GameState onCompleted(GameState state, Completable feature) {
+        return state;
+    }
+
+    public GameState onActionPhaseEntered(GameState state) {
         return state;
     }
 

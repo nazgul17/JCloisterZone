@@ -125,9 +125,11 @@ public class ActionPhase extends Phase {
 
         actions = actions.filter(action -> !action.isEmpty());
 
-        promote(state.setPlayerActions(
+        state = state.setPlayerActions(
             new ActionsState(player, actions, true)
-        ));
+        );
+
+        promote(state);
     }
 
     @Override
