@@ -41,6 +41,9 @@ public class GameState implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    //TODO group some fields into sub states
+
+    private final HashMap<CustomRule, Object> rules;
     private final HashMap<Class<? extends Capability>, Capability> capabilities;
 
     private final Array<Player> players;
@@ -70,10 +73,12 @@ public class GameState implements Serializable {
     private final Class<? extends Phase> phase;
 
     public static GameState createInitial(
+            HashMap<CustomRule, Object> rules,
             HashMap<Class<? extends Capability>, Capability> capabilities,
             Array<Player> players,
             int turnPlayerIndex) {
         return new GameState(
+            rules,
             capabilities,
             players,
             players.map(p -> new PlayerScore()),
@@ -96,6 +101,7 @@ public class GameState implements Serializable {
     }
 
     private GameState(
+            HashMap<CustomRule, Object> rules,
             HashMap<Class<? extends Capability>, Capability> capabilities,
             Array<Player> players, Array<PlayerScore> score, int turnPlayerIndex,
             Array<Seq<Follower>> followers,
@@ -110,6 +116,7 @@ public class GameState implements Serializable {
             Set<Flag> flags,
             Queue<PlayEvent> events,
             Class<? extends Phase> phase) {
+        this.rules = rules;
         this.capabilities = capabilities;
         this.players = players;
         this.score = score;
@@ -132,7 +139,7 @@ public class GameState implements Serializable {
 
     public GameState setCapabilities(HashMap<Class<? extends Capability>, Capability> capabilities) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -159,7 +166,7 @@ public class GameState implements Serializable {
 
     public GameState setScore(Array<PlayerScore> score) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -172,7 +179,7 @@ public class GameState implements Serializable {
 
     public GameState setTurnPlayerIndex(int turnPlayerIndex) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -185,7 +192,7 @@ public class GameState implements Serializable {
 
     public GameState setFollowers(Array<Seq<Follower>> followers) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -198,7 +205,7 @@ public class GameState implements Serializable {
 
     public GameState setSpecialMeeples(Array<Seq<Special>> specialMeeples) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -211,7 +218,7 @@ public class GameState implements Serializable {
 
     public GameState setClocks(Array<PlayerClock> clocks) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -224,7 +231,7 @@ public class GameState implements Serializable {
 
     public GameState setTilePack(TilePackState tilePack) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -237,7 +244,7 @@ public class GameState implements Serializable {
 
     public GameState setDrawnTile(TileDefinition drawnTile) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -250,7 +257,7 @@ public class GameState implements Serializable {
 
     public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -263,7 +270,7 @@ public class GameState implements Serializable {
 
     public GameState setFeatures(Map<FeaturePointer, Feature> features) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -276,7 +283,7 @@ public class GameState implements Serializable {
 
     public GameState setDiscardedTiles(List<TileDefinition> discardedTiles) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -289,7 +296,7 @@ public class GameState implements Serializable {
 
     public GameState setNeutralFigures(NeutralFiguresState neutralFigures) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -302,7 +309,7 @@ public class GameState implements Serializable {
 
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -315,7 +322,7 @@ public class GameState implements Serializable {
 
     public GameState setPlayerActions(ActionsState playerActions) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -328,7 +335,7 @@ public class GameState implements Serializable {
 
     public GameState setFlags(Set<Flag> flags) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -345,7 +352,7 @@ public class GameState implements Serializable {
 
     public GameState setEvents(Queue<PlayEvent> events) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -358,7 +365,7 @@ public class GameState implements Serializable {
 
     public GameState setPhase(Class<? extends Phase> phase) {
         return new GameState(
-            capabilities,
+            rules, capabilities,
             players, score, turnPlayerIndex,
             followers, specialMeeples, clocks,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -371,6 +378,10 @@ public class GameState implements Serializable {
 
     public GameState appendEvent(PlayEvent ev) {
         return setEvents(events.append(ev));
+    }
+
+    public HashMap<CustomRule, Object> getRules() {
+        return rules;
     }
 
     public HashMap<Class<? extends Capability>, Capability> getCapabilities() {
@@ -461,6 +472,11 @@ public class GameState implements Serializable {
     // ------ helpers -------------
 
     private Board board;
+
+    public boolean getBooleanValue(CustomRule rule) {
+        assert rule.getType().equals(Boolean.class);
+        return (Boolean) rules.get(rule).getOrElse(Boolean.FALSE);
+    }
 
     public Player getTurnPlayer() {
         return players.get(turnPlayerIndex);

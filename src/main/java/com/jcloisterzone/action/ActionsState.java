@@ -26,6 +26,14 @@ public class ActionsState implements Serializable {
         this(player, Vector.of(action), passAllowed);
     }
 
+    public ActionsState setActions(Vector<PlayerAction<?>> actions) {
+        return new ActionsState(player, actions, passAllowed);
+    }
+
+    public ActionsState appendAction(PlayerAction<?> action) {
+        return setActions(actions.append(action));
+    }
+
     public Player getPlayer() {
         return player;
     }

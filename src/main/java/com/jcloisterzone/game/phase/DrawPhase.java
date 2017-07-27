@@ -119,7 +119,7 @@ public class DrawPhase extends ServerAwarePhase {
             }
 
             TileDefinition tile = state.getDrawnTile();
-            if (state.getBoard().getAvailablePlacements(tile).isEmpty()) {
+            if (state.getBoard().getTilePlacements(tile).isEmpty()) {
                 state = state
                     .setDiscardedTiles(state.getDiscardedTiles().append(tile))
                     .appendEvent(new TileDiscardedEvent(tile));

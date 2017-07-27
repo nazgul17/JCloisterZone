@@ -60,6 +60,7 @@ import io.vavr.collection.Vector;
  * Other information than board needs in game. Contains players with their
  * points, followers ... and game rules of current game.
  */
+//TODO remove extends from GameSettings
 public class Game extends GameSettings implements EventProxy {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());

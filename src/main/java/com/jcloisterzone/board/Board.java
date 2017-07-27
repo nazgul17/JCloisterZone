@@ -73,21 +73,24 @@ public class Board {
         });
     }
 
-    public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements(TileDefinition tile) {
-        return getAvailablePlacements().filter(t -> {
-            //TODO check bridge
-            return true;
-            //return game.isTilePlacementAllowed(tile, t._1);
-            // TODO IMMUTABLE - call it when capabilities are moved into state
-        });
-    }
+//    // TODO is it needed to by public?
+//    // in any case this is confusion against getTilePlacements
+//    // maybe is needed, look at this when adding bridges
+//    public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements(TileDefinition tile) {
+//        return getAvailablePlacements().filter(t -> {
+//            //TODO check bridge
+//            return true;
+//            //return game.isTilePlacementAllowed(tile, t._1);
+//            // TODO IMMUTABLE - call it when capabilities are moved into state
+//        });
+//    }
 
     public Stream<Tuple2<Position, EdgePattern>> getHoles() {
         return getAvailablePlacements().filter(t -> t._2.wildcardSize() == 0);
     }
 
     public Stream<TilePlacement> getTilePlacements(TileDefinition tile) {
-        return getAvailablePlacements(tile).flatMap(t -> {
+        return getAvailablePlacements().flatMap(t -> {
             return Stream.of(Rotation.values())
                 .filter(r -> t._2.isMatchingExact(tile.getEdgePattern().rotate(r)))
                 .map(r -> new TilePlacement(t._1, r));

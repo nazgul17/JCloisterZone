@@ -2,8 +2,8 @@ package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.figure.neutral.Fairy;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.annotations.LinkedImage;
-import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
@@ -16,8 +16,8 @@ public class FairyNextToAction extends SelectFollowerAction {
     }
 
     @Override
-    public void perform(RmiProxy server, MeeplePointer target) {
-        server.moveNeutralFigure(target, Fairy.class);
+    public void perform(GameController gc, MeeplePointer target) {
+        gc.getRmiProxy().moveNeutralFigure(target, Fairy.class);
     }
 
     @Override

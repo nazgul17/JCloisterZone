@@ -105,9 +105,6 @@ public class MeepleLayer extends AbstractGridLayer {
         onFeature.forEach((fp, list) -> {
             //TODO rearrange
 
-//            Position pos = fp.getPosition();
-//            int offsetX = getOffsetX(pos);
-//            int offsetY = getOffsetY(pos);
             int order = 0;
 
             for (Figure<?> fig : list) {
@@ -165,6 +162,7 @@ public class MeepleLayer extends AbstractGridLayer {
     }
 
     private void fillFigureImage(FigureImage fi, Tile tile, Figure<?> fig, BoardPointer ptr) {
+        double baseScale = FIGURE_SIZE_RATIO * gridPanel.getMeepleScaleFactor();
         if (fig instanceof NeutralFigure<?>) {
             final boolean mageOrWitch = fig instanceof Mage || fig instanceof Witch;
             final boolean count = fig instanceof Count;
@@ -173,9 +171,13 @@ public class MeepleLayer extends AbstractGridLayer {
             fi.img = image;
 
             if (mageOrWitch || count) {
-                fi.scaleX = 1.2;
-                fi.scaleY = 1.2;
+                fi.scaleX = 1.2 * baseScale;
+                fi.scaleY = 1.2 * baseScale;
+            } else if (fig instanceof Fairy) {
+                fi.scaleX = baseScale;
+                fi.scaleY = baseScale;
             }
+            // no scale for dragon
         } else {
             Meeple m = (Meeple) fig;
             FeaturePointer fp = ptr.asFeaturePointer();
@@ -188,8 +190,8 @@ public class MeepleLayer extends AbstractGridLayer {
                 image = rotate(image, 90);
             }
             fi.img = image;
-            fi.scaleX = FIGURE_SIZE_RATIO * gridPanel.getMeepleScaleFactor();
-            fi.scaleY = fi.scaleX;
+            fi.scaleX = baseScale;
+            fi.scaleY = baseScale;
         }
         return;
     }

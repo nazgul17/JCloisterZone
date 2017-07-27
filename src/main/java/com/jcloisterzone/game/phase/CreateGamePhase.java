@@ -286,6 +286,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         Array<Player> players = preparePlayers();
 
         GameState state = GameState.createInitial(
+            HashMap.ofAll(game.getCustomRules()),
             capabilityMap,
             players,
             0

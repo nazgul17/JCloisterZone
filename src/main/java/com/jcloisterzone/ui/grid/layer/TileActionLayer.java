@@ -20,7 +20,6 @@ import com.jcloisterzone.ui.grid.GridPanel;
 
 public class TileActionLayer extends AbstractGridLayer implements GridMouseListener, ActionLayer {
 
-    private SelectTileAction action;
     private ActionWrapper actionWrapper;
     private boolean active;
     private Image gridDecoration;
@@ -39,7 +38,7 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
     public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
         this.actionWrapper = actionWrapper;
         this.active = active;
-        PlayerAction<?> action = getAction();
+        SelectTileAction action = getAction();
         if (action == null) {
             gridDecoration = null;
         } else if (action instanceof FairyOnTileAction) {
@@ -64,7 +63,7 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
     @Override
     public void paint(Graphics2D g2) {
         int imgSize = gridDecoration.getWidth(null);
-        for (Position pos : action.getOptions()) {
+        for (Position pos : getAction().getOptions()) {
             g2.drawImage(gridDecoration, getAffineTransform(imgSize, imgSize, pos), null);
         }
     }
@@ -73,9 +72,10 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
     public void mouseClicked(MouseEvent e, Position p) {
         if (!active) return;
         if (e.getButton() == MouseEvent.BUTTON1) {
+            SelectTileAction action = getAction();
             if (action.getOptions().contains(p)) {
                 e.consume();
-                action.perform(getRmiProxy(), p);
+                action.perform(gc, p);
             }
         }
     }

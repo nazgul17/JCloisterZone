@@ -44,6 +44,7 @@ import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.reducers.DeployMeeple;
+import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
@@ -125,11 +126,15 @@ public class ActionPhase extends Phase {
 
         actions = actions.filter(action -> !action.isEmpty());
 
-        state = state.setPlayerActions(
+        GameState nextState = state.setPlayerActions(
             new ActionsState(player, actions, true)
         );
 
-        promote(state);
+        for (Capability cap : nextState.getCapabilities().values()) {
+            nextState = cap.onActionPhaseEntered(nextState);
+        }
+
+        promote(nextState);
     }
 
     @Override
@@ -148,6 +153,45 @@ public class ActionPhase extends Phase {
         }
     }
 
+    @Override
+    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+        game.markUndo();
+        GameState state = game.getState();
+        Meeple m = state.getActivePlayer().getMeepleFromSupply(state, meepleType);
+        //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
+        if (m instanceof Follower) {
+            if (state.getBoard().get(fp).isOccupied(state)) {
+                throw new IllegalArgumentException("Feature is occupied.");
+            }
+        }
+        Tile tile = state.getBoard().getLastPlaced();
+
+        state = (new DeployMeeple(m, fp)).apply(state);
+
+        if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
+            state = state.addFlag(Flag.PORTAL);
+        }
+        next(state);
+    }
+
+    @Override
+    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
+        GameState state = game.getState();
+        if (Fairy.class.equals(figureType)) {
+            // TODO IMMUTABLE validation against ActionState
+//            if (!Iterables.any(getActivePlayer().getFollowers(), MeeplePredicates.at(ptr.getPosition()))) {
+//                throw new IllegalArgumentException("The tile has deployed not own follower.");
+//            }
+            assert (state.getBooleanValue(CustomRule.FAIRY_ON_TILE) ? Position.class : BoardPointer.class).isInstance(ptr);
+
+            Fairy fairy = state.getNeutralFigures().getFairy();
+            state = (new MoveNeutralFigure<BoardPointer>(fairy, ptr, state.getActivePlayer())).apply(state);
+            next(state);
+            return;
+        }
+        super.moveNeutralFigure(ptr, figureType);
+    }
+
 
     @Override
     public void placeTowerPiece(Position p) {
@@ -162,23 +206,7 @@ public class ActionPhase extends Phase {
         next();
     }
 
-    @Override
-    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
-        if (Fairy.class.equals(figureType)) {
-            if (!Iterables.any(getActivePlayer().getFollowers(), MeeplePredicates.at(ptr.getPosition()))) {
-                throw new IllegalArgumentException("The tile has deployed not own follower.");
-            }
-            Fairy fairy = game.getCapability(FairyCapability.class).getFairy();
-            if (game.getBooleanValue(CustomRule.FAIRY_ON_TILE)) {
-                fairy.deploy(ptr.getPosition());
-            } else {
-                fairy.deploy((MeeplePointer) ptr);
-            }
-            next();
-        } else {
-            super.moveNeutralFigure(ptr, figureType);
-        }
-    }
+
 
     private boolean isFestivalUndeploy(Meeple m) {
         return getTile().hasTrigger(TileTrigger.FESTIVAL) && m.getPlayer() == getActivePlayer();
@@ -222,26 +250,7 @@ public class ActionPhase extends Phase {
     }
 
 
-    @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
-        game.markUndo();
-        GameState state = game.getState();
-        Meeple m = state.getActivePlayer().getMeepleFromSupply(state, meepleType);
-        //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
-        if (m instanceof Follower) {
-            if (state.getBoard().get(fp).isOccupied(state)) {
-                throw new IllegalArgumentException("Feature is occupied.");
-            }
-        }
-        Tile tile = state.getBoard().getLastPlaced();
 
-        state = (new DeployMeeple(m, fp)).apply(state);
-
-        if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
-            state = state.addFlag(Flag.PORTAL);
-        }
-        next(state);
-    }
 
     @Override
     public void deployBridge(Position pos, Location loc) {

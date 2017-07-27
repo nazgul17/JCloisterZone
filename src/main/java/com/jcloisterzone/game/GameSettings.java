@@ -36,6 +36,7 @@ public class GameSettings {
         return expansions.contains(expansion);
     }
 
+    @Deprecated //in favor of rules on GameState
     public boolean getBooleanValue(CustomRule rule) {
         assert rule.getType().equals(Boolean.class);
         if (!customRules.containsKey(rule)) return false;
