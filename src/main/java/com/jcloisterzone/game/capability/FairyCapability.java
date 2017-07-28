@@ -3,10 +3,12 @@ package com.jcloisterzone.game.capability;
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.FairyNextToAction;
 import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
@@ -54,7 +56,12 @@ public class FairyCapability extends Capability {
                 fairyAction = new FairyOnTileAction(options);
             }
         } else {
-            //...
+            Set<MeeplePointer> options = followers
+                .map(t -> new MeeplePointer(t._2, t._1.getId()))
+                .toSet();
+            if (!options.isEmpty()) {
+                fairyAction = new FairyNextToAction(options);
+            }
         }
 
         if (fairyAction == null) {
@@ -63,23 +70,6 @@ public class FairyCapability extends Capability {
 
         ActionsState as = state.getPlayerActions();
         return state.setPlayerActions(as.appendAction(fairyAction));
-
-//        for (Follower m : Iterables.filter(activePlayer.getFollowers(), MeeplePredicates.deployed())) {
-//            if (fairyOnTile) {
-//                if (!m.at(fairy.getPosition())) {
-//                    ((FairyOnTileAction) fairyAction).add(m.getPosition());
-//                }
-//            } else {
-//                if (!m.equals(fairy.getNextTo())) {
-//                    ((FairyNextToAction) fairyAction).add(new MeeplePointer(m));
-//                }
-//            }
-//        }
-//
-//        if (!fairyAction.isEmpty()) {
-//            actions.add(fairyAction);
-//        }
-//
     }
 
 //    @Override
@@ -96,10 +86,7 @@ public class FairyCapability extends Capability {
 //            fairy.setNextTo(null);
 //        }
 //    }
-//
-//    public Fairy getFairy() {
-//        return fairy;
-//    }
+
 
 //    public boolean isNextTo(Follower f) {
 //        if (game.getBooleanValue(CustomRule.FAIRY_ON_TILE)) {

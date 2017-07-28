@@ -31,4 +31,32 @@ public class FigureImage {
         return scaledImage;
     }
 
+    public Figure<?> getFigure() {
+        return fig;
+    }
+
+    public ImmutablePoint getOffset() {
+        return offset;
+    }
+
+    public Image getImg() {
+        return img;
+    }
+
+    public double getScaleX() {
+        return scaleX;
+    }
+
+    public double getScaleY() {
+        return scaleY;
+    }
+
+    public Image getScaledImage() {
+        return scaledImage;
+    }
+
+    public int getScaledForSize() {
+        return scaledForSize;
+    }
+
 }

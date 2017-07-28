@@ -15,11 +15,13 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Figure;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.Mage;
@@ -32,6 +34,7 @@ import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.Stream;
 
 public class MeepleLayer extends AbstractGridLayer {
 
@@ -54,16 +57,6 @@ public class MeepleLayer extends AbstractGridLayer {
         super(gridPanel, gc);
         gc.register(this);
     }
-
-//    @Subscribe
-//    public void onNeutralMeepleMoveEvent(NeutralFigureMoveEvent ev) {
-//        if (ev.getFrom() != null) {
-//            neutralFigureUndeployed(ev);
-//        }
-//        if (ev.getTo() != null) {
-//            neutralFigureDeployed(ev);
-//        }
-//    }
 
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
@@ -137,8 +130,8 @@ public class MeepleLayer extends AbstractGridLayer {
         this.model = model;
     }
 
-    public MeppleLayerModel getPositionedFigures() {
-        return model;
+    public Stream<FigureImage> getAllFigureImages() {
+        return Stream.concat(model.onBridge, model.outsideBridge);
     }
 
     private ImmutablePoint getFigureOffset(Tile tile, Figure<?> fig, BoardPointer ptr) {
@@ -156,9 +149,15 @@ public class MeepleLayer extends AbstractGridLayer {
                 return new ImmutablePoint(50, 50);
             }
         }
-        Meeple m = (Meeple) fig;
-        FeaturePointer fp = (FeaturePointer) ptr;
-        return rm.getMeeplePlacement(tile, m.getClass(), fp.getLocation());
+        if (fig instanceof Fairy) {
+            //fairy next to follower
+            FeaturePointer fp = (FeaturePointer) ptr; // MeeplePointer has been converted to FeaturePointer during group by!
+            return rm.getMeeplePlacement(tile, SmallFollower.class, fp.getLocation());
+        } else {
+            Meeple m = (Meeple) fig;
+            FeaturePointer fp = (FeaturePointer) ptr;
+            return rm.getMeeplePlacement(tile, m.getClass(), fp.getLocation());
+        }
     }
 
     private void fillFigureImage(FigureImage fi, Tile tile, Figure<?> fig, BoardPointer ptr) {
