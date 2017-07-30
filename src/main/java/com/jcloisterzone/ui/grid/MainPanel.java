@@ -131,9 +131,9 @@ public class MainPanel extends JPanel {
 
         gridPanel.addLayer(new FollowerAreaLayer(gridPanel, gc, meepleLayer), false); //70
 
-        if (game.hasCapability(DragonCapability.class)) {
-            gridPanel.addLayer(new DragonLayer(gridPanel, gc));
-        }
+//        if (game.hasCapability(DragonCapability.class)) {
+//            gridPanel.addLayer(new DragonLayer(gridPanel, gc));
+//        }
 
         if (game.hasCapability(BarnCapability.class)) {
             gridPanel.addLayer(new BarnAreaLayer(gridPanel, gc), false);

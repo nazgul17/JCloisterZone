@@ -4,12 +4,13 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.message.ToggleClockMessage;
 
-public class ServerAwarePhase extends Phase {
+public abstract class ServerAwarePhase extends Phase {
 
     private final GameController gc;
 

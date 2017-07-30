@@ -5,8 +5,6 @@ import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.Application;
 import com.jcloisterzone.LittleBuilding;
-import com.jcloisterzone.Player;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;

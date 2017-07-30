@@ -46,8 +46,6 @@ public class FairyPhase extends Phase {
                 if (!((MeeplePointer) ptr).getMeepleId().equals(m.getId())) continue;
             }
 
-
-
             state = new AddPoints(
                 m.getPlayer(),
                 FairyCapability.FAIRY_POINTS_BEGINNING_OF_TURN,

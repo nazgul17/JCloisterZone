@@ -137,6 +137,10 @@ public class ActionPhase extends Phase {
         promote(nextState);
     }
 
+    private GameState clearActions(GameState state) {
+        return state.setPlayerActions(null);
+    }
+
     @Override
     public void notifyRansomPaid() {
         enter(); //recompute available actions
@@ -145,6 +149,7 @@ public class ActionPhase extends Phase {
     @Override
     public void pass() {
         GameState state = game.getState();
+        state = clearActions(state);
         if (getDefaultNext() instanceof PhantomPhase) {
             //skip PhantomPhase if user pass turn
             getDefaultNext().next(state);
@@ -171,6 +176,7 @@ public class ActionPhase extends Phase {
         if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
             state = state.addFlag(Flag.PORTAL);
         }
+        state = clearActions(state);
         next(state);
     }
 
@@ -186,6 +192,7 @@ public class ActionPhase extends Phase {
 
             Fairy fairy = state.getNeutralFigures().getFairy();
             state = (new MoveNeutralFigure<BoardPointer>(fairy, ptr, state.getActivePlayer())).apply(state);
+            state = clearActions(state);
             next(state);
             return;
         }
@@ -195,17 +202,24 @@ public class ActionPhase extends Phase {
 
     @Override
     public void placeTowerPiece(Position p) {
+        GameState state = game.getState();
+        //TODO
         towerCap.placeTowerPiece(getActivePlayer(), p);
-        next(TowerCapturePhase.class);
+
+        state = clearActions(state);
+        next(state, TowerCapturePhase.class);
     }
 
     @Override
     public void placeLittleBuilding(LittleBuilding lbType) {
+        GameState state = game.getState();
+        //TODO
         LittleBuildingsCapability lbCap = game.getCapability(LittleBuildingsCapability.class);
         lbCap.placeLittleBuilding(getActivePlayer(), lbType);
-        next();
-    }
 
+        state = clearActions(state);
+        next(state);
+    }
 
 
     private boolean isFestivalUndeploy(Meeple m) {
@@ -248,8 +262,6 @@ public class ActionPhase extends Phase {
         game.getCapability(TunnelCapability.class).placeTunnelPiece(fp, isB);
         next(ActionPhase.class);
     }
-
-
 
 
     @Override

@@ -14,14 +14,19 @@ import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
+import com.jcloisterzone.ui.controls.action.ActionWrapper;
+import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
 
 
-public class DragonLayer extends AbstractGridLayer implements GridMouseListener {
+@Deprecated
+public class DragonLayer extends AbstractGridLayer implements GridMouseListener, ActionLayer {
 
     private static final ImmutablePoint POINT = new ImmutablePoint(45,50);
+
+    private ActionWrapper actionWrapper;
 
     private Position dragonPosition;
     private Set<Position> availablePositions;
@@ -29,8 +34,18 @@ public class DragonLayer extends AbstractGridLayer implements GridMouseListener 
 
     public DragonLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
-        gc.register(this);
-        toggleVisibility();
+//        gc.register(this);
+//        toggleVisibility();
+    }
+
+    @Override
+    public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
+        this.actionWrapper = actionWrapper;
+    }
+
+    @Override
+    public ActionWrapper getActionWrapper() {
+        return actionWrapper;
     }
 
     @Override

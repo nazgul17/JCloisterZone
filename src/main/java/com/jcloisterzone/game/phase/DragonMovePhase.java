@@ -49,13 +49,14 @@ public class DragonMovePhase extends ServerAwarePhase {
         Vector<Position> visited = getVisitedPositions(state);
 
         if (visited.size() == DragonCapability.DRAGON_MOVES) {
-            next(state);
+            next(endDragonMove(state));
+            return;
         }
 
         Set<Position> availMoves =  getAvailDragonMoves(state, visited);
         if (availMoves.isEmpty()) {
-            state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(null));
-            next(state);
+            next(endDragonMove(state));
+            return;
         }
 
         Player p = state.getTurnPlayer();
@@ -65,8 +66,12 @@ public class DragonMovePhase extends ServerAwarePhase {
         promote(state.setPlayerActions(
             new ActionsState(p, new MoveDragonAction(availMoves), false)
         ));
+    }
 
-        promote(state);
+    private GameState endDragonMove(GameState state) {
+        state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(Vector.empty()));
+        state = state.setPlayerActions(null);
+        return state;
     }
 
 
@@ -103,9 +108,12 @@ public class DragonMovePhase extends ServerAwarePhase {
                 throw new IllegalArgumentException("Invalid dragon move.");
             }
 
+            Position dragonPosition = state.getNeutralFigures().getDragonDeployment();
+
             state = (
                 new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), pos, state.getActivePlayer())
             ).apply(state);
+            state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(cap.getDragonMoves().append(dragonPosition)));
 
             for (Tuple2<Meeple, FeaturePointer> t: state.getDeployedMeeples()) {
                 Meeple m = t._1;
@@ -114,7 +122,7 @@ public class DragonMovePhase extends ServerAwarePhase {
                     state = (new UndeployMeeple(m)).apply(state);
                 }
             }
-            
+
             enter(state);
         } else {
             super.moveNeutralFigure(ptr, figureType);

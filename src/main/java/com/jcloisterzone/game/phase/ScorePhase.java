@@ -113,7 +113,7 @@ public class ScorePhase extends ServerAwarePhase {
 
     @Override
     public void enter(GameState state) {
-        Player player = state.getActivePlayer();
+        Player player = state.getTurnPlayer();
         if (isLocalPlayer(player)) {
             boolean needsConfirm = false;
             // IMMUTABLE TODO
