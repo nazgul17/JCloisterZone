@@ -1,12 +1,18 @@
 package com.jcloisterzone.reducers;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.MeepleReturned;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
+import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.game.GameState;
 
+import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Stream;
 
 public class UndeployMeeple implements Reducer {
 
@@ -16,31 +22,38 @@ public class UndeployMeeple implements Reducer {
         this.meeple = meeple;
     }
 
+    private GameState undeploy(GameState state, PlayEventMeta meta, Meeple meeple, FeaturePointer source) {
+        LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
+        state = state.setDeployedMeeples(deployedMeeples.remove(meeple));
+        state = state.appendEvent(
+            new MeepleReturned(meta, meeple, source)
+        );
+        return state;
+    }
+
     @Override
     public GameState apply(GameState state) {
         FeaturePointer source = meeple.getDeployment(state);
         assert source != null;
 
-        LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
-        state = state.setDeployedMeeples(deployedMeeples.remove(meeple));
-        state = state.appendEvent(
-            new MeepleReturned(PlayEventMeta.createWithActivePlayer(state), meeple, source)
-        );
+        PlayEventMeta metaWithPlayer = PlayEventMeta.createWithActivePlayer(state);
+        state = undeploy(state, metaWithPlayer, meeple, source);
+        Player owner = meeple.getPlayer();
+
+        // Undeploy lonely Builders and Pigs
+        PlayEventMeta metaNoPlayer = PlayEventMeta.createWithoutPlayer();
+        Feature feature = state.getBoard().get(source);
+        Stream<Tuple2<Meeple, FeaturePointer>> threatened = feature.getMeeples2(state)
+            .filter(m -> (m._1 instanceof Pig) || (m._1 instanceof Builder))
+            .filter(m -> m._1.getPlayer().equals(owner));
+
+        for (Tuple2<Meeple, FeaturePointer> t : threatened) {
+            if (feature.getFollowers(state).find(f -> f.getPlayer().equals(owner)).isEmpty()) {
+                state = undeploy(state, metaNoPlayer, t._1, t._2);
+            }
+        }
+
         return state;
-
-        //TODO check lonely Pig / Builder / Fairy
-
-//         if (checkForLonelyBuilderOrPig) {
-//            boolean builder = game.hasCapability(BuilderCapability.class) && (piece instanceof City || piece instanceof Road);
-//            boolean pig = game.hasCapability(PigCapability.class) && piece instanceof Farm;
-//            if (builder || pig) {
-//                Special toRemove = piece.walk(new RemoveLonelyBuilderAndPig(getPlayer()));
-//                if (toRemove != null) {
-//                    toRemove.undeploy(false);
-//                }
-//            }
-            //IMMUTABLE TODO
-//        }
     }
 
 }
