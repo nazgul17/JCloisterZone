@@ -91,28 +91,40 @@ public class ActionPhase extends Phase {
             .filter(Predicates.isNotNull());
 
         Tile currentTile = state.getBoard().getLastPlaced();
-        Position pos = currentTile.getPosition();
+        Position currentTilePos = currentTile.getPosition();
+        Stream<Tile> tiles;
 
-        boolean placementAllowed = true;
-        for (Capability cap : state.getCapabilities().values()) {
-            if (!cap.isDeployAllowed(state, pos)) {
-                placementAllowed = false;
-                break;
-            }
-        }
-
-        Stream<Tuple2<Location, Scoreable>> places;
-
-        if (placementAllowed) {
-            places = currentTile.getScoreables(false);
-            if (game.hasCapability(PrincessCapability.class) && game.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
-                places = excludePrincess(currentTile, places);
-            }
+        if (currentTile.hasTrigger(TileTrigger.PORTAL)) {
+            tiles = state.getBoard().getPlacedTiles();
         } else {
-            places = Stream.empty();
+            tiles = Stream.of(currentTile);
         }
 
-        Stream<Tuple2<FeaturePointer, Scoreable>> placesFp = places.map(t -> t.map1(loc -> new FeaturePointer(pos, loc)));
+        Stream<Tuple2<FeaturePointer, Scoreable>> placesFp = tiles.flatMap(tile -> {
+            Position pos = tile.getPosition();
+            boolean isCurrentTile = pos.equals(currentTilePos);
+
+            boolean placementAllowed = true;
+            for (Capability cap : state.getCapabilities().values()) {
+                if (!cap.isDeployAllowed(state, pos)) {
+                    placementAllowed = false;
+                    break;
+                }
+            }
+
+            Stream<Tuple2<Location, Scoreable>> places;
+
+            if (placementAllowed) {
+                places = tile.getScoreables(!isCurrentTile);
+                if (isCurrentTile && game.hasCapability(PrincessCapability.class) && state.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
+                    places = excludePrincess(tile, places);
+                }
+            } else {
+                places = Stream.empty();
+            }
+
+            return places.map(t -> t.map1(loc -> new FeaturePointer(pos, loc)));
+        });
 
         Vector<PlayerAction<?>> actions = availMeeples.map(meeple -> {
             Set<FeaturePointer> locations = placesFp
