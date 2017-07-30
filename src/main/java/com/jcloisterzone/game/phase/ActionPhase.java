@@ -8,6 +8,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.action.PrincessAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
@@ -45,6 +46,7 @@ import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
+import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
@@ -94,7 +96,7 @@ public class ActionPhase extends Phase {
         Position currentTilePos = currentTile.getPosition();
         Stream<Tile> tiles;
 
-        if (currentTile.hasTrigger(TileTrigger.PORTAL)) {
+        if (currentTile.hasTrigger(TileTrigger.PORTAL) && !state.getFlags().contains(Flag.PORTAL_USED)) {
             tiles = state.getBoard().getPlacedTiles();
         } else {
             tiles = Stream.of(currentTile);
@@ -186,7 +188,7 @@ public class ActionPhase extends Phase {
         state = (new DeployMeeple(m, fp)).apply(state);
 
         if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
-            state = state.addFlag(Flag.PORTAL);
+            state = state.addFlag(Flag.PORTAL_USED);
         }
         state = clearActions(state);
         next(state);
@@ -209,6 +211,30 @@ public class ActionPhase extends Phase {
             return;
         }
         super.moveNeutralFigure(ptr, figureType);
+    }
+
+    @Override
+    public void undeployMeeple(MeeplePointer ptr) {
+        //TOOD use different messages for undeploy actions?
+        GameState state = game.getState();
+
+        Meeple meeple = state.getDeployedMeeples().find(m -> ptr.match(m._1)).map(t -> t._1)
+            .getOrElseThrow(() -> new IllegalArgumentException("Pointer doesn't match any meeple"));
+
+        PrincessAction princessAction = (PrincessAction) state.getPlayerActions().getActions().find(Predicates.instanceOf(PrincessAction.class)).getOrNull();
+        if (princessAction != null) {
+            if (princessAction.getOptions().contains(ptr)) {
+                state = state.addFlag(Flag.PRINCESS_USED);
+            } else {
+                throw new IllegalArgumentException("Pointer doesn't match princess action");
+            }
+        } else {
+            throw new IllegalArgumentException("Undeploy is not allowed");
+        }
+
+        state = (new UndeployMeeple(meeple)).apply(state);
+        state = clearActions(state);
+        next(state);
     }
 
 

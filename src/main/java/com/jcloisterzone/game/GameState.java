@@ -500,6 +500,10 @@ public class GameState implements Serializable {
 
     //TODO use two builder keys for it?
     public static enum Flag {
-        PORTAL, RANSOM
+        // Cleared at the turn end
+        RANSOM_PAID,
+
+        // Cleared at the turn part end
+        PORTAL_USED, PRINCESS_USED
     }
 }

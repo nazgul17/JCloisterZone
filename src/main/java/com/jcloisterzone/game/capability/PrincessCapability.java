@@ -4,10 +4,18 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 
 import org.w3c.dom.Element;
 
+import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.PrincessAction;
+import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
+import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.GameState.Flag;
+
+import io.vavr.collection.Set;
 
 public class PrincessCapability extends Capability {
 
@@ -19,22 +27,30 @@ public class PrincessCapability extends Capability {
         return feature;
     }
 
-//    @Override
-//    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-//        City c = getCurrentTile().getCityWithPrincess();
-//        if (c == null || ! c.walk(new IsOccupied().with(Follower.class))) return;
-//        Feature cityRepresentative = c.getMaster();
-//
-//        PrincessAction princessAction = null;
-//        for (Meeple m : game.getDeployedMeeples()) {
-//            if (!(m.getFeature() instanceof City)) continue;
-//            if (m.getFeature().getMaster().equals(cityRepresentative) && m instanceof Follower) {
-//                if (princessAction == null) {
-//                    princessAction = new PrincessAction();
-//                    actions.add(princessAction);
-//                }
-//                princessAction.add(new MeeplePointer(m));
-//            }
-//        }
-//    }
+    @Override
+    public GameState onActionPhaseEntered(GameState state) {
+        if (state.getFlags().contains(Flag.PRINCESS_USED)) {
+            return state;
+        }
+
+        Tile tile = state.getBoard().getLastPlaced();
+        Set<MeeplePointer> options = tile.getScoreables(false).filter(t -> {
+            if (t._2 instanceof City) {
+                City part = (City) tile.getInitialFeaturePartOf(t._1);
+                return part.isPrincess();
+            } else {
+                return false;
+            }
+        }).flatMap(featureTuple -> {
+            City cityWithPrincess = (City) featureTuple._2;
+            return cityWithPrincess.getFollowers2(state).map(t -> new MeeplePointer(t._2, t._1.getId()));
+        }).toSet();
+
+        if (options.isEmpty()) {
+            return state;
+        }
+
+        ActionsState as = state.getPlayerActions();
+        return state.setPlayerActions(as.appendAction(new PrincessAction(options)));
+    }
 }

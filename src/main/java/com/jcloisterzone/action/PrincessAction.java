@@ -1,8 +1,8 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.pointer.MeeplePointer;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.annotations.LinkedImage;
-import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
@@ -14,8 +14,8 @@ public class PrincessAction extends SelectFollowerAction {
     }
 
     @Override
-    public void perform(RmiProxy server, MeeplePointer mp) {
-        server.undeployMeeple(mp);
+    public void perform(GameController gc, MeeplePointer ptr) {
+        gc.getRmiProxy().undeployMeeple(ptr);
     }
 
     @Override

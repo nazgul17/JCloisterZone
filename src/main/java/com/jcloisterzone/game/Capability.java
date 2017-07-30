@@ -127,10 +127,11 @@ public abstract class Capability implements Serializable {
         return state;
     }
 
-    public GameState turnCleanUp(GameState state) {
-        return state;
-    }
+//    public GameState turnCleanUp(GameState state) {
+//        return state;
+//    }
 
+    // deprecated ???
     public GameState turnPartCleanUp(GameState state) {
         return state;
     }

@@ -19,9 +19,9 @@ public class CleanUpTurnPhase extends Phase {
     @Override
     public void enter(GameState state) {
 
-        for (Capability cap : state.getCapabilities().values()) {
-            state = cap.turnCleanUp(state);
-        }
+//        for (Capability cap : state.getCapabilities().values()) {
+//            state = cap.turnCleanUp(state);
+//        }
         if (!state.getFlags().isEmpty()) {
             state = state.setFlags(HashSet.empty());
         }
