@@ -27,6 +27,7 @@ import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
 import com.jcloisterzone.figure.Follower;
+import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
@@ -266,15 +267,17 @@ public class CreateGamePhase extends ServerAwarePhase {
     }
 
     private io.vavr.collection.List<Follower> createPlayerFollowers(Player p, Seq<Capability> capabilities) {
+        MeepleIdProvider idProvider = new MeepleIdProvider(p);
         Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
-                .map(i -> (Follower) new SmallFollower(i, p));
+                .map(i -> (Follower) new SmallFollower(idProvider.generateId(SmallFollower.class), p));
         io.vavr.collection.List<Follower> followers = io.vavr.collection.List.ofAll(stream);
-        followers = followers.appendAll(capabilities.flatMap(c -> c.createPlayerFollowers(p)));
+        followers = followers.appendAll(capabilities.flatMap(c -> c.createPlayerFollowers(p, idProvider)));
         return followers;
     }
 
     public Seq<Special> createPlayerSpecialMeeples(Player p, Seq<Capability> capabilities) {
-        return capabilities.flatMap(c -> c.createPlayerSpecialMeeples(p));
+        MeepleIdProvider idProvider = new MeepleIdProvider(p);
+        return capabilities.flatMap(c -> c.createPlayerSpecialMeeples(p, idProvider));
     }
 
     public void startGame(boolean muteAi) {

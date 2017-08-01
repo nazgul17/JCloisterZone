@@ -8,5 +8,7 @@ public class Mage extends NeutralFigure<FeaturePointer> {
 
     private static final long serialVersionUID = 1L;
 
-
+    public Mage(String id) {
+        super(id);
+    }
 }

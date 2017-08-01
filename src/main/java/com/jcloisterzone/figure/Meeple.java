@@ -14,25 +14,11 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     private static final long serialVersionUID = 251811435063355665L;
 
-    private final String id;
-
     private transient final Player player;
 
-    public Meeple(Integer idSuffix, Player player) {
-        StringBuilder idBuilder = new StringBuilder();
-        idBuilder.append(player.getIndex());
-        idBuilder.append(".");
-        idBuilder.append(getClass().getSimpleName());
-        if (idSuffix != null) {
-            idBuilder.append(".");
-            idBuilder.append(idSuffix.toString());
-        }
-        this.id = idBuilder.toString();
+    public Meeple(String id, Player player) {
+        super(id);
         this.player = player;
-    }
-
-    public String getId() {
-        return id;
     }
 
     @Override
@@ -47,7 +33,7 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     public boolean at(GameState state, MeeplePointer mp) {
         if (!at(state, mp.asFeaturePointer())) return false;
-        if (!mp.getMeepleId().equals(id)) return false;
+        if (!mp.getMeepleId().equals(getId())) return false;
         return true;
     }
 
@@ -61,21 +47,5 @@ public abstract class Meeple extends Figure<FeaturePointer> {
 
     public Player getPlayer() {
         return player;
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Meeple)) return false;
-        return this == obj || id.equals(((Meeple)obj).id);
-    }
-
-    @Override
-    public String toString() {
-        return id;
     }
 }

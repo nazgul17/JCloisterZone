@@ -2,6 +2,8 @@ package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.figure.Builder;
+import com.jcloisterzone.figure.MeepleIdProvider;
+import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameState;
@@ -40,8 +42,8 @@ public class BuilderCapability extends Capability {
     }
 
     @Override
-    public List<Special> createPlayerSpecialMeeples(Player p) {
-        return List.of((Special) new Builder(p));
+    public List<Special> createPlayerSpecialMeeples(Player p, MeepleIdProvider idProvider) {
+        return List.of((Special) new Builder(idProvider.generateId(Builder.class), p));
     }
 
 

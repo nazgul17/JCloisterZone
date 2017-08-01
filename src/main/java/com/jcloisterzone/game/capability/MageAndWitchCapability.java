@@ -22,28 +22,33 @@ import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.visitor.FeatureVisitor;
+import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 
 public class MageAndWitchCapability extends Capability {
 
-    private Mage mage;
-    private Witch witch;
-
     public MageAndWitchCapability() {
-        mage = new Mage(game);
-        witch = new Witch(game);
-        game.getNeutralFigures().add(mage);
-        game.getNeutralFigures().add(witch);
+    }
+
+    @Override
+    public GameState onStartGame(GameState state) {
+        return state.setNeutralFigures(
+            state.getNeutralFigures()
+                .setMage(new Mage("mage.1"))
+                .setWitch(new Witch("witch.1"))
+        );
     }
 
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         if (xml.getElementsByTagName("mage").getLength() > 0) {
-            tile.setTrigger(TileTrigger.MAGE);
+           tile = tile.setTileTrigger(TileTrigger.MAGE);
         }
+        return tile;
     }
 
     public List<PlayerAction<?>> prepareMageWitchActions() {

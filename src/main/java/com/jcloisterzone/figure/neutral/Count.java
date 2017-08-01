@@ -8,6 +8,10 @@ public class Count extends NeutralFigure<FeaturePointer> {
 
     private static final long serialVersionUID = 1L;
 
+    public Count(String id) {
+        super(id);
+    }
+
 //    @Override
 //    public void deploy(FeaturePointer at) {
 //        if (at != null && !at.getLocation().isCityOfCarcassonneQuarter()) {

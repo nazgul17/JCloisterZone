@@ -16,6 +16,17 @@ public abstract class Figure<T extends BoardPointer> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    private final String id;
+
+    public Figure(String id) {
+        super();
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
     public abstract T getDeployment(GameState state);
 
     public Feature getFeature(GameState state) {
@@ -60,7 +71,19 @@ public abstract class Figure<T extends BoardPointer> implements Serializable {
     }
 
     @Override
+    public int hashCode() {
+        return id.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (!(obj instanceof Figure)) return false;
+        return id.equals(((Figure<?>)obj).id);
+    }
+
+    @Override
     public String toString() {
-        return getClass().getSimpleName();
+        return id;
     }
 }

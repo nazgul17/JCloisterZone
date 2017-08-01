@@ -10,8 +10,8 @@ public class Wagon extends Follower {
 
     private static final long serialVersionUID = 1L;
 
-    public Wagon(Player player) {
-        super(null, player);
+    public Wagon(String id, Player player) {
+        super(id, player);
     }
 
     @Override

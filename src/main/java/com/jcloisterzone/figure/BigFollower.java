@@ -8,8 +8,8 @@ public class BigFollower extends Follower {
 
     private static final long serialVersionUID = 1L;
 
-    public BigFollower(Player player) {
-        super(null, player);
+    public BigFollower(String id, Player player) {
+        super(id, player);
     }
 
     @Override

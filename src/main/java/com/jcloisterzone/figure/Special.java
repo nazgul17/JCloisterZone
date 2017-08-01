@@ -6,8 +6,8 @@ public abstract class Special extends Meeple {
 
     private static final long serialVersionUID = 1L;
 
-    public Special(Integer idSuffix, Player player) {
-        super(idSuffix, player);
+    public Special(String id, Player player) {
+        super(id, player);
     }
 
 }

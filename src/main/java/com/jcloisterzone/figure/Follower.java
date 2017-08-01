@@ -14,8 +14,8 @@ public abstract class Follower extends Meeple {
 
     //private boolean inPrison;
 
-    public Follower(Integer idSuffix, Player player) {
-        super(idSuffix, player);
+    public Follower(String id, Player player) {
+        super(id, player);
     }
 
     public int getPower() {

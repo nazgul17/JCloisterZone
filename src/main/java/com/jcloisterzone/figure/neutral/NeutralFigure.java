@@ -10,6 +10,10 @@ public class NeutralFigure<T extends BoardPointer> extends Figure<T> {
 
     private static final long serialVersionUID = 1L;
 
+    public NeutralFigure(String id) {
+        super(id);
+    }
+
     @SuppressWarnings("unchecked")
     public T getDeployment(GameState state) {
         return (T) state.getNeutralFigures().getDeployedNeutralFigures().get(this).getOrNull();

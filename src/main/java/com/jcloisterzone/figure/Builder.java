@@ -8,14 +8,12 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.game.GameState;
 
-import io.vavr.control.Option;
-
 public class Builder extends Special {
 
     private static final long serialVersionUID = 1L;
 
-    public Builder(Player player) {
-        super(null, player);
+    public Builder(String id, Player player) {
+        super(id, player);
     }
 
     @Override

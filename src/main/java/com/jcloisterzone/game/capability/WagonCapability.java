@@ -1,11 +1,5 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -26,15 +20,25 @@ import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.TileFeature;
+import com.jcloisterzone.figure.Follower;
+import com.jcloisterzone.figure.Mayor;
+import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+
+import io.vavr.collection.List;
 
 import static com.jcloisterzone.XMLUtils.contentAsLocations;
 
 public class WagonCapability extends Capability {
 
     private final Map<Player, Feature> scoredWagons = new HashMap<>();
+
+    @Override
+    public List<Follower> createPlayerFollowers(Player player, MeepleIdProvider idProvider) {
+        return List.of((Follower) new Wagon(idProvider.generateId(Wagon.class), player));
+    }
 
     public void wagonScored(Wagon m, Feature feature) {
         scoredWagons.put(m.getPlayer(), feature);

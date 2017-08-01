@@ -8,8 +8,8 @@ public class Phantom extends SmallFollower {
 
     private static final long serialVersionUID = 1L;
 
-    public Phantom(Player player) {
-        super(null, player);
+    public Phantom(String id, Player player) {
+        super(id, player);
     }
 
 }

@@ -1,20 +1,17 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.List;
-import java.util.Set;
-
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.MeepleAction;
-import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.figure.Follower;
+import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
+
+import io.vavr.collection.List;
 
 public class PhantomCapability extends Capability {
 
     @Override
-    public void initPlayer(Player player) {
-        player.addMeeple(new Phantom(game, null, player));
+    public List<Follower> createPlayerFollowers(Player player, MeepleIdProvider idProvider) {
+        return List.of((Follower) new Phantom(idProvider.generateId(Phantom.class), player));
     }
 }

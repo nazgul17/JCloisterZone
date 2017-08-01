@@ -12,8 +12,8 @@ public class Pig extends Special {
 
     private static final long serialVersionUID = 1L;
 
-    public Pig(Player player) {
-        super(null, player);
+    public Pig(String id, Player player) {
+        super(id, player);
     }
 
     @Override

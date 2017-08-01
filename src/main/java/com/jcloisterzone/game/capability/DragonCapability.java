@@ -60,7 +60,7 @@ public class DragonCapability extends Capability {
     @Override
     public GameState onStartGame(GameState state) {
         return state.setNeutralFigures(
-            state.getNeutralFigures().setDragon(new Dragon())
+            state.getNeutralFigures().setDragon(new Dragon("dragon.1"))
         );
     }
 

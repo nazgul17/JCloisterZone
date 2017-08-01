@@ -8,4 +8,7 @@ public class Witch extends NeutralFigure<FeaturePointer> {
 
     private static final long serialVersionUID = 1L;
 
+    public Witch(String id) {
+        super(id);
+    }
 }

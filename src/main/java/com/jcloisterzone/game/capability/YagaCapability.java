@@ -7,7 +7,6 @@ import org.w3c.dom.Element;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameSettings;
 
 public class YagaCapability extends Capability {

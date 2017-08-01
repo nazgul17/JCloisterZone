@@ -10,8 +10,8 @@ public class SmallFollower extends Follower {
 
     public static final int QUANTITY = 7;
 
-    public SmallFollower(Integer idSuffix, Player player) {
-        super(idSuffix, player);
+    public SmallFollower(String id, Player player) {
+        super(id, player);
     }
 
 }

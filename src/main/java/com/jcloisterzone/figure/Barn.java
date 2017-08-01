@@ -17,8 +17,8 @@ public class Barn extends Special {
 
     private static final long serialVersionUID = -1422237898274679967L;
 
-    public Barn(Game game, Player player) {
-        super(game, player);
+    public Barn(String id, Player player) {
+        super(id, player);
     }
 
     @Override

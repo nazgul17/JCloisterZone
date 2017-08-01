@@ -6,6 +6,10 @@ public class Fairy extends NeutralFigure<BoardPointer> {
 
     private static final long serialVersionUID = 4710402383462428260L;
 
+    public Fairy(String id) {
+        super(id);
+    }
+
 //    public Follower getNextTo() {
 //        return nextTo;
 //    }

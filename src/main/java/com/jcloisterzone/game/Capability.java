@@ -5,7 +5,6 @@ import java.util.ArrayList;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 import com.jcloisterzone.Immutable;
@@ -13,19 +12,17 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Special;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
-import io.vavr.collection.Vector;
 
 @Immutable
 public abstract class Capability implements Serializable {
@@ -49,11 +46,11 @@ public abstract class Capability implements Serializable {
         return null;
     }
 
-    public List<Follower> createPlayerFollowers(Player player) {
+    public List<Follower> createPlayerFollowers(Player player, MeepleIdProvider idProvider) {
         return List.empty();
     }
 
-    public List<Special> createPlayerSpecialMeeples(Player player) {
+    public List<Special> createPlayerSpecialMeeples(Player player, MeepleIdProvider idProvider) {
         return List.empty();
     }
 
