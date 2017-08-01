@@ -19,7 +19,7 @@ public interface RmiProxy {
     //public void pass();
     //public void placeTile(Rotation rotation, Position position);
 
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType);
+    //public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType);
     public void undeployMeeple(MeeplePointer mp);
     public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType);
 

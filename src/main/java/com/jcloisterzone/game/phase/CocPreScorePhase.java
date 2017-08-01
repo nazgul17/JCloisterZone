@@ -20,6 +20,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CocPreScorePhase extends ServerAwarePhase {
@@ -120,8 +121,8 @@ public class CocPreScorePhase extends ServerAwarePhase {
         }
     }
 
-    @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+    @WsSubscribe
+    public void handleDeployMeeple(DeployMeepleMessage msg) {
         assert getTile().getPosition().equals(fp.getPosition());
         Player player = countCap.getMoveOutPlayer();
         Feature f = getBoard().get(fp);

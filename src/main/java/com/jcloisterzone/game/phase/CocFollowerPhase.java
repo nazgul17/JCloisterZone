@@ -22,6 +22,7 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CocFollowerPhase extends Phase {
@@ -103,8 +104,8 @@ public class CocFollowerPhase extends Phase {
         next();
     }
 
-    @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+    @WsSubscribe
+    public void handleDeployMeeple(DeployMeepleMessage msg) {
         if (!fp.getLocation().isCityOfCarcassonneQuarter()) {
             throw new IllegalArgumentException("Only deplpy to the City of Carcassone is allowed");
         }

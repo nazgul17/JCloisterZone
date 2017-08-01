@@ -38,6 +38,7 @@ import com.jcloisterzone.wsio.message.ClientUpdateMessage.ClientState;
 import com.jcloisterzone.wsio.message.ClockMessage;
 import com.jcloisterzone.wsio.message.CommitMessage;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.ErrorMessage;
 import com.jcloisterzone.wsio.message.GameMessage;
 import com.jcloisterzone.wsio.message.GameMessage.GameState;
@@ -497,6 +498,13 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handlePlaceTile(WebSocket ws, PlaceTileMessage msg) {
+        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
+        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
+        broadcast(msg, true);
+    }
+
+    @WsSubscribe
+    public void handleDeployMeeple(WebSocket ws, DeployMeepleMessage msg) {
         if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
         broadcast(msg, true);

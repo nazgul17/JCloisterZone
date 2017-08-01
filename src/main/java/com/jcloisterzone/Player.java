@@ -133,6 +133,13 @@ public class Player implements Serializable {
             .getOrNull();
     }
 
+    public Meeple getMeepleFromSupply(GameState state, String meepleId) {
+        return Stream.ofAll(getMeeples(state))
+            .find(m -> m.getId().equals(meepleId))
+            .filter(m -> m.isInSupply(state))
+            .getOrNull();
+    }
+
     public int getTradeResources(GameState state, TradeResource res) {
         return state
             .getCapability(ClothWineGrainCapability.class)

@@ -16,10 +16,14 @@ import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonPrimitive;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonToken;
 import com.google.gson.stream.JsonWriter;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.wsio.message.AbandonGameMessage;
 import com.jcloisterzone.wsio.message.ChannelMessage;
@@ -29,6 +33,7 @@ import com.jcloisterzone.wsio.message.ClockMessage;
 import com.jcloisterzone.wsio.message.CommitMessage;
 import com.jcloisterzone.wsio.message.CreateGameMessage;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.ErrorMessage;
 import com.jcloisterzone.wsio.message.GameMessage;
 import com.jcloisterzone.wsio.message.GameOverMessage;
@@ -113,6 +118,20 @@ public final class MessageParser {
                 );
             }
         });
+        builder.registerTypeAdapter(Location.class, new JsonSerializer<Location>() {
+            @Override
+            public JsonElement serialize(Location src, Type typeOfSrc, JsonSerializationContext context) {
+                return new JsonPrimitive(src.getMask());
+            }
+        });
+        builder.registerTypeAdapter(Location.class, new JsonDeserializer<Location>() {
+            @Override
+            public Location deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                    throws JsonParseException {
+                return Location.create(json.getAsInt());
+            }
+
+        });
         gson = builder.create();
 
         registerMsgType(ErrorMessage.class);
@@ -146,6 +165,7 @@ public final class MessageParser {
         registerMsgType(CommitMessage.class);
         registerMsgType(PassMessage.class);
         registerMsgType(PlaceTileMessage.class);
+        registerMsgType(DeployMeepleMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

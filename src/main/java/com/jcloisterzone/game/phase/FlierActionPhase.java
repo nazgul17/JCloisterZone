@@ -15,6 +15,8 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.FlierCapability;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 
 public class FlierActionPhase extends Phase {
 
@@ -83,8 +85,8 @@ public class FlierActionPhase extends Phase {
         }
     }
 
-    @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+    @WsSubscribe
+    public void handleDeployMeeple(DeployMeepleMessage msg) {
         if (!meepleType.equals(flierCap.getMeepleType())) {
             throw new IllegalArgumentException("Invalid meeple type.");
         }

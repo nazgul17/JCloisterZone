@@ -32,11 +32,6 @@ public class DelayedServer implements RmiProxy {
 //    }
 
     @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
-        server.deployMeeple(fp, meepleType);
-    }
-
-    @Override
     public void undeployMeeple(MeeplePointer mp) {
         server.undeployMeeple(mp);
     }

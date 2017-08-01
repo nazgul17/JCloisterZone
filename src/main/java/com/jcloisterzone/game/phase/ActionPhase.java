@@ -49,6 +49,7 @@ import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 import io.vavr.Function1;
@@ -173,11 +174,12 @@ public class ActionPhase extends Phase {
         }
     }
 
-    @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+    @WsSubscribe
+    public void handleDeployMeeple(DeployMeepleMessage msg) {
+        FeaturePointer fp = msg.getPointer();
         game.markUndo();
         GameState state = game.getState();
-        Meeple m = state.getActivePlayer().getMeepleFromSupply(state, meepleType);
+        Meeple m = state.getActivePlayer().getMeepleFromSupply(state, msg.getMeepleId());
         //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
         if (m instanceof Follower) {
             if (state.getBoard().get(fp).isOccupied(state)) {

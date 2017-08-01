@@ -27,6 +27,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 
@@ -58,8 +59,8 @@ public class WagonPhase extends ServerAwarePhase {
         enter();
     }
 
-    @Override
-    public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
+    @WsSubscribe
+    public void handleDeployMeeple(DeployMeepleMessage msg) {
         if (!meepleType.equals(Wagon.class)) {
             logger.error("Illegal figure type.");
             return;

@@ -49,6 +49,10 @@ public class Location implements Serializable {
         return create(mask);
     }
 
+    public int getMask() {
+        return mask;
+    }
+
     private Location(String name, int mask) {
         this.name = name;
         this.mask = mask;
