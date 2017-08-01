@@ -8,6 +8,7 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.grid.layer.TilePlacementLayer;
 import com.jcloisterzone.wsio.RmiProxy;
+import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
@@ -45,8 +46,8 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> {
 
     @Override
     public void perform(GameController gc, TilePlacement tp) {
-        RmiProxy server = gc.getRmiProxy();
-        server.placeTile(tp.getRotation(), tp.getPosition());
+        gc.getConnection().send(new PlaceTileMessage(
+            gc.getGame().getGameId(), tile.getId(), tp.getRotation(), tp.getPosition()));
     }
 
     @Override

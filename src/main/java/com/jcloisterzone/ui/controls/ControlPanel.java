@@ -40,6 +40,7 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.IndexedSeq;
@@ -262,7 +263,7 @@ public class ControlPanel extends JPanel {
     }
 
     public void pass() {
-        if (game.getActivePlayer().isLocalHuman()) {
+        if (game.getState().getActivePlayer().isLocalHuman()) {
             if (showConfirmRequest) {
                 setShowConfirmRequest(false);
                 gc.getConnection().send(new CommitMessage(game.getGameId()));
@@ -278,7 +279,7 @@ public class ControlPanel extends JPanel {
                         return;
                     }
                 }
-                gc.getRmiProxy().pass();
+                gc.getConnection().send(new PassMessage(game.getGameId()));
             }
         }
     }
@@ -287,10 +288,7 @@ public class ControlPanel extends JPanel {
         return actionPanel;
     }
 
-
     public void selectAction(Player targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean canPass) {
-        // direct collection sort can be unsupported - so copy to array first!
-        int i = 0;
         actionPanel.setActions(targetPlayer.isLocalHuman(), actions);
         setCanPass(targetPlayer.isLocalHuman() ? canPass : false);
     }

@@ -23,19 +23,13 @@ public class DelayedServer implements RmiProxy {
         this.placeTileDelay = placeTileDelay;
     }
 
-
-    @Override
-    public void pass() {
-        server.pass();
-    }
-
-    @Override
-    public void placeTile(Rotation rotation, Position position) {
-        try {
-            Thread.sleep(placeTileDelay);
-        } catch (InterruptedException e) {}
-        server.placeTile(rotation, position);
-    }
+//    @Override
+//    public void placeTile(Rotation rotation, Position position) {
+//        try {
+//            Thread.sleep(placeTileDelay);
+//        } catch (InterruptedException e) {}
+//        server.placeTile(rotation, position);
+//    }
 
     @Override
     public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {

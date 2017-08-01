@@ -12,6 +12,9 @@ import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.BuilderCapability.BuilderState;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 public class AbbeyPhase extends ServerAwarePhase {
 
@@ -54,19 +57,19 @@ public class AbbeyPhase extends ServerAwarePhase {
         next();
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         next();
     }
 
-    @Override
-    public void placeTile(Rotation rotation, Position position) {
+    @WsSubscribe
+    public void handlePlaceTile(PlaceTileMessage msg) {
         abbeyCap.useAbbey(getActivePlayer());
 
         Tile nextTile = game.getTilePack().drawTile("inactive", Tile.ABBEY_TILE_ID);
         game.setCurrentTile(nextTile);
-        nextTile.setRotation(rotation);
-        getBoard().add(nextTile, position);
+        nextTile.setRotation(msg.getRotation());
+        getBoard().add(nextTile, msg.getPosition());
         getBoard().mergeFeatures(nextTile);
 
         game.post(new TileEvent(TileEvent.PLACEMENT, getActivePlayer(), nextTile, position));

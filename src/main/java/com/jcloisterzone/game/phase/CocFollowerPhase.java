@@ -21,6 +21,8 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CocFollowerPhase extends Phase {
 
@@ -96,8 +98,8 @@ public class CocFollowerPhase extends Phase {
         }
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         next();
     }
 

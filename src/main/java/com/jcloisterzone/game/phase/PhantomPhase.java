@@ -19,6 +19,7 @@ import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 public class PhantomPhase extends Phase {
 
@@ -91,8 +92,8 @@ public class PhantomPhase extends Phase {
         next();
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         game.clearLastUndoable();
         next();
     }

@@ -22,7 +22,6 @@ import com.jcloisterzone.Application;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.KeyUtils;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.VersionComparator;
 import com.jcloisterzone.config.ConfigLoader;
 import com.jcloisterzone.game.CustomRule;
@@ -46,7 +45,9 @@ import com.jcloisterzone.wsio.message.GameOverMessage;
 import com.jcloisterzone.wsio.message.GameSetupMessage;
 import com.jcloisterzone.wsio.message.HelloMessage;
 import com.jcloisterzone.wsio.message.LeaveSlotMessage;
+import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
+import com.jcloisterzone.wsio.message.PlaceTileMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 import com.jcloisterzone.wsio.message.RmiMessage;
@@ -482,6 +483,20 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handleRmi(WebSocket ws, RmiMessage msg) {
+        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
+        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
+        broadcast(msg, true);
+    }
+
+    @WsSubscribe
+    public void handlePass(WebSocket ws, PassMessage msg) {
+        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
+        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
+        broadcast(msg, true);
+    }
+
+    @WsSubscribe
+    public void handlePlaceTile(WebSocket ws, PlaceTileMessage msg) {
         if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
         broadcast(msg, true);

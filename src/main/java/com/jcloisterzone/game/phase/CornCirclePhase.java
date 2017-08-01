@@ -28,6 +28,8 @@ import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.CornCircleCapability;
 import com.jcloisterzone.game.capability.CornCircleCapability.CornCicleOption;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CornCirclePhase extends ServerAwarePhase {
 
@@ -197,8 +199,8 @@ public class CornCirclePhase extends ServerAwarePhase {
         nextCornPlayer();
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         if (cornCircleCap.getCornCircleOption() == CornCicleOption.REMOVAL) {
             logger.error("Removal cannot be passed");
             return;

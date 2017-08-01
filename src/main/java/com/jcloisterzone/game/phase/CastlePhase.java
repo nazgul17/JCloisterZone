@@ -22,6 +22,8 @@ import com.jcloisterzone.figure.Mayor;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CastleCapability;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CastlePhase extends Phase {
 
@@ -89,8 +91,8 @@ public class CastlePhase extends Phase {
         game.post(new SelectActionEvent(player, action, true));
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         prepareCastleAction();
     }
 

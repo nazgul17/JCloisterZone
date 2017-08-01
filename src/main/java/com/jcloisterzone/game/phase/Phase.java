@@ -83,16 +83,6 @@ public abstract class Phase implements RmiProxy {
     //adapter methods
 
     @Override
-    public void pass() {
-        logger.error(Application.ILLEGAL_STATE_MSG, "pass");
-    }
-
-    @Override
-    public void placeTile(Rotation  rotation, Position position) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "placeTile");
-    }
-
-    @Override
     public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType) {
         logger.error(Application.ILLEGAL_STATE_MSG, "deployMeeple");
     }

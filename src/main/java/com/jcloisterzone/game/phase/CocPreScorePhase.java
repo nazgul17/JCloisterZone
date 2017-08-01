@@ -19,6 +19,8 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CocPreScorePhase extends ServerAwarePhase {
 
@@ -108,8 +110,8 @@ public class CocPreScorePhase extends ServerAwarePhase {
         }
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         Player player = nextPlayer();
         if (player == null) {
             next();

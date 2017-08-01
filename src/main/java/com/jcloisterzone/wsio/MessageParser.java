@@ -38,7 +38,9 @@ import com.jcloisterzone.wsio.message.HelloMessage;
 import com.jcloisterzone.wsio.message.JoinGameMessage;
 import com.jcloisterzone.wsio.message.LeaveGameMessage;
 import com.jcloisterzone.wsio.message.LeaveSlotMessage;
+import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
+import com.jcloisterzone.wsio.message.PlaceTileMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 import com.jcloisterzone.wsio.message.RmiMessage;
@@ -67,11 +69,11 @@ public final class MessageParser {
             for (Entry<CustomRule, Object> entry : value.entrySet()) {
                 out.name(entry.getKey().name());
                 if (entry.getValue() instanceof Boolean) {
-                	out.value((Boolean)entry.getValue());
+                    out.value((Boolean)entry.getValue());
                 } else if (entry.getValue() instanceof Integer) {
-                	out.value((Integer)entry.getValue());
+                    out.value((Integer)entry.getValue());
                 } else {
-                	out.value(entry.getValue().toString());
+                    out.value(entry.getValue().toString());
                 }
             }
             out.endObject();
@@ -85,11 +87,11 @@ public final class MessageParser {
                 CustomRule rule = CustomRule.valueOf(in.nextName());
                 JsonToken p = in.peek();
                 if (p == JsonToken.BOOLEAN) {
-                	result.put(rule, in.nextBoolean());
+                    result.put(rule, in.nextBoolean());
                 } else if (p == JsonToken.NUMBER) {
-                	result.put(rule, in.nextInt());
+                    result.put(rule, in.nextInt());
                 } else {
-                	result.put(rule, rule.unpackValue(in.nextString()));
+                    result.put(rule, rule.unpackValue(in.nextString()));
                 }
             }
             in.endObject();
@@ -142,6 +144,8 @@ public final class MessageParser {
         registerMsgType(ToggleClockMessage.class);
         registerMsgType(ClockMessage.class);
         registerMsgType(CommitMessage.class);
+        registerMsgType(PassMessage.class);
+        registerMsgType(PlaceTileMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

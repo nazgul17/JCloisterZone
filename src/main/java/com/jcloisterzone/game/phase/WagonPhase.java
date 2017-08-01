@@ -26,6 +26,8 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 
 public class WagonPhase extends ServerAwarePhase {
@@ -49,8 +51,8 @@ public class WagonPhase extends ServerAwarePhase {
         if (!existsLegalMove()) next();
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         Player player = wagonCap.getWagonPlayer();
         wagonCap.removeScoredWagon(player);
         enter();

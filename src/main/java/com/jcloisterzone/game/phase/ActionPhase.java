@@ -49,6 +49,7 @@ import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 import io.vavr.Function1;
 import io.vavr.Predicates;
@@ -160,8 +161,8 @@ public class ActionPhase extends Phase {
         enter(); //recompute available actions
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         GameState state = game.getState();
         state = clearActions(state);
         if (getDefaultNext() instanceof PhantomPhase) {

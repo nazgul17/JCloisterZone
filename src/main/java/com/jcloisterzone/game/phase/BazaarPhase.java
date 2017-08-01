@@ -16,6 +16,8 @@ import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 public class BazaarPhase extends ServerAwarePhase {
 
@@ -163,8 +165,8 @@ public class BazaarPhase extends ServerAwarePhase {
         next();
     }
 
-    @Override
-    public void pass() {
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
         if (bazaarCap.getBazaarBiddingPlayer() == bazaarCap.getBazaarTileSelectingPlayer()) {
             logger.error("Tile selecting player is not allowed to pass");
             return;

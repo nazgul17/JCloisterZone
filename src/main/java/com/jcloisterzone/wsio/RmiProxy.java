@@ -16,8 +16,8 @@ import com.jcloisterzone.figure.neutral.NeutralFigure;
  */
 public interface RmiProxy {
 
-    public void pass();
-    public void placeTile(Rotation rotation, Position position);
+    //public void pass();
+    //public void placeTile(Rotation rotation, Position position);
 
     public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType);
     public void undeployMeeple(MeeplePointer mp);

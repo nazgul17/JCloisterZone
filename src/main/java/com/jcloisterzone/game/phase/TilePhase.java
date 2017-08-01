@@ -9,6 +9,8 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.reducers.PlaceTile;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 import io.vavr.collection.Vector;
 
@@ -45,8 +47,8 @@ public class TilePhase extends Phase {
 //         game.post(new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null));
 //    }
 
-    @Override
-    public void placeTile(Rotation rot, Position pos) {
+    @WsSubscribe
+    public void handlePlaceTile(PlaceTileMessage msg) {
         game.markUndo();
         GameState state = game.getState();
 
@@ -55,7 +57,9 @@ public class TilePhase extends Phase {
         //IMMUTABLE TODO bridge
         //boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
 
-        state = (new PlaceTile(tile, pos, rot)).apply(state);
+        assert tile.getId().equals(msg.getTileId());
+
+        state = (new PlaceTile(tile, msg.getPosition(), msg.getRotation())).apply(state);
         state = state.setPlayerActions(null);
 
         //IMMUTABLE TODO bridge
