@@ -37,7 +37,7 @@ class SelectDragonMoveTask implements Runnable {
      * simple heuristic
      */
     public void selectDragonMove(Game game) {
-        Position dragonPosition = game.getCapability(DragonCapability.class).getDragon().getPosition();
+        Position dragonPosition = game.get(DragonCapability.class).getDragon().getPosition();
         double tensionX = 0, tensionY = 0;
 
         for (Meeple m : game.getDeployedMeeples()) {

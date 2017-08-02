@@ -168,10 +168,10 @@ public class ScorePhase extends ServerAwarePhase {
         }
 
         if (state.getCapabilities().contains(TunnelCapability.class)) {
-            Road r = tunnelCap.getPlacedTunnel();
-            if (r != null) {
-                state = scoreCompleted(state, r, tile);
-            }
+//            Road r = tunnelCap.getPlacedTunnel();
+//            if (r != null) {
+//                state = scoreCompleted(state, r, tile);
+//            }
         }
 
         for (Tile neighbour : board.getAdjacentAndDiagonalTiles(pos)) {
@@ -189,7 +189,7 @@ public class ScorePhase extends ServerAwarePhase {
         }
 
         if (state.getCapabilities().contains(GoldminesCapability.class)) {
-            gldCap.awardGoldPieces();
+            //gldCap.awardGoldPieces();
         }
 
         alreadyScored.clear();
@@ -209,7 +209,7 @@ public class ScorePhase extends ServerAwarePhase {
 //    }
 
     private GameState scoreCompleted(GameState state, Completable completable, Tile triggerBuilderForPlaced) {
-        if (triggerBuilderForPlaced != null && state.contains(BuilderCapability.class)) {
+        if (triggerBuilderForPlaced != null && state.getCapabilities().contains(BuilderCapability.class)) {
             Player player = state.getTurnPlayer();
             GameState _state = state;
             Option<Meeple> builder = completable
@@ -220,14 +220,14 @@ public class ScorePhase extends ServerAwarePhase {
                         && !m.getPosition(_state).equals(triggerBuilderForPlaced.getPosition());
                 });
             if (!builder.isEmpty()) {
-                state = state.updateCapability(BuilderCapability.class, cap -> cap.useBuilder());
+                state = state.getCapabilities().get(BuilderCapability.class).useBuilder(state);
             }
         }
 
         if (completable.isCompleted(state) && !alreadyScored.contains(completable)) {
             alreadyScored.add(completable);
 
-            for (Capability cap : state.getCapabilitiesMap().values()) {
+            for (Capability<?> cap : state.getCapabilities().toSeq()) {
                 state = cap.onCompleted(state, completable);
             }
 

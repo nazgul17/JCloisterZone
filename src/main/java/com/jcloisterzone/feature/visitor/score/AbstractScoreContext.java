@@ -25,7 +25,7 @@ public abstract class AbstractScoreContext extends SelfReturningVisitor implemen
 
     public AbstractScoreContext(Game game) {
         this.game = game;
-        lbCap = game.getCapability(LittleBuildingsCapability.class);
+        lbCap = game.get(LittleBuildingsCapability.class);
         if (lbCap != null) {
             collectedBuildings = new HashSet<>();
             littleBuildings = new HashMap<>();

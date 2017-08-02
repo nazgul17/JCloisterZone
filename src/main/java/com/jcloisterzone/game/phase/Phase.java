@@ -88,7 +88,7 @@ public abstract class Phase {
 
     public final void payRansom(Integer playerIndexToPay, Class<? extends Follower> meepleType) {
         //pay ransom is valid any time
-        TowerCapability towerCap = game.getCapability(TowerCapability.class);
+        TowerCapability towerCap = game.get(TowerCapability.class);
         if (towerCap == null) {
             logger.error(Application.ILLEGAL_STATE_MSG, "payRansom");
             return;

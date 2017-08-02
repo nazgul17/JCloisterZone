@@ -33,7 +33,7 @@ public abstract class MultiTileScoreContext extends AbstractScoreContext {
 
     public MultiTileScoreContext(Game game) {
         super(game);
-        fairyCap = game.getCapability(FairyCapability.class);
+        fairyCap = game.get(FairyCapability.class);
     }
 
     public Game getGame() {

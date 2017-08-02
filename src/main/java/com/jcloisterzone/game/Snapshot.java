@@ -294,7 +294,7 @@ public class Snapshot implements Serializable {
 
             //TODO instances should be created here, not in load phase
             Class<? extends Capability> capabilityClass = (Class<? extends Capability>) XMLUtils.classForName(capabilityName);
-            Capability capability = game.getCapability(capabilityClass);
+            Capability capability = game.get(capabilityClass);
             capability.loadFromSnapshot(doc, el);
         }
     }

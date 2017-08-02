@@ -242,7 +242,7 @@ public class ActionPhase extends Phase {
     public void placeLittleBuilding(LittleBuilding lbType) {
         GameState state = game.getState();
         //TODO
-        LittleBuildingsCapability lbCap = game.getCapability(LittleBuildingsCapability.class);
+        LittleBuildingsCapability lbCap = game.get(LittleBuildingsCapability.class);
         lbCap.placeLittleBuilding(getActivePlayer(), lbType);
 
         state = clearActions(state);
@@ -252,14 +252,14 @@ public class ActionPhase extends Phase {
 
     @Override
     public void placeTunnelPiece(FeaturePointer fp, boolean isB) {
-        game.getCapability(TunnelCapability.class).placeTunnelPiece(fp, isB);
+        game.get(TunnelCapability.class).placeTunnelPiece(fp, isB);
         next(ActionPhase.class);
     }
 
 
     @Override
     public void deployBridge(Position pos, Location loc) {
-        BridgeCapability bridgeCap = game.getCapability(BridgeCapability.class);
+        BridgeCapability bridgeCap = game.get(BridgeCapability.class);
         bridgeCap.decreaseBridges(getActivePlayer());
         bridgeCap.deployBridge(pos, loc, false);
         next(ActionPhase.class);

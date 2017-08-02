@@ -191,7 +191,7 @@ public class LegacyRanking implements GameRanking {
 
         public LegacyAiScoreAllCallback(Game game) {
             this.game = game;
-            TowerCapability towerCap = game.getCapability(TowerCapability.class);
+            TowerCapability towerCap = game.get(TowerCapability.class);
             if (towerCap != null) {
                 //TODO ignore if opponents has no tower tokens
                 int pieces = 0;
@@ -505,7 +505,7 @@ public class LegacyRanking implements GameRanking {
 
     protected double rankFairy(Game game) {
         if (!game.hasCapability(FairyCapability.class)) return 0;
-        FairyCapability fc = game.getCapability(FairyCapability.class);
+        FairyCapability fc = game.get(FairyCapability.class);
         if (fc.getFairy().isInSupply()) return 0;
 
         double rating = 0;
@@ -618,7 +618,7 @@ public class LegacyRanking implements GameRanking {
             rating += 0.5;
         }
 
-        BuilderCapability bc = game.getCapability(BuilderCapability.class);
+        BuilderCapability bc = game.get(BuilderCapability.class);
         //builder used on object
         if (bc.getBuilderState() == BuilderState.USED) {
             rating += 3.5;

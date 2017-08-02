@@ -60,7 +60,7 @@ public class TowerCapturePhase extends Phase {
         //undeploy returns figure to owner -> we must handle capture / prisoner exchange
         Player me = getActivePlayer();
         if (m.getPlayer() != me) {
-            TowerCapability towerCap = game.getCapability(TowerCapability.class);
+            TowerCapability towerCap = game.get(TowerCapability.class);
             List<Follower> prisoners = towerCap.getPrisoners().get(m.getPlayer());
             List<Follower> myCapturedFollowers = new ArrayList<>();
             for (Follower f : prisoners) {

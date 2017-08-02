@@ -192,7 +192,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         tilePack = tilePack.setGroupState("wind-rose-initial", TileGroupState.ACTIVE);
         //return new Tiles(tilePack, tiles.getPreplacedTiles());
 
-        state = state.setTilePack(tiles.getTilePack());
+        state = state.setTilePack(tilePack);
         return new Tuple2<>(tiles.getPreplacedTiles(), state);
     }
 

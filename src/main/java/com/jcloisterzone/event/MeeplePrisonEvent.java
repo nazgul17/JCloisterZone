@@ -18,7 +18,7 @@ public class MeeplePrisonEvent extends MoveEvent<Player> {
     }
 
     private Map<Player, List<Follower>> getPrisoners(Game game) {
-        TowerCapability cap = game.getCapability(TowerCapability.class);
+        TowerCapability cap = game.get(TowerCapability.class);
         return cap.getPrisoners();
     }
 }

@@ -21,7 +21,7 @@ public abstract class PositionCollectingScoreContext extends MultiTileScoreConte
 
     public PositionCollectingScoreContext(Game game) {
         super(game);
-        mwCap = game.getCapability(MageAndWitchCapability.class);
+        mwCap = game.get(MageAndWitchCapability.class);
     }
 
     public abstract int getPoints(boolean completed);

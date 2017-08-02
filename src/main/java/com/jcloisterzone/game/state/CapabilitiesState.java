@@ -68,7 +68,7 @@ public class CapabilitiesState implements Serializable {
     }
 
     @SuppressWarnings("unchecked")
-    public <C extends Capability<?>> C getCapability(Class<C> cls) {
+    public <C extends Capability<?>> C get(Class<C> cls) {
         return (C) capabilities.get(cls).getOrNull();
     }
 

@@ -145,7 +145,7 @@ public class GameState implements Serializable {
     }
 
     public <C extends Capability> GameState updateCapability(Class<C> cls, Function<C, C> fn) {
-        C prev = getCapability(cls);
+        C prev = get(cls);
         C next = fn.apply(prev);
         if (prev == next) {
             return this;
