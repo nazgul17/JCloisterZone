@@ -27,7 +27,7 @@ import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.ui.Client;
 
 
-public final class TunnelCapability extends Capability {
+public final class TunnelCapability extends Capability<Void> {
 
     private Road placedTunnelCurrentTurn;
 
@@ -59,7 +59,7 @@ public final class TunnelCapability extends Capability {
     }
 
     @Override
-    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameState state, String tileId, Feature feature, Element xml) {
         if (!(feature instanceof Road)) return;
         Road road = (Road) feature;
         if (road.isTunnelEnd()) {

@@ -8,7 +8,7 @@ import com.jcloisterzone.game.Capability;
 
 import io.vavr.collection.List;
 
-public class PigCapability extends Capability {
+public class PigCapability extends Capability<Void> {
 
     @Override
     public List<Special> createPlayerSpecialMeeples(Player player, MeepleIdProvider idProvider) {

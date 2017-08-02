@@ -41,7 +41,7 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.predicate.MeeplePredicates;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BuilderCapability;
-import com.jcloisterzone.game.capability.BuilderCapability.BuilderState;
+import com.jcloisterzone.game.capability.BuilderState;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.phase.ScorePhase;

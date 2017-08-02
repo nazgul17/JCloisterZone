@@ -8,9 +8,6 @@ import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.AbbeyCapability;
-import com.jcloisterzone.game.capability.BazaarCapability;
-import com.jcloisterzone.game.capability.RiverCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 
@@ -22,9 +19,6 @@ public class DrawPhase extends ServerAwarePhase {
     private static final String DEBUG_END_OF_PACK = ".";
 
     private List<String> debugTiles;
-    private final BazaarCapability bazaarCap;
-    private final AbbeyCapability abbeyCap;
-    private final RiverCapability riverCap;
 
     public DrawPhase(Game game, GameController controller) {
         super(game, controller);
@@ -35,9 +29,6 @@ public class DrawPhase extends ServerAwarePhase {
                 debugTiles = new ArrayList<String>(draw);
             }
         }
-        bazaarCap = game.getCapability(BazaarCapability.class);
-        abbeyCap = game.getCapability(AbbeyCapability.class);
-        riverCap = game.getCapability(RiverCapability.class);
     }
 
     public GameState drawTile(GameState state, int index) {

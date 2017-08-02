@@ -25,6 +25,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.WagonCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
@@ -33,18 +34,14 @@ import com.jcloisterzone.wsio.message.PassMessage;
 
 public class WagonPhase extends ServerAwarePhase {
 
-    final WagonCapability wagonCap;
-
-
     public WagonPhase(Game game, GameController controller) {
         super(game, controller);
-        wagonCap = game.getCapability(WagonCapability.class);
     }
 
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(WagonCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(WagonCapability.class);
     }
 
     @Override

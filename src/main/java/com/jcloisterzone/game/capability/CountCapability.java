@@ -3,13 +3,14 @@ package com.jcloisterzone.game.capability;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
+import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 
-public class CountCapability extends Capability {
+public class CountCapability extends Capability<Void> {
 
     public static String QUARTER_ACTION_TILE_ID = "CO.7";
     private static final String[] FORBIDDEN_TILES = new String[] { "CO.6", "CO.7" };
@@ -22,9 +23,7 @@ public class CountCapability extends Capability {
 
     @Override
     public GameState onStartGame(GameState state) {
-        return state.setNeutralFigures(
-            state.getNeutralFigures().setFairy(new Fairy())
-        );
+        return state.updateNeutralFigures(nf -> nf.setCount(new Count("count.1")));
     }
 
 //    @Override

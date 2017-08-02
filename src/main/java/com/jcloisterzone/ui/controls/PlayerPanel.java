@@ -36,6 +36,7 @@ import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.KingAndRobberBaronCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.capability.TradeCountersCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
@@ -83,7 +84,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
     private final BridgeCapability bridgeCap;
     private final CastleCapability castleCap;
     private final KingAndRobberBaronCapability kingRobberCap;
-    private final ClothWineGrainCapability cwgCap;
+    private final TradeCountersCapability cwgCap;
     private final LittleBuildingsCapability lbCap;
     private final TunnelCapability tunnelCap;
     private final GoldminesCapability gldCap;
@@ -104,7 +105,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         bridgeCap = game.getCapability(BridgeCapability.class);
         castleCap = game.getCapability(CastleCapability.class);
         kingRobberCap = game.getCapability(KingAndRobberBaronCapability.class);
-        cwgCap = game.getCapability(ClothWineGrainCapability.class);
+        cwgCap = game.getCapability(TradeCountersCapability.class);
         lbCap = game.getCapability(LittleBuildingsCapability.class);
         tunnelCap = game.getCapability(TunnelCapability.class);
         gldCap = game.getCapability(GoldminesCapability.class);

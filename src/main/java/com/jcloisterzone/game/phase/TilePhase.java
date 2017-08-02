@@ -17,11 +17,8 @@ import io.vavr.collection.Vector;
 //TODO should be merged with DrawPhase ?
 public class TilePhase extends Phase {
 
-    private final BridgeCapability bridgeCap;
-
     public TilePhase(Game game) {
         super(game);
-        bridgeCap = game.getCapability(BridgeCapability.class);
     }
 
     @Override

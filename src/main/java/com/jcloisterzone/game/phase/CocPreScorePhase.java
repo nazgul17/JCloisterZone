@@ -18,6 +18,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
@@ -25,16 +26,13 @@ import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CocPreScorePhase extends ServerAwarePhase {
 
-    private final CountCapability countCap;
-
     public CocPreScorePhase(Game game, GameController gc) {
         super(game, gc);
-        countCap = game.getCapability(CountCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(CountCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(CountCapability.class);
     }
 
     @Override

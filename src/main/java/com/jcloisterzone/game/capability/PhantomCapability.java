@@ -8,7 +8,7 @@ import com.jcloisterzone.game.Capability;
 
 import io.vavr.collection.List;
 
-public class PhantomCapability extends Capability {
+public class PhantomCapability extends Capability<Void> {
 
     @Override
     public List<Follower> createPlayerFollowers(Player player, MeepleIdProvider idProvider) {

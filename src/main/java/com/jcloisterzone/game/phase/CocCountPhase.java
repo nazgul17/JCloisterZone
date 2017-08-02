@@ -16,6 +16,7 @@ import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.wsio.RmiProxy;
@@ -24,16 +25,13 @@ import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 public class CocCountPhase extends Phase {
 
-    private final CountCapability countCap;
-
     public CocCountPhase(Game game) {
         super(game);
-        countCap = game.getCapability(CountCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(CountCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(CountCapability.class);
     }
 
     @Override

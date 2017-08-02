@@ -29,10 +29,8 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.state.GameState;
 
-public class MageAndWitchCapability extends Capability {
+public class MageAndWitchCapability extends Capability<Void> {
 
-    public MageAndWitchCapability() {
-    }
 
     @Override
     public GameState onStartGame(GameState state) {

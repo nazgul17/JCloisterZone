@@ -18,7 +18,7 @@ import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 
 
-public final class BarnCapability extends Capability {
+public final class BarnCapability extends Capability<Void> {
 
     @Override
     public void initPlayer(Player player) {

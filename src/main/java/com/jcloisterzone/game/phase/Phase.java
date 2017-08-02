@@ -17,8 +17,8 @@ import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.wsio.RmiProxy;
 
 
 public abstract class Phase {
@@ -72,7 +72,7 @@ public abstract class Phase {
         //do nothing by default
     }
 
-    public boolean isActive() {
+    public boolean isActive(CapabilitiesState capabilities) {
         return true;
     }
 
@@ -86,8 +86,6 @@ public abstract class Phase {
 
     //adapter methods
 
-
-    @Override
     public final void payRansom(Integer playerIndexToPay, Class<? extends Follower> meepleType) {
         //pay ransom is valid any time
         TowerCapability towerCap = game.getCapability(TowerCapability.class);

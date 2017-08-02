@@ -13,6 +13,7 @@ import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.wsio.WsSubscribe;
@@ -20,16 +21,13 @@ import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 public class MageAndWitchPhase extends Phase {
 
-    private final MageAndWitchCapability mwCap;
-
     public MageAndWitchPhase(Game game) {
         super(game);
-        mwCap = game.getCapability(MageAndWitchCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(MageAndWitchCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(MageAndWitchCapability.class);
     }
 
     @Override

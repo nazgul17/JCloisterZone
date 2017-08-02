@@ -4,7 +4,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
-import com.jcloisterzone.game.capability.BuilderCapability.BuilderState;
+import com.jcloisterzone.game.capability.BuilderState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
 
@@ -21,8 +21,8 @@ public class CleanUpTurnPartPhase extends Phase {
 
     @Override
     public void enter(GameState state) {
-        BuilderCapability builderCap = state.getCapability(BuilderCapability.class);
-        boolean builderTakeAnotherTurn = builderCap != null && builderCap.getBuilderState() == BuilderState.USED;
+        BuilderState builderState = state.getCapabilities().getModel(BuilderCapability.class);
+        boolean builderTakeAnotherTurn = builderState == BuilderState.USED;
 
 
         // IMMUTABLE TODO Abbeys at end
@@ -32,7 +32,7 @@ public class CleanUpTurnPartPhase extends Phase {
 //        }
 
         //TODO make flag from builder state and remove handler?
-        for (Capability cap : state.getCapabilities().values()) {
+        for (Capability<?> cap : state.getCapabilities().toSeq()) {
             state = cap.turnPartCleanUp(state);
         }
 

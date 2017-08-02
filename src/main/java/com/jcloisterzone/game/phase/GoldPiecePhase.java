@@ -10,19 +10,17 @@ import com.jcloisterzone.event.GoldChangeEvent;
 import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.GoldminesCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 
 public class GoldPiecePhase extends Phase {
 
-    private final GoldminesCapability gldCap;
-
     public GoldPiecePhase(Game game) {
         super(game);
-        gldCap = game.getCapability(GoldminesCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(GoldminesCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(GoldminesCapability.class);
     }
 
     @Override

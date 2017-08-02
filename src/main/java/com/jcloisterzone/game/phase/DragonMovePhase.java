@@ -14,6 +14,7 @@ import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.game.capability.DragonCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
@@ -29,20 +30,17 @@ import io.vavr.collection.Vector;
 
 public class DragonMovePhase extends ServerAwarePhase {
 
-    private final DragonCapability dragonCap;
-
     public DragonMovePhase(Game game, GameController controller) {
         super(game, controller);
-        dragonCap = game.getCapability(DragonCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(DragonCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(DragonCapability.class);
     }
 
     private Vector<Position> getVisitedPositions(GameState state) {
-        Vector<Position> visited = state.getCapability(DragonCapability.class).getDragonMoves();
+        Vector<Position> visited = state.getCapabilities().getModel(DragonCapability.class);
         return visited == null ? Vector.empty() : visited;
     }
 
@@ -63,7 +61,7 @@ public class DragonMovePhase extends ServerAwarePhase {
 
         Dragon dragon = state.getNeutralFigures().getDragon();
         Player p = state.getTurnPlayer();
-        p = state.getPlayers().get((p.getIndex() + visited.size()) % state.getPlayers().size());
+        p = state.getPlayers().getPlayer((p.getIndex() + visited.length()) % state.getPlayers().getPlayers().length());
 
         toggleClock(p);
         promote(state.setPlayerActions(
@@ -72,7 +70,7 @@ public class DragonMovePhase extends ServerAwarePhase {
     }
 
     private GameState endDragonMove(GameState state) {
-        state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(Vector.empty()));
+        state = state.setCapabilityModel(DragonCapability.class, Vector.empty());
         state = state.setPlayerActions(null);
         return state;
     }
@@ -122,7 +120,7 @@ public class DragonMovePhase extends ServerAwarePhase {
         state = (
             new MoveNeutralFigure<>((Dragon) fig, pos, state.getActivePlayer())
         ).apply(state);
-        state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(cap.getDragonMoves().append(dragonPosition)));
+        state = state.updateCapabilityModel(DragonCapability.class, moves -> moves.append(dragonPosition));
 
         for (Tuple2<Meeple, FeaturePointer> t: state.getDeployedMeeples()) {
             Meeple m = t._1;

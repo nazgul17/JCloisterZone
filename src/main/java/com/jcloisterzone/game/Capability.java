@@ -2,6 +2,7 @@ package com.jcloisterzone.game;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +18,6 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.state.GameState;
@@ -26,22 +26,41 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
 @Immutable
-public abstract class Capability implements Serializable {
+public abstract class Capability<T> implements Serializable {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+
+
+    @SuppressWarnings("unchecked")
+    private Class<? extends Capability<T>> narrowClass() {
+        return (Class<? extends Capability<T>>) getClass();
+    }
+
+    public final T getModel(GameState state) {
+        return state.getCapabilities().getModel(narrowClass());
+    }
+
+    public final GameState updateModel(GameState state, Function<T, T> fn) {
+        return state.updateCapabilityModel(narrowClass(), fn);
+    }
+
+    public final GameState setModel(GameState state, T model) {
+        return state.setCapabilityModel(narrowClass(), model);
+    }
 
 
     public TileDefinition initTile(TileDefinition tile, Element xml) {
         return tile;
     }
 
-    public Feature initFeature(GameSettings settings, String tileId, Feature feature, Element xml) {
+    //TODO use only settings state linked from whole state?
+    public Feature initFeature(GameState settings, String tileId, Feature feature, Element xml) {
         return feature;
     }
 
-    public List<Feature> extendFeatures(String tileId) {
-        return List.empty();
-    }
+//    public List<Feature> extendFeatures(String tileId) {
+//        return List.empty();
+//    }
 
     public String getTileGroup(TileDefinition tile) {
         return null;
@@ -70,40 +89,30 @@ public abstract class Capability implements Serializable {
         return followerActions;
     }
 
-    /** convenient method to find follower action in all actions, or create new if player has follower and action doesn't exists*/
-    @Deprecated
-    protected java.util.List<MeepleAction> findAndFillFollowerActions(java.util.List<PlayerAction<?>> actions) {
-        java.util.List<MeepleAction> followerActions = findFollowerActions(actions);
-        java.util.Set<Class<? extends Meeple>> hasAction = new java.util.HashSet<>();
-        for (MeepleAction ma : followerActions) {
-            hasAction.add(ma.getMeepleType());
-        }
-
-        for (Follower f : game.getActivePlayer().getFollowers()) {
-            if (f.isInSupply() && !hasAction.contains(f.getClass())) {
-                MeepleAction ma = new MeepleAction(f.getClass());
-                actions.add(ma);
-                followerActions.add(ma);
-                hasAction.add(f.getClass());
-            }
-        }
-        return followerActions;
-    }
+//    /** convenient method to find follower action in all actions, or create new if player has follower and action doesn't exists*/
+//    @Deprecated
+//    protected java.util.List<MeepleAction> findAndFillFollowerActions(java.util.List<PlayerAction<?>> actions) {
+//        java.util.List<MeepleAction> followerActions = findFollowerActions(actions);
+//        java.util.Set<Class<? extends Meeple>> hasAction = new java.util.HashSet<>();
+//        for (MeepleAction ma : followerActions) {
+//            hasAction.add(ma.getMeepleType());
+//        }
+//
+//        for (Follower f : game.getActivePlayer().getFollowers()) {
+//            if (f.isInSupply() && !hasAction.contains(f.getClass())) {
+//                MeepleAction ma = new MeepleAction(f.getClass());
+//                actions.add(ma);
+//                followerActions.add(ma);
+//                hasAction.add(f.getClass());
+//            }
+//        }
+//        return followerActions;
+//    }
 
     @Deprecated
     public Set<FeaturePointer> extendFollowOptions(Set<FeaturePointer> locations) {
         return locations;
     }
-
-//    @Deprecated
-//    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-//        return actions;
-//    }
-//
-//    @Deprecated
-//    public Vector<PlayerAction<?>> postPrepareActions(Vector<PlayerAction<?>> actions) {
-//        return actions;
-//    }
 
     public boolean isDeployAllowed(GameState state, Position pos) {
         return true;

@@ -34,7 +34,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.state.GameState;
 
-public class CastleCapability extends Capability {
+public class CastleCapability extends Capability<Void> {
 
     private final Map<Player, Integer> castles = new HashMap<>();
 

@@ -24,7 +24,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
 
-public class RiverCapability extends Capability {
+public class RiverCapability extends Capability<Void> {
 
     private static final String R1_LAKE_ID = "R1.I.e";
     private static final String R2_LAKE_ID = "R2.I.v";

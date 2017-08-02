@@ -5,6 +5,7 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.DragonCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 
 public class DragonPhase extends Phase {
@@ -14,8 +15,8 @@ public class DragonPhase extends Phase {
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(DragonCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(DragonCapability.class);
     }
 
     @Override

@@ -21,22 +21,20 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CocFollowerPhase extends Phase {
 
-    private final CountCapability countCap;
-
     public CocFollowerPhase(Game game) {
         super(game);
-        countCap = game.getCapability(CountCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(CountCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(CountCapability.class);
     }
 
     @Override

@@ -26,7 +26,7 @@ public class FinalScoring implements Reducer {
             //IMMUTABLE TODO solve Barn scoring
         }
 
-        for (Capability cap : state.getCapabilities().values()) {
+        for (Capability<?> cap : state.getCapabilities().toSeq()) {
             state = cap.finalScoring(state);
         }
 

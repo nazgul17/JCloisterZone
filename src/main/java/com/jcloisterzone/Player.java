@@ -8,7 +8,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.PlayerSlot;
-import com.jcloisterzone.game.capability.ClothWineGrainCapability;
+import com.jcloisterzone.game.capability.TradeCountersCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.PlayerColor;
 
@@ -142,8 +142,8 @@ public class Player implements Serializable {
 
     public int getTradeResources(GameState state, TradeResource res) {
         return state
-            .getCapability(ClothWineGrainCapability.class)
-            .getTradeResources().get(index).get(res).getOrElse(0);
+            .getCapabilities().getModel(TradeCountersCapability.class)
+            .get(index).get(res).getOrElse(0);
     }
 
     @Override

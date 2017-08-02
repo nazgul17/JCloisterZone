@@ -1,22 +1,10 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.w3c.dom.Element;
-
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TileGroupState;
-import com.jcloisterzone.board.TileTrigger;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.state.GameState;
 
-public class PlagueCapability extends Capability {
+public class PlagueCapability extends Capability<Void> {
 
+    /*
     private final List<PlagueSource> plagueSources = new ArrayList<>(6);
 
     @Override
@@ -68,4 +56,5 @@ public class PlagueCapability extends Capability {
             this.pos = pos;
         }
     }
+    */
 }

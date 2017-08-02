@@ -14,7 +14,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
-import com.jcloisterzone.game.capability.ClothWineGrainCapability;
+import com.jcloisterzone.game.capability.TradeCountersCapability;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
@@ -85,7 +85,7 @@ public class PlayerPanelImageCache {
             scaledImages.put("bridge", scaleImage(rm.getImage("neutral/bridge")));
             scaledImages.put("castle", scaleImage(rm.getImage("neutral/castle")));
         }
-        if (game.hasCapability(ClothWineGrainCapability.class)) {
+        if (game.hasCapability(TradeCountersCapability.class)) {
             scaledImages.put("cloth", rm.getImage("neutral/cloth"));
             scaledImages.put("grain", rm.getImage("neutral/grain"));
             scaledImages.put("wine", rm.getImage("neutral/wine"));

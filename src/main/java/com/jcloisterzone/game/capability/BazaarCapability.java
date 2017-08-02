@@ -18,7 +18,7 @@ import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-public class BazaarCapability extends Capability {
+public class BazaarCapability extends Capability<Void> {
 
     private ArrayList<BazaarItem> bazaarSupply;
     private BazaarItem currentBazaarAuction;

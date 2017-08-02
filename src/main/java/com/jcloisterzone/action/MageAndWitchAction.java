@@ -13,12 +13,16 @@ public class MageAndWitchAction extends SelectFeatureAction {
 
     public MageAndWitchAction(String figureId, Set<FeaturePointer> options) {
         super(options);
-         this.figureId = figureId;
+        this.figureId = figureId;
     }
 
     @Override
     public void perform(GameController gc, FeaturePointer target) {
         gc.getConnection().send(
             new MoveNeutralFigureMessage(gc.getGameId(), figureId, target));
+    }
+
+    public String getFigureId() {
+        return figureId;
     }
 }

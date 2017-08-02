@@ -13,6 +13,8 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.SiegeCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
@@ -25,8 +27,8 @@ public class EscapePhase extends Phase {
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(SiegeCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(SiegeCapability.class);
     }
 
     @Override
@@ -41,7 +43,9 @@ public class EscapePhase extends Phase {
 
     @WsSubscribe
     public void handlePass(PassMessage msg) {
-        next();
+        GameState state = game.getState();
+        state = clearActions(state);
+        next(state);
     }
 
     private class FindNearbyCloister implements FeatureVisitor<Boolean> {

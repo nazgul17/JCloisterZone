@@ -18,35 +18,16 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
-public class ClothWineGrainCapability extends Capability {
+/**
+ * @model Array<Map<TradeResource, Integer>> : number of trade counters indexed by player index
+ */
+public class TradeCountersCapability extends Capability<Array<Map<TradeResource, Integer>>> {
 
     private static final long serialVersionUID = 1L;
 
-    private final Array<Map<TradeResource, Integer>> tradeResources;
-
-    public ClothWineGrainCapability() {
-        this(null);
-    }
-
-    public ClothWineGrainCapability(Array<Map<TradeResource, Integer>> tradeResources) {
-        this.tradeResources = tradeResources;
-    }
-
-    public ClothWineGrainCapability setTradeResources(Array<Map<TradeResource, Integer>> tradeResources) {
-        return new ClothWineGrainCapability(tradeResources);
-    }
-
-    public Array<Map<TradeResource, Integer>> getTradeResources() {
-        return tradeResources;
-    }
-
     @Override
     public GameState onStartGame(GameState state) {
-        return state.updateCapability(ClothWineGrainCapability.class, cap ->
-            cap.setTradeResources(
-                state.getPlayers().getPlayers().map(p -> HashMap.empty())
-            )
-        );
+        return setModel(state, state.getPlayers().getPlayers().map(p -> HashMap.empty()));
     }
 
     @Override
@@ -60,11 +41,9 @@ public class ClothWineGrainCapability extends Capability {
         }
 
         int playerIdx = state.getPlayers().getTurnPlayerIndex();
-        state = state.updateCapability(ClothWineGrainCapability.class, cap ->
-            cap.setTradeResources(
-                cap.getTradeResources().update(playerIdx,
-                    res -> res.merge(cityResources, (a, b) -> a+b)
-                )
+        state = updateModel(state, tradeCounters ->
+            tradeCounters.update(playerIdx,
+                res -> res.merge(cityResources, (a, b) -> a+b)
             )
         );
 
@@ -72,7 +51,7 @@ public class ClothWineGrainCapability extends Capability {
     }
 
     @Override
-    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameState state, String tileId, Feature feature, Element xml) {
         if (feature instanceof City && xml.hasAttribute("resource")) {
             City city = (City) feature;
             String val = xml.getAttribute("resource");

@@ -4,7 +4,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.ClothWineGrainCapability;
+import com.jcloisterzone.game.capability.TradeCountersCapability;
 
 public class TradeResourceEvent extends PlayEvent {
 

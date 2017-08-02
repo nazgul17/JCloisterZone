@@ -12,7 +12,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.GameSettings;
 
-public class GermanMonasteriesCapability extends Capability {
+public class GermanMonasteriesCapability extends Capability<Void> {
 
     @Override
     public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {

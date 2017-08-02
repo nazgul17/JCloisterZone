@@ -17,6 +17,7 @@ import com.jcloisterzone.game.capability.GermanMonasteriesCapability;
 import com.jcloisterzone.game.capability.PhantomCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
@@ -24,22 +25,22 @@ import com.jcloisterzone.wsio.message.PassMessage;
 
 public class PhantomPhase extends Phase {
 
-    private final TowerCapability towerCap;
-    private final FlierCapability flierCap;
-    private final PrincessCapability princessCap;
-    private final GermanMonasteriesCapability gmCap;
+//    private final TowerCapability towerCap;
+//    private final FlierCapability flierCap;
+//    private final PrincessCapability princessCap;
+//    private final GermanMonasteriesCapability gmCap;
 
     public PhantomPhase(Game game) {
         super(game);
-        towerCap = game.getCapability(TowerCapability.class);
-        flierCap = game.getCapability(FlierCapability.class);
-        princessCap = game.getCapability(PrincessCapability.class);
-        gmCap = game.getCapability(GermanMonasteriesCapability.class);
+//        towerCap = game.getCapability(TowerCapability.class);
+//        flierCap = game.getCapability(FlierCapability.class);
+//        princessCap = game.getCapability(PrincessCapability.class);
+//        gmCap = game.getCapability(GermanMonasteriesCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(PhantomCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(PhantomCapability.class);
     }
 
     @Override

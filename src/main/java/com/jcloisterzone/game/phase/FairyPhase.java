@@ -9,6 +9,7 @@ import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.AddPoints;
 
@@ -22,8 +23,8 @@ public class FairyPhase extends Phase {
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(FairyCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(FairyCapability.class);
     }
 
     @Override

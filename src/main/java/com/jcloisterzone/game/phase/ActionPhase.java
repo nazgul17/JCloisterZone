@@ -56,15 +56,8 @@ import io.vavr.collection.Vector;
 
 public class ActionPhase extends Phase {
 
-    private final TowerCapability towerCap;
-    private final FlierCapability flierCap;
-    private final PrincessCapability princessCapability;
-
     public ActionPhase(Game game) {
         super(game);
-        towerCap = game.getCapability(TowerCapability.class);
-        flierCap = game.getCapability(FlierCapability.class);
-        princessCapability = game.getCapability(PrincessCapability.class);
     }
 
     private Stream<Tuple2<Location, Scoreable>> excludePrincess(Tile currentTile, Stream<Tuple2<Location, Scoreable>> s) {
@@ -102,7 +95,7 @@ public class ActionPhase extends Phase {
             boolean isCurrentTile = pos.equals(currentTilePos);
 
             boolean placementAllowed = true;
-            for (Capability cap : state.getCapabilities().values()) {
+            for (Capability<?> cap : state.getCapabilities().toSeq()) {
                 if (!cap.isDeployAllowed(state, pos)) {
                     placementAllowed = false;
                     break;
@@ -139,7 +132,7 @@ public class ActionPhase extends Phase {
             new ActionsState(player, actions, true)
         );
 
-        for (Capability cap : nextState.getCapabilities().values()) {
+        for (Capability<?> cap : nextState.getCapabilities().toSeq()) {
             nextState = cap.onActionPhaseEntered(nextState);
         }
 

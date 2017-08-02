@@ -1,11 +1,10 @@
 package com.jcloisterzone.board;
 
+import static com.jcloisterzone.XMLUtils.attrAsLocations;
 import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 import static com.jcloisterzone.XMLUtils.attributeIntValue;
 import static com.jcloisterzone.XMLUtils.contentAsLocations;
-import static com.jcloisterzone.XMLUtils.attrAsLocations;
 
-import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,11 +22,11 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.feature.TunnelEnd;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.Capability;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
-import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
 
 
@@ -38,15 +37,15 @@ public class TileDefinitionBuilder {
     private java.util.Map<Location, Feature> features;
     private String tileId;
 
-    private Game game;
+    private GameState state;
 
 
-    public Game getGame() {
-        return game;
+    public GameState getGameState() {
+        return state;
     }
 
-    public void setGame(Game game) {
-        this.game = game;
+    public void setGameState(GameState state) {
+        this.state = state;
     }
 
     public TileDefinition createTile(Expansion expansion, String tileId, Element xml, boolean isTunnelActive) {
@@ -80,7 +79,7 @@ public class TileDefinitionBuilder {
 
         //IMMUTABLE TODO
         //TODO Count
-//        for (Feature f : game.extendFeatures(tile)) {
+//        for (Feature f : extendFeatures(tile)) {
 //            TileFeature tileFeature = (TileFeature) f;
 //            tileFeature.setId(game.idSequnceNextVal());
 //            tileFeature.setTile(tile);
@@ -96,11 +95,30 @@ public class TileDefinitionBuilder {
         return tileDef;
     }
 
+    public Feature initFeature(String tileId, Feature feature, Element xml) {
+        if (feature instanceof Farm && tileId.startsWith("CO.")) {
+            //this is not part of Count capability because it is integral behaviour valid also when capability is off
+            feature = ((Farm) feature).setAdjoiningCityOfCarcassonne(true);
+        }
+        for (Capability<?> cap: state.getCapabilities().toSeq()) {
+            feature = cap.initFeature(state, tileId, feature, xml);
+        }
+        return feature;
+    }
+
+//    public List<Feature> extendFeatures(String tileId) {
+//        List<Feature> result = List.empty();
+//        for (Capability cap: getCapabilities()) {
+//            result.appendAll(cap.extendFeatures(tileId));
+//        }
+//        return result;
+//    }
+
     private void processCloisterElement(Element e) {
         Cloister cloister = new Cloister(
             List.of(new FeaturePointer(Position.ZERO, Location.CLOISTER))
         );
-        cloister = (Cloister) game.initFeature(tileId, cloister, e);
+        cloister = (Cloister) initFeature(tileId, cloister, e);
         features.put(Location.CLOISTER, cloister);
 
     }
@@ -109,7 +127,7 @@ public class TileDefinitionBuilder {
         Tower tower = new Tower(
             List.of(new FeaturePointer(Position.ZERO, Location.TOWER))
         );
-        tower = (Tower) game.initFeature(tileId, tower, e);
+        tower = (Tower) initFeature(tileId, tower, e);
         features.put(Location.TOWER, tower);
     }
 
@@ -138,7 +156,7 @@ public class TileDefinitionBuilder {
             road = road.setTunnelEnds(HashMap.of(place, new TunnelEnd()));
         }
 
-        road = (Road) game.initFeature(tileId, road, e);
+        road = (Road) initFeature(tileId, road, e);
         features.put(place.getLocation(), road);
     }
 
@@ -152,7 +170,7 @@ public class TileDefinitionBuilder {
             attributeIntValue(e, "pennant", 0)
         );
 
-        city = (City) game.initFeature(tileId, city, e);
+        city = (City) initFeature(tileId, city, e);
         features.put(place.getLocation(), city);
     }
 
@@ -188,7 +206,7 @@ public class TileDefinitionBuilder {
             adjoiningCities
         );
 
-        farm = (Farm) game.initFeature(tileId, farm, e);
+        farm = (Farm) initFeature(tileId, farm, e);
         features.put(place.getLocation(), farm);
     }
 

@@ -15,30 +15,15 @@ import com.jcloisterzone.reducers.MoveNeutralFigure;
 
 import io.vavr.collection.Vector;
 
+/**
+ * @model Vector<Position> : visited tiles
+ */
 @Immutable
-public class DragonCapability extends Capability {
+public class DragonCapability extends Capability<Vector<Position>> {
 
     private static final long serialVersionUID = 1L;
 
     public static final int DRAGON_MOVES = 6;
-
-    private final Vector<Position> dragonMoves;
-
-    public DragonCapability() {
-        this(Vector.empty());
-    }
-
-    public DragonCapability(Vector<Position> dragonMoves) {
-        this.dragonMoves = dragonMoves;
-    }
-
-    public DragonCapability setDragonMoves(Vector<Position> dragonMoves) {
-        return new DragonCapability(dragonMoves);
-    }
-
-    public Vector<Position> getDragonMoves() {
-        return dragonMoves;
-    }
 
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
@@ -59,9 +44,9 @@ public class DragonCapability extends Capability {
 
     @Override
     public GameState onStartGame(GameState state) {
-        return state.setNeutralFigures(
-            state.getNeutralFigures().setDragon(new Dragon("dragon.1"))
-        );
+        state = state.updateNeutralFigures(nf -> nf.setDragon(new Dragon("dragon.1")));
+        state = setModel(state, Vector.empty());
+        return state;
     }
 
     @Override

@@ -22,21 +22,19 @@ import com.jcloisterzone.figure.Mayor;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CastleCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 public class CastlePhase extends Phase {
 
-    private final CastleCapability castleCap;
-
     public CastlePhase(Game game) {
         super(game);
-        castleCap = game.getCapability(CastleCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(CastleCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(CastleCapability.class);
     }
 
     @Override

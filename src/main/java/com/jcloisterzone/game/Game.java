@@ -293,16 +293,6 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     @Deprecated
-    public Seq<Capability> getCapabilities() {
-        return state.getCapabilities().values();
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends Capability> T getCapability(Class<T> clazz) {
-        return (T) state.getCapabilities().get(clazz).getOrNull();
-    }
-
-    @Deprecated
     public boolean isStarted() {
         return !(getPhase() instanceof CreateGamePhase);
     }
@@ -318,59 +308,6 @@ public class Game extends GameSettings implements EventProxy {
 
     // delegation to capabilities
 
-    public TileDefinition initTile(TileDefinition tile, Element xml) {
-        for (Capability cap: getCapabilities()) {
-            tile = cap.initTile(tile, xml);
-        }
-        return tile;
-    }
-
-    public Feature initFeature(String tileId, Feature feature, Element xml) {
-        if (feature instanceof Farm && tileId.startsWith("CO.")) {
-            //this is not part of Count capability because it is integral behaviour valid also when capability is off
-            feature = ((Farm) feature).setAdjoiningCityOfCarcassonne(true);
-        }
-        for (Capability cap: getCapabilities()) {
-            feature = cap.initFeature(this, tileId, feature, xml);
-        }
-        return feature;
-    }
-
-    public List<Feature> extendFeatures(String tileId) {
-        List<Feature> result = List.empty();
-        for (Capability cap: getCapabilities()) {
-            result.appendAll(cap.extendFeatures(tileId));
-        }
-        return result;
-    }
-
-    public String getTileGroup(TileDefinition tile) {
-        for (Capability cap: getCapabilities()) {
-            String group = cap.getTileGroup(tile);
-            if (group != null) return group;
-        }
-        return null;
-    }
-
-//    public Vector<PlayerAction<?>> prepareActions(Vector<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-//        for (Capability cap: getCapabilities()) {
-//            actions = cap.prepareActions(actions, followerOptions);
-//        }
-//        for (Capability cap: getCapabilities()) {
-//            actions = cap.postPrepareActions(actions);
-//        }
-//        //to simplify capability iterations, allow returning empty actions (eg tower can add empty meeple action when no open tower exists etc)
-//        //and then filter them out at end
-//        return actions.filter(action -> !action.isEmpty());
-//    }
-
-
-//    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
-//        for (Capability cap: getCapabilities()) {
-//            if (!cap.isDeployAllowed(tile, meepleType)) return false;
-//        }
-//        return true;
-//    }
 
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
         for (Capability cap: getCapabilities()) {

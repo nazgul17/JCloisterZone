@@ -20,7 +20,7 @@ public class MageAndWitchActionWrapper extends ActionWrapper {
 
     @Override
     protected Image getImage(ResourceManager rm, Color color) {
-        String name = getAction().isMage() ? "mage": "witch";
+        String name = getAction().getFigureId().startsWith("mage") ? "mage": "witch";
         return rm.getLayeredImage(new LayeredImageDescriptor("actions/" + name, color));
     }
 

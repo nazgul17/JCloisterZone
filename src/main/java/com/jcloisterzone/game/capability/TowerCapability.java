@@ -37,7 +37,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
 
-public final class TowerCapability extends Capability {
+public final class TowerCapability extends Capability<Void> {
 
     private static final int RANSOM_POINTS = 3;
 

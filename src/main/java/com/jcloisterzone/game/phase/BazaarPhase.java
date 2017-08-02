@@ -15,23 +15,20 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarItem;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 public class BazaarPhase extends ServerAwarePhase {
 
-    private final BazaarCapability bazaarCap;
-
     public BazaarPhase(Game game, GameController controller) {
         super(game, controller);
-        bazaarCap = game.getCapability(BazaarCapability.class);
     }
 
-
     @Override
-    public boolean isActive() {
-        return game.hasCapability(BazaarCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(BazaarCapability.class);
     }
 
     @Override

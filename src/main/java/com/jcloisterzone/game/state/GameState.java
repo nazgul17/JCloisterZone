@@ -46,8 +46,8 @@ public class GameState implements Serializable {
     //TODO group some fields into sub states
 
     private final HashMap<CustomRule, Object> rules;
-    private final HashMap<Class<? extends Capability>, Capability> capabilities;
 
+    private final CapabilitiesState capabilities;
     private final PlayersState players;
 
     private final TilePackState tilePack;
@@ -70,12 +70,12 @@ public class GameState implements Serializable {
 
     public static GameState createInitial(
             HashMap<CustomRule, Object> rules,
-            HashMap<Class<? extends Capability>, Capability> capabilities,
+            Seq<Capability<?>> capabilities,
             Array<Player> players,
             int turnPlayerIndex) {
         return new GameState(
             rules,
-            capabilities,
+            CapabilitiesState.createInitial(capabilities),
             PlayersState.createInitial(players, turnPlayerIndex),
             null,
             null,
@@ -93,7 +93,7 @@ public class GameState implements Serializable {
 
     public GameState(
             HashMap<CustomRule, Object> rules,
-            HashMap<Class<? extends Capability>, Capability> capabilities,
+            CapabilitiesState capabilities,
             PlayersState players,
             TilePackState tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
@@ -120,7 +120,8 @@ public class GameState implements Serializable {
         this.phase = phase;
     }
 
-    public GameState setCapabilities(HashMap<Class<? extends Capability>, Capability> capabilities) {
+    public GameState setCapabilities(CapabilitiesState capabilities) {
+        if (capabilities == this.capabilities) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -129,6 +130,18 @@ public class GameState implements Serializable {
             flags, events,
             phase
         );
+    }
+
+    public GameState updateCapabilities(Function<CapabilitiesState, CapabilitiesState> fn) {
+        return setCapabilities(fn.apply(capabilities));
+    }
+
+    public <M> GameState updateCapabilityModel(Class<? extends Capability<M>> cls, Function<M, M> fn) {
+        return setCapabilities(getCapabilities().updateModel(cls, fn));
+    }
+
+    public <M> GameState setCapabilityModel(Class<? extends Capability<M>> cls, M model) {
+        return setCapabilities(getCapabilities().setModel(cls, model));
     }
 
     public <C extends Capability> GameState updateCapability(Class<C> cls, Function<C, C> fn) {
@@ -146,6 +159,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setPlayers(PlayersState players) {
+        if (players == this.players) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -161,6 +175,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setTilePack(TilePackState tilePack) {
+        if (tilePack == this.tilePack) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -172,6 +187,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setDrawnTile(TileDefinition drawnTile) {
+        if (drawnTile == this.drawnTile) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -183,6 +199,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
+        if (placedTiles == this.placedTiles) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -194,6 +211,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setFeatures(Map<FeaturePointer, Feature> features) {
+        if (features == this.features) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -205,6 +223,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setDiscardedTiles(List<TileDefinition> discardedTiles) {
+        if (discardedTiles == this.discardedTiles) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -216,6 +235,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setNeutralFigures(NeutralFiguresState neutralFigures) {
+        if (neutralFigures == this.neutralFigures) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -226,7 +246,12 @@ public class GameState implements Serializable {
         );
     }
 
+    public GameState updateNeutralFigures(Function<NeutralFiguresState, NeutralFiguresState> fn) {
+        return setNeutralFigures(fn.apply(neutralFigures));
+    }
+
     public GameState setDeployedMeeples(LinkedHashMap<Meeple, FeaturePointer> deployedMeeples) {
+        if (deployedMeeples == this.deployedMeeples) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -238,6 +263,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setPlayerActions(ActionsState playerActions) {
+        if (playerActions == this.playerActions) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -249,6 +275,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setFlags(Set<Flag> flags) {
+        if (flags == this.flags) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -260,10 +287,12 @@ public class GameState implements Serializable {
     }
 
     public GameState addFlag(Flag flag) {
-        return setFlags(getFlags().add(flag));
+        //HashSet makes contains check and returns same instance, no need to do it again here
+        return setFlags(flags.add(flag));
     }
 
     public GameState setEvents(Queue<PlayEvent> events) {
+        if (events == this.events) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -275,6 +304,7 @@ public class GameState implements Serializable {
     }
 
     public GameState setPhase(Class<? extends Phase> phase) {
+        if (phase == this.phase) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
@@ -293,17 +323,8 @@ public class GameState implements Serializable {
         return rules;
     }
 
-    public HashMap<Class<? extends Capability>, Capability> getCapabilities() {
+    public CapabilitiesState getCapabilities() {
         return capabilities;
-    }
-
-    @SuppressWarnings("unchecked")
-    public <C extends Capability> C getCapability(Class<C> cls) {
-        return (C) capabilities.get(cls).getOrNull();
-    }
-
-    public boolean hasCapability(Class<? extends Capability> cls) {
-        return capabilities.containsKey(cls);
     }
 
     public PlayersState getPlayers() {

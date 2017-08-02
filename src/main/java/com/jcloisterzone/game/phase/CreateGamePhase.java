@@ -47,6 +47,7 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 
 
 public class CreateGamePhase extends ServerAwarePhase {
@@ -103,7 +104,7 @@ public class CreateGamePhase extends ServerAwarePhase {
 
 
     private Phase addPhase(Phase next, Phase phase) {
-        if (!phase.isActive()) return next;
+        if (!phase.isActive(game.getState().getCapabilities())) return next;
 
         ClassToInstanceMap<Phase> phases = game.getPhases();
         phases.put(phase.getClass(), phase);
@@ -178,9 +179,9 @@ public class CreateGamePhase extends ServerAwarePhase {
         return null;
     }
 
-    protected Tiles prepareTilePack() {
+    protected Tuple2<io.vavr.collection.List<Tuple2<TileDefinition, Position>>, GameState> prepareTilePack(Set<Expansion> expansions, GameState state) {
         TilePackFactory tilePackFactory = new TilePackFactory();
-        tilePackFactory.setGame(game);
+        tilePackFactory.setGameState(state);
         tilePackFactory.setConfig(getGameController().getConfig());
         tilePackFactory.setExpansions(game.getExpansions());
 
@@ -189,7 +190,10 @@ public class CreateGamePhase extends ServerAwarePhase {
         tilePack = tilePack.setGroupState("default", TileGroupState.ACTIVE);
         tilePack = tilePack.setGroupState("count", TileGroupState.ACTIVE);
         tilePack = tilePack.setGroupState("wind-rose-initial", TileGroupState.ACTIVE);
-        return new Tiles(tilePack, tiles.getPreplacedTiles());
+        //return new Tiles(tilePack, tiles.getPreplacedTiles());
+
+        state = state.setTilePack(tiles.getTilePack());
+        return new Tuple2<>(tiles.getPreplacedTiles(), state);
     }
 
     protected void preplaceTiles(Iterable<Tuple2<TileDefinition, Position>> preplacedTiles) {
@@ -222,35 +226,35 @@ public class CreateGamePhase extends ServerAwarePhase {
         }
     }
 
-    protected void prepareCapabilities() {
+    protected io.vavr.collection.Set<Class<? extends Capability<?>>> getCapabilityClasses() {
+        io.vavr.collection.Set<Class<? extends Capability<?>>> classes = io.vavr.collection.HashSet.empty();
         for (Expansion exp : game.getExpansions()) {
-            game.getCapabilityClasses().addAll(Arrays.asList(exp.getCapabilities()));
+            classes = classes.addAll(Arrays.asList(exp.getCapabilities()));
         }
 
         if (game.getBooleanValue(CustomRule.USE_PIG_HERDS_INDEPENDENTLY)) {
-            game.getCapabilityClasses().add(PigHerdCapability.class);
+            classes = classes.add(PigHerdCapability.class);
         }
 
         DebugConfig debugConfig = getDebugConfig();
         if (debugConfig != null && debugConfig.getOff_capabilities() != null) {
             List<String> offNames =  debugConfig.getOff_capabilities();
-            Set<Class<? extends Capability>> off = new HashSet<>();
             for (String tok : offNames) {
                 tok = tok.trim();
                 try {
                     String className = "com.jcloisterzone.game.capability."+tok+"Capability";
                     @SuppressWarnings("unchecked")
-                    Class<? extends Capability> clazz = (Class<? extends Capability>) Class.forName(className);
-                    off.add(clazz);
+                    Class<? extends Capability<?>> clazz = (Class<? extends Capability<?>>) Class.forName(className);
+                    classes = classes.remove(clazz);
                 } catch (Exception e) {
                     logger.warn("Invalid capability name: " + tok, e);
                 }
             }
-            game.getCapabilityClasses().removeAll(off);
         }
+        return classes;
     }
 
-    private Capability createCapabilityInstance(Class<? extends Capability> clazz) {
+    private Capability<?> createCapabilityInstance(Class<? extends Capability<?>> clazz) {
         try {
             return clazz.newInstance();
         } catch (Exception e) {
@@ -258,15 +262,13 @@ public class CreateGamePhase extends ServerAwarePhase {
         }
     }
 
-    public HashMap<Class<? extends Capability>, Capability> createCapabilities() {
-        HashMap<Class<? extends Capability>, Capability> res = HashMap.empty();
-        for (Class<? extends Capability> cls: game.getCapabilityClasses()) {
-            res = res.put(cls, createCapabilityInstance(cls));
-        }
-        return res;
+    public io.vavr.collection.List<Capability<?>> createCapabilities(io.vavr.collection.Set<Class<? extends Capability<?>>> classes) {
+        return io.vavr.collection.List.narrow(
+            classes.map(cls -> createCapabilityInstance(cls)).toList()
+        );
     }
 
-    private io.vavr.collection.List<Follower> createPlayerFollowers(Player p, Seq<Capability> capabilities) {
+    private io.vavr.collection.List<Follower> createPlayerFollowers(Player p, Seq<Capability<?>> capabilities) {
         MeepleIdProvider idProvider = new MeepleIdProvider(p);
         Stream<Follower> stream = Stream.range(0, SmallFollower.QUANTITY)
                 .map(i -> (Follower) new SmallFollower(idProvider.generateId(SmallFollower.class), p));
@@ -275,22 +277,19 @@ public class CreateGamePhase extends ServerAwarePhase {
         return followers;
     }
 
-    public Seq<Special> createPlayerSpecialMeeples(Player p, Seq<Capability> capabilities) {
+    public Seq<Special> createPlayerSpecialMeeples(Player p, Seq<Capability<?>> capabilities) {
         MeepleIdProvider idProvider = new MeepleIdProvider(p);
         return capabilities.flatMap(c -> c.createPlayerSpecialMeeples(p, idProvider));
     }
 
     public void startGame(boolean muteAi) {
         //temporary code should be configured by player as rules
-        prepareCapabilities();
-
-        HashMap<Class<? extends Capability>, Capability> capabilityMap = createCapabilities();
-        Seq<Capability> capabilities = capabilityMap.values();
+        io.vavr.collection.List<Capability<?>> capabilities = createCapabilities(getCapabilityClasses());
         Array<Player> players = preparePlayers();
 
         GameState state = GameState.createInitial(
             HashMap.ofAll(game.getCustomRules()),
-            capabilityMap,
+            capabilities,
             players,
             0
         );
@@ -305,14 +304,13 @@ public class CreateGamePhase extends ServerAwarePhase {
             )
         );
 
-        //TODO tile pack creation is touching state from game
-        //TOOD IMMUTABLE clean it
-        game.replaceState(state);
+        Tuple2<io.vavr.collection.List<Tuple2<TileDefinition, Position>>, GameState> t =
+                prepareTilePack(game.getExpansions(), state);
 
-        Tiles tiles = prepareTilePack();
-        state = state.setTilePack(tiles.getTilePack());
+        Iterable<Tuple2<TileDefinition, Position>> preplacedTiles = t._1;
+        state = t._2;
 
-        for (Capability cap : capabilities) {
+        for (Capability<?> cap : capabilities) {
             state = cap.onStartGame(state);
         }
 
@@ -323,7 +321,7 @@ public class CreateGamePhase extends ServerAwarePhase {
 
         Player player = state.getTurnPlayer();
         game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, getSnapshot()));
-        preplaceTiles(tiles.getPreplacedTiles());
+        preplaceTiles(preplacedTiles);
         game.replaceState(
             s -> s.appendEvent(new PlayerTurnEvent(PlayEventMeta.createWithoutPlayer(), player)),
             s -> s.setPhase(first.getClass())

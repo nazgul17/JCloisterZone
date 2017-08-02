@@ -31,7 +31,7 @@ import io.vavr.collection.List;
 
 import static com.jcloisterzone.XMLUtils.contentAsLocations;
 
-public class WagonCapability extends Capability {
+public class WagonCapability extends Capability<Void> {
 
     private final Map<Player, Feature> scoredWagons = new HashMap<>();
 

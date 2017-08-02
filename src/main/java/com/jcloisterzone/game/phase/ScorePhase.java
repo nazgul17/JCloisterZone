@@ -49,21 +49,21 @@ public class ScorePhase extends ServerAwarePhase {
 
     private Set<Completable> alreadyScored = new HashSet<>();
 
-    private final BarnCapability barnCap;
-    private final CastleCapability castleCap;
-    private final TunnelCapability tunnelCap;
-    private final WagonCapability wagonCap;
-    private final MageAndWitchCapability mageWitchCap;
-    private final GoldminesCapability gldCap;
+//    private final BarnCapability barnCap;
+//    private final CastleCapability castleCap;
+//    private final TunnelCapability tunnelCap;
+//    private final WagonCapability wagonCap;
+//    private final MageAndWitchCapability mageWitchCap;
+//    private final GoldminesCapability gldCap;
 
     public ScorePhase(Game game, GameController gc) {
         super(game, gc);
-        barnCap = game.getCapability(BarnCapability.class);
-        tunnelCap = game.getCapability(TunnelCapability.class);
-        castleCap = game.getCapability(CastleCapability.class);
-        wagonCap = game.getCapability(WagonCapability.class);
-        mageWitchCap = game.getCapability(MageAndWitchCapability.class);
-        gldCap = game.getCapability(GoldminesCapability.class);
+//        barnCap = game.getCapability(BarnCapability.class);
+//        tunnelCap = game.getCapability(TunnelCapability.class);
+//        castleCap = game.getCapability(CastleCapability.class);
+//        wagonCap = game.getCapability(WagonCapability.class);
+//        mageWitchCap = game.getCapability(MageAndWitchCapability.class);
+//        gldCap = game.getCapability(GoldminesCapability.class);
     }
 
     private GameState scoreCompletedOnTile(GameState state, Tile tile) {
@@ -153,7 +153,7 @@ public class ScorePhase extends ServerAwarePhase {
         Tile tile = board.getLastPlaced();
         Position pos = tile.getPosition();
         //TODO separate event here ??? and move this code to abbey and mayor game
-        if (barnCap != null) {
+        if (state.getCapabilities().hasCapability(BarnCapability.class)) {
             Map<City, CityScoreContext> cityCache = new HashMap<>();
             for (Tuple2<Location, Feature> t : tile.getFeatures()) {
                 if (t._2 instanceof Farm) {
@@ -167,7 +167,7 @@ public class ScorePhase extends ServerAwarePhase {
             state = scoreCompletedNearAbbey(state, pos);
         }
 
-        if (tunnelCap != null) {
+        if (state.getCapabilities().hasCapability(TunnelCapability.class)) {
             Road r = tunnelCap.getPlacedTunnel();
             if (r != null) {
                 state = scoreCompleted(state, r, tile);
@@ -181,14 +181,14 @@ public class ScorePhase extends ServerAwarePhase {
             }
         }
 
-        if (castleCap != null) {
+        if (state.getCapabilities().hasCapability(CastleCapability.class)) {
             // IMMUTABLE TODO
 //            for (Entry<Castle, Integer> entry : castleCap.getCastleScore().entrySet()) {
 //                scoreCastle(entry.getKey(), entry.getValue());
 //            }
         }
 
-        if (gldCap != null) {
+        if (state.getCapabilities().hasCapability(GoldminesCapability.class)) {
             gldCap.awardGoldPieces();
         }
 
@@ -227,7 +227,7 @@ public class ScorePhase extends ServerAwarePhase {
         if (completable.isCompleted(state) && !alreadyScored.contains(completable)) {
             alreadyScored.add(completable);
 
-            for (Capability cap : state.getCapabilities().values()) {
+            for (Capability cap : state.getCapabilitiesMap().values()) {
                 state = cap.onCompleted(state, completable);
             }
 

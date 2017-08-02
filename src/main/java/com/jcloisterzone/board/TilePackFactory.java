@@ -1,6 +1,11 @@
 package com.jcloisterzone.board;
 
+import static com.jcloisterzone.XMLUtils.attributeIntValue;
+import static com.jcloisterzone.XMLUtils.attributeStringValue;
+import static com.jcloisterzone.XMLUtils.getTileId;
+
 import java.net.URL;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,11 +16,12 @@ import com.jcloisterzone.Expansion;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.DebugConfig;
+import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.capability.RiverCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -24,10 +30,6 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
-
-import static com.jcloisterzone.XMLUtils.attributeIntValue;
-import static com.jcloisterzone.XMLUtils.attributeStringValue;
-import static com.jcloisterzone.XMLUtils.getTileId;
 
 
 public class TilePackFactory {
@@ -57,7 +59,8 @@ public class TilePackFactory {
 
     private final TileDefinitionBuilder tileFactory = new TileDefinitionBuilder();
 
-    protected Game game;
+    protected GameState state;
+    protected Set<Expansion> expansions;
     protected Config config;
     protected Map<Expansion, Element> defs;
 
@@ -77,16 +80,17 @@ public class TilePackFactory {
     }
 
 
-    public void setGame(Game game) {
-        this.game = game;
-        tileFactory.setGame(game);
+    public void setGameState(GameState state) {
+        this.state = state;
+        tileFactory.setGameState(state);
     }
 
     public void setConfig(Config config) {
         this.config = config;
     }
 
-    public void setExpansions(Iterable<Expansion> expansions) {
+    public void setExpansions(Set<Expansion> expansions) {
+        this.expansions = expansions;
         defs = Stream.ofAll(expansions).map(
             exp -> new Tuple2<Expansion, Element>(exp, getExpansionDefinition(exp))
         ).collect(LinkedHashMap.collector());
@@ -160,7 +164,10 @@ public class TilePackFactory {
 
     protected boolean isTunnelActive(Expansion expansion) {
         return expansion == Expansion.TUNNEL ||
-            (game.hasCapability(TunnelCapability.class) && game.getBooleanValue(CustomRule.TUNNELIZE_ALL_EXPANSIONS));
+            (
+                state.getCapabilities().hasCapability(TunnelCapability.class) &&
+                state.getBooleanValue(CustomRule.TUNNELIZE_ALL_EXPANSIONS)
+            );
     }
 
     protected int getTileCount(Element card, String tileId) {
@@ -172,9 +179,18 @@ public class TilePackFactory {
     }
 
     protected String getTileGroup(TileDefinition tile, Element card) {
-        String group = game.getTileGroup(tile);
-        if (group != null) return group;
+        for (Capability<?> cap: state.getCapabilities().toSeq()) {
+            String group = cap.getTileGroup(tile);
+            if (group != null) return group;
+        }
         return attributeStringValue(card, "group", DEFAULT_TILE_GROUP);
+    }
+
+    public TileDefinition initTile(TileDefinition tile, Element xml) {
+        for (Capability<?> cap: state.getCapabilities().toSeq()) {
+            tile = cap.initTile(tile, xml);
+        }
+        return tile;
     }
 
     public TileDefinition createTileDefinition(Expansion expansion, String tileId, Element tileElement) {
@@ -185,7 +201,7 @@ public class TilePackFactory {
 
         TileDefinition tileDef = tileFactory.createTile(expansion, tileId, tileElement, isTunnelActive(expansion));
         try {
-            tileDef = game.initTile(tileDef, tileElement);
+            tileDef = initTile(tileDef, tileElement);
         } catch (RemoveTileException ex) {
             return null;
         }
@@ -207,7 +223,7 @@ public class TilePackFactory {
             NodeList nl = element.getElementsByTagName("tile");
             XMLUtils.elementStream(nl).forEach(tileElement -> {
 
-                if (!game.hasCapability(RiverCapability.class)) {
+                if (!state.getCapabilities().hasCapability(RiverCapability.class)) {
                     //skip river tiles if not playing River to prevent wrong tile count in pack (GQ11 rivers)
                     if (tileElement.getElementsByTagName("river").getLength() > 0) {
                         return;
@@ -235,7 +251,7 @@ public class TilePackFactory {
                         pos = positions.peek();
                         positions = positions.pop();
                         //hard coded exceptions - should be declared in pack def
-                        if (game.hasExpansion(Expansion.COUNT)) {
+                        if (expansions.contains(Expansion.COUNT)) {
                             if (tileId.equals("BA.RCr")) continue;
                             if (tileId.equals("R1.I.s") ||
                                 tileId.equals("R2.I.s") ||
@@ -245,9 +261,9 @@ public class TilePackFactory {
                             if (tileId.equals("WR.CFR")) {
                                 pos = new Position(-2, -2);
                             }
-                        } else if (game.hasExpansion(Expansion.WIND_ROSE)) {
+                        } else if (expansions.contains(Expansion.WIND_ROSE)) {
                             if (tileId.equals("BA.RCr")) continue;
-                            if (game.hasCapability(RiverCapability.class)) {
+                            if (state.getCapabilities().hasCapability(RiverCapability.class)) {
                                 if (tileId.equals("WR.CFR")) {
                                     pos = new Position(0, 1);
                                 }
@@ -277,9 +293,4 @@ public class TilePackFactory {
             List.ofAll(preplacedTiles)
         );
     }
-
-    public Game getGame() {
-        return game;
-    }
-
 }

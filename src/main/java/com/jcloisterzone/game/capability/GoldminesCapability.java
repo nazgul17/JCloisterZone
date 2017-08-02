@@ -31,7 +31,7 @@ import com.jcloisterzone.feature.visitor.score.CompletableScoreContext;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-public class GoldminesCapability  extends Capability {
+public class GoldminesCapability  extends Capability<Void> {
 
     private final Map<Position, Integer> boardGold = new HashMap<>();
     private final Map<Player, Integer> playerGold = new HashMap<>();

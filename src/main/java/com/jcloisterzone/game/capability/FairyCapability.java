@@ -19,7 +19,7 @@ import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Set;
 
 @Immutable
-public class FairyCapability extends Capability {
+public class FairyCapability extends Capability<Void> {
 
     private static final long serialVersionUID = 1L;
 
@@ -28,9 +28,7 @@ public class FairyCapability extends Capability {
 
     @Override
     public GameState onStartGame(GameState state) {
-        return state.setNeutralFigures(
-            state.getNeutralFigures().setFairy(new Fairy("fairy.1"))
-        );
+        return state.updateNeutralFigures(nf -> nf.setFairy(new Fairy("fairy.1")));
     }
 
     @Override

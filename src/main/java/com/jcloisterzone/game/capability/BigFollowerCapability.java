@@ -8,7 +8,7 @@ import com.jcloisterzone.game.Capability;
 
 import io.vavr.collection.List;
 
-public class BigFollowerCapability extends Capability {
+public class BigFollowerCapability extends Capability<Void> {
 
     private static final long serialVersionUID = 1L;
 

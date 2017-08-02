@@ -13,7 +13,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-public class AbbeyCapability extends Capability {
+public class AbbeyCapability extends Capability<Void> {
 
     private final Set<Player> unusedAbbey = new HashSet<>();
     private Player abbeyRoundLastPlayer; //when last tile is drawn all players can still place abbey

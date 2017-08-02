@@ -20,11 +20,8 @@ import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 
 public class FlierActionPhase extends Phase {
 
-    private final FlierCapability flierCap;
-
     public FlierActionPhase(Game game) {
         super(game);
-        flierCap = game.getCapability(FlierCapability.class);
     }
 
     @Override

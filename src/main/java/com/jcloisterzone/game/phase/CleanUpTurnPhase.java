@@ -1,6 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.SetNextPlayer;

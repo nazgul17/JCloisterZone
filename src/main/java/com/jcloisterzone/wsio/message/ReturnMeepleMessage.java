@@ -1,6 +1,5 @@
 package com.jcloisterzone.wsio.message;
 
-import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
@@ -8,7 +7,7 @@ import com.jcloisterzone.wsio.WsMessageCommand;
 public class ReturnMeepleMessage implements WsInGameMessage {
 
     public enum ReturnMeepleSource {
-        PRINCESS, FESTIVAL, CORN_CIRCLE
+        PRINCESS, SIEGE_ESCAPE, FESTIVAL, CORN_CIRCLE;
     }
 
     private String gameId;

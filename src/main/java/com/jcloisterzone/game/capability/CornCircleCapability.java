@@ -13,7 +13,7 @@ import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-public class CornCircleCapability extends Capability {
+public class CornCircleCapability extends Capability<Void> {
 
     public static enum CornCicleOption {
         DEPLOYMENT,

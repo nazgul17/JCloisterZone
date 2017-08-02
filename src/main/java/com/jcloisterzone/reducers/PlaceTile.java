@@ -77,7 +77,7 @@ public class PlaceTile implements Reducer {
         state = state.appendEvent(
             new TilePlacedEvent(PlayEventMeta.createWithActivePlayer(state), tile, pos, rot)
         );
-        for (Capability cap : state.getCapabilities().values()) {
+        for (Capability cap : state.getCapabilitiesMap().values()) {
             state = cap.onTilePlaced(state);
         }
         return state;

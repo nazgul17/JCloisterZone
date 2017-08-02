@@ -13,22 +13,20 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 
 public class TowerCapturePhase extends Phase {
 
-    private final TowerCapability towerCap;
-
     public TowerCapturePhase(Game game) {
         super(game);
-        towerCap = game.getCapability(TowerCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(TowerCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(TowerCapability.class);
     }
 
     @Override

@@ -11,16 +11,15 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
 
 import io.vavr.collection.Set;
 
-public class PrincessCapability extends Capability {
+public class PrincessCapability extends Capability<Void> {
 
     @Override
-    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameState state, String tileId, Feature feature, Element xml) {
         if (feature instanceof City && attributeBoolValue(xml, "princess")) {
             feature = ((City)feature).setPrincess(true);
         }

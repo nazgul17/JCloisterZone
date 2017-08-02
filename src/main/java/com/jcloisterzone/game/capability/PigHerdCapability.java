@@ -9,16 +9,17 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.GameSettings;
+import com.jcloisterzone.game.state.GameState;
 
-public class PigHerdCapability extends Capability {
+public class PigHerdCapability extends Capability<Void> {
 
     private static final long serialVersionUID = 1L;
 
     @Override
-    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameState state, String tileId, Feature feature, Element xml) {
         if (feature instanceof Farm) {
             if (attributeBoolValue(xml, "pig")) {
-                if (gs.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId)) {
+                if (state.getBooleanValue(CustomRule.PIG_HERD_ON_GQ_FARM) || !"GQ.F".equals(tileId)) {
                     feature = ((Farm) feature).setPigHerds(1);
                 }
             }

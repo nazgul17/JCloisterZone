@@ -27,6 +27,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.CornCircleCapability;
 import com.jcloisterzone.game.capability.CornCircleCapability.CornCicleOption;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
@@ -34,16 +35,13 @@ import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
 public class CornCirclePhase extends ServerAwarePhase {
 
-    private final CornCircleCapability cornCircleCap;
-
     public CornCirclePhase(Game game, GameController controller) {
         super(game, controller);
-        cornCircleCap = game.getCapability(CornCircleCapability.class);
     }
 
     @Override
-    public boolean isActive() {
-        return game.hasCapability(CornCircleCapability.class);
+    public boolean isActive(CapabilitiesState capabilities) {
+        return capabilities.hasCapability(CornCircleCapability.class);
     }
 
     @Override

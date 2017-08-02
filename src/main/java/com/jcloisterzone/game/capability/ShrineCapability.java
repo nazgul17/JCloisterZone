@@ -13,14 +13,13 @@ import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.state.GameState;
 
 
-public final class ShrineCapability extends Capability {
+public final class ShrineCapability extends Capability<Void> {
 
     @Override
-    public Feature initFeature(GameSettings gs, String tileId, Feature feature, Element xml) {
+    public Feature initFeature(GameState state, String tileId, Feature feature, Element xml) {
         if (feature instanceof Cloister) {
             ((Cloister)feature).setShrine(attributeBoolValue(xml, "shrine"));
         }
