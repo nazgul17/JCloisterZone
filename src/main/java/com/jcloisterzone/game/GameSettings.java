@@ -13,7 +13,6 @@ public class GameSettings {
     private String name;
     private final EnumMap<CustomRule, Object> customRules = new EnumMap<>(CustomRule.class);
     private final Set<Expansion> expansions = EnumSet.noneOf(Expansion.class);
-    private final Set<Class<? extends Capability<?>>> capabilityClasses = new HashSet<>();
 
 
     public GameSettings(String gameId) {
@@ -45,7 +44,7 @@ public class GameSettings {
 
     @Deprecated //in favor of capabilities on GameState
     public boolean hasCapability(Class<? extends Capability<?>> c) {
-        return capabilityClasses.contains(c);
+        return false;
     }
 
     public Set<Expansion> getExpansions() {
@@ -54,9 +53,5 @@ public class GameSettings {
 
     public EnumMap<CustomRule, Object> getCustomRules() {
         return customRules;
-    }
-
-    public Set<Class<? extends Capability<?>>> getCapabilityClasses() {
-        return capabilityClasses;
     }
 }

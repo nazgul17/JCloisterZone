@@ -22,14 +22,14 @@ public class GameSetupMessage implements WsMessage, WsInGameMessage	 {
     @JsonAdapter(CustomRulesMapAdapter.class)
     private Map<CustomRule, Object> rules;
     private Set<Expansion> expansions;
-    private Set<Class<? extends Capability<?>>> capabilityClasses;
+    //private Set<Class<? extends Capability<?>>> capabilityClasses;
 
-    public GameSetupMessage(String gameId, Map<CustomRule, Object> rules, Set<Expansion> expansions,
-            Set<Class<? extends Capability<?>>> capabilityClasses) {
+    public GameSetupMessage(String gameId, Map<CustomRule, Object> rules, Set<Expansion> expansions
+            /*Set<Class<? extends Capability<?>>> capabilityClasses*/) {
         this.gameId = gameId;
         this.rules = rules;
         this.expansions = expansions;
-        this.capabilityClasses = capabilityClasses;
+        //this.capabilityClasses = capabilityClasses;
     }
 
     @Override
@@ -57,13 +57,13 @@ public class GameSetupMessage implements WsMessage, WsInGameMessage	 {
         this.expansions = expansions;
     }
 
-    public Set<Class<? extends Capability<?>>> getCapabilityClasses() {
-        return capabilityClasses;
-    }
-
-    public void setCapabilityClasses(Set<Class<? extends Capability<?>>> capabilityClasses) {
-        this.capabilityClasses = capabilityClasses;
-    }
+//    public Set<Class<? extends Capability<?>>> getCapabilityClasses() {
+//        return capabilityClasses;
+//    }
+//
+//    public void setCapabilityClasses(Set<Class<? extends Capability<?>>> capabilityClasses) {
+//        this.capabilityClasses = capabilityClasses;
+//    }
 
     public static class CustomRulesMapAdapter extends TypeAdapter<Map<CustomRule, Object>> {
 

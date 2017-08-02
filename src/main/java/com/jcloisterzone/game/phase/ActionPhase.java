@@ -106,7 +106,8 @@ public class ActionPhase extends Phase {
 
             if (placementAllowed) {
                 places = tile.getScoreables(!isCurrentTile);
-                if (isCurrentTile && game.hasCapability(PrincessCapability.class) && state.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
+                if (isCurrentTile && state.getCapabilities().contains(PrincessCapability.class) &&
+                        state.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
                     places = excludePrincess(tile, places);
                 }
             } else {

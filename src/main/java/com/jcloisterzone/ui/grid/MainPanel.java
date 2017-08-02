@@ -21,6 +21,7 @@ import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.PlagueCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
+import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.ControlPanel;
@@ -31,7 +32,6 @@ import com.jcloisterzone.ui.grid.layer.AnimationLayer;
 import com.jcloisterzone.ui.grid.layer.BarnAreaLayer;
 import com.jcloisterzone.ui.grid.layer.BridgeLayer;
 import com.jcloisterzone.ui.grid.layer.CastleLayer;
-import com.jcloisterzone.ui.grid.layer.DragonLayer;
 import com.jcloisterzone.ui.grid.layer.FarmHintsLayer;
 import com.jcloisterzone.ui.grid.layer.FeatureAreaLayer;
 import com.jcloisterzone.ui.grid.layer.FollowerAreaLayer;
@@ -96,57 +96,58 @@ public class MainPanel extends JPanel {
         MeepleLayer meepleLayer = new MeepleLayer(gridPanel, gc);
         farmHintLayer = new FarmHintsLayer(gridPanel, gc);
 
+        CapabilitiesState capabs = game.getState().getCapabilities();
+
         gridPanel.addLayer(new TilePlacementLayer(gridPanel, gc), false);
         gridPanel.addLayer(new TileLayer(gridPanel, gc));  //zindex 2
-        if (game.hasCapability(TowerCapability.class)) {
+        if (capabs.contains(TowerCapability.class)) {
             gridPanel.addLayer(new TowerLayer(gridPanel, gc)); //5
         }
 
         gridPanel.addLayer(farmHintLayer, false); //zindex 10
 
 
-        if (game.hasCapability(CastleCapability.class)) {
+        if (capabs.contains(CastleCapability.class)) {
             gridPanel.addLayer(new CastleLayer(gridPanel, gc)); //45
         }
-        if (game.hasCapability(PlagueCapability.class)) {
+        if (capabs.contains(PlagueCapability.class)) {
             gridPanel.addLayer(new PlagueLayer(gridPanel, gc)); //45
         }
 
         gridPanel.addLayer(meepleLayer); //zindex 50
         //TODO add always
-        if (game.hasCapability(LittleBuildingsCapability.class) ||
-            game.hasCapability(TunnelCapability.class) ) {
+        if (capabs.contains(LittleBuildingsCapability.class) ||
+            capabs.contains(TunnelCapability.class) ) {
             gridPanel.addLayer(new TokenLayer(gridPanel, gc));
         }
 
-        if (game.hasCapability(BridgeCapability.class)) {
+        if (capabs.contains(BridgeCapability.class)) {
             BridgeLayer bridgeLayer = new BridgeLayer(gridPanel, gc);
             bridgeLayer.setMeepleLayer(meepleLayer);
             gridPanel.addLayer(bridgeLayer);
         }
 
-        if (game.hasCapability(GoldminesCapability.class)) {
+        if (capabs.contains(GoldminesCapability.class)) {
             gridPanel.addLayer(new GoldLayer(gridPanel, gc));
         }
 
         gridPanel.addLayer(new FollowerAreaLayer(gridPanel, gc, meepleLayer), false); //70
 
-//        if (game.hasCapability(DragonCapability.class)) {
+//        if (capabs.contains(DragonCapability.class)) {
 //            gridPanel.addLayer(new DragonLayer(gridPanel, gc));
 //        }
 
-        if (game.hasCapability(BarnCapability.class)) {
+        if (capabs.contains(BarnCapability.class)) {
             gridPanel.addLayer(new BarnAreaLayer(gridPanel, gc), false);
         }
 
         gridPanel.addLayer(new FeatureAreaLayer(gridPanel, gc), false);
-        if (game.hasCapability(TowerCapability.class) || game.hasCapability(FairyCapability.class) || game.hasCapability(GoldminesCapability.class)) {
-            gridPanel.addLayer(new TileActionLayer(gridPanel, gc), false);
-        }
-        if (game.hasCapability(AbbeyCapability.class)) {
+        gridPanel.addLayer(new TileActionLayer(gridPanel, gc), false);
+
+        if (capabs.contains(AbbeyCapability.class)) {
             gridPanel.addLayer(new AbbeyPlacementLayer(gridPanel, gc), false);
         }
-        if (game.hasCapability(LittleBuildingsCapability.class)) {
+        if (capabs.contains(LittleBuildingsCapability.class)) {
             gridPanel.addLayer(new LittleBuildingActionLayer(gridPanel, gc), false); //100
         }
 

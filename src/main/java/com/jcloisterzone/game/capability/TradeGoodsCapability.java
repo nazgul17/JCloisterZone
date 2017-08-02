@@ -4,48 +4,42 @@ import org.w3c.dom.Element;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
-import com.jcloisterzone.TradeResource;
+import com.jcloisterzone.TradeGoods;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameSettings;
+import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlayersState;
 import com.jcloisterzone.reducers.AddPoints;
 
-import io.vavr.collection.Array;
+import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
 
-/**
- * @model Array<Map<TradeResource, Integer>> : number of trade counters indexed by player index
- */
-public class TradeCountersCapability extends Capability<Array<Map<TradeResource, Integer>>> {
+public class TradeGoodsCapability extends Capability<Void> {
 
     private static final long serialVersionUID = 1L;
-
-    @Override
-    public GameState onStartGame(GameState state) {
-        return setModel(state, state.getPlayers().getPlayers().map(p -> HashMap.empty()));
-    }
 
     @Override
     public GameState onCompleted(GameState state, Completable feature) {
         if (!(feature instanceof City)) return state;
 
         City city = (City) feature;
-        Map<TradeResource, Integer> cityResources = city.getTradeResources();
-        if (cityResources.isEmpty()) {
+        Map<TradeGoods, Integer> cityTradeGoods = city.getTradeGoods();
+        if (cityTradeGoods.isEmpty()) {
             return state;
         }
 
         int playerIdx = state.getPlayers().getTurnPlayerIndex();
-        state = updateModel(state, tradeCounters ->
-            tradeCounters.update(playerIdx,
-                res -> res.merge(cityResources, (a, b) -> a+b)
-            )
-        );
+        state = state.updatePlayers(ps -> {
+            for (Tuple2<TradeGoods, Integer> t : cityTradeGoods) {
+                ps = ps.addPlayerTokenCount(playerIdx, t._1.getToken(), t._2);
+            }
+            return ps;
+        });
 
         return state;
     }
@@ -55,7 +49,7 @@ public class TradeCountersCapability extends Capability<Array<Map<TradeResource,
         if (feature instanceof City && xml.hasAttribute("resource")) {
             City city = (City) feature;
             String val = xml.getAttribute("resource");
-            TradeResource res = TradeResource.valueOf(val.toUpperCase());
+            TradeGoods res = TradeGoods.valueOf(val.toUpperCase());
             return city.setTradeResources(HashMap.of(res, 1));
         }
         return feature;
@@ -64,12 +58,14 @@ public class TradeCountersCapability extends Capability<Array<Map<TradeResource,
 
     @Override
     public GameState finalScoring(GameState state) {
-        for (TradeResource tr : TradeResource.values()) {
+        PlayersState ps = state.getPlayers();
+        for (TradeGoods tr : TradeGoods.values()) {
             int hiVal = 1;
             List<Player> hiPlayers = List.empty();
+            Token token = tr.getToken();
 
-            for (Player player: state.getPlayers().getPlayers()) {
-                int playerValue = player.getTradeResources(state, tr);
+            for (Player player: ps.getPlayers()) {
+                int playerValue = ps.getPlayerTokenCount(player.getIndex(), token);
                 if (playerValue > hiVal) {
                     hiVal = playerValue;
                     hiPlayers = List.of(player);

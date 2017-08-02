@@ -28,6 +28,7 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
@@ -38,6 +39,7 @@ import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TradeCountersCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlayersState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
@@ -236,6 +238,8 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         by = 43;
 
         GameState state = game.getState();
+        PlayersState ps = state.getPlayers();
+        int index = player.getIndex();
 
         if (timeLimit != null) {
             long remainingMs = timeLimit*1000 - player.getClock(state).getTime();
@@ -267,6 +271,8 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         for (Special meeple : player.getSpecialMeeples(state).filter(f -> f.isInSupply(state))) {
             drawMeepleBox(player, meeple.getClass().getSimpleName(), 1, false);
         }
+
+
 
 //		gp.profile(" > special");
 
@@ -323,11 +329,11 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 //                }
 //            }
 //        }
-//        if (cwgCap != null) {
-//            drawMeepleBox(null, "cloth", player.getTradeResources(state, TradeResource.CLOTH), true);
-//            drawMeepleBox(null, "grain", player.getTradeResources(state, TradeResource.GRAIN), true);
-//            drawMeepleBox(null, "wine", player.getTradeResources(state, TradeResource.WINE), true);
-//        }
+
+            drawMeepleBox(null, "cloth", ps.getPlayerTokenCount(index, Token.CLOTH), true);
+            drawMeepleBox(null, "grain", ps.getPlayerTokenCount(index, Token.GRAIN), true);
+            drawMeepleBox(null, "wine", ps.getPlayerTokenCount(index, Token.WINE), true);
+
 //        if (gldCap != null) {
 //            drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);
 //        }

@@ -7,7 +7,6 @@ import java.awt.event.MouseEvent;
 import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.action.GoldPieceAction;
 import com.jcloisterzone.action.MoveDragonAction;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectTileAction;
 import com.jcloisterzone.action.TowerPieceAction;
 import com.jcloisterzone.board.Position;

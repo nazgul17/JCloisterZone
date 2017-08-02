@@ -44,7 +44,7 @@ public class CleanUpTurnPartPhase extends Phase {
         }
 
         if (builderTakeAnotherTurn) {
-            next(state, game.hasCapability(AbbeyCapability.class) ? AbbeyPhase.class : DrawPhase.class);
+            next(state, state.getCapabilities().contains(AbbeyCapability.class) ? AbbeyPhase.class : DrawPhase.class);
         } else {
             next(state);
         }
