@@ -165,7 +165,7 @@ public class TilePackFactory {
     protected boolean isTunnelActive(Expansion expansion) {
         return expansion == Expansion.TUNNEL ||
             (
-                state.getCapabilities().hasCapability(TunnelCapability.class) &&
+                state.getCapabilities().contains(TunnelCapability.class) &&
                 state.getBooleanValue(CustomRule.TUNNELIZE_ALL_EXPANSIONS)
             );
     }
@@ -223,7 +223,7 @@ public class TilePackFactory {
             NodeList nl = element.getElementsByTagName("tile");
             XMLUtils.elementStream(nl).forEach(tileElement -> {
 
-                if (!state.getCapabilities().hasCapability(RiverCapability.class)) {
+                if (!state.getCapabilities().contains(RiverCapability.class)) {
                     //skip river tiles if not playing River to prevent wrong tile count in pack (GQ11 rivers)
                     if (tileElement.getElementsByTagName("river").getLength() > 0) {
                         return;
@@ -263,7 +263,7 @@ public class TilePackFactory {
                             }
                         } else if (expansions.contains(Expansion.WIND_ROSE)) {
                             if (tileId.equals("BA.RCr")) continue;
-                            if (state.getCapabilities().hasCapability(RiverCapability.class)) {
+                            if (state.getCapabilities().contains(RiverCapability.class)) {
                                 if (tileId.equals("WR.CFR")) {
                                     pos = new Position(0, 1);
                                 }

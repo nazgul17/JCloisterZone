@@ -28,7 +28,7 @@ public class EscapePhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(SiegeCapability.class);
+        return capabilities.contains(SiegeCapability.class);
     }
 
     @Override

@@ -36,7 +36,7 @@ public class DragonMovePhase extends ServerAwarePhase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(DragonCapability.class);
+        return capabilities.contains(DragonCapability.class);
     }
 
     private Vector<Position> getVisitedPositions(GameState state) {

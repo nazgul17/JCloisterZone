@@ -16,7 +16,7 @@ public class DragonPhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(DragonCapability.class);
+        return capabilities.contains(DragonCapability.class);
     }
 
     @Override

@@ -18,7 +18,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.SnapshotCorruptedException;
 
-public final class KingAndRobberBaronCapability extends Capability {
+public final class KingAndRobberBaronCapability extends Capability<Void> {
 
     protected int completedCities, biggestCitySize;
     protected int completedRoads, longestRoadLength;

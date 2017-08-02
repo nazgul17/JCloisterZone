@@ -27,7 +27,7 @@ public class MageAndWitchPhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(MageAndWitchCapability.class);
+        return capabilities.contains(MageAndWitchCapability.class);
     }
 
     @Override

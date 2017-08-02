@@ -34,7 +34,7 @@ public class CastlePhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(CastleCapability.class);
+        return capabilities.contains(CastleCapability.class);
     }
 
     @Override

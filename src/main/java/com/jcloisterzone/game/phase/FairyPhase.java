@@ -24,7 +24,7 @@ public class FairyPhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(FairyCapability.class);
+        return capabilities.contains(FairyCapability.class);
     }
 
     @Override

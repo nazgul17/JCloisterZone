@@ -20,7 +20,7 @@ import com.jcloisterzone.event.LittleBuildingEvent;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-public class LittleBuildingsCapability extends Capability {
+public class LittleBuildingsCapability extends Capability<Void> {
 
     @SuppressWarnings("unchecked")
     private final Map<Player, Integer>[] buildings = new Map[LittleBuilding.values().length];

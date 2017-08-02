@@ -28,7 +28,7 @@ public class BazaarPhase extends ServerAwarePhase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(BazaarCapability.class);
+        return capabilities.contains(BazaarCapability.class);
     }
 
     @Override

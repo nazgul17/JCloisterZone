@@ -46,17 +46,10 @@ public class NeutralFigurePanel extends JComponent {
     private int realHeight = 1;
     private int bx = 0, by = 0;
 
-    private final DragonCapability dragonCap;
-    private final FairyCapability fairyCap;
-    private final MageAndWitchCapability mwCap;
-
     public NeutralFigurePanel(Client client, Game game, PlayerPanelImageCache cache) {
         this.client = client;
         this.game = game;
         this.cache = cache;
-        dragonCap = game.getCapability(DragonCapability.class);
-        fairyCap = game.getCapability(FairyCapability.class);
-        mwCap = game.getCapability(MageAndWitchCapability.class);
     }
 
     private Rectangle drawMeepleBox(Graphics2D g2, String imgKey) {

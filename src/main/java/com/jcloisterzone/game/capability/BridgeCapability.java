@@ -22,7 +22,7 @@ import com.jcloisterzone.event.BridgeEvent;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 
-public class BridgeCapability extends Capability {
+public class BridgeCapability extends Capability<Void> {
 
     private boolean bridgeUsed;
     private final Map<Player, Integer> bridges = new HashMap<>();

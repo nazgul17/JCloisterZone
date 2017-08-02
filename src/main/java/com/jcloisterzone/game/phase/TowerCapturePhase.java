@@ -26,7 +26,7 @@ public class TowerCapturePhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(TowerCapability.class);
+        return capabilities.contains(TowerCapability.class);
     }
 
     @Override

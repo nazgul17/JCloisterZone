@@ -41,7 +41,7 @@ public class WagonPhase extends ServerAwarePhase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(WagonCapability.class);
+        return capabilities.contains(WagonCapability.class);
     }
 
     @Override

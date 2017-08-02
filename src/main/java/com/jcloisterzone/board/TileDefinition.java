@@ -162,4 +162,9 @@ public class TileDefinition implements Serializable {
             computeSideEdge(Location.W)
         );
     }
+
+    @Override
+    public String toString() {
+        return id;
+    }
 }

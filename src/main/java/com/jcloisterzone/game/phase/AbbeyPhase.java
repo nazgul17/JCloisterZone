@@ -19,7 +19,7 @@ public class AbbeyPhase extends ServerAwarePhase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(AbbeyCapability.class);
+        return capabilities.contains(AbbeyCapability.class);
     }
 
     @Override

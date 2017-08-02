@@ -43,6 +43,7 @@ public class GameSettings {
         return (Boolean) customRules.get(rule);
     }
 
+    @Deprecated //in favor of capabilities on GameState
     public boolean hasCapability(Class<? extends Capability<?>> c) {
         return capabilityClasses.contains(c);
     }

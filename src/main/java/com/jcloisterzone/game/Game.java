@@ -174,21 +174,6 @@ public class Game extends GameSettings implements EventProxy {
         replaceState(head._1);
     }
 
-//    public Undoable getLastUndoable() {
-//        return lastUndoable.size() == 0 ? null : lastUndoable.get(lastUndoable.size()-1);
-//    }
-//
-
-//
-//    private boolean isUiSupportedUndo(Event event) {
-//        if (event instanceof TileEvent && event.getType() == TileEvent.PLACEMENT) return true;
-//        if (event instanceof MeepleEvent && ((MeepleEvent) event).getTo() != null) return true;
-//        if (event instanceof BridgeEvent && event.getType() == BridgeEvent.DEPLOY) return true;
-//        if (event instanceof GoldChangeEvent) return true;
-//        if (event instanceof ScoreEvent && ((ScoreEvent)event).getCategory() == PointCategory.WIND_ROSE) return true;
-//        return false;
-//    }
-
     @Override
     public void post(Event event) {
         eventBus.post(event);
@@ -227,27 +212,6 @@ public class Game extends GameSettings implements EventProxy {
 //        while ((event = eventQueue.poll()) != null) {
 //            eventBus.post(event);
 //        }
-//    }
-
-
-
-//    public void undo() {
-//        if (!isUndoAllowed()) {
-//            logger.warn("Undo is not allowed");
-//            return;
-//        }
-//        for (int i = lastUndoable.size()-1; i >= 0; i--) {
-//            Undoable ev = lastUndoable.get(i);
-//            Event inverse = ev.getInverseEvent();
-//            inverse.setUndo(true);
-//
-//            ev.undo(this);
-//            post(inverse); //should be post inside undo? silent vs. firing undo?
-//        }
-//        phase = lastUndoablePhase;
-//        lastUndoable.clear();
-//        lastUndoablePhase = null;
-//        phase.reenter();
 //    }
 
 
@@ -309,12 +273,12 @@ public class Game extends GameSettings implements EventProxy {
     // delegation to capabilities
 
 
-    public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
-        for (Capability cap: getCapabilities()) {
-            if (!cap.isTilePlacementAllowed(tile, p)) return false;
-        }
-        return true;
-    }
+//    public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
+//        for (Capability cap: getCapabilities()) {
+//            if (!cap.isTilePlacementAllowed(tile, p)) return false;
+//        }
+//        return true;
+//    }
 
 //    public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
 //        for (Capability cap: getCapabilities()) {

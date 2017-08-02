@@ -20,7 +20,7 @@ public class GoldPiecePhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(GoldminesCapability.class);
+        return capabilities.contains(GoldminesCapability.class);
     }
 
     @Override

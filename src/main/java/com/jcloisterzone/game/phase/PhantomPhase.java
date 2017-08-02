@@ -40,7 +40,7 @@ public class PhantomPhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(PhantomCapability.class);
+        return capabilities.contains(PhantomCapability.class);
     }
 
     @Override

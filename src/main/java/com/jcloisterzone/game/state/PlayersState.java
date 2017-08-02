@@ -119,4 +119,9 @@ public class PlayersState implements Serializable {
     public Player getTurnPlayer() {
         return getPlayer(turnPlayerIndex);
     }
+
+    @Override
+    public String toString() {
+        return String.join(",", players.map(p -> p.getNick()));
+    }
 }

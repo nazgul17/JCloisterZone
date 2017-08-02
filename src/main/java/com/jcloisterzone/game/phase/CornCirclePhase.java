@@ -41,7 +41,7 @@ public class CornCirclePhase extends ServerAwarePhase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(CornCircleCapability.class);
+        return capabilities.contains(CornCircleCapability.class);
     }
 
     @Override

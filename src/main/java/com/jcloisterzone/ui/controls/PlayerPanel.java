@@ -31,7 +31,6 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
-import com.jcloisterzone.game.capability.ClothWineGrainCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.KingAndRobberBaronCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
@@ -79,15 +78,15 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
     private String mouseOverKey = null;
 
-    private final AbbeyCapability abbeyCap;
-    private final TowerCapability towerCap;
-    private final BridgeCapability bridgeCap;
-    private final CastleCapability castleCap;
-    private final KingAndRobberBaronCapability kingRobberCap;
-    private final TradeCountersCapability cwgCap;
-    private final LittleBuildingsCapability lbCap;
-    private final TunnelCapability tunnelCap;
-    private final GoldminesCapability gldCap;
+//    private final AbbeyCapability abbeyCap;
+//    private final TowerCapability towerCap;
+//    private final BridgeCapability bridgeCap;
+//    private final CastleCapability castleCap;
+//    private final KingAndRobberBaronCapability kingRobberCap;
+//    private final TradeCountersCapability cwgCap;
+//    private final LittleBuildingsCapability lbCap;
+//    private final TunnelCapability tunnelCap;
+//    private final GoldminesCapability gldCap;
 
     private Integer timeLimit;
 
@@ -100,15 +99,15 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         this.fontColor = player.getColors().getFontColor();
 
         Game game = gc.getGame();
-        abbeyCap = game.getCapability(AbbeyCapability.class);
-        towerCap = game.getCapability(TowerCapability.class);
-        bridgeCap = game.getCapability(BridgeCapability.class);
-        castleCap = game.getCapability(CastleCapability.class);
-        kingRobberCap = game.getCapability(KingAndRobberBaronCapability.class);
-        cwgCap = game.getCapability(TradeCountersCapability.class);
-        lbCap = game.getCapability(LittleBuildingsCapability.class);
-        tunnelCap = game.getCapability(TunnelCapability.class);
-        gldCap = game.getCapability(GoldminesCapability.class);
+//        abbeyCap = game.getCapability(AbbeyCapability.class);
+//        towerCap = game.getCapability(TowerCapability.class);
+//        bridgeCap = game.getCapability(BridgeCapability.class);
+//        castleCap = game.getCapability(CastleCapability.class);
+//        kingRobberCap = game.getCapability(KingAndRobberBaronCapability.class);
+//        cwgCap = game.getCapability(TradeCountersCapability.class);
+//        lbCap = game.getCapability(LittleBuildingsCapability.class);
+//        tunnelCap = game.getCapability(TunnelCapability.class);
+//        gldCap = game.getCapability(GoldminesCapability.class);
 
         timeLimit = (Integer) game.getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME);
     }
@@ -271,92 +270,92 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
 //		gp.profile(" > special");
 
+//   TODO IMMUTABLE
 
-
-        if (abbeyCap != null) {
-            drawMeepleBox(null, "abbey", abbeyCap.hasUnusedAbbey(player) ? 1 : 0, false);
-        }
-
-        if (towerCap != null) {
-            drawMeepleBox(null, "towerpiece", towerCap.getTowerPieces(player), true);
-        }
-
-        if (bridgeCap != null) {
-            drawMeepleBox(null, "bridge", bridgeCap.getPlayerBridges(player), true);
-        }
-        if (castleCap != null) {
-            drawMeepleBox(null, "castle", castleCap.getPlayerCastles(player), true);
-        }
-        if (tunnelCap != null) {
-            drawMeepleBox(player, "tunnelA", tunnelCap.getTunnelTokens(player, false), true);
-            drawMeepleBox(player, "tunnelB", tunnelCap.getTunnelTokens(player, true), true);
-        }
-
-        if (lbCap != null) {
-            drawMeepleBox(null, "lb-shed", lbCap.getBuildingsCount(player, LittleBuilding.SHED), true);
-            drawMeepleBox(null, "lb-house", lbCap.getBuildingsCount(player, LittleBuilding.HOUSE), true);
-            drawMeepleBox(null, "lb-tower", lbCap.getBuildingsCount(player, LittleBuilding.TOWER), true);
-        }
-
-        if (kingRobberCap != null) {
-            if (kingRobberCap.getKing() == player) {
-                Rectangle r = drawMeepleBox(null, "king", 1, false, "king");
-                if ("king".equals(mouseOverKey)) {
-                    g2.setFont(FONT_KING_ROBBER_OVERLAY);
-                    g2.setColor(KING_ROBBER_OVERLAY);
-                    g2.fillRect(r.x, r.y, r.width, r.height);
-                    g2.setColor(Color.WHITE);
-                    int size = kingRobberCap.getBiggestCitySize();
-                    g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
-                    g2.setFont(FONT_MEEPLE);
-                }
-            }
-            if (kingRobberCap.getRobberBaron() == player) {
-                Rectangle r = drawMeepleBox(null, "robber", 1, false, "robber");
-                if ("robber".equals(mouseOverKey)) {
-                    g2.setFont(FONT_KING_ROBBER_OVERLAY);
-                    g2.setColor(KING_ROBBER_OVERLAY);
-                    g2.fillRect(r.x, r.y, r.width, r.height);
-                    g2.setColor(Color.WHITE);
-                    int size = kingRobberCap.getLongestRoadLength();
-                    g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
-                    g2.setFont(FONT_MEEPLE);
-                }
-            }
-        }
-        if (cwgCap != null) {
-            drawMeepleBox(null, "cloth", player.getTradeResources(state, TradeResource.CLOTH), true);
-            drawMeepleBox(null, "grain", player.getTradeResources(state, TradeResource.GRAIN), true);
-            drawMeepleBox(null, "wine", player.getTradeResources(state, TradeResource.WINE), true);
-        }
-        if (gldCap != null) {
-            drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);
-        }
-
-        if (towerCap != null) {
-            List<Follower> capturedFigures = towerCap.getPrisoners().get(player);
-            Map<Class<? extends Follower>, Integer> groupedByType;
-            if (!capturedFigures.isEmpty()) {
-                groupedByType = new HashMap<>();
-                for (Player opponent : game.getState().getPlayers().getPlayers()) {
-                    if (opponent == player) continue;
-                    boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
-                    boolean clickable = isOpponentActive && !towerCap.isRansomPaidThisTurn();
-                    for (Follower f : capturedFigures) {
-                        if (f.getPlayer().equals(opponent)) {
-                            Integer prevVal = groupedByType.get(f.getClass());
-                            groupedByType.put(f.getClass(), prevVal == null ? 1 : prevVal+1);
-                        }
-                    }
-                    for (Entry<Class<? extends Follower>, Integer> entry : groupedByType.entrySet()) {
-                        drawMeepleBox(opponent, entry.getKey().getSimpleName(), entry.getValue(), false,
-                                clickable ? entry.getKey() : null, clickable
-                        );
-                    }
-                    groupedByType.clear();
-                }
-            }
-        }
+//        if (abbeyCap != null) {
+//            drawMeepleBox(null, "abbey", abbeyCap.hasUnusedAbbey(player) ? 1 : 0, false);
+//        }
+//
+//        if (towerCap != null) {
+//            drawMeepleBox(null, "towerpiece", towerCap.getTowerPieces(player), true);
+//        }
+//
+//        if (bridgeCap != null) {
+//            drawMeepleBox(null, "bridge", bridgeCap.getPlayerBridges(player), true);
+//        }
+//        if (castleCap != null) {
+//            drawMeepleBox(null, "castle", castleCap.getPlayerCastles(player), true);
+//        }
+//        if (tunnelCap != null) {
+//            drawMeepleBox(player, "tunnelA", tunnelCap.getTunnelTokens(player, false), true);
+//            drawMeepleBox(player, "tunnelB", tunnelCap.getTunnelTokens(player, true), true);
+//        }
+//
+//        if (lbCap != null) {
+//            drawMeepleBox(null, "lb-shed", lbCap.getBuildingsCount(player, LittleBuilding.SHED), true);
+//            drawMeepleBox(null, "lb-house", lbCap.getBuildingsCount(player, LittleBuilding.HOUSE), true);
+//            drawMeepleBox(null, "lb-tower", lbCap.getBuildingsCount(player, LittleBuilding.TOWER), true);
+//        }
+//
+//        if (kingRobberCap != null) {
+//            if (kingRobberCap.getKing() == player) {
+//                Rectangle r = drawMeepleBox(null, "king", 1, false, "king");
+//                if ("king".equals(mouseOverKey)) {
+//                    g2.setFont(FONT_KING_ROBBER_OVERLAY);
+//                    g2.setColor(KING_ROBBER_OVERLAY);
+//                    g2.fillRect(r.x, r.y, r.width, r.height);
+//                    g2.setColor(Color.WHITE);
+//                    int size = kingRobberCap.getBiggestCitySize();
+//                    g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
+//                    g2.setFont(FONT_MEEPLE);
+//                }
+//            }
+//            if (kingRobberCap.getRobberBaron() == player) {
+//                Rectangle r = drawMeepleBox(null, "robber", 1, false, "robber");
+//                if ("robber".equals(mouseOverKey)) {
+//                    g2.setFont(FONT_KING_ROBBER_OVERLAY);
+//                    g2.setColor(KING_ROBBER_OVERLAY);
+//                    g2.fillRect(r.x, r.y, r.width, r.height);
+//                    g2.setColor(Color.WHITE);
+//                    int size = kingRobberCap.getLongestRoadLength();
+//                    g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
+//                    g2.setFont(FONT_MEEPLE);
+//                }
+//            }
+//        }
+//        if (cwgCap != null) {
+//            drawMeepleBox(null, "cloth", player.getTradeResources(state, TradeResource.CLOTH), true);
+//            drawMeepleBox(null, "grain", player.getTradeResources(state, TradeResource.GRAIN), true);
+//            drawMeepleBox(null, "wine", player.getTradeResources(state, TradeResource.WINE), true);
+//        }
+//        if (gldCap != null) {
+//            drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);
+//        }
+//
+//        if (towerCap != null) {
+//            List<Follower> capturedFigures = towerCap.getPrisoners().get(player);
+//            Map<Class<? extends Follower>, Integer> groupedByType;
+//            if (!capturedFigures.isEmpty()) {
+//                groupedByType = new HashMap<>();
+//                for (Player opponent : game.getState().getPlayers().getPlayers()) {
+//                    if (opponent == player) continue;
+//                    boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
+//                    boolean clickable = isOpponentActive && !towerCap.isRansomPaidThisTurn();
+//                    for (Follower f : capturedFigures) {
+//                        if (f.getPlayer().equals(opponent)) {
+//                            Integer prevVal = groupedByType.get(f.getClass());
+//                            groupedByType.put(f.getClass(), prevVal == null ? 1 : prevVal+1);
+//                        }
+//                    }
+//                    for (Entry<Class<? extends Follower>, Integer> entry : groupedByType.entrySet()) {
+//                        drawMeepleBox(opponent, entry.getKey().getSimpleName(), entry.getValue(), false,
+//                                clickable ? entry.getKey() : null, clickable
+//                        );
+//                    }
+//                    groupedByType.clear();
+//                }
+//            }
+//        }
 
 //		gp.profile(" > expansions");
         int oldValue = realHeight;

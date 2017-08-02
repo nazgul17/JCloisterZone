@@ -19,7 +19,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.SnapshotCorruptedException;
 
-public class WindRoseCapability extends Capability {
+public class WindRoseCapability extends Capability<Void> {
 
     public static final int WIND_ROSE_POINTS = 3;
 

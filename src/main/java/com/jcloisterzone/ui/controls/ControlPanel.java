@@ -91,8 +91,6 @@ public class ControlPanel extends JPanel {
         this.gc = gameView.getGameController();
         gc.register(this);
 
-        bcb = game.getCapability(BazaarCapability.class);
-
         setOpaque(false);
         setLayout(new MigLayout("ins 0, gap 0", "[grow]", ""));
 
@@ -110,7 +108,7 @@ public class ControlPanel extends JPanel {
         actionPanel = new ActionPanel(gameView);
         add(actionPanel, "wrap, growx, gapleft 35, h 106");
 
-        if (bcb != null) {
+        if (game.getState().getCapabilities().contains(BazaarCapability.class)) {
             bazaarSupplyPanel = new BazaarSupplyPanel();
             bazaarSupplyPanel.setVisible(false);
             add(bazaarSupplyPanel, "wrap, growx, gapbottom 12, h 40, hidemode 3");

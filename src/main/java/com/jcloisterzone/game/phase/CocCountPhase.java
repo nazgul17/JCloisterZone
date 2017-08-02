@@ -31,7 +31,7 @@ public class CocCountPhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(CountCapability.class);
+        return capabilities.contains(CountCapability.class);
     }
 
     @Override

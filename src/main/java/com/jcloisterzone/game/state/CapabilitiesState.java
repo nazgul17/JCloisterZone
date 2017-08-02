@@ -72,7 +72,7 @@ public class CapabilitiesState implements Serializable {
         return (C) capabilities.get(cls).getOrNull();
     }
 
-    public boolean hasCapability(Class<? extends Capability<?>> cls) {
+    public boolean contains(Class<? extends Capability<?>> cls) {
         return capabilities.containsKey(cls);
     }
 
@@ -82,13 +82,16 @@ public class CapabilitiesState implements Serializable {
 
     @SuppressWarnings("unchecked")
     public <M> M getModel(Class<? extends Capability<M>> class1) {
-        return (M) models.get(class1);
+        return (M) models.get(class1).getOrNull();
     }
 
     public Seq<Capability<?>> toSeq() {
         return capabilities.values();
     }
 
-
+    @Override
+    public String toString() {
+        return String.join(", ", toSeq().map(cap -> cap.toString()));
+    }
 
 }

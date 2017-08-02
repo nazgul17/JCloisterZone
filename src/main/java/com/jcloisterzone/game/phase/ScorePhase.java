@@ -153,7 +153,7 @@ public class ScorePhase extends ServerAwarePhase {
         Tile tile = board.getLastPlaced();
         Position pos = tile.getPosition();
         //TODO separate event here ??? and move this code to abbey and mayor game
-        if (state.getCapabilities().hasCapability(BarnCapability.class)) {
+        if (state.getCapabilities().contains(BarnCapability.class)) {
             Map<City, CityScoreContext> cityCache = new HashMap<>();
             for (Tuple2<Location, Feature> t : tile.getFeatures()) {
                 if (t._2 instanceof Farm) {
@@ -167,7 +167,7 @@ public class ScorePhase extends ServerAwarePhase {
             state = scoreCompletedNearAbbey(state, pos);
         }
 
-        if (state.getCapabilities().hasCapability(TunnelCapability.class)) {
+        if (state.getCapabilities().contains(TunnelCapability.class)) {
             Road r = tunnelCap.getPlacedTunnel();
             if (r != null) {
                 state = scoreCompleted(state, r, tile);
@@ -181,14 +181,14 @@ public class ScorePhase extends ServerAwarePhase {
             }
         }
 
-        if (state.getCapabilities().hasCapability(CastleCapability.class)) {
+        if (state.getCapabilities().contains(CastleCapability.class)) {
             // IMMUTABLE TODO
 //            for (Entry<Castle, Integer> entry : castleCap.getCastleScore().entrySet()) {
 //                scoreCastle(entry.getKey(), entry.getValue());
 //            }
         }
 
-        if (state.getCapabilities().hasCapability(GoldminesCapability.class)) {
+        if (state.getCapabilities().contains(GoldminesCapability.class)) {
             gldCap.awardGoldPieces();
         }
 
@@ -209,7 +209,7 @@ public class ScorePhase extends ServerAwarePhase {
 //    }
 
     private GameState scoreCompleted(GameState state, Completable completable, Tile triggerBuilderForPlaced) {
-        if (triggerBuilderForPlaced != null && state.hasCapability(BuilderCapability.class)) {
+        if (triggerBuilderForPlaced != null && state.contains(BuilderCapability.class)) {
             Player player = state.getTurnPlayer();
             GameState _state = state;
             Option<Meeple> builder = completable

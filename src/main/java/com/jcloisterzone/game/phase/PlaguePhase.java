@@ -17,7 +17,7 @@ public class PlaguePhase extends Phase {
 
     @Override
     public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.hasCapability(PlagueCapability.class);
+        return capabilities.contains(PlagueCapability.class);
     }
 
     @Override

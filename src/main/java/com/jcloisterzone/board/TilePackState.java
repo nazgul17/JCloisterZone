@@ -156,4 +156,9 @@ public class TilePackState implements Serializable {
         }
         return null;
     }*/
+
+    @Override
+    public String toString() {
+        return String.format("%s/%s", size(), totalSize());
+    }
 }
