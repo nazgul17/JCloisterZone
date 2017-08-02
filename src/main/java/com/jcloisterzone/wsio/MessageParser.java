@@ -1,10 +1,8 @@
 package com.jcloisterzone.wsio;
 
-import java.io.IOException;
 import java.lang.reflect.Type;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +17,11 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.TypeAdapter;
-import com.google.gson.stream.JsonReader;
-import com.google.gson.stream.JsonToken;
-import com.google.gson.stream.JsonWriter;
 import com.jcloisterzone.board.Location;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.pointer.BoardPointer;
+import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.wsio.message.AbandonGameMessage;
 import com.jcloisterzone.wsio.message.ChannelMessage;
@@ -43,11 +41,13 @@ import com.jcloisterzone.wsio.message.HelloMessage;
 import com.jcloisterzone.wsio.message.JoinGameMessage;
 import com.jcloisterzone.wsio.message.LeaveGameMessage;
 import com.jcloisterzone.wsio.message.LeaveSlotMessage;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
+import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 import com.jcloisterzone.wsio.message.RmiMessage;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
@@ -65,44 +65,6 @@ public final class MessageParser {
 
     private final Gson gson;
     private final Map<String, Class<? extends WsMessage>> types = new HashMap<>();
-
-    public static class CustomRulesMapAdapter extends TypeAdapter<Map<CustomRule, Object>> {
-
-        @Override
-        public void write(JsonWriter out, Map<CustomRule, Object> value) throws IOException {
-            out.beginObject();
-            for (Entry<CustomRule, Object> entry : value.entrySet()) {
-                out.name(entry.getKey().name());
-                if (entry.getValue() instanceof Boolean) {
-                    out.value((Boolean)entry.getValue());
-                } else if (entry.getValue() instanceof Integer) {
-                    out.value((Integer)entry.getValue());
-                } else {
-                    out.value(entry.getValue().toString());
-                }
-            }
-            out.endObject();
-        }
-
-        @Override
-        public Map<CustomRule, Object> read(JsonReader in) throws IOException {
-            Map<CustomRule, Object> result = new HashMap<>();
-            in.beginObject();
-            while (in.hasNext()) {
-                CustomRule rule = CustomRule.valueOf(in.nextName());
-                JsonToken p = in.peek();
-                if (p == JsonToken.BOOLEAN) {
-                    result.put(rule, in.nextBoolean());
-                } else if (p == JsonToken.NUMBER) {
-                    result.put(rule, in.nextInt());
-                } else {
-                    result.put(rule, rule.unpackValue(in.nextString()));
-                }
-            }
-            in.endObject();
-            return result;
-        }
-    }
 
     public MessageParser() {
         GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
@@ -130,8 +92,28 @@ public final class MessageParser {
                     throws JsonParseException {
                 return Location.create(json.getAsInt());
             }
-
         });
+        builder.registerTypeAdapter(BoardPointer.class, new JsonSerializer<BoardPointer>() {
+            @Override
+            public JsonElement serialize(BoardPointer src, Type typeOfSrc, JsonSerializationContext context) {
+                return context.serialize(src);
+            }
+        });
+        builder.registerTypeAdapter(BoardPointer.class, new JsonDeserializer<BoardPointer>() {
+            @Override
+            public BoardPointer deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                    throws JsonParseException {
+                JsonObject obj = json.getAsJsonObject();
+                if (obj.has("meepleId")) {
+                    return context.deserialize(json, MeeplePointer.class);
+                }
+                if (obj.has("location")) {
+                    return context.deserialize(json, FeaturePointer.class);
+                }
+                return context.deserialize(json, Position.class);
+            }
+        });
+
         gson = builder.create();
 
         registerMsgType(ErrorMessage.class);
@@ -166,6 +148,8 @@ public final class MessageParser {
         registerMsgType(PassMessage.class);
         registerMsgType(PlaceTileMessage.class);
         registerMsgType(DeployMeepleMessage.class);
+        registerMsgType(ReturnMeepleMessage.class);
+        registerMsgType(MoveNeutralFigureMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

@@ -18,6 +18,8 @@ import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashSet;
@@ -59,12 +61,13 @@ public class DragonMovePhase extends ServerAwarePhase {
             return;
         }
 
+        Dragon dragon = state.getNeutralFigures().getDragon();
         Player p = state.getTurnPlayer();
         p = state.getPlayers().get((p.getIndex() + visited.size()) % state.getPlayers().size());
 
         toggleClock(p);
         promote(state.setPlayerActions(
-            new ActionsState(p, new MoveDragonAction(availMoves), false)
+            new ActionsState(p, new MoveDragonAction(dragon.getId(), availMoves), false)
         ));
     }
 
@@ -96,36 +99,39 @@ public class DragonMovePhase extends ServerAwarePhase {
         return result;
     }
 
-    @Override
-    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
+     @WsSubscribe
+    public void handleMoveNeutralFigure(MoveNeutralFigureMessage msg) {
         GameState state = game.getState();
-        if (Dragon.class.equals(figureType)) {
-            Vector<Position> visited = getVisitedPositions(state);
-            Set<Position> availMoves =  getAvailDragonMoves(state, visited);
+        BoardPointer ptr = msg.getTo();
+        NeutralFigure<?> fig = state.getNeutralFigures().getById(msg.getFigureId());
 
-            Position pos = ptr.getPosition();
-            if (!availMoves.contains(pos)) {
-                throw new IllegalArgumentException("Invalid dragon move.");
-            }
-
-            Position dragonPosition = state.getNeutralFigures().getDragonDeployment();
-
-            state = (
-                new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), pos, state.getActivePlayer())
-            ).apply(state);
-            state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(cap.getDragonMoves().append(dragonPosition)));
-
-            for (Tuple2<Meeple, FeaturePointer> t: state.getDeployedMeeples()) {
-                Meeple m = t._1;
-                FeaturePointer fp = t._2;
-                if (pos.equals(fp.getPosition()) && m.canBeEatenByDragon(state)) {
-                    state = (new UndeployMeeple(m)).apply(state);
-                }
-            }
-
-            enter(state);
-        } else {
-            super.moveNeutralFigure(ptr, figureType);
+        if (!(fig instanceof Dragon)) {
+            throw new IllegalArgumentException("Illegal neutral figure move");
         }
+
+        Vector<Position> visited = getVisitedPositions(state);
+        Set<Position> availMoves =  getAvailDragonMoves(state, visited);
+
+        Position pos = ptr.getPosition();
+        if (!availMoves.contains(pos)) {
+            throw new IllegalArgumentException("Invalid dragon move.");
+        }
+
+        Position dragonPosition = state.getNeutralFigures().getDragonDeployment();
+
+        state = (
+            new MoveNeutralFigure<>((Dragon) fig, pos, state.getActivePlayer())
+        ).apply(state);
+        state = state.updateCapability(DragonCapability.class, cap -> cap.setDragonMoves(cap.getDragonMoves().append(dragonPosition)));
+
+        for (Tuple2<Meeple, FeaturePointer> t: state.getDeployedMeeples()) {
+            Meeple m = t._1;
+            FeaturePointer fp = t._2;
+            if (pos.equals(fp.getPosition()) && m.canBeEatenByDragon(state)) {
+                state = (new UndeployMeeple(m)).apply(state);
+            }
+        }
+
+        enter(state);
     }
 }

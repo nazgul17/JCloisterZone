@@ -46,11 +46,13 @@ import com.jcloisterzone.wsio.message.GameOverMessage;
 import com.jcloisterzone.wsio.message.GameSetupMessage;
 import com.jcloisterzone.wsio.message.HelloMessage;
 import com.jcloisterzone.wsio.message.LeaveSlotMessage;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
+import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 import com.jcloisterzone.wsio.message.RmiMessage;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
@@ -505,6 +507,20 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handleDeployMeeple(WebSocket ws, DeployMeepleMessage msg) {
+        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
+        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
+        broadcast(msg, true);
+    }
+
+    @WsSubscribe
+    public void handleReturnMeeple(WebSocket ws, ReturnMeepleMessage msg) {
+        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
+        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
+        broadcast(msg, true);
+    }
+
+    @WsSubscribe
+    public void handleReturnMeeple(WebSocket ws, MoveNeutralFigureMessage msg) {
         if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
         broadcast(msg, true);

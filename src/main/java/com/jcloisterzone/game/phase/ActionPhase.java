@@ -1,8 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.ArrayList;
-import java.util.function.Function;
-
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
@@ -18,9 +15,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.FlierRollEvent;
 import com.jcloisterzone.feature.City;
-import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
-import com.jcloisterzone.feature.visitor.IsOccupied;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.DeploymentCheckResult;
@@ -37,10 +32,8 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.GameState.Flag;
 import com.jcloisterzone.game.capability.BridgeCapability;
-import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.FlierCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
-import com.jcloisterzone.game.capability.PortalCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
@@ -50,12 +43,12 @@ import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
-import io.vavr.Function1;
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
-import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
@@ -153,10 +146,6 @@ public class ActionPhase extends Phase {
         promote(nextState);
     }
 
-    private GameState clearActions(GameState state) {
-        return state.setPlayerActions(null);
-    }
-
     @Override
     public void notifyRansomPaid() {
         enter(); //recompute available actions
@@ -197,42 +186,47 @@ public class ActionPhase extends Phase {
         next(state);
     }
 
-    @Override
-    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
+    @WsSubscribe
+    public void handleMoveNeutralFigure(MoveNeutralFigureMessage msg) {
         GameState state = game.getState();
-        if (Fairy.class.equals(figureType)) {
+        BoardPointer ptr = msg.getTo();
+        NeutralFigure<?> fig = state.getNeutralFigures().getById(msg.getFigureId());
+        if (fig instanceof Fairy) {
             // TODO IMMUTABLE validation against ActionState
-//            if (!Iterables.any(getActivePlayer().getFollowers(), MeeplePredicates.at(ptr.getPosition()))) {
-//                throw new IllegalArgumentException("The tile has deployed not own follower.");
-//            }
+
             assert (state.getBooleanValue(CustomRule.FAIRY_ON_TILE) ? Position.class : BoardPointer.class).isInstance(ptr);
 
-            Fairy fairy = state.getNeutralFigures().getFairy();
+            Fairy fairy = (Fairy) fig;
             state = (new MoveNeutralFigure<BoardPointer>(fairy, ptr, state.getActivePlayer())).apply(state);
             state = clearActions(state);
             next(state);
             return;
         }
-        super.moveNeutralFigure(ptr, figureType);
+        throw new IllegalArgumentException("Illegal neutral figure move");
     }
 
-    @Override
-    public void undeployMeeple(MeeplePointer ptr) {
+    @WsSubscribe
+    public void handleReturnMeeple(ReturnMeepleMessage msg) {
         //TOOD use different messages for undeploy actions?
         GameState state = game.getState();
+        MeeplePointer ptr = msg.getPointer();
 
         Meeple meeple = state.getDeployedMeeples().find(m -> ptr.match(m._1)).map(t -> t._1)
             .getOrElseThrow(() -> new IllegalArgumentException("Pointer doesn't match any meeple"));
 
-        PrincessAction princessAction = (PrincessAction) state.getPlayerActions().getActions().find(Predicates.instanceOf(PrincessAction.class)).getOrNull();
-        if (princessAction != null) {
+        switch (msg.getSource()) {
+        case PRINCESS:
+            PrincessAction princessAction = (PrincessAction) state.getPlayerActions()
+                .getActions().find(Predicates.instanceOf(PrincessAction.class))
+                .getOrElseThrow(() -> new IllegalArgumentException("Return meeple is not allowed"));
             if (princessAction.getOptions().contains(ptr)) {
                 state = state.addFlag(Flag.PRINCESS_USED);
             } else {
                 throw new IllegalArgumentException("Pointer doesn't match princess action");
             }
-        } else {
-            throw new IllegalArgumentException("Undeploy is not allowed");
+            break;
+        default:
+            throw new IllegalArgumentException("Return meeple is not allowed");
         }
 
         state = (new UndeployMeeple(meeple)).apply(state);
@@ -262,41 +256,6 @@ public class ActionPhase extends Phase {
         next(state);
     }
 
-
-    private boolean isFestivalUndeploy(Meeple m) {
-        return getTile().hasTrigger(TileTrigger.FESTIVAL) && m.getPlayer() == getActivePlayer();
-    }
-
-    private boolean isPrincessUndeploy(Meeple m) {
-        boolean tileHasPrincess = false;
-        for (Feature f : getTile().getFeatures()) {
-            if (f instanceof City) {
-                City c = (City) f;
-                if (c.isPricenss()) {
-                    tileHasPrincess = true;
-                    break;
-                }
-            }
-        }
-        //check if it is same city should be here to be make exact check
-        return tileHasPrincess && m.getFeature() instanceof City;
-    }
-
-    @Override
-    public void undeployMeeple(MeeplePointer mp) {
-        Meeple m = game.getMeeple(mp);
-        boolean princess = isPrincessUndeploy(m);
-        if (isFestivalUndeploy(m) || princess) {
-            m.undeploy();
-            if (princess) {
-                princessCapability.setPrincessUsed(true);
-            }
-            //TODO skip PhantomPhase there!!!
-            next();
-        } else {
-            throw new IllegalArgumentException();
-        }
-    }
 
     @Override
     public void placeTunnelPiece(FeaturePointer fp, boolean isB) {

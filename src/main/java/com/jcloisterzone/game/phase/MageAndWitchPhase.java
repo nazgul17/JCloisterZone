@@ -12,7 +12,11 @@ import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
+import com.jcloisterzone.reducers.MoveNeutralFigure;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 public class MageAndWitchPhase extends Phase {
 
@@ -52,17 +56,19 @@ public class MageAndWitchPhase extends Phase {
         next();
     }
 
-    @Override
-    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
-        FeaturePointer fp = (FeaturePointer) ptr;
-        if (Mage.class.equals(figureType)) {
-            mwCap.getMage().deploy(fp);
-            next();
-        } else if (Witch.class.equals(figureType)) {
-            mwCap.getWitch().deploy(fp);
-            next();
+    @WsSubscribe
+    public void handleMoveNeutralFigure(MoveNeutralFigureMessage msg) {
+        GameState state = game.getState();
+        FeaturePointer ptr = (FeaturePointer) msg.getTo();
+        @SuppressWarnings("unchecked")
+        NeutralFigure<FeaturePointer> fig = (NeutralFigure<FeaturePointer>) state.getNeutralFigures().getById(msg.getFigureId());
+
+        if (fig instanceof Mage || fig instanceof Witch) {
+            state = (new MoveNeutralFigure<FeaturePointer>(fig, ptr, state.getActivePlayer())).apply(state);
+            state = clearActions(state);
+            next(state);
         } else {
-            super.moveNeutralFigure(fp, figureType);
+            throw new IllegalArgumentException("Illegal neutral figure move");
         }
     }
 }

@@ -60,6 +60,10 @@ public abstract class Phase implements RmiProxy {
         game.replaceState(state);
     }
 
+    protected GameState clearActions(GameState state) {
+        return state.setPlayerActions(null);
+    }
+
     /**
      * Method is invoked on active phase when user buy back inprisoned follower
      */
@@ -90,17 +94,6 @@ public abstract class Phase implements RmiProxy {
     @Override
     public void placeTunnelPiece(FeaturePointer fp, boolean isSecondPiece) {
         logger.error(Application.ILLEGAL_STATE_MSG, "placeTunnelPiece");
-    }
-
-    @Override
-    public void undeployMeeple(MeeplePointer mp) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "undeployMeeple");
-    }
-
-    @Override
-    public void moveNeutralFigure(BoardPointer prt, Class<? extends NeutralFigure> figureType) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "moveNeutralFigure");
-
     }
 
     @Override

@@ -30,6 +30,7 @@ import com.jcloisterzone.game.capability.CornCircleCapability.CornCicleOption;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
 public class CornCirclePhase extends ServerAwarePhase {
 
@@ -162,8 +163,8 @@ public class CornCirclePhase extends ServerAwarePhase {
         return Collections.<PlayerAction<?>>singletonList(action);
     }
 
-    @Override
-    public void undeployMeeple(MeeplePointer mp) {
+    @WsSubscribe
+    public void handleReturnMeeple(ReturnMeepleMessage msg) {
         if (cornCircleCap.getCornCircleOption() != CornCicleOption.REMOVAL) {
             logger.error("Removal not selected as corn options.");
             return;

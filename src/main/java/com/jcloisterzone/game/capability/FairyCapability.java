@@ -39,28 +39,24 @@ public class FairyCapability extends Capability {
         Player activePlayer = state.getPlayerActions().getPlayer();
         PlayerAction<?> fairyAction = null;
 
-//        if (fairyOnTile) {
-//            fairyAction = new FairyOnTileAction();
-//        } else {
-//            fairyAction = new FairyNextToAction();
-//        }
-
         LinkedHashMap<Follower, FeaturePointer> followers = LinkedHashMap.narrow(
             state.getDeployedMeeples()
                 .filter((m, fp) -> (m instanceof Follower) && m.getPlayer().equals(activePlayer))
         );
 
+        Fairy fairy = state.getNeutralFigures().getFairy();
+
         if (fairyOnTile) {
             Set<Position> options = followers.values().map(fp -> fp.getPosition()).toSet();
             if (!options.isEmpty()) {
-                fairyAction = new FairyOnTileAction(options);
+                fairyAction = new FairyOnTileAction(fairy.getId(), options);
             }
         } else {
             Set<MeeplePointer> options = followers
                 .map(t -> new MeeplePointer(t._2, t._1.getId()))
                 .toSet();
             if (!options.isEmpty()) {
-                fairyAction = new FairyNextToAction(options);
+                fairyAction = new FairyNextToAction(fairy.getId(), options);
             }
         }
 

@@ -15,6 +15,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.SiegeCapability;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
 
 public class EscapePhase extends Phase {
@@ -115,8 +116,8 @@ public class EscapePhase extends Phase {
     }
 
 
-    @Override
-    public void undeployMeeple(MeeplePointer mp) {
+    @WsSubscribe
+    public void handleReturnMeeple(ReturnMeepleMessage msg) {
         Meeple m = game.getMeeple(mp);
         assert m.getPlayer().equals(getActivePlayer());
         if (!(m.getFeature() instanceof City)) {

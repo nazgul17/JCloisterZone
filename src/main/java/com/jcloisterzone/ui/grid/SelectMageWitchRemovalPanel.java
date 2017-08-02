@@ -13,9 +13,11 @@ import net.miginfocom.swing.MigLayout;
 
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
+import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.component.MultiLineLabel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 public class SelectMageWitchRemovalPanel extends JPanel {
 
@@ -35,7 +37,8 @@ public class SelectMageWitchRemovalPanel extends JPanel {
         MultiLineLabel mll = new MultiLineLabel(_("It''s not possible to place mage or witch because there isn''t an unfinished feature. Select what figure do you want to remove from board."));
         add(mll, "wrap, growx, gapbottom 5");
 
-        boolean isActive = gc.getGame().getActivePlayer().isLocalHuman();
+        GameState state = gc.getGame().getState();
+        boolean isActive = state.getActivePlayer().isLocalHuman();
 
         JButton btn = new JButton();
         btn.setText(_("Remove the mage."));
@@ -44,7 +47,9 @@ public class SelectMageWitchRemovalPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ((JButton)e.getSource()).setEnabled(false);
-                gc.getRmiProxy().moveNeutralFigure(null, Mage.class);
+                Mage mage = state.getNeutralFigures().getMage();
+                gc.getConnection().send(
+                    new MoveNeutralFigureMessage(gc.getGameId(), mage.getId(), null));
             }
         });
         add(btn, "wrap, growx, h 40, gapbottom 5");
@@ -56,7 +61,9 @@ public class SelectMageWitchRemovalPanel extends JPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 ((JButton)e.getSource()).setEnabled(false);
-                gc.getRmiProxy().moveNeutralFigure(null, Witch.class);
+                Witch witch = state.getNeutralFigures().getWitch();
+                gc.getConnection().send(
+                    new MoveNeutralFigureMessage(gc.getGameId(), witch.getId(), null));
             }
         });
         add(btn, "wrap, growx, h 40, gapbottom 5");

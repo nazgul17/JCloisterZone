@@ -68,6 +68,15 @@ public class NeutralFiguresState implements Serializable {
         return new NeutralFiguresState(dragon, fairy, mage, witch, count, deployedNeutralFigures);
     }
 
+    public NeutralFigure<?> getById(String figureId) {
+        if (dragon != null && figureId.equals(dragon.getId())) return dragon;
+        if (fairy != null && figureId.equals(fairy.getId())) return fairy;
+        if (mage != null && figureId.equals(mage.getId())) return mage;
+        if (witch != null && figureId.equals(witch.getId())) return witch;
+        if (count != null && figureId.equals(count.getId())) return count;
+        return null;
+    }
+
     public Dragon getDragon() {
         return dragon;
     }

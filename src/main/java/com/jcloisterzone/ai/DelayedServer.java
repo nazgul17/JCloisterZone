@@ -32,11 +32,6 @@ public class DelayedServer implements RmiProxy {
 //    }
 
     @Override
-    public void undeployMeeple(MeeplePointer mp) {
-        server.undeployMeeple(mp);
-    }
-
-    @Override
     public void placeTowerPiece(Position pos) {
         server.placeTowerPiece(pos);
     }
@@ -51,15 +46,15 @@ public class DelayedServer implements RmiProxy {
         server.placeTunnelPiece(fp, isSecondPiece);
     }
 
-    @Override
-    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
-        if (Dragon.class.equals(figureType)) {
-            try {
-                Thread.sleep(placeTileDelay / 2);
-            } catch (InterruptedException e) {}
-        }
-        server.moveNeutralFigure(ptr, figureType);
-    }
+//    @Override
+//    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType) {
+//        if (Dragon.class.equals(figureType)) {
+//            try {
+//                Thread.sleep(placeTileDelay / 2);
+//            } catch (InterruptedException e) {}
+//        }
+//        server.moveNeutralFigure(ptr, figureType);
+//    }
 
     @Override
     public void payRansom(Integer playerIndexToPay,

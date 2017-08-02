@@ -79,6 +79,10 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         return game;
     }
 
+    public String getGameId() {
+        return game.getGameId();
+    }
+
     public com.jcloisterzone.wsio.message.GameMessage.GameState getGameState() {
         return gameState;
     }

@@ -1,11 +1,11 @@
 package com.jcloisterzone.action;
 
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.ui.grid.layer.TileActionLayer;
+import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 import io.vavr.collection.Set;
 
@@ -14,13 +14,17 @@ import io.vavr.collection.Set;
 @LinkedGridLayer(TileActionLayer.class)
 public class FairyOnTileAction extends SelectTileAction {
 
-    public FairyOnTileAction(Set<Position> options) {
+    private final String figureId;
+
+    public FairyOnTileAction(String figureId, Set<Position> options) {
         super(options);
+        this.figureId = figureId;
     }
 
     @Override
-    public void perform(GameController gc, Position p) {
-        gc.getRmiProxy().moveNeutralFigure(p, Fairy.class);
+    public void perform(GameController gc, Position target) {
+        gc.getConnection().send(
+            new MoveNeutralFigureMessage(gc.getGameId(), figureId, target));
     }
 
     @Override

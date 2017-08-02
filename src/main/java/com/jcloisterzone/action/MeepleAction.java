@@ -3,9 +3,7 @@ package com.jcloisterzone.action;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.GameState;
-import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 
 import io.vavr.collection.Set;

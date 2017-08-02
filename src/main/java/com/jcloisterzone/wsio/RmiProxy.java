@@ -20,8 +20,8 @@ public interface RmiProxy {
     //public void placeTile(Rotation rotation, Position position);
 
     //public void deployMeeple(FeaturePointer fp, Class<? extends Meeple> meepleType);
-    public void undeployMeeple(MeeplePointer mp);
-    public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType);
+    //public void undeployMeeple(MeeplePointer mp);
+    //public void moveNeutralFigure(BoardPointer ptr, Class<? extends NeutralFigure> figureType);
 
     //TODO replace with generic  placeToken (use for gold, little building, maybe bridge and castle)
     public void placeTowerPiece(Position pos);
