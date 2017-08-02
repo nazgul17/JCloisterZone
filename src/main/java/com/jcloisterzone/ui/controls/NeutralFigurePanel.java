@@ -18,11 +18,11 @@ import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
-import com.jcloisterzone.game.NeutralFiguresState;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
+import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.NeutralFiguresState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.UiUtils;
 

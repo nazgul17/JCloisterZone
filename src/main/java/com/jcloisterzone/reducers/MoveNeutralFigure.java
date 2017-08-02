@@ -5,8 +5,8 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.event.play.NeutralFigureMoved;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.game.GameState;
-import com.jcloisterzone.game.NeutralFiguresState;
+import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.NeutralFiguresState;
 
 public class MoveNeutralFigure<P extends BoardPointer> implements Reducer {
 

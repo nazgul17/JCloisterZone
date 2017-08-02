@@ -1,4 +1,4 @@
-package com.jcloisterzone.game;
+package com.jcloisterzone.game.state;
 
 import java.io.Serializable;
 

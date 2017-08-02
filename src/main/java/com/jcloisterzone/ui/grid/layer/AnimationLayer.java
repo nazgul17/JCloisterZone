@@ -64,7 +64,7 @@ public class AnimationLayer extends AbstractGridLayer {
 
         boolean initialPlacement = ev.getMetadata().getTriggeringPlayerIndex() == null;//if triggering player is null we are placing initial tiles
         if (!initialPlacement) {
-            Player p = getGame().getAllPlayers().get(ev.getMetadata().getTriggeringPlayerIndex());
+            Player p = getGame().getState().getPlayers().getPlayer(ev.getMetadata().getTriggeringPlayerIndex());
             if (!p.isLocalHuman()) {
                 service.registerAnimation(new RecentPlacement(pos));
             }

@@ -28,7 +28,7 @@ public class MayorCapability extends Capability {
         return Sets.filter(followerOptions, new Predicate<FeaturePointer>() {
             @Override
             public boolean apply(FeaturePointer bp) {
-                Feature fe = getBoard().get(bp);
+                Feature fe = getBoard().getPlayer(bp);
                 return fe instanceof City;
             }
         });

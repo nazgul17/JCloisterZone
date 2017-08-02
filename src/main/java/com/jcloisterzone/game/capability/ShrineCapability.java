@@ -14,7 +14,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 
 public final class ShrineCapability extends Capability {

@@ -43,6 +43,7 @@ import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.Reducer;
 
 import io.vavr.Tuple2;
@@ -272,66 +273,6 @@ public class Game extends GameSettings implements EventProxy {
         return state.getDeployedMeeples();
     }
 
-    public LinkedHashMap<NeutralFigure<?>, BoardPointer> getDeployedNeutralFigures() {
-        return state.getDeployedNeutralFigures();
-    }
-
-    @Deprecated
-    public Player getTurnPlayer() {
-        return state.getTurnPlayer();
-    }
-
-    /**
-     * Returns player who is allowed to make next action.
-     * @return
-     */
-    @Deprecated
-    public Player getActivePlayer() {
-        return state.getActivePlayer();
-    }
-
-//    public List<NeutralFigure> getNeutralFigures() {
-//        return neutralFigures;
-//    }
-
-    @Deprecated
-    public Player getNextPlayer() {
-        return getNextPlayer(getTurnPlayer());
-    }
-
-    @Deprecated
-    public Player getNextPlayer(Player p) {
-        int playerIndex = p.getIndex();
-        int nextPlayerIndex = playerIndex == (state.getPlayers().length() - 1) ? 0 : playerIndex + 1;
-        return getPlayer(nextPlayerIndex);
-    }
-
-    @Deprecated
-    public Player getPrevPlayer(Player p) {
-        int playerIndex = p.getIndex();
-        int prevPlayerIndex = playerIndex == 0 ? state.getPlayers().length() - 1 : playerIndex - 1;
-        return getPlayer(prevPlayerIndex);
-    }
-
-
-    /**
-     * Return player with the given index.
-     * @param index player index
-     * @return demand player
-     */
-    public Player getPlayer(int index) {
-        return state.getPlayers().get(index);
-    }
-
-    /**
-     * Returns whole player list
-     * @return player list
-     */
-    @Deprecated
-    public Array<Player> getAllPlayers() {
-        return state.getPlayers();
-    }
-
     public Random getRandom() {
         return random;
     }
@@ -424,12 +365,12 @@ public class Game extends GameSettings implements EventProxy {
 //    }
 
 
-    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
-        for (Capability cap: getCapabilities()) {
-            if (!cap.isDeployAllowed(tile, meepleType)) return false;
-        }
-        return true;
-    }
+//    public boolean isDeployAllowed(Tile tile, Class<? extends Meeple> meepleType) {
+//        for (Capability cap: getCapabilities()) {
+//            if (!cap.isDeployAllowed(tile, meepleType)) return false;
+//        }
+//        return true;
+//    }
 
     public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
         for (Capability cap: getCapabilities()) {
@@ -438,17 +379,17 @@ public class Game extends GameSettings implements EventProxy {
         return true;
     }
 
-    public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
-        for (Capability cap: getCapabilities()) {
-            cap.saveTileToSnapshot(tile, doc, tileNode);
-        }
-    }
-
-    public void loadTileFromSnapshot(Tile tile, Element tileNode) {
-        for (Capability cap: getCapabilities()) {
-            cap.loadTileFromSnapshot(tile, tileNode);
-        }
-    }
+//    public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
+//        for (Capability cap: getCapabilities()) {
+//            cap.saveTileToSnapshot(tile, doc, tileNode);
+//        }
+//    }
+//
+//    public void loadTileFromSnapshot(Tile tile, Element tileNode) {
+//        for (Capability cap: getCapabilities()) {
+//            cap.loadTileFromSnapshot(tile, tileNode);
+//        }
+//    }
 
     public CreateGamePhase getCreateGamePhase() {
         return createGamePhase;

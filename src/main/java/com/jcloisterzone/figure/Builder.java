@@ -6,7 +6,7 @@ import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 public class Builder extends Special {
 

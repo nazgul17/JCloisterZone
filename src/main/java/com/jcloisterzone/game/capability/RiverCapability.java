@@ -113,10 +113,10 @@ public class RiverCapability extends Capability {
                 riverTile = checkTile;
                 checkTilePartOfRiver = true;
             } else {
-                riverTile = getBoard().get(riverPos);
+                riverTile = getBoard().getPlayer(riverPos);
             }
             if (riverTile == null) {
-                if (getBoard().get(riverPos.add(forward)) != null) return FollowResult.ILLEGAL; //too few space
+                if (getBoard().getPlayer(riverPos.add(forward)) != null) return FollowResult.ILLEGAL; //too few space
                 break;
             }
             Location prev = forward;

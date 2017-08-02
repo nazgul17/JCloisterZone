@@ -127,7 +127,7 @@ public final class TunnelCapability extends Capability {
     }
 
     public void placeTunnelPiece(FeaturePointer fp, boolean isB) {
-        Road road = (Road) getBoard().get(fp);
+        Road road = (Road) getBoard().getPlayer(fp);
         if (!road.isTunnelOpen()) {
             throw new IllegalStateException("No open tunnel here.");
         }
@@ -174,13 +174,13 @@ public final class TunnelCapability extends Capability {
         NodeList nl = node.getElementsByTagName("placed-tunnel");
         if (nl.getLength() > 0) {
             Element el = (Element) nl.item(0);
-            placedTunnelCurrentTurn = (Road) getBoard().get(XMLUtils.extractPosition(el)).getFeature(Location.valueOf(el.getAttribute("location")));
+            placedTunnelCurrentTurn = (Road) getBoard().getPlayer(XMLUtils.extractPosition(el)).getFeature(Location.valueOf(el.getAttribute("location")));
         }
         nl = node.getElementsByTagName("tunnel");
         for (int i = 0; i < nl.getLength(); i++) {
             Element el = (Element) nl.item(i);
             FeaturePointer fp = XMLUtils.extractFeaturePointer(el);
-            Road road = (Road) getBoard().get(fp);
+            Road road = (Road) getBoard().getPlayer(fp);
             if (!road.isTunnelEnd()) {
                 logger.error("Tunnel end does not exist.");
                 continue;

@@ -8,7 +8,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Pig;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.List;
 

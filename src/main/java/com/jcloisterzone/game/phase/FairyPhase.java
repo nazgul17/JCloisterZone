@@ -8,8 +8,8 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.AddPoints;
 
 import io.vavr.Tuple2;

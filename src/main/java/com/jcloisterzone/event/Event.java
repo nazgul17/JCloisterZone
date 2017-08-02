@@ -1,6 +1,6 @@
 package com.jcloisterzone.event;
 
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 /**
  * Ancestor for all events including non-game events like setup and chat.

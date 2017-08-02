@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 /**
  * Ancestor for all in-game event.

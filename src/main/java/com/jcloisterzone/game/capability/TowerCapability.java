@@ -124,7 +124,7 @@ public final class TowerCapability extends Capability {
         Set<Position> availableTowers = getOpenTowers(1);
         if (!availableTowers.isEmpty()) {
             for (Position p : availableTowers) {
-                if (game.isDeployAllowed(getBoard().get(p), Follower.class)) {
+                if (game.isDeployAllowed(getBoard().getPlayer(p), Follower.class)) {
                     for (MeepleAction ma : followerActions) {
                         //only small, big and phantoms are allowed on top of tower
                         if (SmallFollower.class.isAssignableFrom(ma.getMeepleType()) || BigFollower.class.isAssignableFrom(ma.getMeepleType())) {
@@ -137,7 +137,7 @@ public final class TowerCapability extends Capability {
     }
 
     public void placeTowerPiece(Player player, Position pos) {
-        Tower tower = getBoard().get(pos).getTower();
+        Tower tower = getBoard().getPlayer(pos).getTower();
         if (tower  == null) {
             throw new IllegalArgumentException("No tower on tile.");
         }
@@ -153,7 +153,7 @@ public final class TowerCapability extends Capability {
     protected Set<Position> getOpenTowers(int minHeight) {
         Set<Position> availTower = new HashSet<>();
         for (Position p : getTowers()) {
-            Tower t = getBoard().get(p).getTower();
+            Tower t = getBoard().getPlayer(p).getTower();
             if (t.getMeeple() == null && t.getHeight() >= minHeight) {
                 availTower.add(p);
             }
@@ -198,7 +198,7 @@ public final class TowerCapability extends Capability {
         if (ransomPaidThisTurn) {
             throw new IllegalStateException("Ransom alreasy paid this turn");
         }
-        Player opponent = game.getAllPlayers().get(playerIndexToPay);
+        Player opponent = game.getAllPlayers().getPlayer(playerIndexToPay);
 
         Iterator<Follower> i = prisoners.get(opponent).iterator();
         while (i.hasNext()) {
@@ -232,7 +232,7 @@ public final class TowerCapability extends Capability {
             node.appendChild(it);
         }
         for (Position towerPos : towers) {
-            Tower tower = getBoard().get(towerPos).getTower();
+            Tower tower = getBoard().getPlayer(towerPos).getTower();
             Element el = doc.createElement("tower");
             node.appendChild(el);
             XMLUtils.injectPosition(el, towerPos);
@@ -264,7 +264,7 @@ public final class TowerCapability extends Capability {
         for (int i = 0; i < nl.getLength(); i++) {
             Element te = (Element) nl.item(i);
             Position towerPos = XMLUtils.extractPosition(te);
-            Tower tower = getBoard().get(towerPos).getTower();
+            Tower tower = getBoard().getPlayer(towerPos).getTower();
             tower.setHeight(Integer.parseInt(te.getAttribute("height")));
             towers.add(towerPos);
             if (tower.getHeight() > 0) {

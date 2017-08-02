@@ -8,7 +8,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.List;

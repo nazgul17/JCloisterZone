@@ -8,10 +8,10 @@ import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.RiverCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 
 import io.vavr.Tuple2;
@@ -86,13 +86,14 @@ public class DrawPhase extends ServerAwarePhase {
 
             //Abbey special case, every player has opportunity to place own abbey at the end.
             if (tilePack.isEmpty()) {
-                if (abbeyCap != null && !state.getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
-                    if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
-                        abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(state.getActivePlayer()));
-                    }
-                    next(state, CleanUpTurnPartPhase.class);
-                    return;
-                }
+                //TODO IMMUTABLE
+//                if (abbeyCap != null && !state.getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
+//                    if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
+//                        abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(state.getActivePlayer()));
+//                    }
+//                    next(state, CleanUpTurnPartPhase.class);
+//                    return;
+//                }
             }
 
             // Tile Pack is empty

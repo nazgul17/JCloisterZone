@@ -39,7 +39,7 @@ public class CornCirclesPanel extends JPanel {
         label = new ThemedJLabel(_("Each player…"));
         add(label, "wrap, gapbottom 5");
 
-        boolean isActive = gc.getGame().getActivePlayer().isLocalHuman();
+        boolean isActive = gc.getGame().getState().getActivePlayer().isLocalHuman();
 
         deploymentOption = new JButton();
         deploymentOption.setText(_("may deploy additional follower"));

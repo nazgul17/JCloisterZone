@@ -92,7 +92,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
         this.controlPanel = controlPanel;
 
         boolean networkGame = "true".equals(System.getProperty("forceChat"));
-        for (Player p : gc.getGame().getAllPlayers()) {
+        for (Player p : gc.getGame().getState().getPlayers().getPlayers()) {
             if (!p.getSlot().isOwn()) {
                 networkGame = true;
                 break;

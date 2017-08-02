@@ -6,7 +6,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
 import io.vavr.collection.HashMap;

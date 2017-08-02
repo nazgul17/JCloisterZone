@@ -6,8 +6,8 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameState;
-import com.jcloisterzone.game.GameState.Flag;
+import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameState.Flag;
 
 @Immutable
 public class PortalCapability extends Capability {

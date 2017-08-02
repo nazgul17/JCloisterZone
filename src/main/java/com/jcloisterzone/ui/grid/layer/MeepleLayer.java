@@ -27,7 +27,7 @@ import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;

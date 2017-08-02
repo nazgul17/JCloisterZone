@@ -54,7 +54,7 @@ public final class BarnCapability extends Capability {
         Farm farm = null;
         Position pos = getCurrentTile().getPosition();
         for (int i = 0; i < 4; i++) {
-            Tile tile = getBoard().get(pos);
+            Tile tile = getBoard().getPlayer(pos);
             if (tile == null) return false;
             farm = (Farm) tile.getFeaturePartOf(corner);
             if (farm == null) return false;

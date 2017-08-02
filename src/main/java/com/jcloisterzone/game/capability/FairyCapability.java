@@ -13,7 +13,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Set;

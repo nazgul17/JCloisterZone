@@ -1,7 +1,7 @@
 package com.jcloisterzone.event;
 
 import com.jcloisterzone.event.play.PlayEvent;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.Queue;
 

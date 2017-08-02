@@ -32,8 +32,8 @@ import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BazaarCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
@@ -72,7 +72,6 @@ public class ControlPanel extends JPanel {
 
     private JButton passButton;
     private boolean showConfirmRequest;
-    private boolean canPass;
     private boolean showProjectedPoints;
     private GameState projectedPointsSource = null;
 
@@ -117,7 +116,7 @@ public class ControlPanel extends JPanel {
             add(bazaarSupplyPanel, "wrap, growx, gapbottom 12, h 40, hidemode 3");
         }
 
-        Array<Player> players = game.getAllPlayers();
+        Array<Player> players = game.getState().getPlayers().getPlayers();
         PlayerPanelImageCache cache = new PlayerPanelImageCache(client, game);
         playerPanels = new PlayerPanel[players.length()];
 
@@ -140,13 +139,6 @@ public class ControlPanel extends JPanel {
         });
     }
 
-
-    private void setCanPass(boolean canPass) {
-        this.canPass = canPass;
-        passButton.setVisible(canPass);
-    }
-
-
     private void paintBackgroundBody(Graphics2D g2) {
         g2.setColor(client.getTheme().getTransparentPanelBg());
         g2.fillRect(LEFT_MARGIN+LEFT_PADDING , 0, getWidth()-LEFT_MARGIN-LEFT_PADDING, getHeight());
@@ -156,7 +148,9 @@ public class ControlPanel extends JPanel {
         int h = getHeight();
         g2.translate(LEFT_MARGIN+LEFT_PADDING, 0); //adpat to old legacy code
 
-        Player player = game.getTurnPlayer();
+        GameState state = game.getState();
+
+        Player player = state.getTurnPlayer();
         if (player == null) {
             g2.setColor(client.getTheme().getTransparentPanelBg());
             g2.fillRect(-LEFT_PADDING , 0, LEFT_PADDING, h);
@@ -191,7 +185,7 @@ public class ControlPanel extends JPanel {
             );
         }
 
-        player = game.getActivePlayer();
+        player = state.getActivePlayer();
         if (player != null) {
             PlayerPanel pp = playerPanels[player.getIndex()];
             int y = pp.getY() + pp.getRealHeight() / 2;
@@ -289,15 +283,16 @@ public class ControlPanel extends JPanel {
     }
 
     public void selectAction(Player targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean canPass) {
-        actionPanel.setActions(targetPlayer.isLocalHuman(), actions);
-        setCanPass(targetPlayer.isLocalHuman() ? canPass : false);
+        boolean isLocal = targetPlayer.isLocalHuman();
+        actionPanel.setActions(isLocal, actions);
+        passButton.setVisible(isLocal && canPass);
+
     }
 
     public void clearActions() {
         actionPanel.clearActions();
-        actionPanel.setFakeAction(null);
+        passButton.setVisible(false);
         setShowConfirmRequest(false);
-        setCanPass(false);
     }
 
     public boolean isShowPotentialPoints() {

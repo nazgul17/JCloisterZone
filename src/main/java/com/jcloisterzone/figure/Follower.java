@@ -5,7 +5,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 @Immutable
 public abstract class Follower extends Meeple {

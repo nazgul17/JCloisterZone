@@ -27,7 +27,7 @@ import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 public class MageAndWitchCapability extends Capability {
 
@@ -54,10 +54,10 @@ public class MageAndWitchCapability extends Capability {
     public List<PlayerAction<?>> prepareMageWitchActions() {
         Set<Feature> touchedFeatures = new HashSet<>();
         if (mage.isDeployed()) {
-            touchedFeatures.add(getBoard().get(mage.getFeaturePointer()));
+            touchedFeatures.add(getBoard().getPlayer(mage.getFeaturePointer()));
         }
         if (witch.getFeaturePointer() != null) {
-            touchedFeatures.add(getBoard().get(witch.getFeaturePointer()));
+            touchedFeatures.add(getBoard().getPlayer(witch.getFeaturePointer()));
         }
         Set<FeaturePointer> placements = new HashSet<>();
         for (Tile tile: getBoard().getAllTiles()) {
@@ -80,7 +80,7 @@ public class MageAndWitchCapability extends Capability {
 
     public boolean isMageAndWitchPlacedOnSameFeature() {
         if (mage.isInSupply() || witch.isInSupply()) return false;
-        return getBoard().get(mage.getFeaturePointer()).walk(new ContainsFeature(witch.getFeaturePointer()));
+        return getBoard().getPlayer(mage.getFeaturePointer()).walk(new ContainsFeature(witch.getFeaturePointer()));
     }
 
     public Mage getMage() {

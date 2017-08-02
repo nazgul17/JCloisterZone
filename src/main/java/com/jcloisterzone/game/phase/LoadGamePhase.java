@@ -68,7 +68,7 @@ public class LoadGamePhase extends CreateGamePhase {
         snapshot.loadCapabilities(game);
         //meeples must be places after capabilites are loaded - when cities replaces castles
         for (Meeple m : tilePackFactory.getPreplacedMeeples()) {
-            Tile tile = game.getBoard().get(m.getPosition());
+            Tile tile = game.getBoard().getPlayer(m.getPosition());
             Feature f;
             if (m instanceof Barn) {
                 //special case, barn holds 'corner' location

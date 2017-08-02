@@ -32,7 +32,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 public class CastleCapability extends Capability {
 
@@ -59,7 +59,7 @@ public class CastleCapability extends Capability {
 
     private void undeployed(MeepleEvent ev) {
         if (ev.getFrom() == null) return;
-        Feature f = getBoard().get(ev.getFrom());
+        Feature f = getBoard().getPlayer(ev.getFrom());
         if (f instanceof Castle) {
             Castle castle = (Castle) f.getMaster();
             scoreableCastleVicinity.remove(castle);
@@ -153,8 +153,8 @@ public class CastleCapability extends Capability {
     }
 
     private Castle convertCityToCastle(Position pos, Location loc, boolean loadFromSnaphot) {
-        Castle castle1 = replaceCityWithCastle(getBoard().get(pos), loc);
-        Castle castle2 = replaceCityWithCastle(getBoard().get(pos.add(loc)), loc.rev());
+        Castle castle1 = replaceCityWithCastle(getBoard().getPlayer(pos), loc);
+        Castle castle2 = replaceCityWithCastle(getBoard().getPlayer(pos.add(loc)), loc.rev());
         castle1.getEdges()[0] = castle2;
         castle2.getEdges()[0] = castle1;
         if (!loadFromSnaphot) {

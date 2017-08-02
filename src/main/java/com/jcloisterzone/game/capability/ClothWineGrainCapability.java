@@ -10,7 +10,7 @@ import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.GameSettings;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.AddPoints;
 
 import io.vavr.collection.Array;
@@ -44,7 +44,7 @@ public class ClothWineGrainCapability extends Capability {
     public GameState onStartGame(GameState state) {
         return state.updateCapability(ClothWineGrainCapability.class, cap ->
             cap.setTradeResources(
-                state.getPlayers().map(p -> HashMap.empty())
+                state.getPlayers().getPlayers().map(p -> HashMap.empty())
             )
         );
     }
@@ -59,7 +59,7 @@ public class ClothWineGrainCapability extends Capability {
             return state;
         }
 
-        int playerIdx = state.getTurnPlayerIndex();
+        int playerIdx = state.getPlayers().getTurnPlayerIndex();
         state = state.updateCapability(ClothWineGrainCapability.class, cap ->
             cap.setTradeResources(
                 cap.getTradeResources().update(playerIdx,
@@ -89,7 +89,7 @@ public class ClothWineGrainCapability extends Capability {
             int hiVal = 1;
             List<Player> hiPlayers = List.empty();
 
-            for (Player player: state.getPlayers()) {
+            for (Player player: state.getPlayers().getPlayers()) {
                 int playerValue = player.getTradeResources(state, tr);
                 if (playerValue > hiVal) {
                     hiVal = playerValue;

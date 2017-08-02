@@ -113,7 +113,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
         menu.setItemActionListener(MenuItem.UNDO, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-            	menu.setItemEnabled(MenuItem.UNDO, false);
+                menu.setItemEnabled(MenuItem.UNDO, false);
                 gc.getConnection().send(new UndoMessage(game.getGameId()));
             }
         });
@@ -143,7 +143,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
             }
         });
         if (menu.isSelected(MenuItem.LAST_PLACEMENTS)) {
-        	mainPanel.toggleRecentHistory(true);
+            mainPanel.toggleRecentHistory(true);
         }
         menu.setItemActionListener(MenuItem.FARM_HINTS, new ActionListener() {
             @Override
@@ -153,7 +153,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
             }
         });
         if (menu.isSelected(MenuItem.FARM_HINTS)) {
-        	mainPanel.setShowFarmHints(true);
+            mainPanel.setShowFarmHints(true);
         }
         menu.setItemActionListener(MenuItem.PROJECTED_POINTS, new ActionListener() {
             @Override
@@ -163,7 +163,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
             }
         });
         if (menu.isSelected(MenuItem.PROJECTED_POINTS)) {
-        	getControlPanel().setShowProjectedPoints(true);
+            getControlPanel().setShowProjectedPoints(true);
         }
         menu.setItemActionListener(MenuItem.DISCARDED_TILES, new ActionListener() {
             @Override
@@ -273,18 +273,18 @@ public class GameView extends AbstractUiView implements WindowStateListener {
 
     @Override
     public void onWebsocketClose(int code, String reason, boolean remote) {
-    	String message = _("Connection lost") + ". " + _("Reconnecting...");
+        String message = _("Connection lost") + ". " + _("Reconnecting...");
         if (remote) {
-        	if (gc.getChannel() == null) {
-        		if (!game.isOver()) {
-        			//simple server sends game message automatically, send game id for online server only
-        			gc.getConnection().reconnect(null);
-        			getGridPanel().showErrorMessage(message);
-        		}
-        	} else {
-        		gc.getConnection().reconnect(game.isOver() ? null : game.getGameId());
-        		getGridPanel().showErrorMessage(message);
-        	}
+            if (gc.getChannel() == null) {
+                if (!game.isOver()) {
+                    //simple server sends game message automatically, send game id for online server only
+                    gc.getConnection().reconnect(null);
+                    getGridPanel().showErrorMessage(message);
+                }
+            } else {
+                gc.getConnection().reconnect(game.isOver() ? null : game.getGameId());
+                getGridPanel().showErrorMessage(message);
+            }
         }
     }
 
@@ -327,7 +327,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
             if (result) e.consume();
             return result;
         } else if (e.getID() == KeyEvent.KEY_TYPED) {
-        	e.setKeyChar(Character.toLowerCase(e.getKeyChar()));
+            e.setKeyChar(Character.toLowerCase(e.getKeyChar()));
             return dispatchKeyTyped(e);
         }
         return false;
@@ -460,7 +460,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
          //player names:
          StringBuilder players = new StringBuilder();
          boolean hasAi = false;
-         for (Player p : game.getAllPlayers()) {
+         for (Player p : game.getState().getPlayers().getPlayers()) {
              if (p.getSlot().isAi()) {
                  hasAi = true;
              } else {

@@ -28,17 +28,14 @@ import com.jcloisterzone.event.GameListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.MageWitchSelectRemoval;
 import com.jcloisterzone.event.MeeplePrisonEvent;
-import com.jcloisterzone.event.RequestConfirmEvent;
 import com.jcloisterzone.event.SelectDragonMoveEvent;
-import com.jcloisterzone.event.TowerIncreasedEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.MenuBar.MenuItem;
-import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
 import com.jcloisterzone.ui.grid.BazaarPanel;
 import com.jcloisterzone.ui.grid.BazaarPanel.BazaarPanelState;
@@ -50,11 +47,10 @@ import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.ChannelView;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.ui.view.StartView;
-import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.message.LeaveGameMessage;
 import com.jcloisterzone.wsio.message.RmiMessage;
 
-public class GameController extends EventProxyUiController<Game> implements InvocationHandler {
+public class GameController extends EventProxyUiController<Game> {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -63,7 +59,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
     private String channel;
     private boolean passwordProtected;
 
-    private final RmiProxy rmiProxy;
     private ReportingTool reportingTool;
 
     private GameView gameView;
@@ -71,7 +66,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
     public GameController(Client client, Game game) {
         super(client, game);
         this.game = game;
-        rmiProxy = (RmiProxy) Proxy.newProxyInstance(RmiProxy.class.getClassLoader(), new Class[] { RmiProxy.class }, this);
         getInvokeInSwingUiAdapter().setReportingTool(reportingTool);
     }
 
@@ -91,28 +85,17 @@ public class GameController extends EventProxyUiController<Game> implements Invo
         this.gameState = gameState;
     }
 
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if (getConnection() == null) {
-            logger.info("Not connected. Message ignored");
-        } else {
-            RmiMessage rmi = new RmiMessage(game.getGameId(), method.getName(), args);
-            getConnection().send(rmi);
-        }
-        return null;
-    }
-
-    void phaseLoop() {
-        Phase phase = game.getPhase();
-        while (phase != null && !phase.isEntered()) {
-            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
-            phase.setEntered(true);
-            phase.enter();
-            phase = game.getPhase();
-            game.flushEventQueue();
-        }
-        game.flushEventQueue();
-    }
+//    void phaseLoop() {
+//        Phase phase = game.getPhase();
+//        while (phase != null && !phase.isEntered()) {
+//            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
+//            phase.setEntered(true);
+//            phase.enter();
+//            phase = game.getPhase();
+//            game.flushEventQueue();
+//        }
+//        game.flushEventQueue();
+//    }
 
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
@@ -180,29 +163,30 @@ public class GameController extends EventProxyUiController<Game> implements Invo
 
     public void refreshWindowTitle() {
         StringBuilder title = new StringBuilder(Client.BASE_TITLE);
+        GameState state = game.getState();
 
-        Player activePlayer = game.getActivePlayer();
+        Player activePlayer = state.getActivePlayer();
         if (activePlayer != null) {
             title.append(" ⋅ ").append(activePlayer.getNick());
         }
-        int packSize = game.getState().getTilePack().totalSize();
+        int packSize = state.getTilePack().totalSize();
         title.append(" ⋅ ").append(String.format(_("%d tiles left"), packSize));
 
         client.setTitle(title.toString());
     }
 
-    //@Subscribe
-    public void handleTileEvent(/*TileEvent ev*/) {
-        switch (ev.getType()) {
-        case TileEvent.DRAW:
-            refreshWindowTitle();
-            break;
-        case TileEvent.PLACEMENT:
-        case TileEvent.REMOVE:
-            gameView.getMainPanel().tileEvent(ev);
-            break;
-        }
-    }
+//    //@Subscribe
+//    public void handleTileEvent(/*TileEvent ev*/) {
+//        switch (ev.getType()) {
+//        case TileEvent.DRAW:
+//            refreshWindowTitle();
+//            break;
+//        case TileEvent.PLACEMENT:
+//        case TileEvent.REMOVE:
+//            gameView.getMainPanel().tileEvent(ev);
+//            break;
+//        }
+//    }
 
     @Subscribe
     public void handleMeeplePrisonEvent(MeeplePrisonEvent ev) {
@@ -216,18 +200,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
     public void showWarning(String title, String message) {
         JOptionPane.showMessageDialog(client, message, title, JOptionPane.WARNING_MESSAGE);
     }
-
-    @Subscribe
-    public void handleSelectDragonMove(SelectDragonMoveEvent ev) {
-        gameView.getControlPanel().getActionPanel().setFakeAction("dragonmove");
-        gameView.getGridPanel().repaint();
-
-        if (ev.getTargetPlayer().isLocalHuman()) {
-            client.beep();
-        }
-    }
-
-
 
     @Subscribe
     public void handleSelectCornCircleOption(CornCircleSelectOptionEvent ev) {
@@ -335,10 +307,6 @@ public class GameController extends EventProxyUiController<Game> implements Invo
                 );
             }
         }
-    }
-
-    public RmiProxy getRmiProxy() {
-        return rmiProxy;
     }
 
     public GameView getGameView() {

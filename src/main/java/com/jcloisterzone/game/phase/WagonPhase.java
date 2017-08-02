@@ -67,7 +67,7 @@ public class WagonPhase extends ServerAwarePhase {
         }
         Player player = wagonCap.getWagonPlayer();
         Meeple m = player.getMeepleFromSupply(Wagon.class);
-        if (getBoard().get(fp).walk(new IsOccupied())) {
+        if (getBoard().getPlayer(fp).walk(new IsOccupied())) {
             throw new IllegalArgumentException("Feature is occupied.");
         }
         m.deploy(fp);
@@ -156,7 +156,7 @@ public class WagonPhase extends ServerAwarePhase {
                                 if (j == i) {
                                     //Abbey at side;
                                     Position target = f.getTile().getPosition().translate(side);
-                                    Tile abbeyTile = getBoard().get(target);
+                                    Tile abbeyTile = getBoard().getPlayer(target);
                                     assert abbeyTile.isAbbeyTile();
                                     wagonMoves.addAll(getPlacements(abbeyTile.getCloister()));
                                 }

@@ -15,13 +15,13 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.wsio.RmiProxy;
 
 
-public abstract class Phase implements RmiProxy {
+public abstract class Phase {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -86,15 +86,6 @@ public abstract class Phase implements RmiProxy {
 
     //adapter methods
 
-    @Override
-    public void placeTowerPiece(Position p) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "placeTowerPiece");
-    }
-
-    @Override
-    public void placeTunnelPiece(FeaturePointer fp, boolean isSecondPiece) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "placeTunnelPiece");
-    }
 
     @Override
     public final void payRansom(Integer playerIndexToPay, Class<? extends Follower> meepleType) {
@@ -105,47 +96,6 @@ public abstract class Phase implements RmiProxy {
             return;
         }
         towerCap.payRansom(playerIndexToPay, meepleType);
-    }
-
-    @Override
-    public void takePrisoner(MeeplePointer mp) {
-         logger.error(Application.ILLEGAL_STATE_MSG, "takePrisoner");
-    }
-
-    @Override
-    public void deployBridge(Position pos, Location loc) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "deployBridge");
-
-    }
-
-    @Override
-    public void deployCastle(Position pos, Location loc) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "deployCastle");
-    }
-
-    @Override
-    public void bazaarBid(Integer supplyIndex, Integer price) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "bazaarBid");
-    }
-
-    @Override
-    public void bazaarBuyOrSell(boolean buy) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "bazaarBuyOrSell");
-    }
-
-    @Override
-    public void cornCiclesRemoveOrDeploy(boolean remove) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "cornCiclesRemoveOrDeploy");
-    }
-
-    @Override
-    public void placeLittleBuilding(LittleBuilding lbType) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "placeLittleBuilding");
-    }
-
-    @Override
-    public void placeGoldPiece(Position pos) {
-        logger.error(Application.ILLEGAL_STATE_MSG, "placeGoldPiece");
     }
 
     @Override

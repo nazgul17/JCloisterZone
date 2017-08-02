@@ -4,8 +4,8 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.DragonCapability;
+import com.jcloisterzone.game.state.GameState;
 
 public class DragonPhase extends Phase {
 

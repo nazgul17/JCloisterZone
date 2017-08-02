@@ -9,8 +9,8 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Follower;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;

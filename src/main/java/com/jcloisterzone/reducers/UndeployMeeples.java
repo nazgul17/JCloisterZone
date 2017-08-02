@@ -9,7 +9,7 @@ import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashSet;

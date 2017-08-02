@@ -1,6 +1,6 @@
 package com.jcloisterzone.reducers;
 
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Function1;
 

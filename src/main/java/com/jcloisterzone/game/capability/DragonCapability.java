@@ -10,7 +10,7 @@ import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 
 import io.vavr.collection.Vector;

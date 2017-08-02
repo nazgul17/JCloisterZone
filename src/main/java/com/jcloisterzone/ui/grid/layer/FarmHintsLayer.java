@@ -146,7 +146,7 @@ public class FarmHintsLayer extends AbstractGridLayer {
                     int y = Integer.MAX_VALUE;
                     int size = 0;
                     boolean hasCity = false;
-                    int[] power = new int[getGame().getAllPlayers().length()];
+                    int[] power = new int[getGame().getState().getPlayers().length()];
 
                     @Override
                     public VisitResult visit(Feature feature) {
@@ -171,9 +171,9 @@ public class FarmHintsLayer extends AbstractGridLayer {
                             if (y != Integer.MAX_VALUE) result.area.transform(AffineTransform.getTranslateInstance(0, FULL_SIZE * (y-pos.y)));
                             y = pos.y;
                         }
-                        Map<Location, FeatureArea> tileAreas = areas.get(f.getTile());
+                        Map<Location, FeatureArea> tileAreas = areas.getPlayer(f.getTile());
                         if (tileAreas != null) { //sync issue, feature can be extended in other thread, so it is not registered in areas yet
-                            Area featureArea = new Area(tileAreas.get(f.getLocation()).getTrackingArea());
+                            Area featureArea = new Area(tileAreas.getPlayer(f.getLocation()).getTrackingArea());
                             featureArea.transform(AffineTransform.getTranslateInstance(FULL_SIZE * (pos.x-x), FULL_SIZE*(pos.y-y)));
                             result.area.add(featureArea);
                         }

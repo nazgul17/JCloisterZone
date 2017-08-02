@@ -33,10 +33,10 @@ import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.PigHerdCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
@@ -206,7 +206,7 @@ public class CreateGamePhase extends ServerAwarePhase {
                     ai.setMuted(muteAi);
                     ai.setGame(game);
                     ai.setGameController(getGameController());
-                    for (Player player : game.getAllPlayers()) {
+                    for (Player player : game.getState().getPlayers().getPlayers()) {
                         if (player.getSlot().getNumber() == slot.getNumber()) {
                             ai.setPlayer(player);
                             break;
@@ -295,14 +295,14 @@ public class CreateGamePhase extends ServerAwarePhase {
             0
         );
 
-        state = state.setFollowers(
-            players.map(p -> createPlayerFollowers(p, capabilities))
-        );
-        state = state.setSpecialMeeples(
-            players.map(p -> createPlayerSpecialMeeples(p, capabilities))
-        );
-        state = state.setClocks(
-            players.map(p -> new PlayerClock(0))
+        state = state.updatePlayers(ps ->
+            ps.setFollowers(
+                players.map(p -> createPlayerFollowers(p, capabilities))
+            ).setSpecialMeeples(
+                players.map(p -> createPlayerSpecialMeeples(p, capabilities))
+            ).setClocks(
+                players.map(p -> new PlayerClock(0))
+            )
         );
 
         //TODO tile pack creation is touching state from game

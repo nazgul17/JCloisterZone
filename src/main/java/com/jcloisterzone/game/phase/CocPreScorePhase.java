@@ -125,7 +125,7 @@ public class CocPreScorePhase extends ServerAwarePhase {
     public void handleDeployMeeple(DeployMeepleMessage msg) {
         assert getTile().getPosition().equals(fp.getPosition());
         Player player = countCap.getMoveOutPlayer();
-        Feature f = getBoard().get(fp);
+        Feature f = getBoard().getPlayer(fp);
         Quarter quarter = countCap.getQuarterFor(f);
         for (Meeple m : quarter.getMeeples()) {
             if (m.getPlayer() == player && meepleType.isInstance(m)) {

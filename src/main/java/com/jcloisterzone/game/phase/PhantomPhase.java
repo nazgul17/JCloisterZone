@@ -85,7 +85,7 @@ public class PhantomPhase extends Phase {
         }
         Meeple m = getActivePlayer().getMeepleFromSupply(meepleType);
         if (m instanceof Follower) {
-            if (getBoard().get(fp).walk(new IsOccupied())) {
+            if (getBoard().getPlayer(fp).walk(new IsOccupied())) {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }

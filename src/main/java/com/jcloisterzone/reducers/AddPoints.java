@@ -3,7 +3,7 @@ package com.jcloisterzone.reducers;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerScore;
 import com.jcloisterzone.PointCategory;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.Array;
 
@@ -26,10 +26,12 @@ public class AddPoints implements Reducer {
         }
 
         int idx = player.getIndex();
-        Array<PlayerScore> score = state.getScore();
-        PlayerScore playerScore = score.get(idx);
-        score = score.update(idx, playerScore.addPoints(points, category));
-        return state.setScore(score);
+        return state.updatePlayers(ps -> {
+            Array<PlayerScore> score = ps.getScore();
+            PlayerScore playerScore = score.get(idx);
+            score = score.update(idx, playerScore.addPoints(points, category));
+            return ps.setScore(score);
+        });
     }
 
 }

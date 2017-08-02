@@ -204,7 +204,7 @@ public class Snapshot implements Serializable {
 
     private void createMeepleElements(Game game) {
         for (Meeple m : game.getDeployedMeeples()) {
-            Element tileEl = tileElemens.get(m.getPosition());
+            Element tileEl = tileElemens.getPlayer(m.getPosition());
             Element el = doc.createElement("meeple");
             el.setAttribute("player", "" + m.getPlayer().getIndex());
             el.setAttribute("type", "" + m.getClass().getSimpleName());

@@ -31,7 +31,6 @@ import com.jcloisterzone.ui.controls.action.TilePlacementActionWrapper;
 import com.jcloisterzone.ui.controls.action.TunnelActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.ForwardBackwardListener;
-import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.GameView;
 
 import io.vavr.collection.IndexedSeq;
@@ -65,9 +64,6 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
     private Image[] selected, deselected;
     private int imgOffset = 0;
     private boolean refreshImages, refreshMouseRegions;
-
-    private String fakeAction;
-    private Image fakeActionImage;
 
     private final Client client;
     private final GameView gameView;
@@ -154,7 +150,7 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         int baseSize = Math.min(maxIconSize, (int) Math.floor(availableWidth / units));
         int activeSize = (int) (baseSize * ACTIVE_SIZE_RATIO);
 
-        Player activePlayer = gameView.getGame().getActivePlayer();
+        Player activePlayer = gameView.getGame().getState().getActivePlayer();
         for (int i = 0; i < actions.size(); i++) {
             selected[i] = new ImageIcon(
                 actions.get(i).getImage(client.getResourceManager(), activePlayer, true).getScaledInstance(activeSize, activeSize, Image.SCALE_SMOOTH)
@@ -172,7 +168,6 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         this.selectedActionIndex = -1;
         refreshImages = true;
         refreshMouseRegions = true;
-        fakeAction = null;
         active = false;
         repaint();
     }
@@ -266,9 +261,6 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         g2.fillRoundRect(0, LINE_Y, getWidth()+CORNER_DIAMETER, LINE_HEIGHT, CORNER_DIAMETER, CORNER_DIAMETER);
 
         int x = LEFT_MARGIN;
-        if (fakeActionImage != null) {
-            g2.drawImage(fakeActionImage, x, LINE_Y+((LINE_HEIGHT-FAKE_ACTION_SIZE) / 2)+imgOffset, FAKE_ACTION_SIZE, FAKE_ACTION_SIZE, null);
-        }
 
         if (!actions.isEmpty()) {
             //possible race condition - (but AtomBoolean cannot be used, too slow for painting)
@@ -329,21 +321,6 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
     public void mouseExited(MouseEvent e, MouseListeningRegion origin) {
         if (showConfirmRequest) return;
         gameView.getGridPanel().setCursor(Cursor.getDefaultCursor());
-    }
-
-    public String getFakeAction() {
-        return fakeAction;
-    }
-
-    public void setFakeAction(String fakeAction) {
-        this.fakeAction = fakeAction;
-        if (fakeAction == null) {
-            fakeActionImage = null;
-        } else {
-            fakeActionImage = client.getResourceManager().getLayeredImage(new LayeredImageDescriptor("actions/"+fakeAction));
-            fakeActionImage = fakeActionImage.getScaledInstance(FAKE_ACTION_SIZE, FAKE_ACTION_SIZE, Image.SCALE_SMOOTH);
-        }
-        repaint();
     }
 
     public void setShowConfirmRequest(boolean showConfirmRequest, boolean remote) {

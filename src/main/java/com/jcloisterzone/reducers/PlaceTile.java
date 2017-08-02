@@ -11,7 +11,7 @@ import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;

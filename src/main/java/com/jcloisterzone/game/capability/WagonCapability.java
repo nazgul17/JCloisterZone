@@ -106,18 +106,18 @@ public class WagonCapability extends Capability {
     public Player getWagonPlayer() {
         if (scoredWagons.isEmpty()) return null;
         int pi = game.getTurnPlayer().getIndex();
-        while (!scoredWagons.containsKey(game.getAllPlayers().get(pi))) {
+        while (!scoredWagons.containsKey(game.getAllPlayers().getPlayer(pi))) {
             pi++;
             if (pi == game.getAllPlayers().length()) pi = 0;
         }
-        return game.getAllPlayers().get(pi);
+        return game.getAllPlayers().getPlayer(pi);
     }
 
     private Set<FeaturePointer> filterWagonLocations(Set<FeaturePointer> followerOptions) {
         return Sets.filter(followerOptions, new Predicate<FeaturePointer>() {
             @Override
             public boolean apply(FeaturePointer bp) {
-                Feature fe = getBoard().get(bp);
+                Feature fe = getBoard().getPlayer(bp);
                 return fe instanceof Road || fe instanceof City || fe instanceof Cloister;
             }
         });
@@ -154,7 +154,7 @@ public class WagonCapability extends Capability {
             Position pos = XMLUtils.extractPosition(wg);
             int playerIndex = Integer.parseInt(wg.getAttribute("player"));
             Player player = game.getPlayer(playerIndex);
-            scoredWagons.put(player, getBoard().get(pos).getFeature(loc));
+            scoredWagons.put(player, getBoard().getPlayer(pos).getFeature(loc));
         }
     }
 }

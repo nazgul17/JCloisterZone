@@ -4,7 +4,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.RmiProxy;
@@ -17,10 +17,6 @@ public abstract class ServerAwarePhase extends Phase {
     public ServerAwarePhase(Game game, GameController gc) {
         super(game);
         this.gc = gc;
-    }
-
-    public RmiProxy getServer() {
-        return gc.getRmiProxy();
     }
 
     public Connection getConnection() {

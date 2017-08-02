@@ -2,11 +2,11 @@ package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
-import com.jcloisterzone.game.GameState.Flag;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.BuilderCapability.BuilderState;
+import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameState.Flag;
 
 import io.vavr.collection.HashSet;
 

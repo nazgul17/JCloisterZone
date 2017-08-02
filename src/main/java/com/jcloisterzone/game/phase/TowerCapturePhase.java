@@ -34,7 +34,7 @@ public class TowerCapturePhase extends Phase {
     @Override
     public void enter() {
         Position pos = towerCap.getLastIncreasedTower();
-        TakePrisonerAction captureAction = prepareCapture(pos, getBoard().get(pos).getTower().getHeight());
+        TakePrisonerAction captureAction = prepareCapture(pos, getBoard().getPlayer(pos).getTower().getHeight());
         if (captureAction.isEmpty()) {
             next();
             return;

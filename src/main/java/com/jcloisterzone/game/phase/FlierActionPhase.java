@@ -36,7 +36,7 @@ public class FlierActionPhase extends Phase {
         for (int i = 0; i < distance; i++) {
             pos = pos.add(direction);
         }
-        Tile target = getBoard().get(pos);
+        Tile target = getBoard().getPlayer(pos);
 
         Class<? extends Meeple> meepleType = flierCap.getMeepleType();
         Follower follower = (Follower) getActivePlayer().getMeepleFromSupply(meepleType);

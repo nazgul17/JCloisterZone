@@ -12,7 +12,6 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.ClothWineGrainCapability;
@@ -24,6 +23,7 @@ import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.resources.ResourceManager;
@@ -62,7 +62,7 @@ public class PlayerPanelImageCache {
 
     private void scaleImages(Game game) {
         GameState state = game.getState();
-        for (Player player : state.getPlayers()) {
+        for (Player player : state.getPlayers().getPlayers()) {
             Color color = player.getColors().getMeepleColor();
             scaleFigureImages(player, color, player.getFollowers(state));
             scaleFigureImages(player, color, player.getSpecialMeeples(state));

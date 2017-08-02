@@ -7,9 +7,9 @@ import java.util.Objects;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.capability.ClothWineGrainCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.PlayerColor;
 
 import io.vavr.collection.HashMap;
@@ -67,34 +67,34 @@ public class Player implements Serializable {
 
     public Player getNextPlayer(GameState state) {
         int nextPlayerIndex = index == (state.getPlayers().length() - 1) ? 0 : index + 1;
-        return state.getPlayers().get(nextPlayerIndex);
+        return state.getPlayers().getPlayer(nextPlayerIndex);
     }
 
     public Player getPrevPlayer(GameState state) {
         int prevPlayerIndex = index == 0 ? state.getPlayers().length() - 1 : index - 1;
-        return state.getPlayers().get(prevPlayerIndex);
+        return state.getPlayers().getPlayer(prevPlayerIndex);
     }
 
     public int getPoints(GameState state) {
-        return state.getScore().get(index).getPoints();
+        return state.getPlayers().getScore().get(index).getPoints();
     }
 
     public PlayerClock getClock(GameState state) {
-        return state.getClocks().get(index);
+        return state.getPlayers().getClocks().get(index);
     }
 
     public int getPointsInCategory(GameState state, PointCategory cat) {
-        HashMap<PointCategory, Integer> pointStats = state.getScore().get(getIndex()).getStats();
+        HashMap<PointCategory, Integer> pointStats = state.getPlayers().getScore().get(getIndex()).getStats();
         Option<Integer> points = pointStats.get(cat);
         return points.getOrElse(0);
     }
 
     public Seq<Follower> getFollowers(GameState state) {
-        return state.getFollowers().get(index);
+        return state.getPlayers().getFollowers().get(index);
     }
 
     public Seq<Special> getSpecialMeeples(GameState state) {
-        return state.getSpecialMeeples().get(index);
+        return state.getPlayers().getSpecialMeeples().get(index);
     }
 
     public Stream<Meeple> getMeeples(GameState state) {

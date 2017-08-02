@@ -28,7 +28,6 @@ import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameState;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
@@ -38,6 +37,7 @@ import com.jcloisterzone.game.capability.KingAndRobberBaronCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
@@ -337,9 +337,9 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
             Map<Class<? extends Follower>, Integer> groupedByType;
             if (!capturedFigures.isEmpty()) {
                 groupedByType = new HashMap<>();
-                for (Player opponent : game.getAllPlayers()) {
+                for (Player opponent : game.getState().getPlayers().getPlayers()) {
                     if (opponent == player) continue;
-                    boolean isOpponentActive = opponent.equals(game.getActivePlayer()) && opponent.isLocalHuman();
+                    boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
                     boolean clickable = isOpponentActive && !towerCap.isRansomPaidThisTurn();
                     for (Follower f : capturedFigures) {
                         if (f.getPlayer().equals(opponent)) {

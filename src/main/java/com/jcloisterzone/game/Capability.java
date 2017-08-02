@@ -20,6 +20,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Special;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Set;

@@ -22,6 +22,7 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.figure.SmallFollower;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
@@ -76,7 +77,7 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
     public void onShow() {
         super.onShow();
         //TODO should be based on event player
-        player = getGame().getActivePlayer();
+        player = getGame().getState().getActivePlayer();
         attachMouseInputListener(new AreaLayerMouseMotionListener());
     }
 
@@ -177,13 +178,14 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
 
     /** debug purposes highlight - it always shows basic follower (doesn't important for dbg */
     private void paintFigureHighlight(Graphics2D g2) {
+        GameState state = getGame().getState();
         FeaturePointer fp = (FeaturePointer) selectedFeaturePointer;
         Position pos = fp.getPosition();
         //ugly copy pasted code from Meeple but uncached here
         g2.setComposite(FIGURE_HIGHLIGHT_AREA_ALPHA_COMPOSITE);
-        Tile tile = getGame().getBoard().get(pos);
+        Tile tile = state.getBoard().get(pos);
         ImmutablePoint point = rm.getMeeplePlacement(tile, SmallFollower.class, fp.getLocation());
-        Player p = getGame().getActivePlayer();
+        Player p = state.getActivePlayer();
         Image unscaled = rm.getLayeredImage(
             new LayeredImageDescriptor(SmallFollower.class, p.getColors().getMeepleColor())
         );
@@ -196,7 +198,8 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
 
     /** standard highlight **/
     private void paintAreaHighlight(Graphics2D g2) {
-        Player p = getGame().getActivePlayer();
+        GameState state = getGame().getState();
+        Player p = state.getActivePlayer();
         if (p != null && p.equals(player)) { //sync issue
             Color color = selectedArea.getForceAreaColor();
             g2.setColor(color == null ? p.getColors().getMeepleColor() : color);

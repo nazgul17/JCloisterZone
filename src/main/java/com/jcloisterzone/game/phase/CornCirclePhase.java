@@ -185,7 +185,7 @@ public class CornCirclePhase extends ServerAwarePhase {
             logger.error("Deployment wasn't selected as corn options.");
             return;
         }
-        List<Meeple> meeples = getBoard().get(fp).getMeeples();
+        List<Meeple> meeples = getBoard().getPlayer(fp).getMeeples();
         if (meeples.isEmpty()) {
             logger.error("Feature must be occupied");
             return;

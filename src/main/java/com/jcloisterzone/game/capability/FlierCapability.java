@@ -62,7 +62,7 @@ public class FlierCapability extends Capability {
         Position pos = getCurrentTile().getPosition();
         for (int i = 0; i < 3; i++) {
             pos = pos.add(direction);
-            Tile target = getBoard().get(pos);
+            Tile target = getBoard().getPlayer(pos);
             if (target != null) {
                 for (Feature f : target.getFeatures()) {
                     if (f instanceof Cloister) {

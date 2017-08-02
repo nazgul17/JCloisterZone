@@ -194,7 +194,7 @@ public class BridgeCapability extends Capability {
     }
 
     public void deployBridge(Position pos, Location loc, boolean forced) {
-        Tile tile = getBoard().get(pos);
+        Tile tile = getBoard().getPlayer(pos);
         if (!tile.isBridgeAllowed(loc)) {
             throw new IllegalArgumentException("Cannot deploy " + loc + " bridge on " + pos);
         }
@@ -206,7 +206,7 @@ public class BridgeCapability extends Capability {
     }
 
     public void undoDeployBridge(Position pos, Location loc) {
-        Tile tile = getBoard().get(pos);
+        Tile tile = getBoard().getPlayer(pos);
         bridgeUsed = false;
         tile.removeBridge(loc);
     }

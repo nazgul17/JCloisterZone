@@ -6,7 +6,7 @@ import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.GameState;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.List;
 
