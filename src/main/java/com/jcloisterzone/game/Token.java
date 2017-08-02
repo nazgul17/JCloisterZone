@@ -4,7 +4,7 @@ public enum Token {
 
     WINE, GRAIN, CLOTH,
     KING, ROBBER,
-    LB_TOWER, LB_HOUSE, LB_SHED,
+    LB_SHED, LB_HOUSE, LB_TOWER,
     TOWER_PIECE,
     BRIDGE,
     CASTLE,

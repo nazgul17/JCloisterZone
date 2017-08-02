@@ -144,20 +144,6 @@ public class GameState implements Serializable {
         return setCapabilities(getCapabilities().setModel(cls, model));
     }
 
-    public <C extends Capability> GameState updateCapability(Class<C> cls, Function<C, C> fn) {
-        C prev = get(cls);
-        C next = fn.apply(prev);
-        if (prev == next) {
-            return this;
-        } else {
-            return setCapabilities(capabilities.put(cls, next));
-        }
-    }
-
-    public GameState updateCapability(Capability cap) {
-        return setCapabilities(capabilities.put(cap.getClass(), cap));
-    }
-
     public GameState setPlayers(PlayersState players) {
         if (players == this.players) return this;
         return new GameState(
