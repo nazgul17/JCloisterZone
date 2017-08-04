@@ -1,7 +1,7 @@
 # Version history
 
 ## 4.0
-* multilple undo steps are now supported.
+* multiple undo steps are now supported (including eg. undo paid ransom)
 
 ## 3.4.3
 *2017-05-08

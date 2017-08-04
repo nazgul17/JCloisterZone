@@ -15,6 +15,7 @@ import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
 import com.jcloisterzone.reducers.AddPoints;
+import com.jcloisterzone.reducers.PayRansom;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PayRansomMessage;
@@ -97,45 +98,9 @@ public abstract class Phase {
 
     @WsSubscribe
     public void handlePayRansom(PayRansomMessage msg) {
+        game.markUndo();
         GameState state = game.getState();
-
-        if (state.hasFlag(Flag.RANSOM_PAID)) {
-            throw new IllegalStateException("Ransom can be paid only once a turn.");
-        }
-
-
-        Player player = state.getActivePlayer();
-        Predicate<Follower> pred = f -> f.getId().equals(msg.getMeepleId());
-
-        Array<List<Follower>> model = state.getCapabilities().getModel(TowerCapability.class);
-        Follower follower = null;
-        Player jailer = null;
-
-        for (int i = 0; i < model.length(); i++) {
-            follower = model.get(i).find(pred).getOrNull();
-            if (follower != null) {
-                jailer = state.getPlayers().getPlayer(i);
-                break;
-            }
-        }
-
-        if (follower == null) {
-            throw new IllegalArgumentException(String.format("No such prisoner %s.", msg.getMeepleId()));
-        }
-        if (!follower.getPlayer().equals(player)) {
-            new IllegalArgumentException("Cannot pay ransom for opponent's follower.");
-        }
-
-        Player _jailer = jailer;
-        Follower _follower = follower;
-        state = state.updateCapabilityModel(TowerCapability.class, m ->
-            m.update(_jailer.getIndex(), l -> l.remove(_follower))
-        );
-        state = (new AddPoints(player, -TowerCapability.RANSOM_POINTS, PointCategory.TOWER_RANSOM)).apply(state);
-        state = (new AddPoints(jailer, TowerCapability.RANSOM_POINTS, PointCategory.TOWER_RANSOM)).apply(state);
-        state = state.addFlag(Flag.RANSOM_PAID);
-        // TODO add PlayEvent
-
+        state = (new PayRansom(msg.getMeepleId())).apply(state);
         promote(state);
     }
 

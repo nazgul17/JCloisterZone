@@ -383,25 +383,11 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         this.potentialPoints += potentialPoints;
     }
 
-    @SuppressWarnings("unchecked")
+
     @Override
     public void mouseClicked(MouseEvent e, MouseListeningRegion origin) {
         String meepleId = (String) origin.getData();
-//        if (!(origin.getData() instanceof String)) return;
-//        Class<? extends Follower> followerClass = (Class<? extends Follower>) origin.getData();
-//        TowerCapability tg = gameView.getGame().getCapability(TowerCapability.class);
-//        if (!tg.isRansomPaidThisTurn()) {
-            if (client.getConfig().getConfirm().getRansom_payment()) {
-                String options[] = {_("Pay ransom"), _("Cancel") };
-                int result = JOptionPane.showOptionDialog(client,
-                        _("Do you really want to pay 3 points to release prisoner?"),
-                        _("Confirm ransom payment"),
-                        JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-                if (JOptionPane.YES_OPTION != result) return;
-            }
-            //gc.getRmiProxy().payRansom(player.getIndex(), followerClass);
-            gc.getConnection().send(new PayRansomMessage(gc.getGameId(), meepleId));
-        //}
+        gc.getConnection().send(new PayRansomMessage(gc.getGameId(), meepleId));
     }
 
     @Override
@@ -410,10 +396,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
             mouseOverKey = (String) origin.getData();
             gameView.getGridPanel().repaint();
         } else {
-            // TODO verify, but it should be already checked in paint method
-            //if (!gameView.getGame().getState().hasFlag(Flag.RANSOM_PAID)) {
-                gameView.getGridPanel().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            //}
+            gameView.getGridPanel().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         }
     }
 

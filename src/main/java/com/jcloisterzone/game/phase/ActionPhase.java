@@ -1,9 +1,7 @@
 package com.jcloisterzone.game.phase;
 
-import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
-import com.jcloisterzone.action.CaptureFollowerAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.PrincessAction;
@@ -14,7 +12,6 @@ import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.event.FlierRollEvent;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TokenPlacedEvent;
 import com.jcloisterzone.feature.City;
@@ -34,24 +31,17 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
-import com.jcloisterzone.game.capability.BridgeCapability;
-import com.jcloisterzone.game.capability.FlierCapability;
-import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
-import com.jcloisterzone.game.capability.TowerCapability;
-import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
-import com.jcloisterzone.reducers.CaptureMeeple;
 import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
+import com.jcloisterzone.reducers.PayRansom;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
-import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
-import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
-import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.PayRansomMessage;
 import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
@@ -149,8 +139,12 @@ public class ActionPhase extends Phase {
     }
 
     @Override
-    public void notifyRansomPaid() {
-        enter(); //recompute available actions
+    @WsSubscribe
+    public void handlePayRansom(PayRansomMessage msg) {
+        game.markUndo();
+        GameState state = game.getState();
+        state = (new PayRansom(msg.getMeepleId())).apply(state);
+        enter(state); //recompute actions with returned followers
     }
 
     @WsSubscribe

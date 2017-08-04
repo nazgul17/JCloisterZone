@@ -9,7 +9,12 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.state.GameState;
+
+import io.vavr.collection.Array;
+import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 
 @Immutable
 public abstract class Figure<T extends BoardPointer> implements Serializable {
@@ -67,7 +72,9 @@ public abstract class Figure<T extends BoardPointer> implements Serializable {
 
     //deployed is not opposite of supply, mind imprisoned followers
     public boolean isInSupply(GameState state) {
-        return getDeployment(state) == null;
+        if (isDeployed(state)) return false;
+        Array<List<Follower>> model = state.getCapabilities().getModel(TowerCapability.class);
+        return model == null || Stream.concat(model).find(f -> f == this).isEmpty();
     }
 
     @Override
