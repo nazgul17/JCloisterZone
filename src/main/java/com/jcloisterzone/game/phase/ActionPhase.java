@@ -3,6 +3,7 @@ package com.jcloisterzone.game.phase;
 import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.CaptureFollowerAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.PrincessAction;
@@ -14,8 +15,11 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.FlierRollEvent;
+import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
+import com.jcloisterzone.event.play.TokenPlacedEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Scoreable;
+import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.DeploymentCheckResult;
@@ -29,6 +33,7 @@ import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.FlierCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
@@ -45,6 +50,7 @@ import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
 import io.vavr.Predicates;
@@ -75,10 +81,10 @@ public class ActionPhase extends Phase {
     public void enter(GameState state) {
         Player player = state.getTurnPlayer();
 
-        Vector<Meeple> availMeeples = Vector
-            .of(SmallFollower.class, BigFollower.class, Phantom.class, Builder.class, Pig.class)
-            .map(cls -> player.getMeepleFromSupply(state, cls))
-            .filter(Predicates.isNotNull());
+        Vector<Meeple> availMeeples = player.getMeeplesFromSupply(
+            state,
+            Vector.of(SmallFollower.class, BigFollower.class, Phantom.class, Builder.class, Pig.class)
+        );
 
         Tile currentTile = state.getBoard().getLastPlaced();
         Position currentTilePos = currentTile.getPosition();
@@ -148,6 +154,11 @@ public class ActionPhase extends Phase {
     @WsSubscribe
     public void handlePass(PassMessage msg) {
         GameState state = game.getState();
+
+        if (!state.getPlayerActions().isPassAllowed()) {
+            throw new IllegalStateException("Pass is not allowed");
+        }
+
         state = clearActions(state);
         if (getDefaultNext() instanceof PhantomPhase) {
             //skip PhantomPhase if user pass turn
@@ -228,15 +239,55 @@ public class ActionPhase extends Phase {
         next(state);
     }
 
-
-    @Override
-    public void placeTowerPiece(Position p) {
+    @WsSubscribe
+    public void handlePlaceToken(PlaceTokenMessage msg) {
         GameState state = game.getState();
-        //TODO
-        towerCap.placeTowerPiece(getActivePlayer(), p);
+        Player player = state.getActivePlayer();
 
-        state = clearActions(state);
-        next(state, TowerCapturePhase.class);
+        FeaturePointer ptr = msg.getPointer();
+        Token token = msg.getToken();
+
+        if (token == Token.TOWER_PIECE) {
+            // TODO IMMUTABLE validation against ActionState
+
+            state = state.updatePlayers(ps ->
+                 ps.addPlayerTokenCount(player.getIndex(), Token.TOWER_PIECE, -1)
+            );
+            Tower tower = (Tower) state.getFeatures().get(ptr).getOrElseThrow(() -> new IllegalArgumentException("No tower"));
+            tower = tower.increaseHeight();
+
+            int towerHeight = tower.getHeight();
+            Position towerPosition = ptr.getPosition();
+
+            state = state.setFeatures(state.getFeatures().put(ptr, tower));
+            state = state.appendEvent(new TokenPlacedEvent(
+                PlayEventMeta.createWithActivePlayer(state), token, ptr)
+            );
+
+            Set<MeeplePointer> options = Stream.ofAll(state.getDeployedMeeples())
+                .filter(t -> {
+                    Position pos = t._2.getPosition();
+                    return
+                        (t._1 instanceof Follower) &&
+                        (pos.x == towerPosition.x || pos.y == towerPosition.y) &&
+                        (pos.squareDistance(towerPosition) <= towerHeight);
+                })
+                .map(t -> new MeeplePointer(t._2, t._1.getId()))
+                .toSet();
+
+            if (options.isEmpty()) {
+                next(clearActions(state));
+                return;
+            }
+
+            state = state.setPlayerActions(
+                new ActionsState(player, new CaptureFollowerAction(options), true)
+            );
+
+            promote(state);
+        } else {
+            throw new IllegalArgumentException(String.format("%s placement is not allowed", token));
+        }
     }
 
     @Override

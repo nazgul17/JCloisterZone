@@ -3,25 +3,36 @@ package com.jcloisterzone.ui.grid.layer;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Area;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import com.google.common.eventbus.Subscribe;
+import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.event.TowerIncreasedEvent;
+import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.event.play.PlayEvent;
+import com.jcloisterzone.event.play.TokenPlacedEvent;
+import com.jcloisterzone.feature.Tower;
+import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
+
+import io.vavr.Tuple3;
+import io.vavr.collection.List;
+import io.vavr.collection.Stream;
 
 
 public class TowerLayer extends AbstractGridLayer {
 
     private final static Color FILL_COLOR = new Color(40,40,40,150);
 
-    private Map<Position, Integer> heights = new HashMap<>();
+    public static class TowerLayerModel {
+        List<Tuple3<Tile, Position, Tower>> towers = List.empty();
+    }
+
+    private TowerLayerModel model = new TowerLayerModel();
 
     public TowerLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -29,26 +40,53 @@ public class TowerLayer extends AbstractGridLayer {
         gc.register(this);
     }
 
-    @Override
-    public void paint(Graphics2D g2) {
-        g2.setColor(FILL_COLOR);
-        for (Entry<Position, Integer> entry : heights.entrySet()) {
-            Tile tile = gridPanel.getTile(entry.getKey());
-            Area ra = rm.getMeepleTileArea(tile, getTileWidth(), getTileHeight(), Location.TOWER).getTrackingArea();
-            g2.fill(transformArea(ra, entry.getKey()));
-            drawAntialiasedTextCenteredNoScale(g2,"" + entry.getValue(), 22, entry.getKey(),
-                    new ImmutablePoint((int)ra.getBounds2D().getCenterX(), (int)ra.getBounds2D().getCenterY()), Color.WHITE, null);
+
+    @Subscribe
+    public void handleGameChanged(GameChangedEvent ev) {
+        boolean towersChanged = false;
+        for (PlayEvent pe : ev.getPlayEventsSymmetricDifference()) {
+            if (pe instanceof TokenPlacedEvent) {
+                TokenPlacedEvent tpe = (TokenPlacedEvent) pe;
+                if (tpe.getToken() == Token.TOWER_PIECE) {
+                    towersChanged = true;
+                    break;
+                }
+            }
+        }
+
+        if (towersChanged) {
+            model = createModel(ev.getCurrentState());
+            gridPanel.repaint();
         }
     }
 
-    @Subscribe
-    public void towerIncreased(TowerIncreasedEvent ev) {
-        setTowerHeight(ev.getPosition(), ev.getCaptureRange());
-        gridPanel.repaint();
+    private TowerLayerModel createModel(GameState state) {
+        TowerLayerModel model = new TowerLayerModel();
+
+        Board board = state.getBoard();
+
+        model.towers = Stream.ofAll(state.getFeatures())
+            .filter(t -> (t._2 instanceof Tower) && ((Tower)t._2).getHeight() > 0)
+            .map(t -> {
+                Position pos = t._1.getPosition();
+                return new Tuple3<>(board.get(pos), pos, (Tower) t._2);
+            })
+            .toList();
+        return model;
     }
 
-    private void setTowerHeight(Position p, int towerHeight) {
-        heights.put(p, towerHeight);
-    }
 
+
+    @Override
+    public void paint(Graphics2D g2) {
+        g2.setColor(FILL_COLOR);
+        for (Tuple3<Tile, Position, Tower> t: model.towers) {
+            Tile tile = t._1;
+            Position pos = t._2;
+            Area ra = rm.getMeepleTileArea(tile, getTileWidth(), getTileHeight(), Location.TOWER).getTrackingArea();
+            g2.fill(transformArea(ra, pos));
+            drawAntialiasedTextCenteredNoScale(g2,"" + t._3.getHeight(), 22, pos,
+                    new ImmutablePoint((int)ra.getBounds2D().getCenterX(), (int)ra.getBounds2D().getCenterY()), Color.WHITE, null);
+        }
+    }
 }

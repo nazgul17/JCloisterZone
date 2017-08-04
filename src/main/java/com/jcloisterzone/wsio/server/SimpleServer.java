@@ -50,6 +50,7 @@ import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
+import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
@@ -520,7 +521,14 @@ public class SimpleServer extends WebSocketServer  {
     }
 
     @WsSubscribe
-    public void handleReturnMeeple(WebSocket ws, MoveNeutralFigureMessage msg) {
+    public void handleMoveNeutralFigureMessage(WebSocket ws, MoveNeutralFigureMessage msg) {
+        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
+        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
+        broadcast(msg, true);
+    }
+
+    @WsSubscribe
+    public void handlePlaceTokenMessage(WebSocket ws, PlaceTokenMessage msg) {
         if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
         broadcast(msg, true);

@@ -1,165 +1,195 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import com.google.common.base.Predicates;
-import com.google.common.collect.Iterables;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.XMLUtils;
+import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.FairyNextToAction;
+import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TowerPieceAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.MeeplePrisonEvent;
 import com.jcloisterzone.event.TowerIncreasedEvent;
+import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.BigFollower;
+import com.jcloisterzone.figure.Builder;
+import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.Phantom;
+import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.SmallFollower;
-import com.jcloisterzone.figure.predicate.MeeplePredicates;
+import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.CustomRule;
+import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.state.GameState;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.Array;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Seq;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 
-public final class TowerCapability extends Capability<Void> {
+/**
+ * @model Array<List<String>> - list of captured meeples for each players
+ */
+public final class TowerCapability extends Capability<Array<List<Meeple>>> {
 
     private static final int RANSOM_POINTS = 3;
 
-    private final Set<Position> towers = new HashSet<>();
-    private final Map<Player, Integer> towerPieces = new HashMap<>();
-    private boolean ransomPaidThisTurn;
-
-    private Position lastIncreasedTower; //needed for persist game in TowerCapturePhase
+//    private final Set<Position> towers = new HashSet<>();
+//    private final Map<Player, Integer> towerPieces = new HashMap<>();
+//    private boolean ransomPaidThisTurn;
+//
+//    private Position lastIncreasedTower; //needed for persist game in TowerCapturePhase
 
     //key is Player who keeps follower imprisoned
     //synchronized because of GUI is looking inside
     //TODO fix gui hack
-    private final Map<Player, List<Follower>> prisoners = Collections.synchronizedMap(new HashMap<Player, List<Follower>>());
+    //private final Map<Player, List<Follower>> prisoners = Collections.synchronizedMap(new HashMap<Player, List<Follower>>());
 
-
-    public void registerTower(Position p) {
-        towers.add(p);
-    }
-
-    public void unregisterTower(Position p) {
-        towers.remove(p);
-    }
-
-    public Set<Position> getTowers() {
-        return towers;
-    }
-
-    public boolean isRansomPaidThisTurn() {
-        return ransomPaidThisTurn;
-    }
-
-    public void setRansomPaidThisTurn(boolean ransomPayedThisTurn) {
-        this.ransomPaidThisTurn = ransomPayedThisTurn;
-    }
-
-    @Override
-    public void initPlayer(Player player) {
-        int pieces = 0;
-        switch(game.getAllPlayers().length()) {
+    private int getInitialPiecesCount(GameState state) {
+        switch(state.getPlayers().getPlayers().length()) {
         case 1:
-        case 2: pieces = 10; break;
-        case 3: pieces = 9; break;
-        case 4: pieces = 7; break;
-        case 5: pieces = 6; break;
-        case 6: pieces = 5; break;
+        case 2: return 10;
+        case 3: return 9;
+        case 4: return 7;
+        case 5: return 6;
+        case 6: return 5;
         }
-        towerPieces.put(player, pieces);
-        prisoners.put(player, Collections.synchronizedList(new ArrayList<Follower>()));
-    }
-
-    public int getTowerPieces(Player player) {
-        return towerPieces.get(player);
-    }
-
-    public int setTowerPieces(Player player, int pieces) {
-        return towerPieces.put(player, pieces);
-    }
-
-    public void decreaseTowerPieces(Player player) {
-        int pieces = getTowerPieces(player);
-        if (pieces == 0) throw new IllegalStateException("Player has no tower pieces");
-        towerPieces.put(player, pieces-1);
-    }
-
-    private boolean hasSmallOrBigFollower(Player p) {
-        return Iterables.any(p.getFollowers(), Predicates.and(
-                MeeplePredicates.inSupply(), MeeplePredicates.instanceOf(SmallFollower.class, BigFollower.class)));
+        throw new IllegalStateException();
     }
 
     @Override
-    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-        if (hasSmallOrBigFollower(game.getActivePlayer())) {
-            prepareTowerFollowerDeploy(findAndFillFollowerActions(actions));
-        }
-        if (getTowerPieces(game.getActivePlayer()) > 0) {
-            Set<Position> availTowers = getOpenTowers(0);
-            if (!availTowers.isEmpty()) {
-                actions.add(new TowerPieceAction().addAll(availTowers));
+    public GameState onStartGame(GameState state) {
+        int pieces = getInitialPiecesCount(state);
+        return state.updatePlayers(ps -> {
+            for (Player p : ps.getPlayers()) {
+                ps = ps.addPlayerTokenCount(p.getIndex(), Token.TOWER_PIECE, pieces);
             }
-        }
+            return ps;
+        });
     }
 
-    public void prepareTowerFollowerDeploy(List<MeepleAction> followerActions) {
-        Set<Position> availableTowers = getOpenTowers(1);
-        if (!availableTowers.isEmpty()) {
-            for (Position p : availableTowers) {
-                if (game.isDeployAllowed(getBoard().getPlayer(p), Follower.class)) {
-                    for (MeepleAction ma : followerActions) {
-                        //only small, big and phantoms are allowed on top of tower
-                        if (SmallFollower.class.isAssignableFrom(ma.getMeepleType()) || BigFollower.class.isAssignableFrom(ma.getMeepleType())) {
-                            ma.add(new FeaturePointer(p, Location.TOWER));
-                        }
-                    }
-                }
-            }
+        @Override
+    public GameState onActionPhaseEntered(GameState state) {
+        Player player = state.getPlayerActions().getPlayer();
+
+        Set<FeaturePointer> occupiedTowers = state.getDeployedMeeples()
+            .filter(t -> t._2.getLocation().equals(Location.TOWER))
+            .map(Tuple2::_2)
+            .toSet();
+
+        Stream<Tuple2<FeaturePointer, Feature>> openTowersStream = Stream.ofAll(state.getFeatures())
+            .filter(t -> (t._2 instanceof Tower))
+            .filter(t -> !occupiedTowers.contains(t._1));
+
+        Set<FeaturePointer> openTowersForPiece = openTowersStream
+            .map(Tuple2::_1).toSet();
+
+        Set<FeaturePointer> openTowersForFollower = openTowersStream
+            .filter(t -> ((Tower)t._2).getHeight() > 0)
+            .map(Tuple2::_1).toSet();
+
+        ActionsState as = state.getPlayerActions();
+
+        if (!openTowersForPiece.isEmpty()) {
+            as = as.appendAction(new TowerPieceAction(openTowersForPiece.map(fp -> fp.getPosition())));
         }
+
+        if (!openTowersForFollower.isEmpty()) {
+            Vector<Meeple> availMeeples = player.getMeeplesFromSupply(
+                state,
+                Vector.of(SmallFollower.class, BigFollower.class, Phantom.class)
+            );
+            Vector<PlayerAction<?>> actions = availMeeples.map(meeple ->
+                new MeepleAction(meeple.getClass(), openTowersForFollower)
+            );
+            as = as.appendActions(actions).mergeMeppleActions();
+        }
+
+        return state.setPlayerActions(as);
     }
 
-    public void placeTowerPiece(Player player, Position pos) {
-        Tower tower = getBoard().getPlayer(pos).getTower();
-        if (tower  == null) {
-            throw new IllegalArgumentException("No tower on tile.");
-        }
-        if (tower.getMeeple() != null) {
-            throw new IllegalArgumentException("The tower is sealed");
-        }
-        decreaseTowerPieces(player);
-        tower.increaseHeight();
-        lastIncreasedTower = pos;
-        game.post(new TowerIncreasedEvent(player, pos, tower.getHeight()));
-    }
+//    public void decreaseTowerPieces(Player player) {
+//        int pieces = getTowerPieces(player);
+//        if (pieces == 0) throw new IllegalStateException("Player has no tower pieces");
+//        towerPieces.put(player, pieces-1);
+//    }
+//
+//    private boolean hasSmallOrBigFollower(Player p) {
+//        return Iterables.any(p.getFollowers(), Predicates.and(
+//                MeeplePredicates.inSupply(), MeeplePredicates.instanceOf(SmallFollower.class, BigFollower.class)));
+//    }
+//
+//    @Override
+//    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
+//        if (hasSmallOrBigFollower(game.getActivePlayer())) {
+//            prepareTowerFollowerDeploy(findAndFillFollowerActions(actions));
+//        }
+//        if (getTowerPieces(game.getActivePlayer()) > 0) {
+//            Set<Position> availTowers = getOpenTowers(0);
+//            if (!availTowers.isEmpty()) {
+//                actions.add(new TowerPieceAction().addAll(availTowers));
+//            }
+//        }
+//    }
+//
+//    public void prepareTowerFollowerDeploy(List<MeepleAction> followerActions) {
+//        Set<Position> availableTowers = getOpenTowers(1);
+//        if (!availableTowers.isEmpty()) {
+//            for (Position p : availableTowers) {
+//                if (game.isDeployAllowed(getBoard().getPlayer(p), Follower.class)) {
+//                    for (MeepleAction ma : followerActions) {
+//                        //only small, big and phantoms are allowed on top of tower
+//                        if (SmallFollower.class.isAssignableFrom(ma.getMeepleType()) || BigFollower.class.isAssignableFrom(ma.getMeepleType())) {
+//                            ma.add(new FeaturePointer(p, Location.TOWER));
+//                        }
+//                    }
+//                }
+//            }
+//        }
+//    }
 
-    protected Set<Position> getOpenTowers(int minHeight) {
-        Set<Position> availTower = new HashSet<>();
-        for (Position p : getTowers()) {
-            Tower t = getBoard().getPlayer(p).getTower();
-            if (t.getMeeple() == null && t.getHeight() >= minHeight) {
-                availTower.add(p);
-            }
-        }
-        return availTower;
-    }
+//    public void placeTowerPiece(Player player, Position pos) {
+//        Tower tower = getBoard().getPlayer(pos).getTower();
+//        if (tower  == null) {
+//            throw new IllegalArgumentException("No tower on tile.");
+//        }
+//        if (tower.getMeeple() != null) {
+//            throw new IllegalArgumentException("The tower is sealed");
+//        }
+//        decreaseTowerPieces(player);
+//        tower.increaseHeight();
+//        lastIncreasedTower = pos;
+//        game.post(new TowerIncreasedEvent(player, pos, tower.getHeight()));
+//    }
+//
+//    protected Set<Position> getOpenTowers(int minHeight) {
+//        Set<Position> availTower = new HashSet<>();
+//        for (Position p : getTowers()) {
+//            Tower t = getBoard().getPlayer(p).getTower();
+//            if (t.getMeeple() == null && t.getHeight() >= minHeight) {
+//                availTower.add(p);
+//            }
+//        }
+//        return availTower;
+//    }
 
     public Map<Player, List<Follower>> getPrisoners() {
         return prisoners;
@@ -215,75 +245,5 @@ public final class TowerCapability extends Capability<Void> {
             }
         }
         throw new IllegalStateException("Opponent has no figure to exchage");
-    }
-
-    @Override
-    public void turnCleanUp() {
-        ransomPaidThisTurn = false;
-        lastIncreasedTower = null;
-    }
-
-    @Override
-    public void saveToSnapshot(Document doc, Element node) {
-        node.setAttribute("ransomPaid", ransomPaidThisTurn + "");
-        if (lastIncreasedTower != null) {
-            Element it = doc.createElement("increased-tower");
-            XMLUtils.injectPosition(it, lastIncreasedTower);
-            node.appendChild(it);
-        }
-        for (Position towerPos : towers) {
-            Tower tower = getBoard().getPlayer(towerPos).getTower();
-            Element el = doc.createElement("tower");
-            node.appendChild(el);
-            XMLUtils.injectPosition(el, towerPos);
-            el.setAttribute("height", "" + tower.getHeight());
-        }
-        for (Player player: game.getAllPlayers()) {
-            Element el = doc.createElement("player");
-            node.appendChild(el);
-            el.setAttribute("index", "" + player.getIndex());
-            el.setAttribute("pieces", "" + getTowerPieces(player));
-            for (Follower follower : prisoners.get(player)) {
-                Element prisoner = doc.createElement("prisoner");
-                el.appendChild(prisoner);
-                prisoner.setAttribute("player", "" + follower.getPlayer().getIndex());
-                prisoner.setAttribute("type", "" + follower.getClass().getName());
-            }
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void loadFromSnapshot(Document doc, Element node) {
-        ransomPaidThisTurn = Boolean.parseBoolean(node.getAttribute("ransomPaid"));
-        NodeList nl = node.getElementsByTagName("increased-tower");
-        if (nl.getLength() > 0) {
-            lastIncreasedTower = XMLUtils.extractPosition((Element) nl.item(0));
-        }
-        nl = node.getElementsByTagName("tower");
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element te = (Element) nl.item(i);
-            Position towerPos = XMLUtils.extractPosition(te);
-            Tower tower = getBoard().getPlayer(towerPos).getTower();
-            tower.setHeight(Integer.parseInt(te.getAttribute("height")));
-            towers.add(towerPos);
-            if (tower.getHeight() > 0) {
-                game.post(new TowerIncreasedEvent(null, towerPos, tower.getHeight()));
-            }
-        }
-        nl = node.getElementsByTagName("player");
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element playerEl = (Element) nl.item(i);
-            Player player = game.getPlayer(Integer.parseInt(playerEl.getAttribute("index")));
-            towerPieces.put(player, Integer.parseInt(playerEl.getAttribute("pieces")));
-            NodeList priosonerNl = playerEl.getElementsByTagName("prisoner");
-            for (int j = 0; j < priosonerNl.getLength(); j++) {
-                Element prisonerEl = (Element) priosonerNl.item(j);
-                int ownerIndex = XMLUtils.attributeIntValue(prisonerEl, "player");
-                Class<? extends Meeple> meepleClass = (Class<? extends Meeple>) XMLUtils.classForName(prisonerEl.getAttribute("type"));
-                Meeple m = game.getPlayer(ownerIndex).getMeepleFromSupply(meepleClass);
-                inprison((Follower) m, player);
-            }
-        }
     }
 }

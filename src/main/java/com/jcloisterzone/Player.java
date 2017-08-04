@@ -8,14 +8,14 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.PlayerSlot;
-import com.jcloisterzone.game.Token;
-import com.jcloisterzone.game.capability.TradeGoodsCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.PlayerColor;
 
+import io.vavr.Predicates;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 import io.vavr.control.Option;
 
 @Immutable
@@ -139,6 +139,11 @@ public class Player implements Serializable {
             .find(m -> m.getId().equals(meepleId))
             .filter(m -> m.isInSupply(state))
             .getOrNull();
+    }
+
+    public Vector<Meeple> getMeeplesFromSupply(GameState state, Vector<Class<? extends Meeple>> meepleTypes) {
+        return meepleTypes.map(cls -> getMeepleFromSupply(state, cls))
+            .filter(Predicates.isNotNull());
     }
 
 //    public int getTokens(GameState state, Token token) {

@@ -45,6 +45,7 @@ import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
+import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
@@ -150,6 +151,7 @@ public final class MessageParser {
         registerMsgType(DeployMeepleMessage.class);
         registerMsgType(ReturnMeepleMessage.class);
         registerMsgType(MoveNeutralFigureMessage.class);
+        registerMsgType(PlaceTokenMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

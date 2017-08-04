@@ -333,6 +333,7 @@ public class GameState implements Serializable {
         return discardedTiles;
     }
 
+    //TODO rename to featureMap to avoid confusion
     public Map<FeaturePointer, Feature> getFeatures() {
         return features;
     }

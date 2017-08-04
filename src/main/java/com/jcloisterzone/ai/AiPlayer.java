@@ -10,7 +10,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.action.TakePrisonerAction;
+import com.jcloisterzone.action.CaptureFollowerAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TilePlacement;
@@ -88,8 +88,8 @@ public abstract class AiPlayer {
             if (action instanceof MeepleAction) {
                 if (selectDummyMeepleAction((MeepleAction) action)) return;
             }
-            if (action instanceof TakePrisonerAction) {
-                if (selectDummyTowerCapture((TakePrisonerAction) action)) return;
+            if (action instanceof CaptureFollowerAction) {
+                if (selectDummyTowerCapture((CaptureFollowerAction) action)) return;
             }
         }
         getRmiProxy().pass();
@@ -126,7 +126,7 @@ public abstract class AiPlayer {
         return false;
     }
 
-    protected boolean selectDummyTowerCapture(TakePrisonerAction action) {
+    protected boolean selectDummyTowerCapture(CaptureFollowerAction action) {
         MeeplePointer mp = action.iterator().next();
         getRmiProxy().takePrisoner(mp);
         return true;

@@ -4,6 +4,7 @@ import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.Queue;
+import io.vavr.collection.Stream;
 
 //temporary event for transition to new architecture?
 public class GameChangedEvent extends Event {
@@ -12,6 +13,7 @@ public class GameChangedEvent extends Event {
     private final GameState curr;
 
     private transient Queue<PlayEvent> newEvents;
+    private transient Queue<PlayEvent> removedEvents;
 
     public GameChangedEvent(GameState prev, GameState curr) {
         this.prev = prev;
@@ -35,6 +37,21 @@ public class GameChangedEvent extends Event {
             }
         }
         return newEvents;
+    }
+
+    public Queue<PlayEvent> getRemovedPlayEvents() {
+        if (removedEvents == null) {
+            if (prev == null || prev.getEvents() == null) {
+                removedEvents = Queue.empty();
+            } else {
+                removedEvents = prev.getEvents().removeAll(curr.getEvents());
+            }
+        }
+        return removedEvents;
+    }
+
+    public Stream<PlayEvent> getPlayEventsSymmetricDifference() {
+        return Stream.concat(getNewPlayEvents(), getRemovedPlayEvents());
     }
 
     public boolean hasPlayerActionsChanged() {

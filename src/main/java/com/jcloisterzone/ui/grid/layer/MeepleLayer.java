@@ -15,7 +15,6 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Figure;
@@ -50,8 +49,6 @@ public class MeepleLayer extends AbstractGridLayer {
      * In such case double meeple should be displayed after common ones.
      */
     private MeppleLayerModel model = new MeppleLayerModel();
-    //private PositionedFigureImage fairyOnFeature = null;
-
 
     public MeepleLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -61,12 +58,12 @@ public class MeepleLayer extends AbstractGridLayer {
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasMeeplesChanged() || ev.hasNeutralFiguresChanged()) {
-            updateModel(ev.getCurrentState());
+            model = createModel(ev.getCurrentState());
             gridPanel.repaint();
         }
     }
 
-    private void updateModel(GameState state) {
+    private MeppleLayerModel createModel(GameState state) {
         MeppleLayerModel model = new MeppleLayerModel();
 
         HashMap<FeaturePointer, LinkedList<Figure<?>>> onFeature = new HashMap<>();
@@ -127,7 +124,7 @@ public class MeepleLayer extends AbstractGridLayer {
             model.outsideBridge.add(fi);
         });
 
-        this.model = model;
+        return model;
     }
 
     public Stream<FigureImage> getAllFigureImages() {

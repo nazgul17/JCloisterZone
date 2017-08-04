@@ -75,7 +75,9 @@ public class PlayersState implements Serializable {
     }
 
     public PlayersState setPlayerTokenCount(int index, Token token, int count) {
-        assert count >= 0;
+        if (count < 0) {
+            throw new IllegalArgumentException(String.format("Token %s count can't ne %s", token, count));
+        }
         Map<Token, Integer> playerTokens = tokens.get(index);
         if (count == 0) {
             return setTokens(tokens.update(index, playerTokens.remove(token)));
@@ -86,8 +88,8 @@ public class PlayersState implements Serializable {
 
     public PlayersState addPlayerTokenCount(int index, Token token, int count) {
         if (count == 0) return this;
-        count += getPlayerTokenCount(index, token);
-        return setPlayerTokenCount(index, token, count);
+        int newValue = getPlayerTokenCount(index, token) + count;
+        return setPlayerTokenCount(index, token, newValue);
     }
 
     public PlayersState setTurnPlayerIndex(int turnPlayerIndex) {

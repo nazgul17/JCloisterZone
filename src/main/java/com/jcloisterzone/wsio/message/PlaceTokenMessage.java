@@ -1,19 +1,20 @@
 package com.jcloisterzone.wsio.message;
 
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.game.Token;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
-@WsMessageCommand("DEPLOY_MEEPLE")
-public class DeployMeepleMessage implements WsInGameMessage {
+@WsMessageCommand("PLACE_TOKEN")
+public class PlaceTokenMessage implements WsInGameMessage {
 
     private String gameId;
+    private Token token;
     private FeaturePointer pointer;
-    private String meepleId;
 
-    public DeployMeepleMessage(String gameId, FeaturePointer pointer, String meepleId) {
+    public PlaceTokenMessage(String gameId, Token token, FeaturePointer pointer) {
         this.gameId = gameId;
+        this.token = token;
         this.pointer = pointer;
-        this.meepleId = meepleId;
     }
 
     public String getGameId() {
@@ -32,11 +33,11 @@ public class DeployMeepleMessage implements WsInGameMessage {
         this.pointer = pointer;
     }
 
-    public String getMeepleId() {
-        return meepleId;
+    public Token getToken() {
+        return token;
     }
 
-    public void setMeepleId(String meepleId) {
-        this.meepleId = meepleId;
+    public void setToken(Token token) {
+        this.token = token;
     }
 }
