@@ -24,6 +24,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.wsio.message.AbandonGameMessage;
+import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 import com.jcloisterzone.wsio.message.ChannelMessage;
 import com.jcloisterzone.wsio.message.ChatMessage;
 import com.jcloisterzone.wsio.message.ClientUpdateMessage;
@@ -43,13 +44,13 @@ import com.jcloisterzone.wsio.message.LeaveGameMessage;
 import com.jcloisterzone.wsio.message.LeaveSlotMessage;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.PayRansomMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
-import com.jcloisterzone.wsio.message.RmiMessage;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
 import com.jcloisterzone.wsio.message.SlotMessage;
@@ -133,7 +134,6 @@ public final class MessageParser {
         registerMsgType(SetRuleMessage.class);
         registerMsgType(StartGameMessage.class);
         registerMsgType(DeployFlierMessage.class);
-        registerMsgType(RmiMessage.class);
         registerMsgType(UndoMessage.class);
         registerMsgType(ClientUpdateMessage.class);
         registerMsgType(GameUpdateMessage.class);
@@ -152,6 +152,8 @@ public final class MessageParser {
         registerMsgType(ReturnMeepleMessage.class);
         registerMsgType(MoveNeutralFigureMessage.class);
         registerMsgType(PlaceTokenMessage.class);
+        registerMsgType(CaptureFollowerMessage.class);
+        registerMsgType(PayRansomMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

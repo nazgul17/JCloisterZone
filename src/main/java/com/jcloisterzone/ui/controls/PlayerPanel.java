@@ -13,37 +13,25 @@ import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 import javax.swing.JOptionPane;
 
-import com.jcloisterzone.LittleBuilding;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.TradeResource;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
-import com.jcloisterzone.game.capability.AbbeyCapability;
-import com.jcloisterzone.game.capability.BridgeCapability;
-import com.jcloisterzone.game.capability.CastleCapability;
-import com.jcloisterzone.game.capability.GoldminesCapability;
-import com.jcloisterzone.game.capability.KingAndRobberBaronCapability;
-import com.jcloisterzone.game.capability.LittleBuildingsCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
-import com.jcloisterzone.game.capability.TradeCountersCapability;
-import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameState.Flag;
 import com.jcloisterzone.game.state.PlayersState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.view.GameView;
+import com.jcloisterzone.wsio.message.PayRansomMessage;
 
 public class PlayerPanel extends MouseTrackingComponent implements RegionMouseListener {
 
@@ -335,31 +323,21 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 //        if (gldCap != null) {
 //            drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);
 //        }
-//
-//        if (towerCap != null) {
-//            List<Follower> capturedFigures = towerCap.getPrisoners().get(player);
-//            Map<Class<? extends Follower>, Integer> groupedByType;
-//            if (!capturedFigures.isEmpty()) {
-//                groupedByType = new HashMap<>();
-//                for (Player opponent : game.getState().getPlayers().getPlayers()) {
-//                    if (opponent == player) continue;
-//                    boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
-//                    boolean clickable = isOpponentActive && !towerCap.isRansomPaidThisTurn();
-//                    for (Follower f : capturedFigures) {
-//                        if (f.getPlayer().equals(opponent)) {
-//                            Integer prevVal = groupedByType.get(f.getClass());
-//                            groupedByType.put(f.getClass(), prevVal == null ? 1 : prevVal+1);
-//                        }
-//                    }
-//                    for (Entry<Class<? extends Follower>, Integer> entry : groupedByType.entrySet()) {
-//                        drawMeepleBox(opponent, entry.getKey().getSimpleName(), entry.getValue(), false,
-//                                clickable ? entry.getKey() : null, clickable
-//                        );
-//                    }
-//                    groupedByType.clear();
-//                }
-//            }
-//        }
+
+            io.vavr.collection.Array<io.vavr.collection.List<Follower>> towerModel = state.getCapabilities().getModel(TowerCapability.class);
+            if (towerModel != null) {
+                towerModel.get(player.getIndex()).groupBy(m -> m.getPlayer()).forEach((opponent, prisoners) -> {
+                    boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
+                    boolean clickable = isOpponentActive && !state.hasFlag(Flag.RANSOM_PAID);
+
+                    prisoners.groupBy(f -> f.getClass()).forEach((cls, items) -> {
+                        drawMeepleBox(opponent, cls.getSimpleName(), items.length(), false,
+                                clickable ? items.get().getId() : null, clickable
+                        );
+                    });
+                });
+            }
+
 
 //		gp.profile(" > expansions");
         int oldValue = realHeight;
@@ -408,10 +386,11 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
     @SuppressWarnings("unchecked")
     @Override
     public void mouseClicked(MouseEvent e, MouseListeningRegion origin) {
-        if (!(origin.getData() instanceof Class)) return;
-        Class<? extends Follower> followerClass = (Class<? extends Follower>) origin.getData();
-        TowerCapability tg = gameView.getGame().getCapability(TowerCapability.class);
-        if (!tg.isRansomPaidThisTurn()) {
+        String meepleId = (String) origin.getData();
+//        if (!(origin.getData() instanceof String)) return;
+//        Class<? extends Follower> followerClass = (Class<? extends Follower>) origin.getData();
+//        TowerCapability tg = gameView.getGame().getCapability(TowerCapability.class);
+//        if (!tg.isRansomPaidThisTurn()) {
             if (client.getConfig().getConfirm().getRansom_payment()) {
                 String options[] = {_("Pay ransom"), _("Cancel") };
                 int result = JOptionPane.showOptionDialog(client,
@@ -420,8 +399,9 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
                         JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
                 if (JOptionPane.YES_OPTION != result) return;
             }
-            gc.getRmiProxy().payRansom(player.getIndex(), followerClass);
-        }
+            //gc.getRmiProxy().payRansom(player.getIndex(), followerClass);
+            gc.getConnection().send(new PayRansomMessage(gc.getGameId(), meepleId));
+        //}
     }
 
     @Override
@@ -430,10 +410,10 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
             mouseOverKey = (String) origin.getData();
             gameView.getGridPanel().repaint();
         } else {
-            TowerCapability tg = gameView.getGame().getCapability(TowerCapability.class);
-            if (!tg.isRansomPaidThisTurn()) {
+            // TODO verify, but it should be already checked in paint method
+            //if (!gameView.getGame().getState().hasFlag(Flag.RANSOM_PAID)) {
                 gameView.getGridPanel().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            }
+            //}
         }
     }
 

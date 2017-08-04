@@ -32,6 +32,7 @@ import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.wsio.MessageDispatcher;
 import com.jcloisterzone.wsio.MessageParser;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 import com.jcloisterzone.wsio.message.ChatMessage;
 import com.jcloisterzone.wsio.message.ClientUpdateMessage;
 import com.jcloisterzone.wsio.message.ClientUpdateMessage.ClientState;
@@ -48,6 +49,7 @@ import com.jcloisterzone.wsio.message.HelloMessage;
 import com.jcloisterzone.wsio.message.LeaveSlotMessage;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
+import com.jcloisterzone.wsio.message.PayRansomMessage;
 import com.jcloisterzone.wsio.message.PingMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 import com.jcloisterzone.wsio.message.PlaceTokenMessage;
@@ -63,6 +65,7 @@ import com.jcloisterzone.wsio.message.TakeSlotMessage;
 import com.jcloisterzone.wsio.message.ToggleClockMessage;
 import com.jcloisterzone.wsio.message.UndoMessage;
 import com.jcloisterzone.wsio.message.WelcomeMessage;
+import com.jcloisterzone.wsio.message.WsInGameMessage;
 import com.jcloisterzone.wsio.message.WsMessage;
 
 public class SimpleServer extends WebSocketServer  {
@@ -485,8 +488,7 @@ public class SimpleServer extends WebSocketServer  {
         broadcast(msg, true);
     }
 
-    @WsSubscribe
-    public void handleRmi(WebSocket ws, RmiMessage msg) {
+    private void handleInGameMessage(WsInGameMessage msg) {
         if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
         broadcast(msg, true);
@@ -494,44 +496,42 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handlePass(WebSocket ws, PassMessage msg) {
-        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
-        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        broadcast(msg, true);
+        handleInGameMessage(msg);
     }
 
     @WsSubscribe
     public void handlePlaceTile(WebSocket ws, PlaceTileMessage msg) {
-        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
-        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        broadcast(msg, true);
+        handleInGameMessage(msg);
     }
 
     @WsSubscribe
     public void handleDeployMeeple(WebSocket ws, DeployMeepleMessage msg) {
-        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
-        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        broadcast(msg, true);
+        handleInGameMessage(msg);
     }
 
     @WsSubscribe
     public void handleReturnMeeple(WebSocket ws, ReturnMeepleMessage msg) {
-        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
-        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        broadcast(msg, true);
+        handleInGameMessage(msg);
     }
 
     @WsSubscribe
     public void handleMoveNeutralFigureMessage(WebSocket ws, MoveNeutralFigureMessage msg) {
-        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
-        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        broadcast(msg, true);
+        handleInGameMessage(msg);
     }
 
     @WsSubscribe
     public void handlePlaceTokenMessage(WebSocket ws, PlaceTokenMessage msg) {
-        if (!msg.getGameId().equals(game.getGameId())) throw new IllegalArgumentException("Invalid game id.");
-        if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        broadcast(msg, true);
+        handleInGameMessage(msg);
+    }
+
+    @WsSubscribe
+    public void handleCaptureFollowerMessage(WebSocket ws, CaptureFollowerMessage msg) {
+        handleInGameMessage(msg);
+    }
+
+    @WsSubscribe
+    public void handlePayRansomMessage(WebSocket ws, PayRansomMessage msg) {
+        handleInGameMessage(msg);
     }
 
     @WsSubscribe

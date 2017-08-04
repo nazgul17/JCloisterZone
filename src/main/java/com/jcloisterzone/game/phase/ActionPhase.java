@@ -42,10 +42,12 @@ import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
+import com.jcloisterzone.reducers.CaptureMeeple;
 import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
@@ -152,23 +154,6 @@ public class ActionPhase extends Phase {
     }
 
     @WsSubscribe
-    public void handlePass(PassMessage msg) {
-        GameState state = game.getState();
-
-        if (!state.getPlayerActions().isPassAllowed()) {
-            throw new IllegalStateException("Pass is not allowed");
-        }
-
-        state = clearActions(state);
-        if (getDefaultNext() instanceof PhantomPhase) {
-            //skip PhantomPhase if user pass turn
-            getDefaultNext().next(state);
-        } else {
-            next(state);
-        }
-    }
-
-    @WsSubscribe
     public void handleDeployMeeple(DeployMeepleMessage msg) {
         FeaturePointer fp = msg.getPointer();
         game.markUndo();
@@ -197,7 +182,7 @@ public class ActionPhase extends Phase {
         BoardPointer ptr = msg.getTo();
         NeutralFigure<?> fig = state.getNeutralFigures().getById(msg.getFigureId());
         if (fig instanceof Fairy) {
-            // TODO IMMUTABLE validation against ActionState
+            // TODO validation against ActionState
 
             assert (state.getBooleanValue(CustomRule.FAIRY_ON_TILE) ? Position.class : BoardPointer.class).isInstance(ptr);
 
@@ -248,7 +233,7 @@ public class ActionPhase extends Phase {
         Token token = msg.getToken();
 
         if (token == Token.TOWER_PIECE) {
-            // TODO IMMUTABLE validation against ActionState
+            // TODO validation against ActionState
 
             state = state.updatePlayers(ps ->
                  ps.addPlayerTokenCount(player.getIndex(), Token.TOWER_PIECE, -1)
@@ -256,74 +241,52 @@ public class ActionPhase extends Phase {
             Tower tower = (Tower) state.getFeatures().get(ptr).getOrElseThrow(() -> new IllegalArgumentException("No tower"));
             tower = tower.increaseHeight();
 
-            int towerHeight = tower.getHeight();
-            Position towerPosition = ptr.getPosition();
-
             state = state.setFeatures(state.getFeatures().put(ptr, tower));
             state = state.appendEvent(new TokenPlacedEvent(
                 PlayEventMeta.createWithActivePlayer(state), token, ptr)
             );
 
-            Set<MeeplePointer> options = Stream.ofAll(state.getDeployedMeeples())
-                .filter(t -> {
-                    Position pos = t._2.getPosition();
-                    return
-                        (t._1 instanceof Follower) &&
-                        (pos.x == towerPosition.x || pos.y == towerPosition.y) &&
-                        (pos.squareDistance(towerPosition) <= towerHeight);
-                })
-                .map(t -> new MeeplePointer(t._2, t._1.getId()))
-                .toSet();
-
-            if (options.isEmpty()) {
-                next(clearActions(state));
-                return;
-            }
-
-            state = state.setPlayerActions(
-                new ActionsState(player, new CaptureFollowerAction(options), true)
-            );
-
-            promote(state);
+            next(state, TowerCapturePhase.class);
         } else {
             throw new IllegalArgumentException(String.format("%s placement is not allowed", token));
         }
     }
 
-    @Override
-    public void placeLittleBuilding(LittleBuilding lbType) {
-        GameState state = game.getState();
-        //TODO
-        LittleBuildingsCapability lbCap = game.get(LittleBuildingsCapability.class);
-        lbCap.placeLittleBuilding(getActivePlayer(), lbType);
 
-        state = clearActions(state);
-        next(state);
-    }
-
-
-    @Override
-    public void placeTunnelPiece(FeaturePointer fp, boolean isB) {
-        game.get(TunnelCapability.class).placeTunnelPiece(fp, isB);
-        next(ActionPhase.class);
-    }
-
-
-    @Override
-    public void deployBridge(Position pos, Location loc) {
-        BridgeCapability bridgeCap = game.get(BridgeCapability.class);
-        bridgeCap.decreaseBridges(getActivePlayer());
-        bridgeCap.deployBridge(pos, loc, false);
-        next(ActionPhase.class);
-    }
-
-    @WsSubscribe
-    public void handleDeployFlier(DeployFlierMessage msg) {
-        game.updateRandomSeed(msg.getCurrentTime());
-        int distance = game.getRandom().nextInt(3) + 1;
-        flierCap.setFlierUsed(true);
-        flierCap.setFlierDistance(msg.getMeepleTypeClass(), distance);
-        game.post(new FlierRollEvent(getActivePlayer(), getTile().getPosition(), distance));
-        next(FlierActionPhase.class);
-    }
+//    @Override
+//    public void placeLittleBuilding(LittleBuilding lbType) {
+//        GameState state = game.getState();
+//        //TODO
+//        LittleBuildingsCapability lbCap = game.get(LittleBuildingsCapability.class);
+//        lbCap.placeLittleBuilding(getActivePlayer(), lbType);
+//
+//        state = clearActions(state);
+//        next(state);
+//    }
+//
+//
+//    @Override
+//    public void placeTunnelPiece(FeaturePointer fp, boolean isB) {
+//        game.get(TunnelCapability.class).placeTunnelPiece(fp, isB);
+//        next(ActionPhase.class);
+//    }
+//
+//
+//    @Override
+//    public void deployBridge(Position pos, Location loc) {
+//        BridgeCapability bridgeCap = game.get(BridgeCapability.class);
+//        bridgeCap.decreaseBridges(getActivePlayer());
+//        bridgeCap.deployBridge(pos, loc, false);
+//        next(ActionPhase.class);
+//    }
+//
+//    @WsSubscribe
+//    public void handleDeployFlier(DeployFlierMessage msg) {
+//        game.updateRandomSeed(msg.getCurrentTime());
+//        int distance = game.getRandom().nextInt(3) + 1;
+//        flierCap.setFlierUsed(true);
+//        flierCap.setFlierDistance(msg.getMeepleTypeClass(), distance);
+//        game.post(new FlierRollEvent(getActivePlayer(), getTile().getPosition(), distance));
+//        next(FlierActionPhase.class);
+//    }
 }

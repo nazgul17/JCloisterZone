@@ -4,9 +4,6 @@ import static com.jcloisterzone.ui.I18nUtils._;
 
 import java.awt.Color;
 import java.awt.Image;
-import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.Method;
-import java.lang.reflect.Proxy;
 import java.util.List;
 
 import javax.swing.JOptionPane;
@@ -28,12 +25,10 @@ import com.jcloisterzone.event.GameListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.MageWitchSelectRemoval;
 import com.jcloisterzone.event.MeeplePrisonEvent;
-import com.jcloisterzone.event.SelectDragonMoveEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarItem;
-import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.MenuBar.MenuItem;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
@@ -48,7 +43,6 @@ import com.jcloisterzone.ui.view.ChannelView;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.ui.view.StartView;
 import com.jcloisterzone.wsio.message.LeaveGameMessage;
-import com.jcloisterzone.wsio.message.RmiMessage;
 
 public class GameController extends EventProxyUiController<Game> {
 

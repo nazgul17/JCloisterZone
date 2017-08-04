@@ -4,7 +4,6 @@ import static com.jcloisterzone.ui.I18nUtils._;
 
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,7 +38,6 @@ import com.jcloisterzone.game.PlayerSlot.SlotState;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.LoadGamePhase;
-import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.online.Channel;
 import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.view.ChannelView;
@@ -49,7 +47,6 @@ import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.MessageDispatcher;
 import com.jcloisterzone.wsio.MessageListener;
 import com.jcloisterzone.wsio.MutedConnection;
-import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.WebSocketConnection;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.ChannelMessage;
@@ -63,7 +60,6 @@ import com.jcloisterzone.wsio.message.GameMessage;
 import com.jcloisterzone.wsio.message.GameMessage.GameState;
 import com.jcloisterzone.wsio.message.GameSetupMessage;
 import com.jcloisterzone.wsio.message.GameUpdateMessage;
-import com.jcloisterzone.wsio.message.RmiMessage;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
 import com.jcloisterzone.wsio.message.SlotMessage;
@@ -497,25 +493,6 @@ public class ClientMessageListener implements MessageListener {
             game.getCustomRules().put(rule, msg.getValue());
         }
         game.post(new RuleChangeEvent(rule, msg.getValue()));
-    }
-
-    @WsSubscribe
-    public void handleRmi(RmiMessage msg) {
-        Game game = getGame(msg);
-        try {
-            Phase phase = game.getPhase();
-            Method[] methods = RmiProxy.class.getMethods();
-            for (int i = 0; i < methods.length; i++) {
-                if (methods[i].getName().equals(msg.getMethod())) {
-                    methods[i].invoke(phase, (Object[]) msg.decode(msg.getArgs()));
-                    return;
-                }
-            }
-        } catch (InvocationTargetException ie) {
-            logger.error(ie.getMessage(), ie.getCause());
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
     }
 
     @WsSubscribe

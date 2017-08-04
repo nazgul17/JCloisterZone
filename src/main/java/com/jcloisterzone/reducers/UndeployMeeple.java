@@ -22,22 +22,13 @@ public class UndeployMeeple implements Reducer {
         this.meeple = meeple;
     }
 
-    private GameState undeploy(GameState state, PlayEventMeta meta, Meeple meeple, FeaturePointer source) {
-        LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
-        state = state.setDeployedMeeples(deployedMeeples.remove(meeple));
-        state = state.appendEvent(
-            new MeepleReturned(meta, meeple, source)
-        );
-        return state;
-    }
-
     @Override
     public GameState apply(GameState state) {
         FeaturePointer source = meeple.getDeployment(state);
         assert source != null;
 
         PlayEventMeta metaWithPlayer = PlayEventMeta.createWithActivePlayer(state);
-        state = undeploy(state, metaWithPlayer, meeple, source);
+        state = primaryUndeploy(state, metaWithPlayer, meeple, source);
         Player owner = meeple.getPlayer();
 
         // Undeploy lonely Builders and Pigs
@@ -53,6 +44,19 @@ public class UndeployMeeple implements Reducer {
             }
         }
 
+        return state;
+    }
+
+    protected GameState primaryUndeploy(GameState state, PlayEventMeta meta, Meeple meeple, FeaturePointer source) {
+        return undeploy(state, meta, meeple, source);
+    }
+
+    private GameState undeploy(GameState state, PlayEventMeta meta, Meeple meeple, FeaturePointer source) {
+        LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
+        state = state.setDeployedMeeples(deployedMeeples.remove(meeple));
+        state = state.appendEvent(
+            new MeepleReturned(meta, meeple, source)
+        );
         return state;
     }
 
