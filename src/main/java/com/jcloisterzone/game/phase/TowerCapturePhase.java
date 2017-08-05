@@ -3,6 +3,7 @@ package com.jcloisterzone.game.phase;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.CaptureFollowerAction;
+import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
@@ -18,6 +19,7 @@ import com.jcloisterzone.reducers.CaptureMeeple;
 import com.jcloisterzone.reducers.PrisonersExchage;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
+import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
@@ -86,19 +88,35 @@ public class TowerCapturePhase extends Phase {
             Map<Class<? extends Follower>, List<Follower>> exchange = getPrisonersCapturedBy(state, player, meeple.getPlayer())
                 .groupBy(f -> f.getClass());
 
-            switch (exchange.size()) {
-            case 1:
+            if (exchange.size() == 1) {
                 //only followers of same type has been captured, exchange automatically
                 Follower exchangeFor = exchange.get()._2.get();
                 state = (new PrisonersExchage(meeple, exchangeFor)).apply(state);
-                break;
-            case 2:
-                //TODO
-                // Implement ChoiceAction action, will be used also for mage/witch !!!!
+            } else if (exchange.size() > 1) {
+                SelectPrisonerToExchangeAction action =  new SelectPrisonerToExchangeAction(
+                    meeple,
+                    exchange.values().map(l -> l.get()).toSet()
+                );
+                state = state.setPlayerActions(new ActionsState(player, action, false));
+                promote(state);
+                return;
             }
         }
 
+        state = clearActions(state);
+        next(state);
+    }
 
+    @WsSubscribe
+    public void handleExchangeFollowerChoiceMessage(ExchangeFollowerChoiceMessage msg) {
+        GameState state = game.getState();
+        SelectPrisonerToExchangeAction action = (SelectPrisonerToExchangeAction) state.getPlayerActions().getActions().get();
+        Follower follower = action.getJustCapturedFollower();
+        Follower exchangeFor = state.getPlayers().findFollower(msg.getMeepleId()).get();
+
+        //TODO validation against ActionState
+
+        state = (new PrisonersExchage(follower, exchangeFor)).apply(state);
         state = clearActions(state);
         next(state);
     }

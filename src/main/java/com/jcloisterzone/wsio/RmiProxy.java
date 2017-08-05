@@ -1,16 +1,5 @@
 package com.jcloisterzone.wsio;
 
-import com.jcloisterzone.LittleBuilding;
-import com.jcloisterzone.board.Location;
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.pointer.BoardPointer;
-import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.figure.Follower;
-import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.neutral.NeutralFigure;
-
 /**
  * Legacy RMI interface, all calls are translated to RMI command
  */

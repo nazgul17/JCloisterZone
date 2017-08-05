@@ -1,6 +1,7 @@
 package com.jcloisterzone.game.state;
 
 import java.io.Serializable;
+import java.util.function.Predicate;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
@@ -12,8 +13,10 @@ import com.jcloisterzone.game.Token;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
+import io.vavr.control.Option;
 
 @Immutable
 public class PlayersState implements Serializable {
@@ -160,6 +163,18 @@ public class PlayersState implements Serializable {
     public Array<Seq<Special>> getSpecialMeeples() {
         return specialMeeples;
     }
+
+    public Option<Follower> findFollower(String meepleId) {
+        Predicate<Follower> pred = f -> f.getId().equals(meepleId);
+        for (Seq<Follower> l : followers) {
+            Option<Follower> res = l.find(pred);
+            if (!res.isEmpty()) {
+                return res;
+            }
+        }
+        return Option.none();
+    }
+
 
     public Array<PlayerClock> getClocks() {
         return clocks;

@@ -34,6 +34,7 @@ import com.jcloisterzone.wsio.message.CreateGameMessage;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.ErrorMessage;
+import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
 import com.jcloisterzone.wsio.message.GameMessage;
 import com.jcloisterzone.wsio.message.GameOverMessage;
 import com.jcloisterzone.wsio.message.GameSetupMessage;
@@ -154,6 +155,7 @@ public final class MessageParser {
         registerMsgType(PlaceTokenMessage.class);
         registerMsgType(CaptureFollowerMessage.class);
         registerMsgType(PayRansomMessage.class);
+        registerMsgType(ExchangeFollowerChoiceMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

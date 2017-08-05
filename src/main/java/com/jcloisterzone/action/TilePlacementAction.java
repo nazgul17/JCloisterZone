@@ -7,7 +7,6 @@ import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.grid.layer.TilePlacementLayer;
-import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 import io.vavr.collection.Map;

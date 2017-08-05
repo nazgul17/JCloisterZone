@@ -41,6 +41,7 @@ import com.jcloisterzone.wsio.message.CommitMessage;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.ErrorMessage;
+import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
 import com.jcloisterzone.wsio.message.GameMessage;
 import com.jcloisterzone.wsio.message.GameMessage.GameState;
 import com.jcloisterzone.wsio.message.GameOverMessage;
@@ -56,7 +57,6 @@ import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 import com.jcloisterzone.wsio.message.PongMessage;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
-import com.jcloisterzone.wsio.message.RmiMessage;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
 import com.jcloisterzone.wsio.message.SlotMessage;
@@ -531,6 +531,11 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handlePayRansomMessage(WebSocket ws, PayRansomMessage msg) {
+        handleInGameMessage(msg);
+    }
+
+    @WsSubscribe
+    public void handleExchangeFollowerChoiceMessage(WebSocket ws, ExchangeFollowerChoiceMessage msg) {
         handleInGameMessage(msg);
     }
 

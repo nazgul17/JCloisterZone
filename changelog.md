@@ -2,6 +2,8 @@
 
 ## 4.0
 * multiple undo steps are now supported (including eg. undoing paid ransom)
+* Tower: If players has several prisoners belonging to the other player
+during prisoners exchange, the owner may decide which prisoner should be returned.
 
 ## 3.4.3
 *2017-05-08
