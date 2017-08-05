@@ -15,9 +15,12 @@ import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.CaptureMeeple;
+import com.jcloisterzone.reducers.PrisonersExchage;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
@@ -71,13 +74,38 @@ public class TowerCapturePhase extends Phase {
         //TODO validation against ActionState
         GameState state = game.getState();
         MeeplePointer ptr = msg.getPointer();
+        Player player = state.getActivePlayer();
 
         Follower meeple = (Follower) state.getDeployedMeeples().find(m -> ptr.match(m._1)).map(t -> t._1)
             .getOrElseThrow(() -> new IllegalArgumentException("Pointer doesn't match any meeple"));
 
         state = (new CaptureMeeple(meeple)).apply(state);
+
+        //ski exchange when own follower has been captured
+        if (!player.equals(meeple.getPlayer())) {
+            Map<Class<? extends Follower>, List<Follower>> exchange = getPrisonersCapturedBy(state, player, meeple.getPlayer())
+                .groupBy(f -> f.getClass());
+
+            switch (exchange.size()) {
+            case 1:
+                //only followers of same type has been captured, exchange automatically
+                Follower exchangeFor = exchange.get()._2.get();
+                state = (new PrisonersExchage(meeple, exchangeFor)).apply(state);
+                break;
+            case 2:
+                //TODO
+                // Implement ChoiceAction action, will be used also for mage/witch !!!!
+            }
+        }
+
+
         state = clearActions(state);
         next(state);
+    }
+
+    private List<Follower> getPrisonersCapturedBy(GameState state, Player owner, Player jailer) {
+        return state.getCapabilities().getModel(TowerCapability.class)
+            .get(jailer.getIndex()).filter(f -> f.getPlayer().equals(owner));
     }
 
 
