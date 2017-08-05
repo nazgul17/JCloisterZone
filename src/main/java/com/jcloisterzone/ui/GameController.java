@@ -116,12 +116,7 @@ public class GameController extends EventProxyUiController<Game> {
             boolean canUndo = pl != null && pl.isLocalHuman() && game.isUndoAllowed();
             client.getJMenuBar().setItemEnabled(MenuItem.UNDO, canUndo);
         }
-
-        //TODO move to Gridpanl
-        gameView.getGridPanel().repaint();
     }
-
-
 
     @Subscribe
     public void handleGameStateChange(GameStateChangeEvent ev) {

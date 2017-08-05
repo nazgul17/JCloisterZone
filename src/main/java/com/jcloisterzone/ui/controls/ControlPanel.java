@@ -25,6 +25,7 @@ import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
@@ -337,13 +338,17 @@ public class ControlPanel extends JPanel {
             ActionsState actionsState = ev.getCurrentState().getPlayerActions();
             if (actionsState != null) {
                 Vector<PlayerAction<?>> actions = actionsState.getActions();
-                if (actions.getOrNull() instanceof ConfirmAction) {
+                PlayerAction<?> first = actions.getOrNull();
+
+                if (first instanceof ConfirmAction) {
                     if (actionsState.getPlayer().isLocalHuman()) {
                         setShowConfirmRequest(true);
                     } else {
                         actionPanel.setShowConfirmRequest(true, true);
                         repaint();
                     }
+                } else if (first instanceof SelectPrisonerToExchangeAction) {
+                    //ignore actions managed by panels
                 } else {
                     selectAction(actionsState.getPlayer(), actions, actionsState.isPassAllowed());
                 }

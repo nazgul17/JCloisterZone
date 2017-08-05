@@ -23,19 +23,25 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
+import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.XMLUtils;
+import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.config.ConfigLoader;
+import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.figure.BigFollower;
+import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Snapshot;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
@@ -48,6 +54,10 @@ import com.jcloisterzone.ui.grid.layer.TileActionLayer;
 import com.jcloisterzone.ui.plugin.Plugin;
 import com.jcloisterzone.ui.plugin.ResourcePlugin;
 import com.jcloisterzone.ui.view.GameView;
+
+import io.vavr.collection.HashSet;
+import io.vavr.collection.Set;
+import net.miginfocom.swing.MigLayout;
 
 public class GridPanel extends JPanel implements ForwardBackwardListener {
 
@@ -66,6 +76,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     private final ChatPanel chatPanel;
     private BazaarPanel bazaarPanel;
     private SelectMageWitchRemovalPanel mageWitchPanel;
+    private PrisonersExchangePanel prisonersExchangePanel;
 
     /** current board size */
     private int left, right, top, bottom;
@@ -90,6 +101,8 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
         this.gameView = gameView;
         this.gc = gameView.getGameController();
         this.controlPanel = controlPanel;
+
+        gc.register(this);
 
         boolean networkGame = "true".equals(System.getProperty("forceChat"));
         for (Player p : gc.getGame().getState().getPlayers().getPlayers()) {
@@ -177,6 +190,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
             }
         }
         bazaarPanel = null;
+        prisonersExchangePanel = null;
     }
 
     class GridPanelMouseListener extends MouseAdapter implements MouseInputListener {
@@ -309,9 +323,42 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
         return mageWitchPanel;
     }
 
-
     public void setMageWitchPanel(SelectMageWitchRemovalPanel mageWitchPanel) {
         this.mageWitchPanel = mageWitchPanel;
+    }
+
+    @Subscribe
+    public void handleGameChanged(GameChangedEvent ev) {
+        GameState state = ev.getCurrentState();
+        ActionsState as = state.getPlayerActions();
+        PlayerAction<?> first = as == null ? null : as.getActions().getOrNull();
+
+        /*
+        JUST FOR DEBUG AND STYLING TODO delete
+        if (prisonersExchangePanel == null) {
+            first = new SelectPrisonerToExchangeAction(
+                new SmallFollower("x", state.getPlayers().getPlayer(0)),
+                HashSet.of(
+                    new SmallFollower("a", state.getPlayers().getPlayer(1)),
+                    new BigFollower("x", state.getPlayers().getPlayer(1))
+                )
+            );
+            prisonersExchangePanel = new PrisonersExchangePanel(gc, (SelectPrisonerToExchangeAction) first);
+            add(prisonersExchangePanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+            revalidate();
+        }
+        */
+
+        if (first instanceof SelectPrisonerToExchangeAction) {
+            if (prisonersExchangePanel == null) {
+                prisonersExchangePanel = new PrisonersExchangePanel(gc, (SelectPrisonerToExchangeAction) first);
+                add(prisonersExchangePanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+                revalidate();
+            }
+        } else {
+            removeInteractionPanels();
+        }
+        repaint();
     }
 
 

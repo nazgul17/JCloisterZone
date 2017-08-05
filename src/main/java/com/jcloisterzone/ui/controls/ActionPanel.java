@@ -19,6 +19,7 @@ import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.MageAndWitchAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.action.TunnelAction;
 import com.jcloisterzone.ui.Client;
