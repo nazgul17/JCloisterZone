@@ -55,6 +55,20 @@ public class City extends CompletableFeature<City> {
     }
 
     @Override
+    public City mergeAbbeyEdge(Edge edge) {
+        return new City(
+            places,
+            openEdges.remove(edge),
+            pennants,
+            tradeGoods,
+            besieged ,
+            cathedral,
+            princess,
+            castleBase
+        );
+    }
+
+    @Override
     public Feature placeOnBoard(Position pos, Rotation rot) {
         return new City(
             placeOnBoardPlaces(pos, rot),

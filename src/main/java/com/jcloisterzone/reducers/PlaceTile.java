@@ -1,13 +1,17 @@
 package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.board.Board;
+import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.EdgePattern;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
+import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TilePlacedEvent;
+import com.jcloisterzone.feature.CompletableFeature;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.game.Capability;
@@ -36,15 +40,17 @@ public class PlaceTile implements Reducer {
     public GameState apply(GameState state) {
         LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
         assert !placedTiles.containsKey(pos);
+        boolean abbeyPlacement = TileDefinition.ABBEY_TILE_ID.equals(tile.getId());
 
         Option<Tuple2<Position, EdgePattern>> patterns = state.getBoard().getAvailablePlacements().find(t -> t._1.equals(pos));
-        if (patterns.isDefined()) {
+        if (patterns.isEmpty()) {
+            throw new IllegalArgumentException("Invalid position " + pos + "," + rot);
+        }
+        if (abbeyPlacement) {
+            //TODO validate hole placement
+        } else {
             if (!patterns.get()._2.isMatchingExact(tile.getEdgePattern().rotate(rot))) {
                 throw new IllegalArgumentException("Invalid rotation " + pos + "," + rot);
-            }
-        } else {
-            if (!placedTiles.isEmpty()) {
-                throw new IllegalArgumentException("Invalid position " + pos + "," + rot);
             }
         }
 
@@ -73,6 +79,23 @@ public class PlaceTile implements Reducer {
                     fpUpdate.put(fp, feature);
                 }
             });
+
+        if (abbeyPlacement) {
+            for (Location side : Location.sides()) {
+                FeaturePointer adjPtr = new FeaturePointer(pos.add(side), side.rev());
+                Option<Feature> adjOption = board.getFeaturePartOf(adjPtr);
+                if (adjOption.isEmpty()) {
+                    //farm (or empty tile - which can happen only in debug when non hole placement is enabled)
+                    continue;
+                }
+                CompletableFeature<?> adj = (CompletableFeature) adjOption.get();
+                adj = adj.mergeAbbeyEdge(new Edge(pos, side));
+                for (FeaturePointer fp : adj.getPlaces()) {
+                    fpUpdate.put(fp, adj);
+                }
+            }
+        }
+
         state = state.setFeatures(HashMap.ofAll(fpUpdate).merge(state.getFeatures()));
         state = state.appendEvent(
             new TilePlacedEvent(PlayEventMeta.createWithActivePlayer(state), tile, pos, rot)

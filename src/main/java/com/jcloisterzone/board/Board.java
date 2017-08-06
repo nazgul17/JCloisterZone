@@ -59,6 +59,12 @@ public class Board {
         java.util.Set<Position> used = new java.util.HashSet<>();
         Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
 
+        if (placedTiles.isEmpty()) {
+            return Stream.of(
+                new Tuple2<>(Position.ZERO, EdgePattern.fromString("????"))
+            );
+        }
+
         return Stream.ofAll(placedTiles).flatMap(item -> {
             Position pos = item._1;
             java.util.List<Tuple2<Position, EdgePattern>> avail = new java.util.ArrayList<>(4);

@@ -43,6 +43,16 @@ public class Road extends CompletableFeature<Road> {
     }
 
     @Override
+    public Road mergeAbbeyEdge(Edge edge) {
+        return new Road(
+            places,
+            openEdges.remove(edge),
+            inn,
+            tunnelEnds
+        );
+    }
+
+    @Override
     public Road placeOnBoard(Position pos, Rotation rot) {
         return new Road(
             placeOnBoardPlaces(pos, rot),

@@ -21,6 +21,8 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
         this.openEdges = openEdges;
     }
 
+    public abstract T mergeAbbeyEdge(Edge edge);
+
     @Override
     public boolean isOpen(GameState state) {
         return !getOpenEdges().isEmpty();
@@ -33,7 +35,7 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
 
     // immutable helpers
 
-    protected List<Edge> mergeEdges(CompletableFeature obj) {
+    protected List<Edge> mergeEdges(T obj) {
         Set<Edge> s1 = HashSet.ofAll(openEdges);
         Set<Edge> s2 = HashSet.ofAll(obj.openEdges);
         Set<Edge> connectedEdges = s1.intersect(s2);
