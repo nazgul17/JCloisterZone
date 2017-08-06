@@ -144,9 +144,9 @@ public class MainPanel extends JPanel {
         gridPanel.addLayer(new FeatureAreaLayer(gridPanel, gc), false);
         gridPanel.addLayer(new TileActionLayer(gridPanel, gc), false);
 
-        if (capabs.contains(AbbeyCapability.class)) {
-            gridPanel.addLayer(new AbbeyPlacementLayer(gridPanel, gc), false);
-        }
+//        if (capabs.contains(AbbeyCapability.class)) {
+//            gridPanel.addLayer(new AbbeyPlacementLayer(gridPanel, gc), false);
+//        }
         if (capabs.contains(LittleBuildingsCapability.class)) {
             gridPanel.addLayer(new LittleBuildingActionLayer(gridPanel, gc), false); //100
         }

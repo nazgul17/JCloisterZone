@@ -22,8 +22,8 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
         super(places);
     }
 
-    protected int getPower(Follower f) {
-        return f.getPower();
+    protected int getPower(GameState state, Follower f) {
+        return f.getPower(state, this);
     }
 
     @Override
@@ -34,7 +34,7 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
         HashMap<Player, Integer> powers = getFollowers(state)
             .foldLeft(HashMap.<Player, Integer>empty(), (acc, m) -> {
                 Player player = m.getPlayer();
-                int power = getPower(m);
+                int power = getPower(state, m);
                 return acc.put(player, acc.get(player).getOrElse(0) + power);
             });
 

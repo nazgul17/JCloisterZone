@@ -2,6 +2,8 @@ package com.jcloisterzone.figure;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.feature.Scoreable;
+import com.jcloisterzone.game.state.GameState;
 
 @Immutable
 public class BigFollower extends Follower {
@@ -13,7 +15,7 @@ public class BigFollower extends Follower {
     }
 
     @Override
-    public int getPower() {
+    public int getPower(GameState state, Scoreable feature) {
         return 2;
     }
 

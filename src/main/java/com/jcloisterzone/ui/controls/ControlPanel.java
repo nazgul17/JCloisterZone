@@ -222,11 +222,12 @@ public class ControlPanel extends JPanel {
         boolean doRevalidate = false;
 
         if (bazaarSupplyPanel != null) {
-            boolean showSupply = gameView.getGridPanel().getBazaarPanel() == null && bcb.getBazaarSupply() != null;
-            if (showSupply ^ bazaarSupplyPanel.isVisible()) {
-                doRevalidate = true;
-                bazaarSupplyPanel.setVisible(showSupply);
-            }
+            //TODO Immutable
+//            boolean showSupply = gameView.getGridPanel().getBazaarPanel() == null && bcb.getBazaarSupply() != null;
+//            if (showSupply ^ bazaarSupplyPanel.isVisible()) {
+//                doRevalidate = true;
+//                bazaarSupplyPanel.setVisible(showSupply);
+//            }
         }
 
         for (PlayerPanel pp : playerPanels) {

@@ -172,7 +172,7 @@ public class TilePackFactory {
 
     protected int getTileCount(Element card, String tileId) {
         if (TileDefinition.ABBEY_TILE_ID.equals(tileId)) {
-            return PlayerSlot.COUNT;
+            return 1;
         } else {
             return attributeIntValue(card, "count", 1);
         }

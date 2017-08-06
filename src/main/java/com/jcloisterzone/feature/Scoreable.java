@@ -15,7 +15,4 @@ public interface Scoreable extends Feature {
     int getPoints(GameState state, Player player);
 
     Follower getSampleFollower(GameState state, Player player);
-
-
-
 }

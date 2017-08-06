@@ -13,6 +13,7 @@ import io.vavr.collection.Array;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
+import io.vavr.control.Option;
 
 @Immutable
 public class TilePackState implements Serializable {
@@ -144,6 +145,15 @@ public class TilePackState implements Serializable {
         return getActiveTiles()
             .filter(tile -> edgePattern.isMatchingAnyRotation(tile.getEdgePattern()))
             .size();
+    }
+
+    public Option<TileDefinition> findTile(String tileId) {
+        Predicate<TileDefinition> pred = t -> t.getId().equals(tileId);
+        for (String groupId: getGroups()) {
+            Option<TileDefinition> res = groups.get(groupId).get().find(pred);
+            if (!res.isEmpty()) return res;
+        }
+        return Option.none();
     }
 
     /* special Abbey related methods - TODO refactor it is here only for client */

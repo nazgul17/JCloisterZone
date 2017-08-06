@@ -84,7 +84,7 @@ public class EdgePattern implements Serializable {
 
     public int wildcardSize() {
         return (int) Stream.of(getEdges())
-            .filter(edge -> edge != EdgeType.UNKNOWN)
+            .filter(edge -> edge == EdgeType.UNKNOWN)
             .count();
     }
 

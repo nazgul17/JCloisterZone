@@ -21,10 +21,12 @@ import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.DeploymentCheckResult;
 import com.jcloisterzone.figure.Follower;
+import com.jcloisterzone.figure.Mayor;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.SmallFollower;
+import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Capability;
@@ -75,7 +77,8 @@ public class ActionPhase extends Phase {
 
         Vector<Meeple> availMeeples = player.getMeeplesFromSupply(
             state,
-            Vector.of(SmallFollower.class, BigFollower.class, Phantom.class, Builder.class, Pig.class)
+            Vector.of(SmallFollower.class, BigFollower.class, Phantom.class,
+                Wagon.class, Mayor.class, Builder.class, Pig.class)
         );
 
         Tile currentTile = state.getBoard().getLastPlaced();

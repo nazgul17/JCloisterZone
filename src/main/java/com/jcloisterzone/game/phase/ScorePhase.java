@@ -84,7 +84,7 @@ public class ScorePhase extends ServerAwarePhase {
         return state;
     }
 
-    private GameState scoreFollowersOnBarnFarm(GameState state, Farm farm, Map<City, CityScoreContext> cityCache) {
+    private GameState scoreFollowersOnBarnFarm(GameState state, Farm farm) {
         // IMMUTABLE TODO
 //        FarmScoreContext ctx = farm.getScoreContext();
 //        ctx.setCityCache(cityCache);
@@ -153,14 +153,15 @@ public class ScorePhase extends ServerAwarePhase {
         Tile tile = board.getLastPlaced();
         Position pos = tile.getPosition();
         //TODO separate event here ??? and move this code to abbey and mayor game
-        if (state.getCapabilities().contains(BarnCapability.class)) {
-            Map<City, CityScoreContext> cityCache = new HashMap<>();
-            for (Tuple2<Location, Feature> t : tile.getFeatures()) {
-                if (t._2 instanceof Farm) {
-                    state = scoreFollowersOnBarnFarm(state, (Farm) t._2, cityCache);
-                }
-            }
-        }
+        //TODO immutable
+//        if (state.getCapabilities().contains(BarnCapability.class)) {
+//            Map<City, CityScoreContext> cityCache = new HashMap<>();
+//            for (Tuple2<Location, Feature> t : tile.getFeatures()) {
+//                if (t._2 instanceof Farm) {
+//                    state = scoreFollowersOnBarnFarm(state, (Farm) t._2, cityCache);
+//                }
+//            }
+//        }
 
         state = scoreCompletedOnTile(state, tile);
         if (tile.isAbbeyTile()) {

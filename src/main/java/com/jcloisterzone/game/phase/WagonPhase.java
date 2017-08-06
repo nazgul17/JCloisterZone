@@ -26,6 +26,7 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
@@ -45,8 +46,10 @@ public class WagonPhase extends ServerAwarePhase {
     }
 
     @Override
-    public void enter() {
-        if (!existsLegalMove()) next();
+    public void enter(GameState state) {
+        //just dev
+        next(state);
+        //if (!existsLegalMove()) next();
     }
 
     @WsSubscribe

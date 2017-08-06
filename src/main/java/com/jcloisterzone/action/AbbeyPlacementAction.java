@@ -13,6 +13,7 @@ import com.jcloisterzone.wsio.RmiProxy;
 
 import io.vavr.collection.Set;
 
+@Deprecated
 @LinkedImage("actions/abbeyplacement")
 @LinkedGridLayer(AbbeyPlacementLayer.class)
 public class AbbeyPlacementAction extends SelectTileAction {
@@ -21,10 +22,10 @@ public class AbbeyPlacementAction extends SelectTileAction {
         super(options);
     }
 
-    @Override
-    public Image getImage(ResourceManager rm, Player player, boolean active) {
-        return rm.getAbbeyImage(Rotation.R0).getImage();
-    }
+//    @Override
+//    public Image getImage(ResourceManager rm, Player player, boolean active) {
+//        return rm.getAbbeyImage(Rotation.R0).getImage();
+//    }
 
     @Override
     public void perform(RmiProxy server, Position p) {

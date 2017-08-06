@@ -489,7 +489,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     public void clearActionDecorations() {
         hideLayer(AbstractAreaLayer.class);
         hideLayer(TileActionLayer.class);
-        hideLayer(AbbeyPlacementLayer.class);
+        //hideLayer(AbbeyPlacementLayer.class);
     }
 
     public void showErrorMessage(String errorMessage) {

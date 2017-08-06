@@ -2,10 +2,11 @@ package com.jcloisterzone.figure;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.visitor.FeatureVisitor;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.feature.Scoreable;
+import com.jcloisterzone.game.state.GameState;
 
 @Immutable
 public class Mayor extends Follower {
@@ -16,34 +17,17 @@ public class Mayor extends Follower {
         super(id, player);
     }
 
-    static class PennatsCountingVisitor implements FeatureVisitor<Integer> {
-        int pennats = 0;
-
-        @Override
-        public VisitResult visit(Feature feature) {
-            City c = (City) feature;
-            pennats += c.getPennants();
-            return VisitResult.CONTINUE;
-        }
-
-        @Override
-        public Integer getResult() {
-            return pennats;
-        }
+    @Override
+    public int getPower(GameState state, Scoreable feature) {
+        return ((City)feature).getPennants();
     }
 
     @Override
-    public int getPower() {
-        //TODO not effective - city is walked twice during scoring
-        return getFeature().walk(new PennatsCountingVisitor());
-    }
-
-    @Override
-    public DeploymentCheckResult isDeploymentAllowed(Feature f) {
-        if (!(f instanceof City)) {
+    public DeploymentCheckResult isDeploymentAllowed(GameState state, FeaturePointer fp, Feature feature) {
+        if (!(feature instanceof City)) {
             return new DeploymentCheckResult("Mayor must be placed in city only.");
         }
-        return super.isDeploymentAllowed(f);
+        return super.isDeploymentAllowed(state, fp, feature);
     }
 
 }

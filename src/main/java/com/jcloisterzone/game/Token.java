@@ -6,6 +6,7 @@ public enum Token {
     KING, ROBBER,
     LB_SHED, LB_HOUSE, LB_TOWER,
     TOWER_PIECE,
+    ABBEY_TILE,
     BRIDGE,
     CASTLE,
     FERRY,

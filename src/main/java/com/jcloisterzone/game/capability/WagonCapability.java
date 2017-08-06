@@ -33,7 +33,7 @@ import static com.jcloisterzone.XMLUtils.contentAsLocations;
 
 public class WagonCapability extends Capability<Void> {
 
-    private final Map<Player, Feature> scoredWagons = new HashMap<>();
+    //private final Map<Player, Feature> scoredWagons = new HashMap<>();
 
     @Override
     public List<Follower> createPlayerFollowers(Player player, MeepleIdProvider idProvider) {
@@ -48,23 +48,6 @@ public class WagonCapability extends Capability<Void> {
         scoredWagons.remove(owner);
     }
 
-    @Override
-    public Object backup() {
-        return new HashMap<>(scoredWagons);
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void restore(Object data) {
-        scoredWagons.clear();
-        scoredWagons.putAll((Map<Player, Feature>) data);
-    }
-
-    @Override
-    public void initPlayer(Player player) {
-        player.addMeeple(new Wagon(game, null, player));
-    }
-
     public Map<Player, Feature> getScoredWagons() {
         return scoredWagons;
     }
@@ -76,12 +59,13 @@ public class WagonCapability extends Capability<Void> {
         if (nl.getLength() == 1) {
             nl = ((Element) nl.item(0)).getElementsByTagName("neighbouring");
             for (int i = 0; i < nl.getLength(); i++) {
-                processNeighbouringElement(tile, (Element) nl.item(i));
+                //processNeighbouringElement(tile, (Element) nl.item(i));
             }
         }
+        return tile;
     }
 
-    private void processNeighbouringElement(Tile tile, Element e) {
+    private void processNeighbouringElement(TileDefinition tile, Element e) {
         String[] sides = contentAsLocations(e);
         Feature[] te = new Feature[sides.length];
         for (int i = 0; i < te.length; i++) {
@@ -130,31 +114,6 @@ public class WagonCapability extends Capability<Void> {
             if (!wagonLocations.isEmpty()) {
                 actions.add(new MeepleAction(Wagon.class).addAll(wagonLocations));
             }
-        }
-    }
-
-
-    @Override
-    public void saveToSnapshot(Document doc, Element node) {
-        for (Entry<Player, Feature> rv : scoredWagons.entrySet()) {
-            Element el = doc.createElement("wagon");
-            el.setAttribute("player", "" + rv.getKey().getIndex());
-            el.setAttribute("loc", "" + rv.getValue().getLocation());
-            XMLUtils.injectPosition(el, rv.getValue().getTile().getPosition());
-            node.appendChild(el);
-        }
-    }
-
-    @Override
-    public void loadFromSnapshot(Document doc, Element node) {
-        NodeList nl = node.getElementsByTagName("wagon");
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element wg = (Element) nl.item(i);
-            Location loc = Location.valueOf(wg.getAttribute("loc"));
-            Position pos = XMLUtils.extractPosition(wg);
-            int playerIndex = Integer.parseInt(wg.getAttribute("player"));
-            Player player = game.getPlayer(playerIndex);
-            scoredWagons.put(player, getBoard().getPlayer(pos).getFeature(loc));
         }
     }
 }

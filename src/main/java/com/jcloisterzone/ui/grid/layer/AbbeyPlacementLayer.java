@@ -13,6 +13,7 @@ import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
 
+@Deprecated
 public class AbbeyPlacementLayer extends AbstractTilePlacementLayer implements ActionLayer {
 
     private ActionWrapper actionWrapper;

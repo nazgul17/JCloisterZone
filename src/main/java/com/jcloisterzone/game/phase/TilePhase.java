@@ -35,15 +35,6 @@ public class TilePhase extends Phase {
         promote(state);
     }
 
-//    @Override
-//    public void loadGame(Snapshot snapshot) {
-//         String tileId = snapshot.getNextTile();
-//         Tile tile = game.getTilePack().drawTile(tileId);
-//         game.setCurrentTile(tile);
-//         game.getBoard().refreshAvailablePlacements(tile);
-//         game.post(new TileEvent(TileEvent.DRAW, getActivePlayer(), tile, null));
-//    }
-
     @WsSubscribe
     public void handlePlaceTile(PlaceTileMessage msg) {
         game.markUndo();
@@ -57,7 +48,7 @@ public class TilePhase extends Phase {
         assert tile.getId().equals(msg.getTileId());
 
         state = (new PlaceTile(tile, msg.getPosition(), msg.getRotation())).apply(state);
-        state = state.setPlayerActions(null);
+        state = clearActions(state);
 
         //IMMUTABLE TODO bridge
 //        if (tile.getTower() != null) {
