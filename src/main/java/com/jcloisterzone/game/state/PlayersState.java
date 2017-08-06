@@ -131,6 +131,11 @@ public class PlayersState implements Serializable {
         return players;
     }
 
+    public Array<Player> getPlayersBeginWith(Player p) {
+        return players.slice(p.getIndex(), players.length())
+            .appendAll(players.slice(0, p.getIndex()));
+    }
+
     public Player getPlayer(int idx) {
         return players.get(idx);
     }

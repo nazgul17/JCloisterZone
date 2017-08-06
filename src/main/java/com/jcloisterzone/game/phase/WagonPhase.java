@@ -32,6 +32,9 @@ import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.Queue;
+
 
 public class WagonPhase extends ServerAwarePhase {
 
@@ -47,9 +50,11 @@ public class WagonPhase extends ServerAwarePhase {
 
     @Override
     public void enter(GameState state) {
-        //just dev
+        Queue<Tuple2<Wagon, FeaturePointer>> model = state.getCapabilities().getModel(WagonCapability.class);
+        while (!model.isEmpty()) {
+        	//
+        }
         next(state);
-        //if (!existsLegalMove()) next();
     }
 
     @WsSubscribe

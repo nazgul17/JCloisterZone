@@ -1,9 +1,6 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.function.Predicate;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
@@ -12,6 +9,7 @@ import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.config.Config.ConfirmConfig;
 import com.jcloisterzone.event.play.MeepleDeployed;
 import com.jcloisterzone.event.play.PlayEvent;
@@ -21,9 +19,9 @@ import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
-import com.jcloisterzone.feature.visitor.score.CityScoreContext;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BarnCapability;
@@ -40,14 +38,21 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CommitMessage;
 
+import io.vavr.Predicates;
 import io.vavr.Tuple2;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.List;
+import io.vavr.collection.Map;
+import io.vavr.collection.Queue;
+import io.vavr.collection.Set;
 import io.vavr.control.Option;
 
 
 //TODO split into CommitActionPhase a ScorePhase
 public class ScorePhase extends ServerAwarePhase {
 
-    private Set<Completable> alreadyScored = new HashSet<>();
+    private java.util.Set<Completable> alreadyScored = new java.util.HashSet<>();
 
 //    private final BarnCapability barnCap;
 //    private final CastleCapability castleCap;
@@ -152,6 +157,10 @@ public class ScorePhase extends ServerAwarePhase {
         Board board = state.getBoard(); //can keep ref because only points are changed
         Tile tile = board.getLastPlaced();
         Position pos = tile.getPosition();
+
+        Map<Wagon, FeaturePointer> deployedWagonsBefore = getDeployedWagons(state);
+
+
         //TODO separate event here ??? and move this code to abbey and mayor game
         //TODO immutable
 //        if (state.getCapabilities().contains(BarnCapability.class)) {
@@ -193,8 +202,28 @@ public class ScorePhase extends ServerAwarePhase {
             //gldCap.awardGoldPieces();
         }
 
+        if (!deployedWagonsBefore.isEmpty()) {
+            Set<Wagon> deployedWagonsAfter = getDeployedWagons(state).keySet();
+            Set<Wagon> returnedVagons = deployedWagonsBefore.keySet().diff(deployedWagonsAfter);
+
+            Queue<Tuple2<Wagon, FeaturePointer>> model = state.getPlayers()
+                .getPlayersBeginWith(state.getTurnPlayer())
+                .map(p -> returnedVagons.find(w -> w.getPlayer().equals(p)).getOrNull())
+                .filter(Predicates.isNotNull())
+                .map(w -> new Tuple2<>(w, deployedWagonsBefore.get(w).get()))
+                .toQueue();
+            state = state.setCapabilityModel(WagonCapability.class, model);
+        }
+
         alreadyScored.clear();
         next(state);
+    }
+
+    private Map<Wagon, FeaturePointer> getDeployedWagons(GameState state) {
+        return LinkedHashMap.narrow(
+         state.getDeployedMeeples()
+           .filter((m, fp) -> m instanceof Wagon)
+        );
     }
 
 //    private void scoreCastle(Castle castle, int points) {

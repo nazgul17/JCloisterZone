@@ -1,5 +1,7 @@
 package com.jcloisterzone.game.phase;
 
+import java.util.function.Predicate;
+
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
@@ -60,15 +62,15 @@ public class ActionPhase extends Phase {
         super(game);
     }
 
-    private Stream<Tuple2<Location, Scoreable>> excludePrincess(Tile currentTile, Stream<Tuple2<Location, Scoreable>> s) {
-        return s.filter(t -> {
+    private Predicate<Tuple2<Location, Scoreable>> createExcludePrincessPredicate(Tile currentTile) {
+        return t -> {
             if (t._2 instanceof City) {
                 City part = (City) currentTile.getInitialFeaturePartOf(t._1);
                 return !part.isPrincess();
             } else {
                 return true;
             }
-        });
+        };
     }
 
     @Override
@@ -109,7 +111,7 @@ public class ActionPhase extends Phase {
                 places = tile.getScoreables(!isCurrentTile);
                 if (isCurrentTile && state.getCapabilities().contains(PrincessCapability.class) &&
                         state.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
-                    places = excludePrincess(tile, places);
+                    places = places.filter(createExcludePrincessPredicate(tile));
                 }
             } else {
                 places = Stream.empty();

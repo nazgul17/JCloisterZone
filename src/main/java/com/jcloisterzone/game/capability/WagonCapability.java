@@ -35,19 +35,21 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Queue;
 
 import static com.jcloisterzone.XMLUtils.contentAsLocations;
 
 /**
- * @model Map<Wagon, FeaturePointer> : scored wagons (and unprocessed)
+ * @model Queue<Tuple2<Wagon, FeaturePointer>>
+ * 	: scored wagons (and unprocessed), order by playing order
  */
-public class WagonCapability extends Capability<Map<Wagon, FeaturePointer>> {
+public class WagonCapability extends Capability<Queue<Tuple2<Wagon, FeaturePointer>>> {
 
     //private final Map<Player, Feature> scoredWagons = new HashMap<>();
 
     @Override
     public GameState onStartGame(GameState state) {
-        return setModel(state, HashMap.empty());
+        return setModel(state, Queue.empty());
     }
 
     @Override
@@ -88,7 +90,7 @@ public class WagonCapability extends Capability<Map<Wagon, FeaturePointer>> {
 
     @Override
     public GameState turnPartCleanUp(GameState state) {
-        return setModel(state, HashMap.empty());
+        return setModel(state, Queue.empty());
     }
 
     public Player getWagonPlayer() {
