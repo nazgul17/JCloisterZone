@@ -14,14 +14,17 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
 
     private static final long serialVersionUID = 1L;
 
-    protected final List<Edge> openEdges;
+    protected final List<Edge> openEdges; //TODO change to Set
+    protected final Set<FeaturePointer> neighboring; //for wagon move
 
-    public CompletableFeature(List<FeaturePointer> places, List<Edge> openEdges) {
+    public CompletableFeature(List<FeaturePointer> places, List<Edge> openEdges, Set<FeaturePointer> neighboring) {
         super(places);
         this.openEdges = openEdges;
+        this.neighboring = neighboring;
     }
 
     public abstract T mergeAbbeyEdge(Edge edge);
+    public abstract T setNeighboring(Set<FeaturePointer> neighboring);
 
     @Override
     public boolean isOpen(GameState state) {
@@ -30,6 +33,10 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
 
     public List<Edge> getOpenEdges() {
         return openEdges;
+    }
+
+    public Set<FeaturePointer> getNeighboring() {
+        return neighboring;
     }
 
 
@@ -43,8 +50,15 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
             .appendAll(obj.openEdges.removeAll(connectedEdges));
     }
 
+    protected Set<FeaturePointer> mergeNeighboring(T obj) {
+        return neighboring.addAll(obj.neighboring);
+    }
+
     protected List<Edge> placeOnBoardEdges(Position pos, Rotation rot) {
         return openEdges.map(edge -> edge.rotateCW(Position.ZERO, rot).translate(pos));
     }
 
+    protected Set<FeaturePointer> placeOnBoardNeighboring(Position pos, Rotation rot) {
+        return neighboring.map(fp -> fp.rotateCW(rot).translate(pos));
+    }
 }

@@ -11,8 +11,10 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 
 public class Road extends CompletableFeature<Road> {
 
@@ -22,11 +24,17 @@ public class Road extends CompletableFeature<Road> {
     private final Map<FeaturePointer, TunnelEnd> tunnelEnds;
 
     public Road(List<FeaturePointer> places, List<Edge> openEdges) {
-        this(places, openEdges, false, HashMap.<FeaturePointer, TunnelEnd>empty());
+        this(places, openEdges, HashSet.empty(), false, HashMap.empty());
     }
 
-    public Road(List<FeaturePointer> places, List<Edge> openEdges, boolean inn, Map<FeaturePointer, TunnelEnd> tunnelEnds) {
-        super(places, openEdges);
+    public Road(
+            List<FeaturePointer> places,
+            List<Edge> openEdges,
+            Set<FeaturePointer> neighboring,
+            boolean inn,
+            Map<FeaturePointer, TunnelEnd> tunnelEnds
+        ) {
+        super(places, openEdges, neighboring);
         this.inn = inn;
         this.tunnelEnds = tunnelEnds;
     }
@@ -37,6 +45,7 @@ public class Road extends CompletableFeature<Road> {
         return new Road(
             mergePlaces(road),
             mergeEdges(road),
+            mergeNeighboring(road),
             inn || road.inn,
             mergeTunnelEnds(road)
         );
@@ -47,6 +56,7 @@ public class Road extends CompletableFeature<Road> {
         return new Road(
             places,
             openEdges.remove(edge),
+            neighboring,
             inn,
             tunnelEnds
         );
@@ -57,6 +67,7 @@ public class Road extends CompletableFeature<Road> {
         return new Road(
             placeOnBoardPlaces(pos, rot),
             placeOnBoardEdges(pos, rot),
+            placeOnBoardNeighboring(pos, rot),
             inn,
             placeOnBoardTunnelEnds(pos, rot)
         );
@@ -68,7 +79,7 @@ public class Road extends CompletableFeature<Road> {
 
     public Road setInn(boolean inn) {
         if (this.inn == inn) return this;
-        return new Road(places, openEdges, inn, tunnelEnds);
+        return new Road(places, openEdges, neighboring, inn, tunnelEnds);
     }
 
     public Map<FeaturePointer, TunnelEnd> getTunnelEnds() {
@@ -76,7 +87,13 @@ public class Road extends CompletableFeature<Road> {
     }
 
     public Road setTunnelEnds(Map<FeaturePointer, TunnelEnd> tunnelEnds) {
-        return new Road(places, openEdges, inn, tunnelEnds);
+        if (this.tunnelEnds == tunnelEnds) return this;
+        return new Road(places, openEdges, neighboring, inn, tunnelEnds);
+    }
+
+    public Road setNeighboring(Set<FeaturePointer> neighboring) {
+        if (this.neighboring == neighboring) return this;
+        return new Road(places, openEdges, neighboring, inn, tunnelEnds);
     }
 
 //

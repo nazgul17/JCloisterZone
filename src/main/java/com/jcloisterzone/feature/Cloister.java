@@ -9,32 +9,49 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.state.GameState;
 
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 
 
 public class Cloister extends ScoreableFeature implements Completable {
 
     private static final long serialVersionUID = 1L;
 
+    protected final Set<FeaturePointer> neighboring; //for wagon move
+
     protected final boolean shrine;
     protected final boolean monastery;
     protected final boolean yagaHut;
 
     public Cloister(List<FeaturePointer> places) {
-        this(places, false, false, false);
+        this(places, HashSet.empty(), false, false, false);
     }
 
-    public Cloister(List<FeaturePointer> places, boolean shrine, boolean monastery, boolean yagaHut) {
+    public Cloister(List<FeaturePointer> places, Set<FeaturePointer> neighboring, boolean shrine, boolean monastery, boolean yagaHut) {
         super(places);
+        this.neighboring = neighboring;
         this.shrine = shrine;
         this.monastery = monastery;
         this.yagaHut = yagaHut;
     }
 
     @Override
+    public Cloister setNeighboring(Set<FeaturePointer> neighboring) {
+        if (this.neighboring == neighboring) return this;
+        return new Cloister(places, neighboring, shrine, monastery, yagaHut);
+    }
+
+    @Override
+    public Set<FeaturePointer> getNeighboring() {
+        return neighboring;
+    }
+
+    @Override
     public Feature placeOnBoard(Position pos, Rotation rot) {
         return new Cloister(
             placeOnBoardPlaces(pos, rot),
+            placeOnBoardNeighboring(pos, rot),
             shrine, monastery, yagaHut
         );
     }
@@ -45,7 +62,7 @@ public class Cloister extends ScoreableFeature implements Completable {
 
     public Cloister setShrine(boolean shrine) {
         if (this.shrine == shrine) return this;
-        return new Cloister(places, shrine, monastery, yagaHut);
+        return new Cloister(places, neighboring, shrine, monastery, yagaHut);
     }
 
     public boolean isMonastery() {
@@ -54,7 +71,7 @@ public class Cloister extends ScoreableFeature implements Completable {
 
     public Cloister setMonastery(boolean monastery) {
         if (this.monastery == monastery) return this;
-        return new Cloister(places, shrine, monastery, yagaHut);
+        return new Cloister(places, neighboring, shrine, monastery, yagaHut);
     }
 
     public boolean isYagaHut() {
@@ -63,7 +80,7 @@ public class Cloister extends ScoreableFeature implements Completable {
 
     public Cloister setYagaHut(boolean yagaHut) {
         if (this.yagaHut == yagaHut) return this;
-        return new Cloister(places, shrine, monastery, yagaHut);
+        return new Cloister(places, neighboring, shrine, monastery, yagaHut);
     }
 
     @Override
@@ -87,4 +104,7 @@ public class Cloister extends ScoreableFeature implements Completable {
         return _("Cloister");
     }
 
+    protected Set<FeaturePointer> placeOnBoardNeighboring(Position pos, Rotation rot) {
+        return neighboring.map(fp -> fp.rotateCW(rot).translate(pos));
+    }
 }

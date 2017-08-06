@@ -17,6 +17,8 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
+import com.jcloisterzone.feature.Completable;
+import com.jcloisterzone.feature.CompletableFeature;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.TileFeature;
@@ -26,30 +28,31 @@ import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.state.GameState;
 
+import io.vavr.Tuple2;
+import io.vavr.collection.Array;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Map;
 
 import static com.jcloisterzone.XMLUtils.contentAsLocations;
 
-public class WagonCapability extends Capability<Void> {
+/**
+ * @model Map<Wagon, FeaturePointer> : scored wagons (and unprocessed)
+ */
+public class WagonCapability extends Capability<Map<Wagon, FeaturePointer>> {
 
     //private final Map<Player, Feature> scoredWagons = new HashMap<>();
 
     @Override
+    public GameState onStartGame(GameState state) {
+        return setModel(state, HashMap.empty());
+    }
+
+    @Override
     public List<Follower> createPlayerFollowers(Player player, MeepleIdProvider idProvider) {
         return List.of((Follower) new Wagon(idProvider.generateId(Wagon.class), player));
-    }
-
-    public void wagonScored(Wagon m, Feature feature) {
-        scoredWagons.put(m.getPlayer(), feature);
-    }
-
-    public void removeScoredWagon(Player owner) {
-        scoredWagons.remove(owner);
-    }
-
-    public Map<Player, Feature> getScoredWagons() {
-        return scoredWagons;
     }
 
     @Override
@@ -57,34 +60,35 @@ public class WagonCapability extends Capability<Void> {
         NodeList nl = xml.getElementsByTagName("wagon-move");
         assert nl.getLength() <= 1;
         if (nl.getLength() == 1) {
+            String tileId = tile.getId();
+            Map<Location, Feature> features = tile.getInitialFeatures();
             nl = ((Element) nl.item(0)).getElementsByTagName("neighbouring");
             for (int i = 0; i < nl.getLength(); i++) {
-                //processNeighbouringElement(tile, (Element) nl.item(i));
+                Array<FeaturePointer> fps = contentAsLocations((Element) nl.item(i))
+                    .map(l -> new FeaturePointer(Position.ZERO, l))
+                    .toArray();
+
+                for (FeaturePointer fp : fps) {
+                    Location loc = fp.getLocation();
+                    Completable feature = (Completable) features
+                        .find(t -> loc.isPartOf(t._1))
+                        .map(Tuple2::_2)
+                        .getOrElseThrow(() -> new IllegalStateException(
+                            String.format("%s / <wagon-move>: No feature for %s", tileId, loc)
+                        ));
+                    feature = feature.setNeighboring(fps.remove(fp).toSet());
+                    features = features.put(loc, feature);
+                }
             }
+            tile = tile.setInitialFeatures(features);
         }
         return tile;
     }
 
-    private void processNeighbouringElement(TileDefinition tile, Element e) {
-        String[] sides = contentAsLocations(e);
-        Feature[] te = new Feature[sides.length];
-        for (int i = 0; i < te.length; i++) {
-            te[i] = tile.getFeaturePartOf(Location.valueOf(sides[i]));
-        }
-        for (int i = 0; i < te.length; i++) {
-            Feature[] neighbouring = new Feature[te.length - 1];
-            int ni = 0;
-            for (int j = 0; j < te.length; j++) {
-                if (j == i) continue;
-                neighbouring[ni++] = te[j];
-            }
-            ((TileFeature) te[i]).addNeighbouring(neighbouring);
-        }
-    }
 
     @Override
-    public void turnPartCleanUp() {
-        scoredWagons.clear();
+    public GameState turnPartCleanUp(GameState state) {
+        return setModel(state, HashMap.empty());
     }
 
     public Player getWagonPlayer() {

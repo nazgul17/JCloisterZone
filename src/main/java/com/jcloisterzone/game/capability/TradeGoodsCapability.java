@@ -50,7 +50,7 @@ public class TradeGoodsCapability extends Capability<Void> {
             City city = (City) feature;
             String val = xml.getAttribute("resource");
             TradeGoods res = TradeGoods.valueOf(val.toUpperCase());
-            return city.setTradeResources(HashMap.of(res, 1));
+            return city.setTradeGoods(HashMap.of(res, 1));
         }
         return feature;
     }
