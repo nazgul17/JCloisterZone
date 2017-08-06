@@ -2,6 +2,7 @@
 
 ## 4.0
 * multiple undo steps are now supported (including eg. undoing paid ransom)
+* Princess and Dragon: PRINCESS_MUST_REMOVE_KNIGHT rule implemented in proper  way - if enabled and there is option to remove princess no other action is allowed
 * Tower: If players has several prisoners belonging to the other player
 during prisoners exchange, the owner may decide which prisoner should be returned.
 

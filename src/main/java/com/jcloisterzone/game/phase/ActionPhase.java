@@ -62,17 +62,6 @@ public class ActionPhase extends Phase {
         super(game);
     }
 
-    private Predicate<Tuple2<Location, Scoreable>> createExcludePrincessPredicate(Tile currentTile) {
-        return t -> {
-            if (t._2 instanceof City) {
-                City part = (City) currentTile.getInitialFeaturePartOf(t._1);
-                return !part.isPrincess();
-            } else {
-                return true;
-            }
-        };
-    }
-
     @Override
     public void enter(GameState state) {
         Player player = state.getTurnPlayer();
@@ -106,13 +95,8 @@ public class ActionPhase extends Phase {
             }
 
             Stream<Tuple2<Location, Scoreable>> places;
-
             if (placementAllowed) {
                 places = tile.getScoreables(!isCurrentTile);
-                if (isCurrentTile && state.getCapabilities().contains(PrincessCapability.class) &&
-                        state.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
-                    places = places.filter(createExcludePrincessPredicate(tile));
-                }
             } else {
                 places = Stream.empty();
             }
@@ -138,6 +122,14 @@ public class ActionPhase extends Phase {
 
         for (Capability<?> cap : nextState.getCapabilities().toSeq()) {
             nextState = cap.onActionPhaseEntered(nextState);
+        }
+
+        if (state.getCapabilities().contains(PrincessCapability.class) &&
+            state.getBooleanValue(CustomRule.PRINCESS_MUST_REMOVE_KNIGHT)) {
+            PrincessAction princessAction = (PrincessAction) actions.find(a -> a instanceof PrincessAction).getOrNull();
+            if (princessAction != null) {
+                actions = Vector.of(princessAction);
+            }
         }
 
         promote(nextState);
