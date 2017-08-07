@@ -40,7 +40,8 @@ public class WagonPhase extends ServerAwarePhase {
         Queue<Tuple2<Wagon, FeaturePointer>> model = state.getCapabilities().getModel(WagonCapability.class);
         while (!model.isEmpty()) {
             Tuple2<Tuple2<Wagon, FeaturePointer>, Queue<Tuple2<Wagon, FeaturePointer>>> dequeueTuple = model.dequeue();
-            state = state.setCapabilityModel(WagonCapability.class, dequeueTuple._2);
+            model = dequeueTuple._2;
+            state = state.setCapabilityModel(WagonCapability.class, model);
             Tuple2<Wagon, FeaturePointer> item = dequeueTuple._1;
 
             Wagon wagon = item._1;

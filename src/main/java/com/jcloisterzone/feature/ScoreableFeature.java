@@ -10,6 +10,7 @@ import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
@@ -39,6 +40,10 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
             });
 
         Integer maxPower = powers.values().max().getOrNull();
+        if (maxPower == 0) {
+            //eg. Mayor on city without pennant
+            return HashSet.empty();
+        }
         return powers.keySet()
             .filter(p -> powers.get(p).get() == maxPower);
     }

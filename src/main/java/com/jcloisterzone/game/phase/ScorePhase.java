@@ -263,13 +263,6 @@ public class ScorePhase extends ServerAwarePhase {
 
             state = (new ScoreFeature(completable)).apply(state);
             state = (new UndeployMeeples(completable)).apply(state);
-
-            //IMMUTABLE TODO
-//   notify scored wagon
-//          if (m instanceof Wagon && wagonCap != null) {
-//          wagonCap.wagonScored((Wagon) m, feature);
-//      	}
-            //game.post(new FeatureCompletedEvent(getActivePlayer(), completable));
         }
 
         return state;

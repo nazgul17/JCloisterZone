@@ -14,7 +14,9 @@ import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 public class ScoreFeature implements Reducer {
 
@@ -66,7 +68,17 @@ public class ScoreFeature implements Reducer {
         boolean finalScoring = state.isGameOver();
 
         Set<Player> players = feature.getOwners(state);
-        if (players.isEmpty()) return state;
+        if (players.isEmpty()) {
+            Stream<Tuple2<Follower, FeaturePointer>> followers = feature.getFollowers2(state);
+            if (!followers.isEmpty()) {
+                for (Seq<Tuple2<Follower, FeaturePointer>> l : followers.groupBy(t -> t._1.getPlayer()).values()) {
+                    Tuple2<Follower, FeaturePointer> t = l.get();
+                    ScoreEvent scoreEvent = new ScoreEvent(0, feature.getPointCategory(), finalScoring, t._2, t._1);
+                    state = state.appendEvent(scoreEvent);
+                }
+            }
+            return state;
+        }
 
         HashMap<Player, Follower> playersWithFairyBonus = HashMap.empty();
 
