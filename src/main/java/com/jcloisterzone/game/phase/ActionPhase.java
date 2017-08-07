@@ -1,7 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.function.Predicate;
-
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
@@ -16,7 +14,6 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TokenPlacedEvent;
-import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.BigFollower;
@@ -150,7 +147,7 @@ public class ActionPhase extends Phase {
         game.markUndo();
         GameState state = game.getState();
         Meeple m = state.getActivePlayer().getMeepleFromSupply(state, msg.getMeepleId());
-        //TODO nice to have validation in separate class (can be turned off eg for loadFromSnapshots or in AI (to speed it)
+        //TODO validate against players actions instead
         if (m instanceof Follower) {
             if (state.getBoard().get(fp).isOccupied(state)) {
                 throw new IllegalArgumentException("Feature is occupied.");
