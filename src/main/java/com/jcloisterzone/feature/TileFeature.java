@@ -41,7 +41,7 @@ public abstract class TileFeature implements Feature, Serializable {
 
     @Override
     public String toString() {
-        return String.format("%s(%s, ...)", getClass().getSimpleName(), places.getOrNull());
+        return getClass().getSimpleName();
     }
 
     public static String getLocalizedNamefor(Class<? extends Feature> feature) {
