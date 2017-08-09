@@ -54,6 +54,10 @@ public class GameChangedEvent extends Event {
         return Stream.concat(getNewPlayEvents(), getRemovedPlayEvents());
     }
 
+    public boolean hasPlacedTilesChanged() {
+        return prev.getPlacedTiles() != curr.getPlacedTiles();
+    }
+
     public boolean hasPlayerActionsChanged() {
         return prev.getPlayerActions() != curr.getPlayerActions();
     }

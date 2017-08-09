@@ -39,9 +39,9 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
                 return acc.put(player, acc.get(player).getOrElse(0) + power);
             });
 
-        Integer maxPower = powers.values().max().getOrNull();
+        Integer maxPower = powers.values().max().getOrElse(0);
+        //can be 0 for Mayor on city without pennant, then return no owners
         if (maxPower == 0) {
-            //eg. Mayor on city without pennant
             return HashSet.empty();
         }
         return powers.keySet()

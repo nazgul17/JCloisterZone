@@ -3,9 +3,11 @@ package com.jcloisterzone.ui.grid.layer;
 import java.awt.Graphics2D;
 import java.util.Comparator;
 
+import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
+import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.TileImage;
@@ -28,7 +30,7 @@ public class TileLayer extends AbstractGridLayer {
     }
 
     private SortedSet<Tuple2<Position, Tuple2<TileDefinition, Rotation>>> sortedPlacedTiles = TreeSet.empty();
-    private LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> originalPlacedTiles;
+
 
     public TileLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -36,17 +38,17 @@ public class TileLayer extends AbstractGridLayer {
         gc.register(this);
     }
 
-    private void updateSortedTiles() {
-        LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = gc.getGame().getState().getPlacedTiles();
-        if (originalPlacedTiles != placedTiles) {
+    @Subscribe
+    public void handleGameChanged(GameChangedEvent ev) {
+        if (ev.hasPlacedTilesChanged()) {
+            LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = ev.getCurrentState().getPlacedTiles();
             sortedPlacedTiles = placedTiles.toSortedSet(new OrderByRowsComparator());
+            gridPanel.repaint();
         }
     }
 
     @Override
     public void paint(Graphics2D g2) {
-        updateSortedTiles();
-
         //TODO nice shadow
         if (!getClient().getGridPanel().isLayerVisible(AbstractTilePlacementLayer.class)) {
 
