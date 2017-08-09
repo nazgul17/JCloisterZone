@@ -6,11 +6,12 @@ import com.jcloisterzone.board.EdgePattern;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.debug.GameStateDumper;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TilePlacedEvent;
+import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.CompletableFeature;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
@@ -19,7 +20,10 @@ import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
 
@@ -81,18 +85,28 @@ public class PlaceTile implements Reducer {
             });
 
         if (abbeyPlacement) {
+            FeaturePointer abbeyFp = new FeaturePointer(pos, Location.CLOISTER);
+            Set<FeaturePointer> abbeyNeighboring = HashSet.empty();
             for (Location side : Location.sides()) {
-                FeaturePointer adjPtr = new FeaturePointer(pos.add(side), side.rev());
-                Option<Feature> adjOption = board.getFeaturePartOf(adjPtr);
+                FeaturePointer adjPartOfPtr = new FeaturePointer(pos.add(side), side.rev());
+                Option<Feature> adjOption = board.getFeaturePartOf(adjPartOfPtr);
                 if (adjOption.isEmpty()) {
                     //farm (or empty tile - which can happen only in debug when non hole placement is enabled)
                     continue;
                 }
                 CompletableFeature<?> adj = (CompletableFeature) adjOption.get();
+                FeaturePointer adjPtr = adj.getPlaces().find(fp -> adjPartOfPtr.isPartOf(fp)).get();
+
                 adj = adj.mergeAbbeyEdge(new Edge(pos, side));
+                adj = adj.setNeighboring(adj.getNeighboring().add(abbeyFp));
                 for (FeaturePointer fp : adj.getPlaces()) {
                     fpUpdate.put(fp, adj);
                 }
+                abbeyNeighboring = abbeyNeighboring.add(adjPtr);
+            }
+            if (!abbeyNeighboring.isEmpty()) {
+                Cloister abbey = (Cloister) fpUpdate.get(abbeyFp);
+                fpUpdate.put(abbeyFp, abbey.setNeighboring(abbeyNeighboring));
             }
         }
 

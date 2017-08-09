@@ -79,17 +79,14 @@ public class Tile {
     }
 
     public Feature getFeaturePartOf(Location loc) {
-        Location normLoc = loc == Location.ABBOT ?
-                Location.CLOISTER : loc.rotateCCW(getRotation());
+        if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
-        Tuple2<Location, Feature> initial = getTileDefinition()
-            .getInitialFeatures()
-            .find(t -> normLoc.isPartOf(t._1))
+        FeaturePointer fp = new FeaturePointer(position, loc);
+        state.getFeatures().find(t -> fp.isPartOf(t._1)).map(Tuple2::_2);
+        return state.getFeatures()
+            .find(t -> fp.isPartOf(t._1))
+            .map(Tuple2::_2)
             .getOrNull();
-
-        if (initial == null) return null;
-
-        return getFeature(initial._1);
     }
 
     public Feature getInitialFeaturePartOf(Location loc) {

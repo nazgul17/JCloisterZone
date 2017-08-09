@@ -1,7 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.function.Predicate;
-
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.ConfirmAction;
@@ -13,22 +11,18 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.config.Config.ConfirmConfig;
 import com.jcloisterzone.event.play.MeepleDeployed;
 import com.jcloisterzone.event.play.PlayEvent;
-import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
-import com.jcloisterzone.game.capability.MageAndWitchCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.GameState;
@@ -40,9 +34,7 @@ import com.jcloisterzone.wsio.message.CommitMessage;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
@@ -135,8 +127,8 @@ public class ScorePhase extends ServerAwarePhase {
                 }
             }
             if (!needsConfirm) {
-                getConnection().send(new CommitMessage(game.getGameId()));
                 promote(state);
+                getConnection().send(new CommitMessage(game.getGameId()));
                 return;
             }
         }
