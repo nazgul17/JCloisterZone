@@ -154,12 +154,17 @@ public class FarmHintsLayer extends AbstractGridLayer {
                 Area area = new Area();
 
                 for (FeaturePointer fp : farm.getPlaces()) {
-                    Tile tile = board.get(fp.getPosition());
+                    Position pos = fp.getPosition();
                     Location loc = fp.getLocation();
+                    Tile tile = board.get(pos);
+
                     FeatureArea fa = rm.getFeatureAreas(tile, FULL_SIZE, FULL_SIZE, HashSet.of(loc)).get(loc).get();
                     assert fa != null;
-                    Area add = fa.getDisplayArea() == null ? fa.getTrackingArea() : fa.getDisplayArea();
-                    area.add(transformArea(add, fp.getPosition()));
+
+                    AffineTransform translation = AffineTransform.getTranslateInstance(pos.x * FULL_SIZE, pos.y * FULL_SIZE);
+                    fa = fa.transform(translation);
+                    Area addArea = fa.getDisplayArea() == null ? fa.getTrackingArea() : fa.getDisplayArea();
+                    area.add(addArea);
                 }
 
                 List<Color> colors;
