@@ -25,12 +25,12 @@ public class City extends CompletableFeature<City> {
     private final Map<TradeGoods, Integer> tradeGoods;
     private final boolean besieged, cathedral, princess, castleBase;
 
-    public City(List<FeaturePointer> places, List<Edge> openEdges, int pennants) {
+    public City(List<FeaturePointer> places, Set<Edge> openEdges, int pennants) {
         this(places, openEdges, HashSet.empty(), pennants, HashMap.empty(), false, false, false, false);
     }
 
     public City(List<FeaturePointer> places,
-            List<Edge> openEdges, Set<FeaturePointer> neighboring,
+            Set<Edge> openEdges, Set<FeaturePointer> neighboring,
             int pennants,
             Map<TradeGoods, Integer> tradeGoods, boolean besieged, boolean cathedral, boolean princess,
             boolean castleBase) {

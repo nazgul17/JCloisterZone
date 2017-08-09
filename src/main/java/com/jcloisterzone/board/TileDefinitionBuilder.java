@@ -26,7 +26,9 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.HashMap;
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
 
@@ -178,7 +180,7 @@ public class TileDefinitionBuilder {
     private void processFarmElement(Element e) {
         Stream<Location> sides = contentAsLocations(e);
         FeaturePointer place = initPlaces(sides, Farm.class);
-        List<FeaturePointer> adjoiningCities;
+        Set<FeaturePointer> adjoiningCities;
 
         if (e.hasAttribute("city")) {
             //List<City> cities = new ArrayList<>();
@@ -194,11 +196,11 @@ public class TileDefinitionBuilder {
                 }
                 throw new IllegalArgumentException(String.format("Unable to match adjoining city %s for tile %s", partial, tileId));
             });
-            adjoiningCities = List.ofAll(citiesLocs.map(
+            adjoiningCities = HashSet.ofAll(citiesLocs.map(
                 loc -> new FeaturePointer(Position.ZERO, loc)
             ));
         } else {
-            adjoiningCities = List.empty();
+            adjoiningCities = HashSet.empty();
         }
 
         Farm farm = new Farm(
@@ -221,8 +223,8 @@ public class TileDefinitionBuilder {
         return new FeaturePointer(Position.ZERO, locRef.get());
     }
 
-    private List<Edge> initOpenEdges(Stream<Location> sides) {
-        return List.ofAll(
+    private Set<Edge> initOpenEdges(Stream<Location> sides) {
+        return HashSet.ofAll(
             sides.filter(loc -> loc.isEdgeLocation()).map(loc -> new Edge(Position.ZERO, loc))
         );
     }

@@ -6,7 +6,6 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.game.state.GameState;
 
-import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
@@ -14,10 +13,10 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
 
     private static final long serialVersionUID = 1L;
 
-    protected final List<Edge> openEdges; //TODO change to Set
+    protected final Set<Edge> openEdges; //TODO change to Set
     protected final Set<FeaturePointer> neighboring; //for wagon move
 
-    public CompletableFeature(List<FeaturePointer> places, List<Edge> openEdges, Set<FeaturePointer> neighboring) {
+    public CompletableFeature(List<FeaturePointer> places, Set<Edge> openEdges, Set<FeaturePointer> neighboring) {
         super(places);
         this.openEdges = openEdges;
         this.neighboring = neighboring;
@@ -31,7 +30,7 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
         return !getOpenEdges().isEmpty();
     }
 
-    public List<Edge> getOpenEdges() {
+    public Set<Edge> getOpenEdges() {
         return openEdges;
     }
 
@@ -42,19 +41,16 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
 
     // immutable helpers
 
-    protected List<Edge> mergeEdges(T obj) {
-        Set<Edge> s1 = HashSet.ofAll(openEdges);
-        Set<Edge> s2 = HashSet.ofAll(obj.openEdges);
-        Set<Edge> connectedEdges = s1.intersect(s2);
-        return openEdges.removeAll(connectedEdges)
-            .appendAll(obj.openEdges.removeAll(connectedEdges));
+    protected Set<Edge> mergeEdges(T obj) {
+        Set<Edge> connectedEdges = openEdges.intersect(obj.openEdges);
+        return openEdges.union(obj.openEdges).diff(connectedEdges);
     }
 
     protected Set<FeaturePointer> mergeNeighboring(T obj) {
         return neighboring.addAll(obj.neighboring);
     }
 
-    protected List<Edge> placeOnBoardEdges(Position pos, Rotation rot) {
+    protected Set<Edge> placeOnBoardEdges(Position pos, Rotation rot) {
         return openEdges.map(edge -> edge.rotateCW(Position.ZERO, rot).translate(pos));
     }
 

@@ -4,6 +4,7 @@ import static com.jcloisterzone.ui.I18nUtils._;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -11,20 +12,21 @@ import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 
 public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     // for unplaced features, references is to (0, 0)
-    protected final List<FeaturePointer> adjoiningCities; //or castles
+    protected final Set<FeaturePointer> adjoiningCities; //or castles
     protected final boolean adjoiningCityOfCarcassonne;
     protected final int pigHerds;
 
 
-    public Farm(List<FeaturePointer> places, List<FeaturePointer> adjoiningCities) {
+    public Farm(List<FeaturePointer> places, Set <FeaturePointer> adjoiningCities) {
         this(places, adjoiningCities, false, 0);
     }
 
-    public Farm(List<FeaturePointer> places, List<FeaturePointer> adjoiningCities,
+    public Farm(List<FeaturePointer> places, Set<FeaturePointer> adjoiningCities,
             boolean adjoiningCityOfCarcassonne, int pigHerds) {
         super(places);
         this.adjoiningCities = adjoiningCities;
@@ -53,11 +55,11 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
         );
     }
 
-    public List<FeaturePointer> getAdjoiningCities() {
+    public Set<FeaturePointer> getAdjoiningCities() {
         return adjoiningCities;
     }
 
-    public Farm setAdjoiningCities(List<FeaturePointer> adjoiningCities) {
+    public Farm setAdjoiningCities(Set<FeaturePointer> adjoiningCities) {
         return new Farm(places, adjoiningCities, adjoiningCityOfCarcassonne, pigHerds);
     }
 
@@ -98,23 +100,26 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     private int getPlayerPoints(GameState state, Player player, int pointsPerCity) {
         int points = adjoiningCityOfCarcassonne ? pointsPerCity : 0;
+        Board board = state.getBoard();
+        Set<Feature> features = adjoiningCities.map(fp -> board.get(fp));
 
-        for (FeaturePointer fp : adjoiningCities) {
-            Feature feature = state.getBoard().getFeaturePartOf(fp).get();
+        for (Feature feature : features) {
             if (feature instanceof Castle) {
-                // adjoning Castle provides 1 more point then common city
+                // adjoining Castle provides 1 more point then common city
                 points += pointsPerCity + 1;
             } else {
-                points += pointsPerCity;
-                if (((City) feature).isBesieged()) {
-                    // besieged cities has double value
+                City city = (City) feature;
+                if (city.isCompleted(state)) {
                     points += pointsPerCity;
+                    if (city.isBesieged()) {
+                        // besieged cities has double value
+                        points += pointsPerCity;
+                    }
                 }
             }
         }
         return points;
     }
-
 
     public static String name() {
         return _("Farm");
@@ -122,11 +127,11 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     // immutable helpers
 
-    protected List<FeaturePointer> mergeAdjoiningCities(Farm obj) {
-        return this.adjoiningCities.appendAll(obj.adjoiningCities).distinct();
+    protected Set<FeaturePointer> mergeAdjoiningCities(Farm obj) {
+        return this.adjoiningCities.union(obj.adjoiningCities);
     }
 
-    protected List<FeaturePointer> placeOnBoardAdjoiningCities(Position pos, Rotation rot) {
+    protected Set<FeaturePointer> placeOnBoardAdjoiningCities(Position pos, Rotation rot) {
         return this.adjoiningCities.map(fp -> fp.rotateCW(rot).translate(pos));
     }
 }

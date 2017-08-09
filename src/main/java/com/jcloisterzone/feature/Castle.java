@@ -7,8 +7,7 @@ import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.visitor.score.ScoreContext;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.List;
 
@@ -16,8 +15,8 @@ public class Castle extends ScoreableFeature {
 
     private static final long serialVersionUID = 1L;
 
-    public Castle(Game game, List<FeaturePointer> places) {
-        super(game, places);
+    public Castle(List<FeaturePointer> places) {
+        super(places);
         assert places.size() == 2;
     }
 
@@ -27,8 +26,8 @@ public class Castle extends ScoreableFeature {
     }
 
     @Override
-    public int getPoints(Player player) {
-        if (game.isOver()) {
+    public int getPoints(GameState state, Player player) {
+        if (state.isGameOver()) {
             return 0;
         }
         throw new UnsupportedOperationException("TODO IMMUTABLE");
@@ -40,11 +39,6 @@ public class Castle extends ScoreableFeature {
 //        return (Castle) getEdges()[0];
 //    }
 //
-//    @Override
-//    public Castle getMaster() {
-//        Castle other = getSecondFeature();
-//        return getId() < other.getId() ? this : other;
-//    }
 //
 //    public Position[] getCastleBase() {
 //        Position[] positions = new Position[6];

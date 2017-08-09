@@ -23,13 +23,13 @@ public class Road extends CompletableFeature<Road> {
     private final boolean inn;
     private final Map<FeaturePointer, TunnelEnd> tunnelEnds;
 
-    public Road(List<FeaturePointer> places, List<Edge> openEdges) {
+    public Road(List<FeaturePointer> places, Set<Edge> openEdges) {
         this(places, openEdges, HashSet.empty(), false, HashMap.empty());
     }
 
     public Road(
             List<FeaturePointer> places,
-            List<Edge> openEdges,
+            Set<Edge> openEdges,
             Set<FeaturePointer> neighboring,
             boolean inn,
             Map<FeaturePointer, TunnelEnd> tunnelEnds
