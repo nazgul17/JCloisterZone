@@ -257,24 +257,32 @@ public class ControlPanel extends JPanel {
     }
 
     public void pass() {
-        if (game.getState().getActivePlayer().isLocalHuman()) {
-            if (showConfirmRequest) {
-                setShowConfirmRequest(false);
-                gc.getConnection().send(new CommitMessage(game.getGameId()));
-                repaint();
-            } else {
-                if (isLastAbbeyPlacement()) {
-                    String[] options = new String[] {_("Skip Abbey"), _("Cancel and place Abbey") };
-                    int result = JOptionPane.showOptionDialog(client,
-                        _("This is your last turn. If you skip it your Abbey remain unplaced."),
-                        _("Last chance to place the Abbey"),
-                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-                    if (result == -1 || result == 1) { //closed dialog
-                        return;
-                    }
-                }
-                gc.getConnection().send(new PassMessage(game.getGameId()));
+        Player player = game.getState().getActivePlayer();
+        if (player == null || !player.isLocalHuman()) {
+            return;
+        }
+
+        if (showConfirmRequest) {
+            setShowConfirmRequest(false);
+            gc.getConnection().send(new CommitMessage(game.getGameId()));
+            repaint();
+        } else {
+            ActionsState actions = game.getState().getPlayerActions();
+            if (!actions.isPassAllowed()) {
+                return;
             }
+
+            if (isLastAbbeyPlacement()) {
+                String[] options = new String[] {_("Skip Abbey"), _("Cancel and place Abbey") };
+                int result = JOptionPane.showOptionDialog(client,
+                    _("This is your last turn. If you skip it your Abbey remain unplaced."),
+                    _("Last chance to place the Abbey"),
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+                if (result == -1 || result == 1) { //closed dialog
+                    return;
+                }
+            }
+            gc.getConnection().send(new PassMessage(game.getGameId()));
         }
     }
 
