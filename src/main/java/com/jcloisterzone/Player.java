@@ -125,10 +125,11 @@ public class Player implements Serializable {
                 .isEmpty();
     }
 
-    public Meeple getMeepleFromSupply(GameState state, Class<? extends Meeple> clazz) {
+    @SuppressWarnings("unchecked")
+    public <T extends Meeple> T getMeepleFromSupply(GameState state, Class<T> clazz) {
         assert !Modifier.isAbstract(clazz.getModifiers());
         Seq<? extends Meeple> collection = (Follower.class.isAssignableFrom(clazz) ? getFollowers(state) : getSpecialMeeples(state));
-        return Stream.ofAll(collection)
+        return (T) Stream.ofAll(collection)
             .filter(m -> m.getClass().equals(clazz))
             .find(m -> m.isInSupply(state))
             .getOrNull();
@@ -142,7 +143,7 @@ public class Player implements Serializable {
     }
 
     public Vector<Meeple> getMeeplesFromSupply(GameState state, Vector<Class<? extends Meeple>> meepleTypes) {
-        return meepleTypes.map(cls -> getMeepleFromSupply(state, cls))
+        return meepleTypes.map(cls -> (Meeple) getMeepleFromSupply(state, cls))
             .filter(Predicates.isNotNull());
     }
 

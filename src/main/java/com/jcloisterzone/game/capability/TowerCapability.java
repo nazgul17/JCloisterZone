@@ -57,7 +57,7 @@ public final class TowerCapability extends Capability<Array<List<Follower>>> {
         return state;
     }
 
-        @Override
+    @Override
     public GameState onActionPhaseEntered(GameState state) {
         Player player = state.getPlayerActions().getPlayer();
 

@@ -9,6 +9,8 @@ import java.util.Map;
 
 import com.jcloisterzone.Immutable;
 
+import io.vavr.collection.Vector;
+
 
 /**
  * bite order                     corresponding constants
@@ -322,6 +324,19 @@ public class Location implements Serializable {
      */
     public boolean isRotationOf(Location loc) {
         return getRotationOf(loc) != null;
+    }
+
+    /* get included full farm coners */
+    public Vector<Corner> getCorners() {
+        if (!isFarmLocation()) {
+            return Vector.empty();
+        }
+        Vector<Corner> res = Vector.empty();
+        if (WR.isPartOf(this) && NL.isPartOf(this)) res = res.append(Corner.NW);
+        if (NR.isPartOf(this) && EL.isPartOf(this)) res = res.append(Corner.NE);
+        if (ER.isPartOf(this) && SL.isPartOf(this)) res = res.append(Corner.SE);
+        if (SR.isPartOf(this) && WL.isPartOf(this)) res = res.append(Corner.SW);
+        return res;
     }
 
     //assertion methods

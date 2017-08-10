@@ -1,22 +1,36 @@
 package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.BarnAction;
+import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.board.Board;
+import com.jcloisterzone.board.Corner;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Farm;
+import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Barn;
+import com.jcloisterzone.figure.BigFollower;
+import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.MeepleIdProvider;
+import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.Pig;
+import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
+import com.jcloisterzone.game.state.GameState;
 
+import io.vavr.Predicates;
+import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 
 
 public final class BarnCapability extends Capability<Void> {
@@ -27,44 +41,57 @@ public final class BarnCapability extends Capability<Void> {
     }
 
     @Override
-    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-        Position pos = getCurrentTile().getPosition();
+    public GameState onActionPhaseEntered(GameState state) {
+        Player player = state.getPlayerActions().getPlayer();
 
-        if (game.getActivePlayer().hasSpecialMeeple(Barn.class)) {
-            BarnAction barnAction = null;
-            Location corner = Location.WR.union(Location.NL);
-            Location positionChange = Location.W;
-            for (int i = 0; i < 4; i++) {
-                if (isBarnCorner(corner, positionChange)) {
-                    if (barnAction == null) {
-                        barnAction = new BarnAction();
-                        actions.add(barnAction);
-                    }
-                    barnAction.add(new FeaturePointer(pos, corner));
-                }
-                corner = corner.next();
-                positionChange = positionChange.next();
-            }
+        Barn barn = player.getMeepleFromSupply(state, Barn.class);
+        if (barn == null) {
+            return state;
         }
+
+        Tile currentTile = state.getBoard().getLastPlaced();
+        Position pos = currentTile.getPosition();
+
+        Set<FeaturePointer> options = Stream.of(
+            new Position(pos.x - 1, pos.y - 1),
+            new Position(pos.x, pos.y - 1),
+            pos,
+            new Position(pos.x -1, pos.y)
+        )
+            .map(p -> getCornerFeature(state, p))
+            .filter(Predicates.isNotNull())
+            .filter(t -> {
+                if (state.getBooleanValue(CustomRule.MULTI_BARN_ALLOWED)) {
+                    return true;
+                }
+                return t._2.getSpecialMeeples(state)
+                    .find(Predicates.instanceOf(Barn.class))
+                    .isEmpty();
+            })
+            .map(Tuple2::_1)
+            .toSet();
+
+        if (options.isEmpty()) {
+            return state;
+        }
+
+        ActionsState as = state.getPlayerActions();
+        as = as.appendAction(new MeepleAction(Barn.class, options));
+        return state.setPlayerActions(as);
+
     }
 
-    private boolean isBarnCorner(Location corner, Location positionChange) {
-        Farm farm = null;
-        Position pos = getCurrentTile().getPosition();
-        for (int i = 0; i < 4; i++) {
-            Tile tile = getBoard().getPlayer(pos);
-            if (tile == null) return false;
-            farm = (Farm) tile.getFeaturePartOf(corner);
-            if (farm == null) return false;
-            corner = corner.next();
-            pos = pos.add(positionChange);
-            positionChange = positionChange.next();
-        }
-
-        if (!game.getBooleanValue(CustomRule.MULTI_BARN_ALLOWED)) {
-            return !farm.walk(new IsOccupied().with(Barn.class));
-        }
-
-        return true;
+    private Tuple2<FeaturePointer, Feature> getCornerFeature(GameState state, Position pos) {
+        Board board = state.getBoard();
+        Tuple2<FeaturePointer, Feature> t =
+            board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x + 1, pos.y), Location.SR)).getOrNull();
+        if (t == null || !t._1.getLocation().getCorners().contains(Corner.SW)) return null;
+        t = board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x + 1, pos.y + 1), Location.WR)).getOrNull();
+        if (t == null || !t._1.getLocation().getCorners().contains(Corner.NW)) return null;
+        t = board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x, pos.y + 1), Location.NR)).getOrNull();
+        if (t == null || !t._1.getLocation().getCorners().contains(Corner.NW)) return null;
+        t = board.getFeaturePartOf2(new FeaturePointer(pos, Location.ER)).getOrNull();
+        if (t == null || !t._1.getLocation().getCorners().contains(Corner.SE)) return null;
+        return t;
     }
 }

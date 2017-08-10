@@ -116,9 +116,11 @@ public class Board {
     }
 
     public Option<Feature> getFeaturePartOf(FeaturePointer fp) {
-        return state.getFeatures()
-            .find(t -> fp.isPartOf(t._1))
-            .map(Tuple2::_2);
+        return getFeaturePartOf2(fp).map(Tuple2::_2);
+    }
+
+    public Option<Tuple2<FeaturePointer, Feature>> getFeaturePartOf2(FeaturePointer fp) {
+        return state.getFeatures().find(t -> fp.isPartOf(t._1));
     }
 
     public Tile get(int x, int y) {
