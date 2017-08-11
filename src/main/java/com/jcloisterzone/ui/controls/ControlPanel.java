@@ -21,11 +21,11 @@ import javax.swing.Timer;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
-import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
+import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
@@ -249,15 +249,19 @@ public class ControlPanel extends JPanel {
         paintBackgroundShadow((Graphics2D) g);
     }
 
-    private boolean isLastAbbeyPlacement() {
-        IndexedSeq<ActionWrapper> actions = actionPanel.getActions();
-        if (actions.isEmpty()) return false;
-        if (!(actions.get().getAction() instanceof AbbeyPlacementAction)) return false;
-        return game.getState().getTilePack().size() == 0;
+    private boolean isLastAbbeyPlacement(GameState state) {
+        ActionsState as = state.getPlayerActions();
+        if (as == null || as.getActions().isEmpty()) return false;
+        PlayerAction<?> action = as.getActions().get();
+        if (!(action instanceof TilePlacementAction)) return false;
+        TilePlacementAction tpa = (TilePlacementAction) action;
+        if (!tpa.getTile().getId().equals(TileDefinition.ABBEY_TILE_ID)) return false;
+        return state.getTilePack().size() == 0;
     }
 
     public void pass() {
-        Player player = game.getState().getActivePlayer();
+        GameState state = game.getState();
+        Player player = state.getActivePlayer();
         if (player == null || !player.isLocalHuman()) {
             return;
         }
@@ -267,12 +271,12 @@ public class ControlPanel extends JPanel {
             gc.getConnection().send(new CommitMessage(game.getGameId()));
             repaint();
         } else {
-            ActionsState actions = game.getState().getPlayerActions();
+            ActionsState actions = state.getPlayerActions();
             if (!actions.isPassAllowed()) {
                 return;
             }
 
-            if (isLastAbbeyPlacement()) {
+            if (isLastAbbeyPlacement(state)) {
                 String[] options = new String[] {_("Skip Abbey"), _("Cancel and place Abbey") };
                 int result = JOptionPane.showOptionDialog(client,
                     _("This is your last turn. If you skip it your Abbey remain unplaced."),

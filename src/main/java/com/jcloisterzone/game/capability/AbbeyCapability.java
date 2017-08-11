@@ -6,7 +6,11 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.GameState;
 
-public class AbbeyCapability extends Capability<Void> {
+
+/**
+ * @model Integer: store playerIndex during final abbey placement turn
+ */
+public class AbbeyCapability extends Capability<Integer> {
 
     //private final Set<Player> unusedAbbey = new HashSet<>();
     //private Player abbeyRoundLastPlayer; //when last tile is drawn all players can still place abbey

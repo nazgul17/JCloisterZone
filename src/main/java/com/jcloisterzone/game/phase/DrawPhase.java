@@ -3,11 +3,13 @@ package com.jcloisterzone.game.phase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jcloisterzone.Player;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 
@@ -74,21 +76,26 @@ public class DrawPhase extends ServerAwarePhase {
     //        }
 
             TilePackState tilePack = state.getTilePack();
+            boolean packIsEmpty = tilePack.isEmpty() || isDebugForcedEnd();
 
             //Abbey special case, every player has opportunity to place own abbey at the end.
-            if (tilePack.isEmpty()) {
-                //TODO IMMUTABLE
-//                if (abbeyCap != null && !state.getActivePlayer().equals(abbeyCap.getAbbeyRoundLastPlayer())) {
-//                    if (abbeyCap.getAbbeyRoundLastPlayer() == null) {
-//                        abbeyCap.setAbbeyRoundLastPlayer(game.getPrevPlayer(state.getActivePlayer()));
-//                    }
-//                    next(state, CleanUpTurnPartPhase.class);
-//                    return;
-//                }
+            if (packIsEmpty && state.getCapabilities().contains(AbbeyCapability.class)) {
+                Integer endPlayerIdx = state.getCapabilities().getModel(AbbeyCapability.class);
+                Player turnPlayer = state.getTurnPlayer();
+                if (endPlayerIdx == null) {
+                    //tile pack has been depleted jut now
+                    endPlayerIdx = turnPlayer.getPrevPlayer(state).getIndex();
+                    state = state.setCapabilityModel(AbbeyCapability.class, endPlayerIdx);
+                }
+                if (endPlayerIdx != turnPlayer.getIndex()) {
+                    next(state, CleanUpTurnPartPhase.class);
+                    return;
+                }
+                // otherwise proceed to game over
             }
 
             // Tile Pack is empty
-            if (tilePack.isEmpty() || isDebugForcedEnd()) {
+            if (packIsEmpty) {
                 next(state, GameOverPhase.class);
                 return;
             }
