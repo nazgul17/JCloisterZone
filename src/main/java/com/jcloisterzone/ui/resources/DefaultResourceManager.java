@@ -78,11 +78,7 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     private ImmutablePoint getBarnPlacement(Location loc) {
-        if (loc.intersect(Location.NL.union(Location.WR)) != null) return new ImmutablePoint(0, 0);
-        if (loc.intersect(Location.NR.union(Location.EL)) != null) return new ImmutablePoint(100, 0);
-        if (loc.intersect(Location.SL.union(Location.ER)) != null) return new ImmutablePoint(100, 100);
-        if (loc.intersect(Location.SR.union(Location.WL)) != null) return new ImmutablePoint(0, 100);
-        throw new IllegalArgumentException("Corner location expected");
+        return new ImmutablePoint(100, 100);
     }
 
     @Override

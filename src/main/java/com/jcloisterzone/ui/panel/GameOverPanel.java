@@ -9,8 +9,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
@@ -21,8 +19,6 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
-
-import net.miginfocom.swing.MigLayout;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
@@ -35,7 +31,7 @@ import com.jcloisterzone.game.capability.FairyCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.KingAndRobberBaronCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
-import com.jcloisterzone.game.capability.TradeCountersCapability;
+import com.jcloisterzone.game.capability.TradeGoodsCapability;
 import com.jcloisterzone.game.capability.WindRoseCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
@@ -43,6 +39,8 @@ import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
+
+import net.miginfocom.swing.MigLayout;
 
 public class GameOverPanel extends JPanel {
 
@@ -127,7 +125,7 @@ public class GameOverPanel extends JPanel {
             if (capabilities.contains(CastleCapability.class)) rowSpec.append("[]");
             rowSpec.append("20"); //gap
             if (capabilities.contains(KingAndRobberBaronCapability.class)) rowSpec.append("[][]20");
-            if (capabilities.contains(TradeCountersCapability.class)) rowSpec.append("[]");
+            if (capabilities.contains(TradeGoodsCapability.class)) rowSpec.append("[]");
             if (capabilities.contains(GoldminesCapability.class)) rowSpec.append("[]");
             if (capabilities.contains(FairyCapability.class)) rowSpec.append("[]");
             if (capabilities.contains(TowerCapability.class)) rowSpec.append("[]");
@@ -155,7 +153,7 @@ public class GameOverPanel extends JPanel {
                 add(new JLabel(_("The longest road")), getLegendSpec(0, gridy++));
             }
 
-            if (capabilities.contains(TradeCountersCapability.class)) {
+            if (capabilities.contains(TradeGoodsCapability.class)) {
                 add(new JLabel(_("Trade goods")), getLegendSpec(0, gridy++));
             }
             if (capabilities.contains(GoldminesCapability.class)) {
@@ -199,7 +197,7 @@ public class GameOverPanel extends JPanel {
                     add(new JLabel("" +player.getPointsInCategory(state, PointCategory.LONGEST_ROAD), SwingConstants.CENTER), getSpec(gridx, gridy++));
                 }
 
-                if (capabilities.contains(TradeCountersCapability.class)) {
+                if (capabilities.contains(TradeGoodsCapability.class)) {
                     add(new JLabel("" +player.getPointsInCategory(state, PointCategory.TRADE_GOODS), SwingConstants.CENTER), getSpec(gridx, gridy++));
                 }
                 if (capabilities.contains(GoldminesCapability.class)) {

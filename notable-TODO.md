@@ -4,3 +4,5 @@
 * change resource manager interface - simple load all areas and start
 and get it by one one instead of all per tile
 + support area for whole feature? (FarmHintsLayer)
+
+* barn final scoring

@@ -36,7 +36,7 @@ public interface Feature {
         return getFollowers2(state).map(t -> t._1);
     }
 
-    default Stream<Tuple2<Special, FeaturePointer>> getSpecial2(GameState state) {
+    default Stream<Tuple2<Special, FeaturePointer>> getSpecialMeeples2(GameState state) {
         return
             Stream.narrow(
                 getMeeples2(state)
@@ -45,7 +45,7 @@ public interface Feature {
     }
 
     default Stream<Special> getSpecialMeeples(GameState state) {
-        return getSpecial2(state).map(t -> t._1);
+        return getSpecialMeeples2(state).map(t -> t._1);
     }
 
 

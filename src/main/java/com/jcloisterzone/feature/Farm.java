@@ -91,14 +91,19 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     @Override
     public int getPoints(GameState state, Player player) {
-        return getPlayerPoints(state, player, getPointsPerCity(state, player, 3)) + getLittleBuildingPoints(state);
+        return getCityPoints(state, getPointsPerCity(state, player, 3)) + getLittleBuildingPoints(state);
     }
 
     public int getPointsWhenBarnIsConnected(GameState state, Player player) {
-        return getPlayerPoints(state, player, getPointsPerCity(state, player, 1)) + getLittleBuildingPoints(state);
+        return getCityPoints(state, getPointsPerCity(state, player, 1)) + getLittleBuildingPoints(state);
     }
 
-    private int getPlayerPoints(GameState state, Player player, int pointsPerCity) {
+    public int getBarnPoints(GameState state) {
+        //no pig herds according to Complete Annotated Rules
+        return getCityPoints(state, 4) + getLittleBuildingPoints(state);
+    }
+
+    private int getCityPoints(GameState state, int pointsPerCity) {
         int points = adjoiningCityOfCarcassonne ? pointsPerCity : 0;
         Board board = state.getBoard();
         Set<Feature> features = adjoiningCities.map(fp -> board.get(fp));

@@ -88,7 +88,7 @@ public final class BarnCapability extends Capability<FeaturePointer> {
         t = board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x + 1, pos.y + 1), Location.WR)).getOrNull();
         if (t == null || !t._1.getLocation().getCorners().contains(Corner.NW)) return null;
         t = board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x, pos.y + 1), Location.NR)).getOrNull();
-        if (t == null || !t._1.getLocation().getCorners().contains(Corner.NW)) return null;
+        if (t == null || !t._1.getLocation().getCorners().contains(Corner.NE)) return null;
         t = board.getFeaturePartOf2(new FeaturePointer(pos, Location.ER)).getOrNull();
         if (t == null || !t._1.getLocation().getCorners().contains(Corner.SE)) return null;
         return t;
