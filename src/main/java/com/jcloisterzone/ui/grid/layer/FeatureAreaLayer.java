@@ -13,6 +13,7 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
@@ -72,6 +73,8 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
             Map<Location, FeatureArea> locMap;
             if (action instanceof BridgeAction) {
                 locMap = rm.getBridgeAreas(tile, sizeX, sizeY, locations);
+            } else if ((action instanceof MeepleAction) && ((MeepleAction)action).getMeepleType().equals(Barn.class)) {
+                locMap = rm.getBarnTileAreas(tile, sizeX, sizeY, locations);
             } else {
                 locMap = rm.getFeatureAreas(tile, sizeX, sizeY, locations);
             }

@@ -95,17 +95,14 @@ public class DefaultResourceManager implements ResourceManager {
 
     @Override
     public Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners) {
-        Map<Location, FeatureArea> result = HashMap.empty();
-        for (Location corner : corners) {
-            int rx = width/2;
-            int ry = height/2;
-            Area a = new Area(new Ellipse2D.Double(-rx,-ry,2*rx,2*ry));
-            if (corner.isPartOf(Location.NR.union(Location.EL))) a.transform(Rotation.R90.getAffineTransform(width, height));
-            if (corner.isPartOf(Location.SL.union(Location.ER))) a.transform(Rotation.R180.getAffineTransform(width, height));
-            if (corner.isPartOf(Location.SR.union(Location.WL))) a.transform(Rotation.R270.getAffineTransform(width, height));
-            result = result.put(corner, new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX));
-        }
-        return result;
+        //TODO update method interface
+        assert corners.size() == 1;
+
+        int rx = width/2;
+        int ry = height/2;
+        Area a = new Area(new Ellipse2D.Double(width - rx, height - ry, 2 * rx, 2 * ry));
+
+        return HashMap.of(corners.get(), new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX));
     }
 
 

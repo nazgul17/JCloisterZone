@@ -137,10 +137,6 @@ public class MainPanel extends JPanel {
 //            gridPanel.addLayer(new DragonLayer(gridPanel, gc));
 //        }
 
-        if (capabs.contains(BarnCapability.class)) {
-            gridPanel.addLayer(new BarnAreaLayer(gridPanel, gc), false);
-        }
-
         gridPanel.addLayer(new FeatureAreaLayer(gridPanel, gc), false);
         gridPanel.addLayer(new TileActionLayer(gridPanel, gc), false);
 
