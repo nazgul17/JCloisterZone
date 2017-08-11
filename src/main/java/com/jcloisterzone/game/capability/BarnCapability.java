@@ -2,24 +2,17 @@ package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
-import com.jcloisterzone.action.BarnAction;
 import com.jcloisterzone.action.MeepleAction;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Corner;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Barn;
-import com.jcloisterzone.figure.BigFollower;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.MeepleIdProvider;
-import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.Pig;
-import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
@@ -30,10 +23,11 @@ import io.vavr.Tuple2;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
-import io.vavr.collection.Vector;
 
-
-public final class BarnCapability extends Capability<Void> {
+/**
+ * @model FeaturePointer: ptr to just placed Barn
+ */
+public final class BarnCapability extends Capability<FeaturePointer> {
 
     @Override
     public List<Special> createPlayerSpecialMeeples(Player player, MeepleIdProvider idProvider) {
@@ -79,6 +73,11 @@ public final class BarnCapability extends Capability<Void> {
         as = as.appendAction(new MeepleAction(Barn.class, options));
         return state.setPlayerActions(as);
 
+    }
+
+    @Override
+    public GameState turnPartCleanUp(GameState state) {
+        return setModel(state, null);
     }
 
     private Tuple2<FeaturePointer, Feature> getCornerFeature(GameState state, Position pos) {

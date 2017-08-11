@@ -15,17 +15,20 @@ import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.reducers.ScoreFarmWhenBarnIsConnected;
 import com.jcloisterzone.reducers.ScoreFeature;
 import com.jcloisterzone.reducers.UndeployMeeples;
 import com.jcloisterzone.ui.GameController;
@@ -152,17 +155,29 @@ public class ScorePhase extends ServerAwarePhase {
 
         Map<Wagon, FeaturePointer> deployedWagonsBefore = getDeployedWagons(state);
 
+        if (state.getCapabilities().contains(BarnCapability.class)) {
+            FeaturePointer placedBarnPtr = state.getCapabilities().getModel(BarnCapability.class);
+            Farm placedBarnFarm = placedBarnPtr == null ? null : (Farm) board.get(placedBarnPtr);
+            if (placedBarnFarm != null) {
+                //ScoreFeature is scoring just followers!
+                state = (new ScoreFeature(placedBarnFarm)).apply(state);
+                state = (new UndeployMeeples(placedBarnFarm)).apply(state);
+            }
 
-        //TODO separate event here ??? and move this code to abbey and mayor game
-        //TODO immutable
-//        if (state.getCapabilities().contains(BarnCapability.class)) {
-//            Map<City, CityScoreContext> cityCache = new HashMap<>();
-//            for (Tuple2<Location, Feature> t : tile.getFeatures()) {
-//                if (t._2 instanceof Farm) {
-//                    state = scoreFollowersOnBarnFarm(state, (Farm) t._2, cityCache);
-//                }
-//            }
-//        }
+            GameState _state = state;
+            for (Farm farm : tile.getFeatures()
+                .map(Tuple2::_2)
+                .filter(f -> f != placedBarnFarm)
+                .filter(Predicates.instanceOf(Farm.class))
+                .map(f -> (Farm) f)
+                .filter(farm -> farm.getSpecialMeeples(_state)
+                    .find(Predicates.instanceOf(Barn.class))
+                    .isDefined()
+                )) {
+                state = (new ScoreFarmWhenBarnIsConnected(farm)).apply(state);
+                state = (new UndeployMeeples(farm)).apply(state);
+            }
+        }
 
         state = scoreCompletedOnTile(state, tile);
         if (tile.isAbbeyTile()) {

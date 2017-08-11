@@ -16,6 +16,7 @@ import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TokenPlacedEvent;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
+import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.DeploymentCheckResult;
@@ -32,6 +33,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
@@ -160,6 +162,10 @@ public class ActionPhase extends Phase {
         if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
             state = state.addFlag(Flag.PORTAL_USED);
         }
+        if (m instanceof Barn) {
+            state = state.setCapabilityModel(BarnCapability.class, fp);
+        }
+
         state = clearActions(state);
         next(state);
     }
