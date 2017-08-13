@@ -2,12 +2,13 @@ package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.TilePlacementAction;
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
+import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.BridgeCapability;
+import com.jcloisterzone.game.capability.BazaarCapability;
+import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameState.Flag;
 import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
@@ -65,6 +66,14 @@ public class TilePhase extends Phase {
 //            bridgeCap.deployBridge(bp.getPosition(), bp.getLocation(), true);
 //        }
         //getBoard().mergeFeatures(tile);
+
+        if (tile.getTrigger() == TileTrigger.BAZAAR) {
+            BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+            //Do not trigger another auction is current is not resolved
+            if (model.getSupply() == null) {
+                state = state.addFlag(Flag.BAZAAR_AUCTION);
+            }
+        }
 
         next(state);
     }

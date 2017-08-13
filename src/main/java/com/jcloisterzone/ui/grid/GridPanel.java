@@ -23,6 +23,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.MouseInputListener;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
@@ -45,8 +47,14 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
+import com.jcloisterzone.ui.annotations.LinkedImage;
+import com.jcloisterzone.ui.annotations.LinkedPanel;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
+import com.jcloisterzone.ui.grid.actionpanel.ActionInteractionPanel;
+import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel;
+import com.jcloisterzone.ui.grid.actionpanel.PrisonersExchangePanel;
+import com.jcloisterzone.ui.grid.actionpanel.SelectMageWitchRemovalPanel;
 import com.jcloisterzone.ui.grid.layer.AbbeyPlacementLayer;
 import com.jcloisterzone.ui.grid.layer.AbstractAreaLayer;
 import com.jcloisterzone.ui.grid.layer.AbstractTilePlacementLayer;
@@ -61,6 +69,8 @@ import net.miginfocom.swing.MigLayout;
 
 public class GridPanel extends JPanel implements ForwardBackwardListener {
 
+    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+
     private static final long serialVersionUID = -7013723613801929324L;
 
     public static int INITIAL_TILE_WIDTH = 120;
@@ -74,9 +84,10 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 
     private final ControlPanel controlPanel;
     private final ChatPanel chatPanel;
-    private BazaarPanel bazaarPanel;
-    private SelectMageWitchRemovalPanel mageWitchPanel;
-    private PrisonersExchangePanel prisonersExchangePanel;
+//    private BazaarPanel bazaarPanel;
+//    private SelectMageWitchRemovalPanel mageWitchPanel;
+//    private PrisonersExchangePanel prisonersExchangePanel;
+    private ActionInteractionPanel<?> actionInteractionPanel;
 
     /** current board size */
     private int left, right, top, bottom;
@@ -167,16 +178,16 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 
     @Override
     public void forward() {
-        if (bazaarPanel != null) {
-            bazaarPanel.forward();
+        if (actionInteractionPanel instanceof ForwardBackwardListener) {
+            ((ForwardBackwardListener) actionInteractionPanel).forward();
         }
         controlPanel.getActionPanel().forward();
     }
 
     @Override
     public void backward() {
-        if (bazaarPanel != null) {
-            bazaarPanel.backward();
+        if (actionInteractionPanel instanceof ForwardBackwardListener) {
+            ((ForwardBackwardListener) actionInteractionPanel).backward();
         }
         controlPanel.getActionPanel().backward();
     }
@@ -185,12 +196,12 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
         int l = getComponents().length;
         for (int i = l-1; i > 0; i--) {
             Component child = getComponent(i);
-            if (child.getClass().isAnnotationPresent(InteractionPanel.class)) {
+            if (child == actionInteractionPanel) {
                 remove(i);
+                break;
             }
         }
-        bazaarPanel = null;
-        prisonersExchangePanel = null;
+        actionInteractionPanel = null;
     }
 
     class GridPanelMouseListener extends MouseAdapter implements MouseInputListener {
@@ -308,25 +319,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 //        this.hintMessage = hintMessage;
 //    }
 
-
-    public BazaarPanel getBazaarPanel() {
-        return bazaarPanel;
-    }
-
-
-    public void setBazaarPanel(BazaarPanel bazaarPanel) {
-        this.bazaarPanel = bazaarPanel;
-    }
-
-
-    public SelectMageWitchRemovalPanel getMageWitchPanel() {
-        return mageWitchPanel;
-    }
-
-    public void setMageWitchPanel(SelectMageWitchRemovalPanel mageWitchPanel) {
-        this.mageWitchPanel = mageWitchPanel;
-    }
-
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         GameState state = ev.getCurrentState();
@@ -349,15 +341,35 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
         }
         */
 
-        if (first instanceof SelectPrisonerToExchangeAction) {
-            if (prisonersExchangePanel == null) {
-                prisonersExchangePanel = new PrisonersExchangePanel(gc, (SelectPrisonerToExchangeAction) first);
-                add(prisonersExchangePanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-                revalidate();
-            }
-        } else {
+        LinkedPanel panelAnnotation = first == null ? null : first.getClass().getAnnotation(LinkedPanel.class);
+        if (panelAnnotation == null) {
             removeInteractionPanels();
+        } else {
+            Class<? extends ActionInteractionPanel<?>> cls = panelAnnotation.value();
+            if (!cls.isInstance(actionInteractionPanel)) {
+                if (actionInteractionPanel != null) {
+                    removeInteractionPanels();
+                }
+                try {
+                    actionInteractionPanel = cls.getConstructor(Client.class, GameController.class).newInstance(client, gc);
+                    add(actionInteractionPanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+            actionInteractionPanel.setGameState(state);
+            revalidate();
         }
+
+//        if (first instanceof SelectPrisonerToExchangeAction) {
+//            if (prisonersExchangePanel == null) {
+//                prisonersExchangePanel = new PrisonersExchangePanel(gc, (SelectPrisonerToExchangeAction) first);
+//                add(prisonersExchangePanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+//                revalidate();
+//            }
+//        } else {
+//            removeInteractionPanels();
+//        }
         repaint();
     }
 

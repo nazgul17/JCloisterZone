@@ -35,42 +35,42 @@ public class BridgeLayer extends AbstractGridLayer {
     @Override
     public void paint(Graphics2D g2) {
         Composite oldComposite = g2.getComposite();
-        for (Entry<Position, Location> entry : bridges.entrySet()) {
-            Position pos = entry.getKey();
-            Location loc = entry.getValue();
-            Tile tile = getGame().getBoard().get(pos);
-
-            Area a = rm.getBridgeArea(tile, getTileWidth(), getTileHeight(), loc).getTrackingArea();
-            a.transform(AffineTransform.getTranslateInstance(getOffsetX(pos), getOffsetY(pos)));
-
-            g2.setColor(Color.BLACK);
-            g2.setComposite(BRIDGE_FILL_COMPOSITE);
-            g2.fill(a);
-
-        }
+//        for (Entry<Position, Location> entry : bridges.entrySet()) {
+//            Position pos = entry.getKey();
+//            Location loc = entry.getValue();
+//            Tile tile = getGame().getBoard().get(pos);
+//
+//            Area a = rm.getBridgeArea(tile, getTileWidth(), getTileHeight(), loc).getTrackingArea();
+//            a.transform(AffineTransform.getTranslateInstance(getOffsetX(pos), getOffsetY(pos)));
+//
+//            g2.setColor(Color.BLACK);
+//            g2.setComposite(BRIDGE_FILL_COMPOSITE);
+//            g2.fill(a);
+//
+//        }
         g2.setComposite(oldComposite);
 
-        meepleLayer.paintMeeplesOnBridges(g2);
+//        meepleLayer.paintMeeplesOnBridges(g2);
     }
 
-    @Subscribe
-    public void onBridgeEvent(BridgeEvent ev) {
-	gridPanel.clearActionDecorations();
-
-        if (ev.getType() == BridgeEvent.DEPLOY) {
-            bridgeDeployed(ev.getPosition(), ev.getLocation());
-        } else if (ev.getType() == BridgeEvent.REMOVE) {
-            bridgeRemoved(ev.getPosition());
-        }
-    }
-
-    private void bridgeDeployed(Position pos, Location loc) {
-        bridges.put(pos, loc);
-    }
-
-    private void bridgeRemoved(Position pos) {
-        bridges.remove(pos);
-    }
+//    @Subscribe
+//    public void onBridgeEvent(BridgeEvent ev) {
+//    gridPanel.clearActionDecorations();
+//
+//        if (ev.getType() == BridgeEvent.DEPLOY) {
+//            bridgeDeployed(ev.getPosition(), ev.getLocation());
+//        } else if (ev.getType() == BridgeEvent.REMOVE) {
+//            bridgeRemoved(ev.getPosition());
+//        }
+//    }
+//
+//    private void bridgeDeployed(Position pos, Location loc) {
+//        bridges.put(pos, loc);
+//    }
+//
+//    private void bridgeRemoved(Position pos) {
+//        bridges.remove(pos);
+//    }
 
     public MeepleLayer getMeepleLayer() {
         return meepleLayer;

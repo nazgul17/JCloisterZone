@@ -13,6 +13,7 @@ import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.state.GameState;
 
 public class BazaarCapability extends Capability<BazaarCapabilityModel> {
 
@@ -30,26 +31,12 @@ public class BazaarCapability extends Capability<BazaarCapabilityModel> {
         return tile;
     }
 
-
     @Override
-    public void turnCleanUp() {
-        bazaarTriggered = false;
+    public GameState onStartGame(GameState state) {
+        return setModel(state, new BazaarCapabilityModel());
     }
 
-    @Override
-    public void handleEvent(Event event) {
-       if (event instanceof TileEvent) {
-           tileDrawn((TileEvent) event);
-       }
-
-    }
-
-    private void tileDrawn(TileEvent ev) {
-        if (ev.getType() == TileEvent.DRAW && ev.getTile().hasTrigger(TileTrigger.BAZAAR)) {
-            bazaarTriggered = true;
-        }
-    }
-
+/*
     public boolean hasTileAuctioned(Player p) {
         for (BazaarItem bi : bazaarSupply) {
             if (bi.getOwner() == p) return true;
@@ -92,5 +79,5 @@ public class BazaarCapability extends Capability<BazaarCapabilityModel> {
         }
         return result;
     }
-
+*/
 }

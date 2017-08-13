@@ -13,16 +13,15 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.visitor.FeatureVisitor;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Mayor;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 
@@ -37,14 +36,16 @@ public class CastlePhase extends Phase {
         return capabilities.contains(CastleCapability.class);
     }
 
-    @Override
-    public Player getActivePlayer() {
-        Player p = castleCap.getCastlePlayer();
-        return p == null ? game.getTurnPlayer() : p;
-    }
+//    @Override
+//    public Player getActivePlayer() {
+//        Player p = castleCap.getCastlePlayer();
+//        return p == null ? game.getTurnPlayer() : p;
+//    }
 
     @Override
-    public void enter() {
+    public void enter(GameState state) {
+        next(state); //just dev now
+        /*
         Tile tile = getTile();
         Map<Player, Set<Location>> currentTileCastleBases = null;
         for (Feature f : tile.getFeatures()) {
@@ -64,7 +65,7 @@ public class CastlePhase extends Phase {
             return;
         }
         castleCap.setCurrentTileCastleBases(currentTileCastleBases);
-        prepareCastleAction();
+        prepareCastleAction();*/
     }
 
     private void prepareCastleAction() {

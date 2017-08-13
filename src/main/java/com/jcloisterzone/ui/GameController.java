@@ -29,14 +29,15 @@ import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarItem;
+import com.jcloisterzone.game.phase.BazaarPhase;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.MenuBar.MenuItem;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
-import com.jcloisterzone.ui.grid.BazaarPanel;
-import com.jcloisterzone.ui.grid.BazaarPanel.BazaarPanelState;
 import com.jcloisterzone.ui.grid.CornCirclesPanel;
 import com.jcloisterzone.ui.grid.GridPanel;
-import com.jcloisterzone.ui.grid.SelectMageWitchRemovalPanel;
+import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel;
+import com.jcloisterzone.ui.grid.actionpanel.SelectMageWitchRemovalPanel;
+import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel.BazaarPanelState;
 import com.jcloisterzone.ui.panel.GameOverPanel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.ChannelView;
@@ -79,18 +80,6 @@ public class GameController extends EventProxyUiController<Game> {
         this.gameState = gameState;
     }
 
-//    void phaseLoop() {
-//        Phase phase = game.getPhase();
-//        while (phase != null && !phase.isEntered()) {
-//            logger.debug("Entering phase {}",  phase.getClass().getSimpleName());
-//            phase.setEntered(true);
-//            phase.enter();
-//            phase = game.getPhase();
-//            game.flushEventQueue();
-//        }
-//        game.flushEventQueue();
-//    }
-
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         //TODO probabaly can be removed
@@ -115,6 +104,10 @@ public class GameController extends EventProxyUiController<Game> {
             Player pl = state.getActivePlayer();
             boolean canUndo = pl != null && pl.isLocalHuman() && game.isUndoAllowed();
             client.getJMenuBar().setItemEnabled(MenuItem.UNDO, canUndo);
+        }
+        if (BazaarPhase.class.equals(state.getPhase())) {
+            BazaarPanel bazaarPanel = showBazaarPanel(state);
+            bazaarPanel.handleGameChanged(state);
         }
     }
 
@@ -208,10 +201,10 @@ public class GameController extends EventProxyUiController<Game> {
 
     }
 
-    public BazaarPanel showBazaarPanel() {
+    public BazaarPanel showBazaarPanel(GameState state) {
         BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
         if (panel == null) {
-            panel = new BazaarPanel(client, gameView.getGameController());
+            panel = new BazaarPanel(client, gameView.getGameController(), state);
             gameView.getGridPanel().add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
             gameView.getGridPanel().setBazaarPanel(panel);
 
@@ -219,24 +212,7 @@ public class GameController extends EventProxyUiController<Game> {
         return panel;
     }
 
-    @Subscribe
-    public void handleSelectBazaarTile(BazaarSelectTileEvent ev) {
-        BazaarPanel bazaarPanel = showBazaarPanel();
-        if (ev.getTargetPlayer().isLocalHuman()) {
-            List<BazaarItem> supply = ev.getBazaarSupply();
-            for (int i = 0; i < supply.size(); i++) {
-                // find first allowed item
-                if (supply.get(i).getOwner() == null) {
-                    bazaarPanel.setSelectedItem(i);
-                    break;
-                }
-            }
-            bazaarPanel.setState(BazaarPanelState.SELECT_TILE);
-        } else {
-            bazaarPanel.setState(BazaarPanelState.INACTIVE);
-        }
-        gameView.getGridPanel().repaint();
-    }
+
 
     @Subscribe
     public void handleBazaarTileSelected(BazaarTileSelectedEvent ev) {

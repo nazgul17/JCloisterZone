@@ -398,7 +398,7 @@ public class GameState implements Serializable {
     //TODO use two builder keys for it?
     public static enum Flag {
         // Cleared at the turn end
-        RANSOM_PAID,
+        RANSOM_PAID, BAZAAR_AUCTION,
 
         // Cleared at the turn part end
         PORTAL_USED, PRINCESS_USED

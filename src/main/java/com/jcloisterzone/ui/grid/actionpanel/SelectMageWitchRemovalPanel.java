@@ -1,4 +1,4 @@
-package com.jcloisterzone.ui.grid;
+package com.jcloisterzone.ui.grid.actionpanel;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
@@ -16,6 +16,7 @@ import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.component.MultiLineLabel;
+import com.jcloisterzone.ui.grid.CornCirclesPanel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 

@@ -22,6 +22,7 @@ import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.BazaarSelectTileAction;
 import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
@@ -38,6 +39,7 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.ui.annotations.LinkedPanel;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
@@ -360,8 +362,11 @@ public class ControlPanel extends JPanel {
                         actionPanel.setShowConfirmRequest(true, true);
                         repaint();
                     }
-                } else if (first instanceof SelectPrisonerToExchangeAction) {
+                } else if (
+                    first.getClass().isAnnotationPresent(LinkedPanel.class)
+                ) {
                     //ignore actions managed by panels
+                    //TOOD show image anyway on control/action panel
                 } else {
                     selectAction(actionsState.getPlayer(), actions, actionsState.isPassAllowed());
                 }

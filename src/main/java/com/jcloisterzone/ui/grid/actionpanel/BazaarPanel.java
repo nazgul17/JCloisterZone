@@ -1,4 +1,6 @@
-package com.jcloisterzone.ui.grid;
+package com.jcloisterzone.ui.grid.actionpanel;
+
+import static com.jcloisterzone.ui.I18nUtils._;
 
 import java.awt.Color;
 import java.awt.Font;
@@ -10,7 +12,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -18,23 +19,28 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import net.miginfocom.swing.MigLayout;
-
+import com.jcloisterzone.action.ActionsState;
+import com.jcloisterzone.action.BazaarSelectTileAction;
+import com.jcloisterzone.action.PlayerAction;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.capability.BazaarCapability;
+import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BazaarItem;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.controls.ControlPanel;
+import com.jcloisterzone.ui.grid.ForwardBackwardListener;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
-import static com.jcloisterzone.ui.I18nUtils._;
+import io.vavr.collection.Queue;
+import net.miginfocom.swing.MigLayout;
 
-@InteractionPanel
-public class BazaarPanel extends JPanel implements ForwardBackwardListener {
+
+public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> implements ForwardBackwardListener {
 
     private static Font FONT_HEADER = new Font(null, Font.BOLD, 18);
     private static Font FONT_BUTTON = new Font(null, Font.BOLD, 12);
@@ -44,9 +50,8 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
 
     public static enum BazaarPanelState { INACTIVE, SELECT_TILE, MAKE_BID, BUY_OR_SELL};
 
-    final Client client;
-    final GameController gc;
-    final BazaarCapability bcb;
+    private GameState gameState;
+    private BazaarCapabilityModel model;
 
     private int selectedItem = -1;
     private BazaarPanelState state = BazaarPanelState.INACTIVE;
@@ -60,11 +65,9 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
 
 
     public BazaarPanel(Client client, GameController gc) {
-       this.client = client;
-       this.gc = gc;
+        super(client, gc);
 
-       noAuction = gc.getGame().getBooleanValue(CustomRule.BAZAAR_NO_AUCTION);
-       bcb = gc.getGame().getCapability(BazaarCapability.class);
+       noAuction = state.getBooleanValue(CustomRule.BAZAAR_NO_AUCTION);
 
        setOpaque(true);
        setBackground(client.getTheme().getTransparentPanelBg());
@@ -81,9 +84,11 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
        hint.setFont(FONT_ACTION);
        add(hint, "wrap, gap 20 20 0 5");
 
-       itemPanels = new BazaarItemPanel[bcb.getBazaarSupply().size()];
+       BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+
+       itemPanels = new BazaarItemPanel[model.getSupply().size()];
        int idx = 0;
-       for (BazaarItem bi : bcb.getBazaarSupply()) {
+       for (BazaarItem bi : model.getSupply()) {
            itemPanels[idx] = new BazaarItemPanel(idx, bi);
            add(itemPanels[idx], "wrap, gap 0, growx, h 92");
            idx++;
@@ -107,9 +112,14 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (state == BazaarPanelState.SELECT_TILE) {
-                        ArrayList<BazaarItem> supply = bcb.getBazaarSupply();
-                        int idx = BazaarItemPanel.this.idx;
-                        if (supply.get(idx).getOwner() == null) {
+//                        ArrayList<BazaarItem> supply = bcb.getBazaarSupply();
+//                        int idx = BazaarItemPanel.this.idx;
+//                        if (supply.get(idx).getOwner() == null) {
+//                            setSelectedItem(idx);
+//                        }
+
+                        //TODO update bazar item on change
+                        if (bi.getOwner() == null) {
                             setSelectedItem(idx);
                         }
                     }
@@ -122,7 +132,7 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
 
-            Image img =  client.getResourceManager().getTileImage(bi.getTile()).getImage();
+            Image img =  client.getResourceManager().getTileImage(bi.getTile(), Rotation.R0).getImage();
 
             if (selectedItem == idx) {
                 g2.setColor(client.getTheme().getPlayerBoxBg());
@@ -133,7 +143,7 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
 
             if (bi.getCurrentBidder() == null && bi.getOwner() != null) {
                 Image playerImage = client.getResourceManager().getLayeredImage(
-                	new LayeredImageDescriptor(SmallFollower.class, bi.getOwner().getColors().getMeepleColor())
+                    new LayeredImageDescriptor(SmallFollower.class, bi.getOwner().getColors().getMeepleColor())
                 );
                 //TODO smooth image
                 g2.drawImage(playerImage, 140, 12, 64, 64, null);
@@ -228,7 +238,9 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
             }
             if (bidAmountLabel != null) {
                 if (state == BazaarPanelState.BUY_OR_SELL) {
-                    bidAmountLabel.setText(bcb.getCurrentBazaarAuction().getCurrentPrice() + "  " + _("points"));
+                    //BazaarCapabilityModel
+                    //TOOD
+                    //bidAmountLabel.setText(bcb.getCurrentBazaarAuction().getCurrentPrice() + "  " + _("points"));
                     layout.setComponentConstraints(bidAmountLabel, "pos 20 20");
                 } else {
                     bidAmountLabel.setText(_("points"));
@@ -287,6 +299,32 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
         }
     }
 
+    public void handleGameChanged(GameState gameState) {
+        this.gameState = gameState;
+        this.model = gameState.getCapabilities().getModel(BazaarCapability.class);
+
+        ActionsState as = gameState.getPlayerActions();
+        PlayerAction<?> action = as.getActions().get();
+
+
+        if (!as.getPlayer().isLocalHuman()) {
+            setState(BazaarPanelState.INACTIVE);
+            return;
+        }
+
+        if (action instanceof BazaarSelectTileAction) {
+            Queue<BazaarItem> supply = model.getSupply();
+            for (int i = 0; i < supply.size(); i++) {
+                if (supply.get(i).getOwner() == null) {
+                    setSelectedItem(i);
+                    break;
+                }
+            }
+            setState(BazaarPanelState.SELECT_TILE);
+            return;
+        }
+    }
+
     public BazaarPanelState getState() {
         return state;
     }
@@ -302,11 +340,11 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
     private void updateBidRange() {
         overlay.bidAmountModel.setMaximum(999);
 
-        if (bcb.getCurrentBazaarAuction() == null) {
+        if (model.getAuctionedItemIndex() == null) {
             overlay.bidAmountModel.setMinimum(0);
             overlay.bidAmountModel.setValue(0);
         } else {
-            int min = bcb.getCurrentBazaarAuction().getCurrentPrice()+1;
+            int min = model.getAuctionedItem().getCurrentPrice()+1;
             overlay.bidAmountModel.setMinimum(min);
             overlay.bidAmountModel.setValue(min);
         }
@@ -333,7 +371,7 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
     public void forward() {
         if (state == BazaarPanelState.SELECT_TILE) {
             int selected = selectedItem;
-            ArrayList<BazaarItem> supply = bcb.getBazaarSupply();
+            Queue<BazaarItem> supply = model.getSupply();
             do {
                 selected++;
                 if (selected == supply.size()) {
@@ -348,7 +386,7 @@ public class BazaarPanel extends JPanel implements ForwardBackwardListener {
     public void backward() {
         if (state == BazaarPanelState.SELECT_TILE) {
             int selected = selectedItem;
-            ArrayList<BazaarItem> supply = bcb.getBazaarSupply();
+            Queue<BazaarItem> supply = model.getSupply();
             do {
                 selected--;
                 if (selected == 0) {

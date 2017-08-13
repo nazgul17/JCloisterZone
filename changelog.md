@@ -5,6 +5,7 @@
 * Princess and Dragon: PRINCESS_MUST_REMOVE_KNIGHT rule implemented in proper  way - if enabled and there is option to remove princess no other action is allowed
 * Tower: If players has several prisoners belonging to the other player
 during prisoners exchange, the owner may decide which prisoner should be returned.
+* Bridges, Castles, and Bazaars: Auction is not triggered when tile is discarded.
 
 ## 3.4.3
 *2017-05-08

@@ -7,9 +7,11 @@ import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.Target;
 
+import com.jcloisterzone.ui.grid.actionpanel.ActionInteractionPanel;
+
 @Inherited
 @Retention(RUNTIME)
 @Target(TYPE)
-public @interface LinkedImage {
-    String value();
+public @interface LinkedPanel {
+    Class<? extends ActionInteractionPanel<?>> value();
 }

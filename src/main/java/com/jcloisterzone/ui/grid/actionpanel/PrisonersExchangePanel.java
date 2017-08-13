@@ -1,4 +1,4 @@
-package com.jcloisterzone.ui.grid;
+package com.jcloisterzone.ui.grid.actionpanel;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
@@ -10,13 +10,13 @@ import java.awt.event.ActionListener;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.ui.component.HoverMouseListener;
 import com.jcloisterzone.ui.component.MultiLineLabel;
+import com.jcloisterzone.ui.grid.CornCirclesPanel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.resources.ResourceManager;
@@ -24,10 +24,16 @@ import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
 
 import net.miginfocom.swing.MigLayout;
 
-@InteractionPanel
-public class PrisonersExchangePanel extends JPanel {
+public class PrisonersExchangePanel extends ActionInteractionPanel<SelectPrisonerToExchangeAction> {
 
-    public PrisonersExchangePanel(final GameController gc, SelectPrisonerToExchangeAction action) {
+    public PrisonersExchangePanel(Client client, GameController gc) {
+        super(client, gc);
+    }
+
+    public void setGameState(GameState state) {
+        super.setGameState(state);
+
+        SelectPrisonerToExchangeAction action = getAction();
         setOpaque(true);
         setBackground(gc.getClient().getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 10 20 10 20", "[grow]", ""));
@@ -44,7 +50,7 @@ public class PrisonersExchangePanel extends JPanel {
         add(mll, "wrap, growx, gapbottom 5");
 
         ResourceManager rm = gc.getGameView().getClient().getResourceManager();
-        GameState state = gc.getGame().getState();
+
         boolean isActive = state.getActivePlayer().isLocalHuman();
 
         //HoverMouseListener hover = new HoverMouseListener();
