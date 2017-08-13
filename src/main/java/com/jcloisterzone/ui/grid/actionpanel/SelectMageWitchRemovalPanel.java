@@ -7,23 +7,26 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
-import net.miginfocom.swing.MigLayout;
-
+import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.component.MultiLineLabel;
-import com.jcloisterzone.ui.grid.CornCirclesPanel;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
-public class SelectMageWitchRemovalPanel extends JPanel {
+import net.miginfocom.swing.MigLayout;
+
+//TODO change generic T to proper class
+public class SelectMageWitchRemovalPanel extends ActionInteractionPanel<PlayerAction<?>> {
 
 
-    public SelectMageWitchRemovalPanel(final GameController gc) {
+    public SelectMageWitchRemovalPanel(Client client, GameController gc) {
+        super(client, gc);
+
         setOpaque(true);
         setBackground(gc.getClient().getTheme().getTransparentPanelBg());
         setLayout(new MigLayout("ins 10 20 10 20", "[grow]", ""));

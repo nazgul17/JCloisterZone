@@ -19,7 +19,6 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.BazaarSelectTileAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Rotation;
@@ -50,14 +49,13 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
 
     public static enum BazaarPanelState { INACTIVE, SELECT_TILE, MAKE_BID, BUY_OR_SELL};
 
-    private GameState gameState;
     private BazaarCapabilityModel model;
 
     private int selectedItem = -1;
-    private BazaarPanelState state = BazaarPanelState.INACTIVE;
+    private BazaarPanelState panelState = BazaarPanelState.INACTIVE;
 
     private BazaarItemPanel itemPanels[];
-    private final boolean noAuction;
+    private boolean noAuction;
 
     private JLabel hint;
 
@@ -65,36 +63,67 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
 
 
     public BazaarPanel(Client client, GameController gc) {
-        super(client, gc);
+       super(client, gc);
+    }
 
-       noAuction = state.getBooleanValue(CustomRule.BAZAAR_NO_AUCTION);
+    private void initComponents(GameState state) {
+        noAuction = state.getBooleanValue(CustomRule.BAZAAR_NO_AUCTION);
 
-       setOpaque(true);
-       setBackground(client.getTheme().getTransparentPanelBg());
-       setLayout(new MigLayout("ins 0", "[grow]", ""));
+        setOpaque(true);
+        setBackground(client.getTheme().getTransparentPanelBg());
+        setLayout(new MigLayout("ins 0", "[grow]", ""));
 
-       JLabel label;
+        JLabel label;
 
-       label = new ThemedJLabel(_("Bazaar supply"));
-       label.setFont(FONT_HEADER);
-       label.setForeground(client.getTheme().getHeaderFontColor());
-       add(label, "wrap, gap 20 20 10 5");
+        label = new ThemedJLabel(_("Bazaar supply"));
+        label.setFont(FONT_HEADER);
+        label.setForeground(client.getTheme().getHeaderFontColor());
+        add(label, "wrap, gap 20 20 10 5");
 
-       hint = new ThemedJLabel();
-       hint.setFont(FONT_ACTION);
-       add(hint, "wrap, gap 20 20 0 5");
+        hint = new ThemedJLabel();
+        hint.setFont(FONT_ACTION);
+        add(hint, "wrap, gap 20 20 0 5");
 
-       BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+        BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
 
-       itemPanels = new BazaarItemPanel[model.getSupply().size()];
-       int idx = 0;
-       for (BazaarItem bi : model.getSupply()) {
-           itemPanels[idx] = new BazaarItemPanel(idx, bi);
-           add(itemPanels[idx], "wrap, gap 0, growx, h 92");
-           idx++;
-       }
+        itemPanels = new BazaarItemPanel[model.getSupply().size()];
+        int idx = 0;
+        for (BazaarItem bi : model.getSupply()) {
+            itemPanels[idx] = new BazaarItemPanel(idx, bi);
+            add(itemPanels[idx], "wrap, gap 0, growx, h 92");
+            idx++;
+        }
 
-       overlay = new OverlayPanel();
+        overlay = new OverlayPanel();
+    }
+
+    @Override
+    public void setGameState(GameState state) {
+        super.setGameState(state);
+
+        if (overlay == null) {
+            initComponents(state);
+        }
+
+        this.model = state.getCapabilities().getModel(BazaarCapability.class);
+        PlayerAction<?> action = getAction();
+
+        if (!state.getActivePlayer().isLocalHuman()) {
+            setPanelState(BazaarPanelState.INACTIVE);
+            return;
+        }
+
+        if (action instanceof BazaarSelectTileAction) {
+            Queue<BazaarItem> supply = model.getSupply();
+            for (int i = 0; i < supply.size(); i++) {
+                if (supply.get(i).getOwner() == null) {
+                    setSelectedItem(i);
+                    break;
+                }
+            }
+            setPanelState(BazaarPanelState.SELECT_TILE);
+            return;
+        }
     }
 
     class BazaarItemPanel extends ThemedJPanel {
@@ -111,7 +140,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseClicked(MouseEvent e) {
-                    if (state == BazaarPanelState.SELECT_TILE) {
+                    if (panelState == BazaarPanelState.SELECT_TILE) {
 //                        ArrayList<BazaarItem> supply = bcb.getBazaarSupply();
 //                        int idx = BazaarItemPanel.this.idx;
 //                        if (supply.get(idx).getOwner() == null) {
@@ -180,13 +209,13 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             leftButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    switch (state) {
+                    switch (panelState) {
                     case SELECT_TILE:
                     case MAKE_BID:
-                        gc.getRmiProxy().bazaarBid(selectedItem, bidAmountModel.getNumber().intValue());
+                        //gc.getRmiProxy().bazaarBid(selectedItem, bidAmountModel.getNumber().intValue());
                         break;
                     case BUY_OR_SELL:
-                        gc.getRmiProxy().bazaarBuyOrSell(true);
+                        //gc.getRmiProxy().bazaarBuyOrSell(true);
                         break;
                     }
 
@@ -199,13 +228,13 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             rightButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent arg0) {
-                    switch (state) {
+                    switch (panelState) {
                     case SELECT_TILE:
                     case MAKE_BID:
-                        gc.getRmiProxy().pass();
+                        //gc.getRmiProxy().pass();
                         break;
                     case BUY_OR_SELL:
-                        gc.getRmiProxy().bazaarBuyOrSell(false);
+                        //gc.getRmiProxy().bazaarBuyOrSell(false);
                         break;
                     }
                 }
@@ -214,9 +243,9 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             add(rightButton);
         }
 
-        public void setState(BazaarPanelState state) {
+        public void setPanelState(BazaarPanelState panelState) {
             MigLayout layout = (MigLayout)getLayout();
-            switch (state) {
+            switch (panelState) {
             case INACTIVE:
                 hint.setText("");
                 break;
@@ -237,7 +266,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
                 break;
             }
             if (bidAmountLabel != null) {
-                if (state == BazaarPanelState.BUY_OR_SELL) {
+                if (panelState == BazaarPanelState.BUY_OR_SELL) {
                     //BazaarCapabilityModel
                     //TOOD
                     //bidAmountLabel.setText(bcb.getCurrentBazaarAuction().getCurrentPrice() + "  " + _("points"));
@@ -248,14 +277,14 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
                 }
             }
 
-            if (state == BazaarPanelState.SELECT_TILE) {
+            if (panelState == BazaarPanelState.SELECT_TILE) {
                 layout.setComponentConstraints(leftButton, "pos 20 55 120 80");
             } else {
                 layout.setComponentConstraints(leftButton, "pos 8 55 68 80");
                 layout.setComponentConstraints(rightButton, "pos 72 55 132 80");
             }
 
-            switch (state) {
+            switch (panelState) {
             case BUY_OR_SELL:
                 leftButton.setText(_("Buy"));
                 rightButton.setText(_("Sell"));
@@ -299,41 +328,17 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
         }
     }
 
-    public void handleGameChanged(GameState gameState) {
-        this.gameState = gameState;
-        this.model = gameState.getCapabilities().getModel(BazaarCapability.class);
 
-        ActionsState as = gameState.getPlayerActions();
-        PlayerAction<?> action = as.getActions().get();
-
-
-        if (!as.getPlayer().isLocalHuman()) {
-            setState(BazaarPanelState.INACTIVE);
-            return;
-        }
-
-        if (action instanceof BazaarSelectTileAction) {
-            Queue<BazaarItem> supply = model.getSupply();
-            for (int i = 0; i < supply.size(); i++) {
-                if (supply.get(i).getOwner() == null) {
-                    setSelectedItem(i);
-                    break;
-                }
-            }
-            setState(BazaarPanelState.SELECT_TILE);
-            return;
-        }
-    }
 
     public BazaarPanelState getState() {
-        return state;
+        return panelState;
     }
 
-    public void setState(BazaarPanelState state) {
-        this.state = state;
-        overlay.setState(state);
+    public void setPanelState(BazaarPanelState panelState) {
+        this.panelState = panelState;
+        overlay.setPanelState(panelState);
         revalidate();
-        gc.getGameView().getGridPanel().repaint(); //must repaint whole panel to avoid ghost bg
+        //gc.getGameView().getGridPanel().repaint(); //must repaint whole panel to avoid ghost bg
     }
 
 
@@ -369,7 +374,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
 
     @Override
     public void forward() {
-        if (state == BazaarPanelState.SELECT_TILE) {
+        if (panelState == BazaarPanelState.SELECT_TILE) {
             int selected = selectedItem;
             Queue<BazaarItem> supply = model.getSupply();
             do {
@@ -384,7 +389,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
 
     @Override
     public void backward() {
-        if (state == BazaarPanelState.SELECT_TILE) {
+        if (panelState == BazaarPanelState.SELECT_TILE) {
             int selected = selectedItem;
             Queue<BazaarItem> supply = model.getSupply();
             do {

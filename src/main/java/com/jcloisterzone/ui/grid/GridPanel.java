@@ -517,20 +517,20 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 
     // delegated UI methods
 
-    public void tileEvent(/*TileEvent ev*/) {
-        hideLayer(AbstractTilePlacementLayer.class);
-
-        if (ev.getType() == TileEvent.PLACEMENT) {
-            Position p = ev.getPosition();
-
-            if (p.x == left) --left;
-            if (p.x == right) ++right;
-            if (p.y == top) --top;
-            if (p.y == bottom) ++bottom;
-
-        }
-        repaint();
-    }
+//    public void tileEvent(/*TileEvent ev*/) {
+//        hideLayer(AbstractTilePlacementLayer.class);
+//
+//        if (ev.getType() == TileEvent.PLACEMENT) {
+//            Position p = ev.getPosition();
+//
+//            if (p.x == left) --left;
+//            if (p.x == right) ++right;
+//            if (p.y == top) --top;
+//            if (p.y == bottom) ++bottom;
+//
+//        }
+//        repaint();
+//    }
 
     private int calculateCenterX() {
         return (getWidth() - ControlPanel.PANEL_WIDTH - tileWidth)/2;

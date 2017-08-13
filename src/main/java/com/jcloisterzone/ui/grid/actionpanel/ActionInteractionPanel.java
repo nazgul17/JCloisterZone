@@ -23,6 +23,14 @@ public class ActionInteractionPanel<T extends PlayerAction<?>> extends JPanel {
         this.state = state;
     }
 
+    public GameState getGameState() {
+        return state;
+    }
+
+    public void setState(GameState state) {
+        this.state = state;
+    }
+
     @SuppressWarnings("unchecked")
     public T getAction() {
         return (T) state.getPlayerActions().getActions().get();

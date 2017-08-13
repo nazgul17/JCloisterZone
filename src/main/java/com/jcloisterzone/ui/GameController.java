@@ -33,9 +33,9 @@ import com.jcloisterzone.game.phase.BazaarPhase;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.MenuBar.MenuItem;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
-import com.jcloisterzone.ui.grid.CornCirclesPanel;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel;
+import com.jcloisterzone.ui.grid.actionpanel.CornCirclesPanel;
 import com.jcloisterzone.ui.grid.actionpanel.SelectMageWitchRemovalPanel;
 import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel.BazaarPanelState;
 import com.jcloisterzone.ui.panel.GameOverPanel;
@@ -104,10 +104,6 @@ public class GameController extends EventProxyUiController<Game> {
             Player pl = state.getActivePlayer();
             boolean canUndo = pl != null && pl.isLocalHuman() && game.isUndoAllowed();
             client.getJMenuBar().setItemEnabled(MenuItem.UNDO, canUndo);
-        }
-        if (BazaarPhase.class.equals(state.getPhase())) {
-            BazaarPanel bazaarPanel = showBazaarPanel(state);
-            bazaarPanel.handleGameChanged(state);
         }
     }
 
@@ -183,75 +179,75 @@ public class GameController extends EventProxyUiController<Game> {
         JOptionPane.showMessageDialog(client, message, title, JOptionPane.WARNING_MESSAGE);
     }
 
-    @Subscribe
-    public void handleSelectCornCircleOption(CornCircleSelectOptionEvent ev) {
-        CornCirclesPanel panel = new CornCirclesPanel(this);
-        GridPanel gridPanel = gameView.getGridPanel();
-        gridPanel.add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-        gridPanel.revalidate();
-    }
+//    @Subscribe
+//    public void handleSelectCornCircleOption(CornCircleSelectOptionEvent ev) {
+//        CornCirclesPanel panel = new CornCirclesPanel(this);
+//        GridPanel gridPanel = gameView.getGridPanel();
+//        gridPanel.add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+//        gridPanel.revalidate();
+//    }
+//
+//    @Subscribe
+//    public void handleSelectMageAndWitchRemoval(MageWitchSelectRemoval ev) {
+//        SelectMageWitchRemovalPanel panel = new SelectMageWitchRemovalPanel(this);
+//        GridPanel gridPanel = gameView.getGridPanel();
+//        //gridPanel.setMageWitchPanel(panel);
+//        gridPanel.add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+//        gridPanel.revalidate();
+//
+//    }
 
-    @Subscribe
-    public void handleSelectMageAndWitchRemoval(MageWitchSelectRemoval ev) {
-        SelectMageWitchRemovalPanel panel = new SelectMageWitchRemovalPanel(this);
-        GridPanel gridPanel = gameView.getGridPanel();
-        gridPanel.setMageWitchPanel(panel);
-        gridPanel.add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-        gridPanel.revalidate();
-
-    }
-
-    public BazaarPanel showBazaarPanel(GameState state) {
-        BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
-        if (panel == null) {
-            panel = new BazaarPanel(client, gameView.getGameController(), state);
-            gameView.getGridPanel().add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-            gameView.getGridPanel().setBazaarPanel(panel);
-
-        }
-        return panel;
-    }
+//    public BazaarPanel showBazaarPanel(GameState state) {
+//        BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
+//        if (panel == null) {
+//            panel = new BazaarPanel(client, gameView.getGameController(), state);
+//            gameView.getGridPanel().add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
+//            gameView.getGridPanel().setBazaarPanel(panel);
+//
+//        }
+//        return panel;
+//    }
 
 
+//
+//    @Subscribe
+//    public void handleBazaarTileSelected(BazaarTileSelectedEvent ev) {
+//        BazaarPanel bazaarPanel = showBazaarPanel();
+//        bazaarPanel.setState(BazaarPanelState.INACTIVE);
+//        gameView.getGridPanel().repaint();
+//    }
 
-    @Subscribe
-    public void handleBazaarTileSelected(BazaarTileSelectedEvent ev) {
-        BazaarPanel bazaarPanel = showBazaarPanel();
-        bazaarPanel.setState(BazaarPanelState.INACTIVE);
-        gameView.getGridPanel().repaint();
-    }
-
-    @Subscribe
-    public void handleMakeBazaarBid(BazaarMakeBidEvent ev) {
-        BazaarPanel bazaarPanel = showBazaarPanel();
-        bazaarPanel.setSelectedItem(ev.getSupplyIndex());
-        if (ev.getTargetPlayer().isLocalHuman()) {
-            bazaarPanel.setState(BazaarPanelState.MAKE_BID);
-        } else {
-            bazaarPanel.setState(BazaarPanelState.INACTIVE);
-        }
-        gameView.getGridPanel().repaint();
-    }
-
-    @Subscribe
-    public void handleSelectBuyOrSellBazaarOffer(BazaarSelectBuyOrSellEvent ev) {
-        BazaarPanel bazaarPanel = showBazaarPanel();
-        bazaarPanel.setSelectedItem(ev.getSupplyIndex());
-        if (ev.getTargetPlayer().isLocalHuman()) {
-            bazaarPanel.setState(BazaarPanelState.BUY_OR_SELL);
-        } else {
-            bazaarPanel.setState(BazaarPanelState.INACTIVE);
-        }
-    }
-
-    @Subscribe
-    public void handleBazaarAuctionsEnded(BazaarAuctionEndEvent ev) {
-        BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
-        if (panel != null) {
-            gameView.getGridPanel().remove(panel);
-            gameView.getGridPanel().setBazaarPanel(null);
-        }
-    }
+//    @Subscribe
+//    public void handleMakeBazaarBid(BazaarMakeBidEvent ev) {
+//        BazaarPanel bazaarPanel = showBazaarPanel();
+//        bazaarPanel.setSelectedItem(ev.getSupplyIndex());
+//        if (ev.getTargetPlayer().isLocalHuman()) {
+//            bazaarPanel.setState(BazaarPanelState.MAKE_BID);
+//        } else {
+//            bazaarPanel.setState(BazaarPanelState.INACTIVE);
+//        }
+//        gameView.getGridPanel().repaint();
+//    }
+//
+//    @Subscribe
+//    public void handleSelectBuyOrSellBazaarOffer(BazaarSelectBuyOrSellEvent ev) {
+//        BazaarPanel bazaarPanel = showBazaarPanel();
+//        bazaarPanel.setSelectedItem(ev.getSupplyIndex());
+//        if (ev.getTargetPlayer().isLocalHuman()) {
+//            bazaarPanel.setState(BazaarPanelState.BUY_OR_SELL);
+//        } else {
+//            bazaarPanel.setState(BazaarPanelState.INACTIVE);
+//        }
+//    }
+//
+//    @Subscribe
+//    public void handleBazaarAuctionsEnded(BazaarAuctionEndEvent ev) {
+//        BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
+//        if (panel != null) {
+//            gameView.getGridPanel().remove(panel);
+//            gameView.getGridPanel().setBazaarPanel(null);
+//        }
+//    }
 
     public void leaveGame() {
         if (getChannel() == null) {
