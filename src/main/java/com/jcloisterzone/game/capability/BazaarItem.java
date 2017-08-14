@@ -28,7 +28,7 @@ public class BazaarItem implements Serializable {
     }
 
     public BazaarItem setOwner(Player owner) {
-        return new BazaarItem(tile, currentPrice, owner, owner);
+        return new BazaarItem(tile, currentPrice, currentBidder, owner);
     }
 
     public TileDefinition getTile() {
@@ -40,7 +40,7 @@ public class BazaarItem implements Serializable {
     }
 
     public BazaarItem setCurrentPrice(int currentPrice) {
-        return new BazaarItem(tile, currentPrice, owner, owner);
+        return new BazaarItem(tile, currentPrice, currentBidder, owner);
     }
 
     public Player getCurrentBidder() {
@@ -48,7 +48,7 @@ public class BazaarItem implements Serializable {
     }
 
     public BazaarItem setCurrentBidder(Player currentBidder) {
-        return new BazaarItem(tile, currentPrice, owner, owner);
+        return new BazaarItem(tile, currentPrice, currentBidder, owner);
     }
 
     @Override

@@ -10,3 +10,5 @@ and get it by one one instead of all per tile
 * SelectPrisoner panel - inactive mode when displayed on remote client
 
 * grid panel - verify left, right, top, bottom fields
+
+* verify clock toggle during bazaar auction

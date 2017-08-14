@@ -24,6 +24,8 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.wsio.message.AbandonGameMessage;
+import com.jcloisterzone.wsio.message.BazaarBidMessage;
+import com.jcloisterzone.wsio.message.BazaarBuyOrSellMessage;
 import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 import com.jcloisterzone.wsio.message.ChannelMessage;
 import com.jcloisterzone.wsio.message.ChatMessage;
@@ -156,6 +158,8 @@ public final class MessageParser {
         registerMsgType(CaptureFollowerMessage.class);
         registerMsgType(PayRansomMessage.class);
         registerMsgType(ExchangeFollowerChoiceMessage.class);
+        registerMsgType(BazaarBidMessage.class);
+        registerMsgType(BazaarBuyOrSellMessage.class);
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {

@@ -30,12 +30,16 @@ public class BazaarCapabilityModel implements Serializable {
         return new BazaarCapabilityModel(supply, auctionedItemIndex, tileSelectingPlayer);
     }
 
-     public BazaarCapabilityModel setAuctionedItem(Integer auctionedItemIndex) {
+     public BazaarCapabilityModel setAuctionedItemIndex(Integer auctionedItemIndex) {
         return new BazaarCapabilityModel(supply, auctionedItemIndex, tileSelectingPlayer);
     }
 
     public BazaarCapabilityModel setTileSelectingPlayer(Player tileSelectingPlayer) {
         return new BazaarCapabilityModel(supply, auctionedItemIndex, tileSelectingPlayer);
+    }
+
+    public BazaarCapabilityModel updateSupplyItem(int index, BazaarItem item) {
+        return setSupply(supply.update(index,item));
     }
 
     public Queue<BazaarItem> getSupply() {

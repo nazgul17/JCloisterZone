@@ -32,6 +32,8 @@ import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.wsio.MessageDispatcher;
 import com.jcloisterzone.wsio.MessageParser;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.BazaarBidMessage;
+import com.jcloisterzone.wsio.message.BazaarBuyOrSellMessage;
 import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 import com.jcloisterzone.wsio.message.ChatMessage;
 import com.jcloisterzone.wsio.message.ClientUpdateMessage;
@@ -536,6 +538,16 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handleExchangeFollowerChoiceMessage(WebSocket ws, ExchangeFollowerChoiceMessage msg) {
+        handleInGameMessage(msg);
+    }
+
+    @WsSubscribe
+    public void handleBazaarBidMessage(WebSocket ws, BazaarBidMessage msg) {
+        handleInGameMessage(msg);
+    }
+
+    @WsSubscribe
+    public void handleBazaarBuyOrSellMessage(WebSocket ws, BazaarBuyOrSellMessage msg) {
         handleInGameMessage(msg);
     }
 

@@ -34,6 +34,10 @@ import com.jcloisterzone.ui.grid.ForwardBackwardListener;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
+import com.jcloisterzone.wsio.message.BazaarBidMessage;
+import com.jcloisterzone.wsio.message.BazaarBuyOrSellMessage;
+import com.jcloisterzone.wsio.message.BazaarBuyOrSellMessage.BuyOrSellOption;
+import com.jcloisterzone.wsio.message.PassMessage;
 
 import io.vavr.collection.Queue;
 import net.miginfocom.swing.MigLayout;
@@ -212,10 +216,21 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
                     switch (panelState) {
                     case SELECT_TILE:
                     case MAKE_BID:
-                        //gc.getRmiProxy().bazaarBid(selectedItem, bidAmountModel.getNumber().intValue());
+                        gc.getConnection().send(
+                            new BazaarBidMessage(
+                                gc.getGameId(),
+                                selectedItem,
+                                bidAmountModel.getNumber().intValue()
+                            )
+                        );
                         break;
                     case BUY_OR_SELL:
-                        //gc.getRmiProxy().bazaarBuyOrSell(true);
+                        gc.getConnection().send(
+                            new BazaarBuyOrSellMessage(
+                                gc.getGameId(),
+                                BuyOrSellOption.BUY
+                            )
+                        );
                         break;
                     }
 
@@ -231,10 +246,15 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
                     switch (panelState) {
                     case SELECT_TILE:
                     case MAKE_BID:
-                        //gc.getRmiProxy().pass();
+                        gc.getConnection().send(new PassMessage(gc.getGameId()));
                         break;
                     case BUY_OR_SELL:
-                        //gc.getRmiProxy().bazaarBuyOrSell(false);
+                        gc.getConnection().send(
+                            new BazaarBuyOrSellMessage(
+                                gc.getGameId(),
+                                BuyOrSellOption.SELL
+                            )
+                        );
                         break;
                     }
                 }
