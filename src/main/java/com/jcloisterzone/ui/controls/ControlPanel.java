@@ -35,6 +35,8 @@ import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarCapability;
+import com.jcloisterzone.game.capability.BazaarCapabilityModel;
+import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.Client;
@@ -47,6 +49,7 @@ import com.jcloisterzone.wsio.message.PassMessage;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.IndexedSeq;
+import io.vavr.collection.Queue;
 import io.vavr.collection.Vector;
 import net.miginfocom.swing.MigLayout;
 
@@ -224,12 +227,13 @@ public class ControlPanel extends JPanel {
         boolean doRevalidate = false;
 
         if (bazaarSupplyPanel != null) {
-            //TODO Immutable
-//            boolean showSupply = gameView.getGridPanel().getBazaarPanel() == null && bcb.getBazaarSupply() != null;
-//            if (showSupply ^ bazaarSupplyPanel.isVisible()) {
-//                doRevalidate = true;
-//                bazaarSupplyPanel.setVisible(showSupply);
-//            }
+            //TODO Immutable - change bazaarSupplyPanel state base on gameChangeEvent !!!
+            BazaarCapabilityModel model = gc.getGame().getState().getCapabilities().getModel(BazaarCapability.class);
+            boolean showSupply = model.getSupply() != null;
+            if (showSupply ^ bazaarSupplyPanel.isVisible()) {
+                doRevalidate = true;
+                bazaarSupplyPanel.setVisible(showSupply);
+            }
         }
 
         for (PlayerPanel pp : playerPanels) {
@@ -397,10 +401,12 @@ public class ControlPanel extends JPanel {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D)g;
             super.paintComponent(g);
-            List<TileDefinition> queue = bcb.getDrawQueue();
-            if (!queue.isEmpty()) {
+            BazaarCapabilityModel model = game.getState().getCapabilities().getModel(BazaarCapability.class);
+            Queue<BazaarItem> supply = model.getSupply();
+            if (supply != null && !supply.isEmpty()) {
                 int x = LEFT_MARGIN+LEFT_PADDING;
-                for (TileDefinition tile : queue) {
+                for (BazaarItem bi : supply) {
+                    TileDefinition tile = bi.getTile();
                     Image img = client.getResourceManager().getTileImage(tile, Rotation.R0).getImage();
                     g2.drawImage(img, x, 0, 40, 40, null);
                     x += 45;

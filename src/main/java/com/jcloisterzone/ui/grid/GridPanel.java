@@ -84,9 +84,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 
     private final ControlPanel controlPanel;
     private final ChatPanel chatPanel;
-//    private BazaarPanel bazaarPanel;
-//    private SelectMageWitchRemovalPanel mageWitchPanel;
-//    private PrisonersExchangePanel prisonersExchangePanel;
     private ActionInteractionPanel<?> actionInteractionPanel;
 
     /** current board size */
@@ -361,15 +358,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
             revalidate();
         }
 
-//        if (first instanceof SelectPrisonerToExchangeAction) {
-//            if (prisonersExchangePanel == null) {
-//                prisonersExchangePanel = new PrisonersExchangePanel(gc, (SelectPrisonerToExchangeAction) first);
-//                add(prisonersExchangePanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-//                revalidate();
-//            }
-//        } else {
-//            removeInteractionPanels();
-//        }
         repaint();
     }
 

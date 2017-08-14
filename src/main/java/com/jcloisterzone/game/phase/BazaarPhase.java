@@ -184,7 +184,7 @@ public class BazaarPhase extends ServerAwarePhase {
         } while (player != currentSelectingPlayer);
 
         //all tiles has been auctioned
-        state = state.setCapabilityModel(BazaarCapability.class, null);
+        state = state.setCapabilityModel(BazaarCapability.class, new BazaarCapabilityModel());
         next(state);
     }
 

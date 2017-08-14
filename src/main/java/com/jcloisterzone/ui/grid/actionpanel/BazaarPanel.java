@@ -19,6 +19,8 @@ import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 
+import com.jcloisterzone.action.BazaarBidAction;
+import com.jcloisterzone.action.BazaarSelectBuyOrSellAction;
 import com.jcloisterzone.action.BazaarSelectTileAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Rotation;
@@ -126,7 +128,10 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
                 }
             }
             setPanelState(BazaarPanelState.SELECT_TILE);
-            return;
+        } else if (action instanceof BazaarBidAction) {
+            setPanelState(BazaarPanelState.MAKE_BID);
+        } else if (action instanceof BazaarSelectBuyOrSellAction) {
+            setPanelState(BazaarPanelState.BUY_OR_SELL);
         }
     }
 
