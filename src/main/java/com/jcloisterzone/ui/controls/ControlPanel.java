@@ -37,6 +37,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BazaarItem;
+import com.jcloisterzone.game.phase.BazaarPhase;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.Client;
@@ -401,9 +402,10 @@ public class ControlPanel extends JPanel {
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D)g;
             super.paintComponent(g);
-            BazaarCapabilityModel model = game.getState().getCapabilities().getModel(BazaarCapability.class);
+            GameState state = game.getState();
+            BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
             Queue<BazaarItem> supply = model.getSupply();
-            if (supply != null && !supply.isEmpty()) {
+            if (supply != null && !state.getPhase().equals(BazaarPhase.class)) {
                 int x = LEFT_MARGIN+LEFT_PADDING;
                 for (BazaarItem bi : supply) {
                     TileDefinition tile = bi.getTile();

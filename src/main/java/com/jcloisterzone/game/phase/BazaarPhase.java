@@ -77,11 +77,11 @@ public class BazaarPhase extends ServerAwarePhase {
         promote(state);
     }
 
-    private boolean hasAuctionedTile(BazaarCapabilityModel model, Player p) {
+    private boolean hasTileAssigned(BazaarCapabilityModel model, Player p) {
         for (BazaarItem bi : model.getSupply()) {
-            if (p.equals(bi.getOwner())) return false;
+            if (p.equals(bi.getOwner())) return true;
         }
-        return true;
+        return false;
     }
 
     @WsSubscribe
@@ -149,7 +149,7 @@ public class BazaarPhase extends ServerAwarePhase {
                 }
                 return;
             }
-        } while (!hasAuctionedTile(model, nextBidder));
+        } while (hasTileAssigned(model, nextBidder));
 
         BazaarBidAction action = new BazaarBidAction();
         ActionsState as = new ActionsState(nextBidder, action, false);
@@ -168,7 +168,7 @@ public class BazaarPhase extends ServerAwarePhase {
 
         do {
             player = player.getNextPlayer(state);
-            if (!hasAuctionedTile(model, player)) {
+            if (!hasTileAssigned(model, player)) {
                 model = model.setTileSelectingPlayer(player);
 
                 state = state.setCapabilityModel(BazaarCapability.class, model);
@@ -184,7 +184,21 @@ public class BazaarPhase extends ServerAwarePhase {
         } while (player != currentSelectingPlayer);
 
         //all tiles has been auctioned
-        state = state.setCapabilityModel(BazaarCapability.class, new BazaarCapabilityModel());
+        Queue<BazaarItem> supply =  model.getSupply();
+
+        model = model.setSupply(
+            state.getPlayers().getPlayersBeginWith(
+                state.getTurnPlayer().getNextPlayer(state)
+            )
+            .map(p ->
+                supply.find(bi -> bi.getOwner().equals(p)).get()
+            )
+            .toQueue()
+        );
+        model = model.setAuctionedItemIndex(null);
+        model = model.setTileSelectingPlayer(null);
+
+        state = state.setCapabilityModel(BazaarCapability.class, model);
         next(state);
     }
 
@@ -226,7 +240,7 @@ public class BazaarPhase extends ServerAwarePhase {
         bi = bi.setCurrentBidder(null);
 
         model = model.updateSupplyItem(model.getAuctionedItemIndex(), bi);
-        state.setCapabilityModel(BazaarCapability.class, model);
+        state = state.setCapabilityModel(BazaarCapability.class, model);
 
         nextSelectingPlayer(state);
     }

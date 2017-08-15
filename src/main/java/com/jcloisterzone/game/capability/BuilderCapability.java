@@ -30,7 +30,7 @@ public class BuilderCapability extends Capability<BuilderState> {
     }
 
     @Override
-    public GameState turnPartCleanUp(GameState state) {
+    public GameState onTurnPartCleanUp(GameState state) {
         return updateModel(state, bs -> {
             if (bs == BuilderState.USED) {
                 return BuilderState.SECOND_TURN;

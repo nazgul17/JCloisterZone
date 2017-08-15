@@ -76,7 +76,7 @@ public final class BarnCapability extends Capability<FeaturePointer> {
     }
 
     @Override
-    public GameState turnPartCleanUp(GameState state) {
+    public GameState onTurnPartCleanUp(GameState state) {
         return setModel(state, null);
     }
 

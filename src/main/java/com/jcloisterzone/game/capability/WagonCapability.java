@@ -74,7 +74,7 @@ public class WagonCapability extends Capability<Queue<Tuple2<Wagon, FeaturePoint
 
 
     @Override
-    public GameState turnPartCleanUp(GameState state) {
+    public GameState onTurnPartCleanUp(GameState state) {
         return setModel(state, Queue.empty());
     }
 }

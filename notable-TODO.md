@@ -12,3 +12,7 @@ and get it by one one instead of all per tile
 * grid panel - verify left, right, top, bottom fields
 
 * verify clock toggle during bazaar auction
+
+* toggle clock / clearUndo can be derived automatically from state change
+
+* test if builders works properly in extra abbey round (-> means buiders are ignored)

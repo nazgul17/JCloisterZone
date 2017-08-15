@@ -10,16 +10,17 @@ import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
 import com.jcloisterzone.reducers.PlaceTile;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 import io.vavr.collection.Vector;
 
 //TODO should be merged with DrawPhase ?
-public class TilePhase extends Phase {
+public class TilePhase extends ServerAwarePhase {
 
-    public TilePhase(Game game) {
-        super(game);
+    public TilePhase(Game game, GameController gc) {
+        super(game, gc);
     }
 
     @Override
@@ -33,6 +34,7 @@ public class TilePhase extends Phase {
             false
         ));
 
+        toggleClock(state.getTurnPlayer());
         promote(state);
     }
 

@@ -134,12 +134,11 @@ public abstract class Capability<T> implements Serializable {
         return state;
     }
 
-//    public GameState turnCleanUp(GameState state) {
-//        return state;
-//    }
+    public GameState onTurnCleanUp(GameState state) {
+        return state;
+    }
 
-    // TODO rename to onTurnPartCleanUp
-    public GameState turnPartCleanUp(GameState state) {
+    public GameState onTurnPartCleanUp(GameState state) {
         return state;
     }
 

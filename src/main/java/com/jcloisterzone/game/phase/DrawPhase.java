@@ -10,10 +10,14 @@ import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.AbbeyCapability;
+import com.jcloisterzone.game.capability.BazaarCapability;
+import com.jcloisterzone.game.capability.BazaarCapabilityModel;
+import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.Queue;
 
 
 public class DrawPhase extends ServerAwarePhase {
@@ -66,14 +70,20 @@ public class DrawPhase extends ServerAwarePhase {
     @Override
     public void enter(GameState state) {
         for (;;) {
-            //IMMUTABLE TODO
-    //        if (bazaarCap != null) {
-    //            Tile tile = bazaarCap.drawNextTile();
-    //            if (tile != null) {
-    //                nextTile(tile);
-    //                return;
-    //            }
-    //        }
+            BazaarCapabilityModel bazaarModel = state.getCapabilities().getModel(BazaarCapability.class);
+            if (bazaarModel != null) {
+                Queue<BazaarItem> supply = bazaarModel.getSupply();
+                if (supply != null) {
+                    Tuple2<BazaarItem, Queue<BazaarItem>> t = supply.dequeue();
+                    BazaarItem item = t._1;
+                    supply = t._2;
+                    bazaarModel = bazaarModel.setSupply(supply);
+                    state = state.setCapabilityModel(BazaarCapability.class, bazaarModel);
+                    state = state.setDrawnTile(item.getTile());
+                    next(state);
+                    return;
+                }
+            }
 
             TilePackState tilePack = state.getTilePack();
             boolean packIsEmpty = tilePack.isEmpty() || isDebugForcedEnd();
@@ -125,7 +135,7 @@ public class DrawPhase extends ServerAwarePhase {
 
                 //if (riverCap != null) riverCap.turnPartCleanUp(); //force group activation if neeeded
             } else {
-                toggleClock(state.getTurnPlayer());
+
                 next(state);
                 return;
             }

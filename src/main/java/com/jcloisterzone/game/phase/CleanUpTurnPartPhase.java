@@ -24,16 +24,8 @@ public class CleanUpTurnPartPhase extends Phase {
         BuilderState builderState = state.getCapabilities().getModel(BuilderCapability.class);
         boolean builderTakeAnotherTurn = builderState == BuilderState.USED;
 
-
-        // IMMUTABLE TODO Abbeys at end
-//        if (getTile() != null) { //after last turn, abbeys can be placed, then cycling through players and tile can be null. Do not delegate on capabilities in such case
-//            game.turnPartCleanUp();
-//            game.setCurrentTile(null);
-//        }
-
-        //TODO make flag from builder state and remove handler?
         for (Capability<?> cap : state.getCapabilities().toSeq()) {
-            state = cap.turnPartCleanUp(state);
+            state = cap.onTurnPartCleanUp(state);
         }
 
         if (!state.getFlags().isEmpty()) {

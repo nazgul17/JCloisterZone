@@ -33,6 +33,7 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.ForwardBackwardListener;
+import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel.BazaarPanelState;
 import com.jcloisterzone.ui.gtk.ThemedJLabel;
 import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
@@ -95,7 +96,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
         itemPanels = new BazaarItemPanel[model.getSupply().size()];
         int idx = 0;
         for (BazaarItem bi : model.getSupply()) {
-            itemPanels[idx] = new BazaarItemPanel(idx, bi);
+            itemPanels[idx] = new BazaarItemPanel(idx);
             add(itemPanels[idx], "wrap, gap 0, growx, h 92");
             idx++;
         }
@@ -136,12 +137,10 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
     }
 
     class BazaarItemPanel extends ThemedJPanel {
-        final BazaarItem bi;
         final int idx;
 
-        public BazaarItemPanel(int idx, BazaarItem bi) {
+        public BazaarItemPanel(int idx) {
             this.idx = idx;
-            this.bi = bi;
             setOpaque(false);
             setBackground(TRANSPARENT_COLOR);
             setLayout(new MigLayout("ins 0", "", ""));
@@ -150,13 +149,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
                 @Override
                 public void mouseClicked(MouseEvent e) {
                     if (panelState == BazaarPanelState.SELECT_TILE) {
-//                        ArrayList<BazaarItem> supply = bcb.getBazaarSupply();
-//                        int idx = BazaarItemPanel.this.idx;
-//                        if (supply.get(idx).getOwner() == null) {
-//                            setSelectedItem(idx);
-//                        }
-
-                        //TODO update bazar item on change
+                        BazaarItem bi = model.getSupply().get(idx);
                         if (bi.getOwner() == null) {
                             setSelectedItem(idx);
                         }
@@ -169,6 +162,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
         protected void paintComponent(Graphics g) {
             super.paintComponent(g);
             Graphics2D g2 = (Graphics2D) g;
+            BazaarItem bi = model.getSupply().get(idx);
 
             Image img =  client.getResourceManager().getTileImage(bi.getTile(), Rotation.R0).getImage();
 
@@ -292,9 +286,8 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             }
             if (bidAmountLabel != null) {
                 if (panelState == BazaarPanelState.BUY_OR_SELL) {
-                    //BazaarCapabilityModel
-                    //TOOD
-                    //bidAmountLabel.setText(bcb.getCurrentBazaarAuction().getCurrentPrice() + "  " + _("points"));
+                    int points = model.getAuctionedItem().getCurrentPrice();
+                    bidAmountLabel.setText(points + "  " + _("points"));
                     layout.setComponentConstraints(bidAmountLabel, "pos 20 20");
                 } else {
                     bidAmountLabel.setText(_("points"));
