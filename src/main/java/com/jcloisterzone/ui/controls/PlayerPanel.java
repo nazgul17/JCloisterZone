@@ -68,16 +68,6 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
     private String mouseOverKey = null;
 
-//    private final AbbeyCapability abbeyCap;
-//    private final TowerCapability towerCap;
-//    private final BridgeCapability bridgeCap;
-//    private final CastleCapability castleCap;
-//    private final KingAndRobberBaronCapability kingRobberCap;
-//    private final TradeCountersCapability cwgCap;
-//    private final LittleBuildingsCapability lbCap;
-//    private final TunnelCapability tunnelCap;
-//    private final GoldminesCapability gldCap;
-
     private Integer timeLimit;
 
     public PlayerPanel(Client client, GameView gameView, Player player, PlayerPanelImageCache cache) {
@@ -89,15 +79,6 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         this.fontColor = player.getColors().getFontColor();
 
         Game game = gc.getGame();
-//        abbeyCap = game.getCapability(AbbeyCapability.class);
-//        towerCap = game.getCapability(TowerCapability.class);
-//        bridgeCap = game.getCapability(BridgeCapability.class);
-//        castleCap = game.getCapability(CastleCapability.class);
-//        kingRobberCap = game.getCapability(KingAndRobberBaronCapability.class);
-//        cwgCap = game.getCapability(TradeCountersCapability.class);
-//        lbCap = game.getCapability(LittleBuildingsCapability.class);
-//        tunnelCap = game.getCapability(TunnelCapability.class);
-//        gldCap = game.getCapability(GoldminesCapability.class);
 
         timeLimit = (Integer) game.getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME);
     }
@@ -266,13 +247,9 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
         drawMeepleBox(null, "abbey", ps.getPlayerTokenCount(index, Token.ABBEY_TILE), false);
         drawMeepleBox(null, "towerpiece", ps.getPlayerTokenCount(index, Token.TOWER_PIECE), true);
+        drawMeepleBox(null, "bridge", ps.getPlayerTokenCount(index, Token.BRIDGE), true);
+        drawMeepleBox(null, "castle", ps.getPlayerTokenCount(index, Token.CASTLE), true);
 
-//        if (bridgeCap != null) {
-//            drawMeepleBox(null, "bridge", bridgeCap.getPlayerBridges(player), true);
-//        }
-//        if (castleCap != null) {
-//            drawMeepleBox(null, "castle", castleCap.getPlayerCastles(player), true);
-//        }
 //        if (tunnelCap != null) {
 //            drawMeepleBox(player, "tunnelA", tunnelCap.getTunnelTokens(player, false), true);
 //            drawMeepleBox(player, "tunnelB", tunnelCap.getTunnelTokens(player, true), true);

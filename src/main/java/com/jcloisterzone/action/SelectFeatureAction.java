@@ -6,7 +6,6 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.grid.layer.FeatureAreaLayer;
 
-import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 
@@ -26,11 +25,4 @@ public abstract class SelectFeatureAction extends PlayerAction<FeaturePointer> {
             .groupBy(tp -> tp.getPosition())
             .mapValues(setOfPlacements -> setOfPlacements.map(tp -> tp.getLocation()));
     }
-
-    //TODO direct implementation
-    public Set<Location> getLocations(Position pos) {
-        return groupByPosition().getOrElse(pos, HashSet.empty());
-    }
-
-
 }

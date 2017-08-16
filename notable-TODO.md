@@ -16,3 +16,6 @@ and get it by one one instead of all per tile
 * toggle clock / clearUndo can be derived automatically from state change
 
 * test if builders works properly in extra abbey round (-> means buiders are ignored)
+
+
+* add ZMG Castle variant - allow any (non-semicircular) cities as casle base
