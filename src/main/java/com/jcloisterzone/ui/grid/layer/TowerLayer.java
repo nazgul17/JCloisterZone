@@ -67,6 +67,7 @@ public class TowerLayer extends AbstractGridLayer {
 
         model.towers = Stream.ofAll(state.getFeatures())
             .filter(t -> (t._2 instanceof Tower) && ((Tower)t._2).getHeight() > 0)
+            .distinctBy(t -> t._2)
             .map(t -> {
                 Position pos = t._1.getPosition();
                 return new Tuple3<>(board.get(pos), pos, (Tower) t._2);

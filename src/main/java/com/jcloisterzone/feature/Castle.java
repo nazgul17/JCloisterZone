@@ -4,6 +4,7 @@ import static com.jcloisterzone.ui.I18nUtils._;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
+import com.jcloisterzone.board.Edge;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -27,11 +28,14 @@ public class Castle extends ScoreableFeature {
 
     @Override
     public int getPoints(GameState state, Player player) {
-        if (state.isGameOver()) {
-            return 0;
-        }
-        throw new UnsupportedOperationException("TODO IMMUTABLE");
+        return 0;
     }
+
+    public Edge getEdge() {
+        return new Edge(places.get(0).getPosition(), places.get(1).getPosition());
+    }
+
+
 
     //IMMUTABLE TODO
 

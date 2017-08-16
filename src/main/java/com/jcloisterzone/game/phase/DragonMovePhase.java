@@ -71,7 +71,7 @@ public class DragonMovePhase extends ServerAwarePhase {
 
     private GameState endDragonMove(GameState state) {
         state = state.setCapabilityModel(DragonCapability.class, Vector.empty());
-        state = state.setPlayerActions(null);
+        state = clearActions(state);
         return state;
     }
 

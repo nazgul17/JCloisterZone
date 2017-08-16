@@ -33,11 +33,11 @@ public class InvokeInSwingUiAdapter {
         SwingUtilities.invokeLater(() -> {
             uiEventBus.post(event);
             //TODO Immutable remove temporary adapter vvvv
-            if (event instanceof GameChangedEvent) {
-                for (PlayEvent pe : ((GameChangedEvent) event).getNewPlayEvents()) {
-                    uiEventBus.post(pe);
-                }
-            }
+//            if (event instanceof GameChangedEvent) {
+//                for (PlayEvent pe : ((GameChangedEvent) event).getNewPlayEvents()) {
+//                    uiEventBus.post(pe);
+//                }
+//            }
             /// ^^^^^^
         });
     }

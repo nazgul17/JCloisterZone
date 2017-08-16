@@ -79,7 +79,7 @@ public class PlayersState implements Serializable {
 
     public PlayersState setPlayerTokenCount(int index, Token token, int count) {
         if (count < 0) {
-            throw new IllegalArgumentException(String.format("Token %s count can't ne %s", token, count));
+            throw new IllegalArgumentException(String.format("Token %s count can't be %s", token, count));
         }
         Map<Token, Integer> playerTokens = tokens.get(index);
         if (count == 0) {

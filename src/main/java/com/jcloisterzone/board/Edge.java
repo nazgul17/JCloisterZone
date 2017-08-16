@@ -47,6 +47,22 @@ public class Edge implements Serializable {
         );
     }
 
+    public boolean isHorizontal() {
+        return p1.x == p2.x;
+    }
+
+    public boolean isVertical() {
+        return p1.y == p2.y;
+    }
+
+    public Position getP1() {
+        return p1;
+    }
+
+    public Position getP2() {
+        return p2;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(p1, p2);

@@ -14,30 +14,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.bugreport.ReportingTool;
-import com.jcloisterzone.event.BazaarAuctionEndEvent;
-import com.jcloisterzone.event.BazaarMakeBidEvent;
-import com.jcloisterzone.event.BazaarSelectBuyOrSellEvent;
-import com.jcloisterzone.event.BazaarSelectTileEvent;
-import com.jcloisterzone.event.BazaarTileSelectedEvent;
-import com.jcloisterzone.event.CornCircleSelectOptionEvent;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.GameListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
-import com.jcloisterzone.event.MageWitchSelectRemoval;
-import com.jcloisterzone.event.MeeplePrisonEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.BazaarItem;
-import com.jcloisterzone.game.phase.BazaarPhase;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.MenuBar.MenuItem;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
-import com.jcloisterzone.ui.grid.GridPanel;
-import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel;
-import com.jcloisterzone.ui.grid.actionpanel.CornCirclesPanel;
-import com.jcloisterzone.ui.grid.actionpanel.SelectMageWitchRemovalPanel;
-import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel.BazaarPanelState;
 import com.jcloisterzone.ui.panel.GameOverPanel;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.ChannelView;
@@ -153,25 +138,6 @@ public class GameController extends EventProxyUiController<Game> {
         client.setTitle(title.toString());
     }
 
-//    //@Subscribe
-//    public void handleTileEvent(/*TileEvent ev*/) {
-//        switch (ev.getType()) {
-//        case TileEvent.DRAW:
-//            refreshWindowTitle();
-//            break;
-//        case TileEvent.PLACEMENT:
-//        case TileEvent.REMOVE:
-//            gameView.getMainPanel().tileEvent(ev);
-//            break;
-//        }
-//    }
-
-    @Subscribe
-    public void handleMeeplePrisonEvent(MeeplePrisonEvent ev) {
-        gameView.getGridPanel().repaint();
-    }
-
-
     // User interface
 
     //@Override
@@ -195,58 +161,6 @@ public class GameController extends EventProxyUiController<Game> {
 //        gridPanel.add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
 //        gridPanel.revalidate();
 //
-//    }
-
-//    public BazaarPanel showBazaarPanel(GameState state) {
-//        BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
-//        if (panel == null) {
-//            panel = new BazaarPanel(client, gameView.getGameController(), state);
-//            gameView.getGridPanel().add(panel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-//            gameView.getGridPanel().setBazaarPanel(panel);
-//
-//        }
-//        return panel;
-//    }
-
-
-//
-//    @Subscribe
-//    public void handleBazaarTileSelected(BazaarTileSelectedEvent ev) {
-//        BazaarPanel bazaarPanel = showBazaarPanel();
-//        bazaarPanel.setState(BazaarPanelState.INACTIVE);
-//        gameView.getGridPanel().repaint();
-//    }
-
-//    @Subscribe
-//    public void handleMakeBazaarBid(BazaarMakeBidEvent ev) {
-//        BazaarPanel bazaarPanel = showBazaarPanel();
-//        bazaarPanel.setSelectedItem(ev.getSupplyIndex());
-//        if (ev.getTargetPlayer().isLocalHuman()) {
-//            bazaarPanel.setState(BazaarPanelState.MAKE_BID);
-//        } else {
-//            bazaarPanel.setState(BazaarPanelState.INACTIVE);
-//        }
-//        gameView.getGridPanel().repaint();
-//    }
-//
-//    @Subscribe
-//    public void handleSelectBuyOrSellBazaarOffer(BazaarSelectBuyOrSellEvent ev) {
-//        BazaarPanel bazaarPanel = showBazaarPanel();
-//        bazaarPanel.setSelectedItem(ev.getSupplyIndex());
-//        if (ev.getTargetPlayer().isLocalHuman()) {
-//            bazaarPanel.setState(BazaarPanelState.BUY_OR_SELL);
-//        } else {
-//            bazaarPanel.setState(BazaarPanelState.INACTIVE);
-//        }
-//    }
-//
-//    @Subscribe
-//    public void handleBazaarAuctionsEnded(BazaarAuctionEndEvent ev) {
-//        BazaarPanel panel = gameView.getGridPanel().getBazaarPanel();
-//        if (panel != null) {
-//            gameView.getGridPanel().remove(panel);
-//            gameView.getGridPanel().setBazaarPanel(null);
-//        }
 //    }
 
     public void leaveGame() {
