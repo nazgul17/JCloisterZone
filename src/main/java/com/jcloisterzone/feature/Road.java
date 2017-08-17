@@ -111,7 +111,7 @@ public class Road extends CompletableFeature<Road> {
 
     @Override
     public int getPoints(GameState state) {
-        int tileCount = getPlaces().map(fp -> fp.getPosition()).distinct().size();
+        int tileCount = getTilePositions().size();
         int points;
         if (inn) {
             points = isCompleted(state) ? tileCount * 2 : 0;

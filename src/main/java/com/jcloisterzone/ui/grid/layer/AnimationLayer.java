@@ -5,9 +5,10 @@ import java.awt.Graphics2D;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.FlierRollEvent;
+import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.figure.Meeple;
@@ -33,6 +34,18 @@ public class AnimationLayer extends AbstractGridLayer {
         gc.register(this);
     }
 
+    @Subscribe
+    public void handleGameChanged(GameChangedEvent ev) {
+        for (PlayEvent pe : ev.getNewPlayEvents()) {
+            if (pe instanceof ScoreEvent) {
+                onScoreEvent((ScoreEvent) pe);
+            }
+            if (pe instanceof TilePlacedEvent) {
+                onTilePlacedEvent((TilePlacedEvent) pe);
+            }
+        }
+    }
+
     @Override
     public void paint(Graphics2D g2) {
         //HACK to correct animation order - TODO change animation design
@@ -44,12 +57,11 @@ public class AnimationLayer extends AbstractGridLayer {
         }
     }
 
-    @Subscribe
     public void onFlierRollEvent(FlierRollEvent ev) {
+        //TODO IMMUTABLE
         service.registerAnimation(new FlierDiceRollAnimation(ev.getPosition(), ev.getDistance()));
     }
 
-    @Subscribe
     public void onScoreEvent(ScoreEvent ev) {
         if (ev.getFeaturePointer() == null) {
             scored(ev.getPosition(), ev.getReceiver(), ev.getLabel(), ev.isFinal());
@@ -58,8 +70,7 @@ public class AnimationLayer extends AbstractGridLayer {
         }
     }
 
-    @Subscribe
-    public void onTileEvent(TilePlacedEvent ev) {
+    public void onTilePlacedEvent(TilePlacedEvent ev) {
         Position pos = ev.getPosition();
 
         boolean initialPlacement = ev.getMetadata().getTriggeringPlayerIndex() == null;//if triggering player is null we are placing initial tiles

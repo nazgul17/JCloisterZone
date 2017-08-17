@@ -1,5 +1,6 @@
 package com.jcloisterzone.reducers;
 
+import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Scoreable;
@@ -16,13 +17,17 @@ public class FinalScoring implements Reducer {
     public GameState apply(GameState state) {
         Stream<Scoreable> scoreables = state.getBoard().getOccupiedScoreables();
 
-        //score first all except farms
         for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Completable.class))) {
             Completable completable = (Completable) feature;
             state = (new ScoreCompletable(completable)).apply(state);
         }
 
-        //then score farms
+        for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Castle.class))) {
+            // no points for castles at the end
+            Castle castle = (Castle) feature;
+            state = (new ScoreCastle(castle, 0)).apply(state);
+        }
+
         for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Farm.class))) {
             Farm farm = (Farm) feature;
             boolean hasBarn = farm.getSpecialMeeples(state)

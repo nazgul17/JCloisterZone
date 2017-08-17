@@ -19,7 +19,12 @@ public class Mayor extends Follower {
 
     @Override
     public int getPower(GameState state, Scoreable feature) {
-        return ((City)feature).getPennants();
+        if (feature instanceof City) {
+            return ((City)feature).getPennants();
+        } else {
+            //it must be castle, mayor has no power on castles
+            return 0;
+        }
     }
 
     @Override
