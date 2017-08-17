@@ -31,9 +31,13 @@ public class Castle extends ScoreableFeature {
         return new Edge(places.get(0).getPosition(), places.get(1).getPosition());
     }
 
+    public Set<Position> getTilePositions() {
+        return HashSet.ofAll(places.map(fp -> fp.getPosition()));
+    }
+
     public Set<Position> getVicinity() {
         Position p0 = places.get(0).getPosition();
-        Position p1 = places.get(0).getPosition();
+        Position p1 = places.get(1).getPosition();
         Set<Position> vicinity = HashSet.of(p0, p1);
         if (p0.x == p1.x) {
             vicinity = vicinity.addAll(List.of(

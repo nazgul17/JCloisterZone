@@ -65,40 +65,6 @@ public class GoldminesCapability  extends Capability<Void> {
         }
     }
 
-    @Override
-    public void saveToSnapshot(Document doc, Element node) {
-        for (Entry<Position, Integer> entry : boardGold.entrySet()) {
-            Element el = doc.createElement("gold");
-            node.appendChild(el);
-            XMLUtils.injectPosition(el, entry.getKey());
-            el.setAttribute("count", "" + entry.getValue());
-        }
-        for (Player player: game.getAllPlayers()) {
-            Element el = doc.createElement("player");
-            node.appendChild(el);
-            el.setAttribute("index", "" + player.getIndex());
-            el.setAttribute("goldPieces", "" + playerGold.get(player));
-        }
-    }
-
-    @Override
-    public void loadFromSnapshot(Document doc, Element node) {
-        NodeList nl = node.getElementsByTagName("gold");
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element el = (Element) nl.item(i);
-            Position pos = XMLUtils.extractPosition(el);
-            int count = XMLUtils.attributeIntValue(el, "count");
-            boardGold.put(pos, count);
-            game.post(new GoldChangeEvent(null, pos, 0, count));
-        }
-        nl = node.getElementsByTagName("player");
-        for (int i = 0; i < nl.getLength(); i++) {
-            Element playerEl = (Element) nl.item(i);
-            Player player = game.getPlayer(Integer.parseInt(playerEl.getAttribute("index")));
-            int count = XMLUtils.attributeIntValue(playerEl, "goldPieces");
-            playerGold.put(player, count);
-        }
-    }
 
     @Override
     public void scoreCompleted(CompletableScoreContext ctx) {

@@ -130,14 +130,29 @@ public class ScorePhase extends ServerAwarePhase {
                 for (Tuple2<Completable, Integer> t : scored) {
                     if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {
                         state = (new ScoreCastle(castle, t._2)).apply(state);
+                        state = (new UndeployMeeples(castle)).apply(state);
                         scoredCastles.put(castle, t._2);
                         break;
                     }
                 }
             }
 
-            //use scoredCastles
-            throw new UnsupportedOperationException("TODO score castle triggered by another castle")
+            while (!scoredCastles.isEmpty()) {
+                Map<Castle, Integer> scoredCastlesCpy = HashMap.ofAll(scoredCastles);
+                scoredCastles.clear();
+                board = state.getBoard(); //get current board with up to date castles
+                for (Castle castle : board.getOccupiedScoreables(Castle.class)) {
+                    Set<Position> vicinity = castle.getVicinity();
+                    for (Tuple2<Castle, Integer> t : scoredCastlesCpy) {
+                        if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {
+                            state = (new ScoreCastle(castle, t._2)).apply(state);
+                            state = (new UndeployMeeples(castle)).apply(state);
+                            scoredCastles.put(castle, t._2);
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         if (state.getCapabilities().contains(GoldminesCapability.class)) {
@@ -167,18 +182,6 @@ public class ScorePhase extends ServerAwarePhase {
            .filter((m, fp) -> m instanceof Wagon)
         );
     }
-
-//    private void scoreCastle(Castle castle, int points) {
-//        List<Meeple> meeples = castle.getMeeples();
-//        if (meeples.isEmpty()) meeples = castle.getSecondFeature().getMeeples();
-//        Meeple m = meeples.get(0); //all meeples must share same owner
-//        m.getPlayer().addPoints(points, PointCategory.CASTLE);
-//        if (gldCap != null) {
-//            gldCap.castleCompleted(castle, m.getPlayer());
-//        }
-//        game.post(new ScoreEvent(m.getFeature(), points, PointCategory.CASTLE, m));
-//        undeloyMeeple(m);
-//    }
 
     private GameState scoreCompleted(GameState state, Completable completable, Tile triggerBuilderForPlaced) {
         if (triggerBuilderForPlaced != null && state.getCapabilities().contains(BuilderCapability.class)) {
