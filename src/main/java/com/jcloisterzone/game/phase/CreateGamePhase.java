@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -47,7 +46,6 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
-import io.vavr.collection.Vector;
 
 
 public class CreateGamePhase extends ServerAwarePhase {
@@ -151,7 +149,6 @@ public class CreateGamePhase extends ServerAwarePhase {
         next = addPhase(next, new GoldPiecePhase(game));
         next = addPhase(next, new PlaguePhase(game));
         next = addPhase(next, new TilePhase(game, gc));
-        next = addPhase(next, new DrawPhase(game, gc));
         next = addPhase(next, new AbbeyPhase(game, gc));
         next = addPhase(next, new FairyPhase(game));
         last.setDefaultNext(next); //after last phase, the first is default
