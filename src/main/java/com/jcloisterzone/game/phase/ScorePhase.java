@@ -1,11 +1,13 @@
 package com.jcloisterzone.game.phase;
 
+import com.google.common.primitives.UnsignedBytes;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
@@ -23,6 +25,7 @@ import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.reducers.ScoreCastle;
 import com.jcloisterzone.reducers.ScoreCompletable;
 import com.jcloisterzone.reducers.ScoreFarm;
 import com.jcloisterzone.reducers.ScoreFarmWhenBarnIsConnected;
@@ -31,6 +34,8 @@ import com.jcloisterzone.ui.GameController;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
+import io.vavr.collection.Array;
+import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
@@ -40,7 +45,7 @@ import io.vavr.control.Option;
 
 public class ScorePhase extends ServerAwarePhase {
 
-    private java.util.Set<Completable> alreadyScored = new java.util.HashSet<>();
+    private java.util.Map<Completable, Integer> scoredCompletables = new java.util.HashMap<>();
 
     public ScorePhase(Game game, GameController gc) {
         super(game, gc);
@@ -116,10 +121,23 @@ public class ScorePhase extends ServerAwarePhase {
         }
 
         if (state.getCapabilities().contains(CastleCapability.class)) {
-            // IMMUTABLE TODO
-//            for (Entry<Castle, Integer> entry : castleCap.getCastleScore().entrySet()) {
-//                scoreCastle(entry.getKey(), entry.getValue());
-//            }
+            java.util.Map<Castle, Integer> scoredCastles = new java.util.HashMap<>();
+            HashMap<Completable, Integer> scoredMap = HashMap.ofAll(scoredCompletables);
+            Array<Tuple2<Completable, Integer>> scored = Array.ofAll(scoredMap).sortBy(t -> -t._2);
+
+            for (Castle castle : board.getOccupiedScoreables(Castle.class)) {
+                Set<Position> vicinity = castle.getVicinity();
+                for (Tuple2<Completable, Integer> t : scored) {
+                    if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {
+                        state = (new ScoreCastle(castle, t._2)).apply(state);
+                        scoredCastles.put(castle, t._2);
+                        break;
+                    }
+                }
+            }
+
+            //use scoredCastles
+            throw new UnsupportedOperationException("TODO score castle triggered by another castle")
         }
 
         if (state.getCapabilities().contains(GoldminesCapability.class)) {
@@ -139,7 +157,7 @@ public class ScorePhase extends ServerAwarePhase {
             state = state.setCapabilityModel(WagonCapability.class, model);
         }
 
-        alreadyScored.clear();
+        scoredCompletables.clear();
         next(state);
     }
 
@@ -178,14 +196,16 @@ public class ScorePhase extends ServerAwarePhase {
             }
         }
 
-        if (completable.isCompleted(state) && !alreadyScored.contains(completable)) {
-            alreadyScored.add(completable);
+        if (completable.isCompleted(state) && !scoredCompletables.containsKey(completable)) {
+            int points = completable.getPoints(state);
+
+            scoredCompletables.put(completable, points);
 
             for (Capability<?> cap : state.getCapabilities().toSeq()) {
                 state = cap.onCompleted(state, completable);
             }
 
-            state = (new ScoreCompletable(completable)).apply(state);
+            state = (new ScoreCompletable(completable, points)).apply(state);
             state = (new UndeployMeeples(completable)).apply(state);
         }
 

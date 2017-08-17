@@ -6,15 +6,21 @@ import com.jcloisterzone.game.state.GameState;
 
 public class ScoreCompletable extends ScoreFeature {
 
-    private int featurePoints;
+    private int points = Integer.MIN_VALUE;
 
     public ScoreCompletable(Completable feature) {
         super(feature);
     }
 
+    /* don't recompute points if they are already known */
+    public ScoreCompletable(Completable feature, int points) {
+        super(feature);
+        this.points = points;
+    }
+
     @Override
     int getFeaturePoints(GameState state, Player player) {
-        return featurePoints;
+        return points;
     }
 
     @Override
@@ -24,7 +30,9 @@ public class ScoreCompletable extends ScoreFeature {
 
     @Override
     public GameState apply(GameState state) {
-        featurePoints = getFeature().getPoints(state);
+        if (points == Integer.MIN_VALUE) {
+            points = getFeature().getPoints(state);
+        }
         return super.apply(state);
     }
 

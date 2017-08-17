@@ -1,5 +1,6 @@
 package com.jcloisterzone.reducers;
 
+import com.jcloisterzone.board.Board;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
@@ -9,26 +10,25 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
-import io.vavr.collection.Stream;
 
 public class FinalScoring implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        Stream<Scoreable> scoreables = state.getBoard().getOccupiedScoreables();
+        Board board = state.getBoard();
 
-        for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Completable.class))) {
+        for (Scoreable feature : board.getOccupiedScoreables(Completable.class)) {
             Completable completable = (Completable) feature;
             state = (new ScoreCompletable(completable)).apply(state);
         }
 
-        for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Castle.class))) {
+        for (Scoreable feature : board.getOccupiedScoreables(Castle.class)) {
             // no points for castles at the end
             Castle castle = (Castle) feature;
             state = (new ScoreCastle(castle, 0)).apply(state);
         }
 
-        for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Farm.class))) {
+        for (Scoreable feature : board.getOccupiedScoreables(Farm.class)) {
             Farm farm = (Farm) feature;
             boolean hasBarn = farm.getSpecialMeeples(state)
                 .find(Predicates.instanceOf(Barn.class)).isDefined();

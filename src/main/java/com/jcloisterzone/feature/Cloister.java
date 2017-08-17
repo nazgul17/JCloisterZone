@@ -96,6 +96,11 @@ public class Cloister extends ScoreableFeature implements Completable {
     }
 
     @Override
+    public Set<Position> getTilePositions() {
+        return HashSet.of(places.get().getPosition());
+    }
+
+    @Override
     public PointCategory getPointCategory() {
         return PointCategory.CLOISTER;
     }

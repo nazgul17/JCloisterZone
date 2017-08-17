@@ -109,10 +109,20 @@ public class Board {
     }
 
     public Stream<Scoreable> getOccupiedScoreables() {
-        return Stream.ofAll(getAllFeatures())
+        return Stream.ofAll(state.getFeatures().values())
             .filter(Predicates.instanceOf(Scoreable.class))
+            .distinct()
             .filter(f -> f.isOccupied(state))
             .map(f -> (Scoreable) f);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Scoreable> Stream<T> getOccupiedScoreables(Class<T> cls) {
+        return Stream.ofAll(state.getFeatures().values())
+            .filter(Predicates.instanceOf(cls))
+            .distinct()
+            .filter(f -> f.isOccupied(state))
+            .map(f -> (T) f);
     }
 
     public Option<Feature> getFeaturePartOf(FeaturePointer fp) {

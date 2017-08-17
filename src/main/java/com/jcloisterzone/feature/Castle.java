@@ -2,15 +2,16 @@ package com.jcloisterzone.feature;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.board.Edge;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.game.state.GameState;
 
+import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
+import io.vavr.collection.Set;
 
 public class Castle extends ScoreableFeature {
 
@@ -30,39 +31,28 @@ public class Castle extends ScoreableFeature {
         return new Edge(places.get(0).getPosition(), places.get(1).getPosition());
     }
 
-
-
-    //IMMUTABLE TODO
-
-//    public Castle getSecondFeature() {
-//        return (Castle) getEdges()[0];
-//    }
-//
-//
-//    public Position[] getCastleBase() {
-//        Position[] positions = new Position[6];
-//        positions[0] = getTile().getPosition();
-//        positions[1] = getSecondFeature().getTile().getPosition();
-//        return positions;
-//    }
-//
-//    public Position[] getVicinity() {
-//        Position[] vicinity = new Position[6];
-//        vicinity[0] = getTile().getPosition();
-//        vicinity[1] = getSecondFeature().getTile().getPosition();
-//        if (vicinity[0].x == vicinity[1].x) {
-//            vicinity[2] = vicinity[0].add(Location.W);
-//            vicinity[3] = vicinity[0].add(Location.E);
-//            vicinity[4] = vicinity[1].add(Location.W);
-//            vicinity[5] = vicinity[1].add(Location.E);
-//        } else {
-//            vicinity[2] = vicinity[0].add(Location.N);
-//            vicinity[3] = vicinity[0].add(Location.S);
-//            vicinity[4] = vicinity[1].add(Location.N);
-//            vicinity[5] = vicinity[1].add(Location.S);
-//        }
-//        return vicinity;
-//    }
+    public Set<Position> getVicinity() {
+        Position p0 = places.get(0).getPosition();
+        Position p1 = places.get(0).getPosition();
+        Set<Position> vicinity = HashSet.of(p0, p1);
+        if (p0.x == p1.x) {
+            vicinity = vicinity.addAll(List.of(
+                p0.add(Location.W),
+                p0.add(Location.E),
+                p1.add(Location.W),
+                p1.add(Location.E)
+            ));
+        } else {
+            vicinity = vicinity.addAll(List.of(
+                p0.add(Location.N),
+                p0.add(Location.S),
+                p1.add(Location.N),
+                p1.add(Location.S)
+            ));
+        }
+        assert vicinity.size() == 6;
+        return vicinity;
+    }
 
     public static String name() {
         return _("Castle");
