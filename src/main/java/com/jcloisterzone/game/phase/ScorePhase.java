@@ -1,16 +1,11 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
-import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.config.Config.ConfirmConfig;
-import com.jcloisterzone.event.play.MeepleDeployed;
-import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
@@ -31,11 +26,8 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.ScoreCompletable;
 import com.jcloisterzone.reducers.ScoreFarm;
 import com.jcloisterzone.reducers.ScoreFarmWhenBarnIsConnected;
-import com.jcloisterzone.reducers.ScoreFeature;
 import com.jcloisterzone.reducers.UndeployMeeples;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.wsio.WsSubscribe;
-import com.jcloisterzone.wsio.message.CommitMessage;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
@@ -46,26 +38,12 @@ import io.vavr.collection.Set;
 import io.vavr.control.Option;
 
 
-//TODO split into CommitActionPhase a ScorePhase
 public class ScorePhase extends ServerAwarePhase {
 
     private java.util.Set<Completable> alreadyScored = new java.util.HashSet<>();
 
-//    private final BarnCapability barnCap;
-//    private final CastleCapability castleCap;
-//    private final TunnelCapability tunnelCap;
-//    private final WagonCapability wagonCap;
-//    private final MageAndWitchCapability mageWitchCap;
-//    private final GoldminesCapability gldCap;
-
     public ScorePhase(Game game, GameController gc) {
         super(game, gc);
-//        barnCap = game.getCapability(BarnCapability.class);
-//        tunnelCap = game.getCapability(TunnelCapability.class);
-//        castleCap = game.getCapability(CastleCapability.class);
-//        wagonCap = game.getCapability(WagonCapability.class);
-//        mageWitchCap = game.getCapability(MageAndWitchCapability.class);
-//        gldCap = game.getCapability(GoldminesCapability.class);
     }
 
     private GameState scoreCompletedOnTile(GameState state, Tile tile) {
@@ -86,71 +64,8 @@ public class ScorePhase extends ServerAwarePhase {
         return state;
     }
 
-    private GameState scoreFollowersOnBarnFarm(GameState state, Farm farm) {
-        // IMMUTABLE TODO
-//        FarmScoreContext ctx = farm.getScoreContext();
-//        ctx.setCityCache(cityCache);
-//        farm.walk(ctx);
-//
-//        boolean hasBarn = false;
-//        for (Meeple m : ctx.getSpecialMeeples()) {
-//            if (m instanceof Barn) {
-//                hasBarn = true;
-//                break;
-//            }
-//        }
-//        if (hasBarn) {
-//            for (Player p : ctx.getMajorOwners()) {
-//                int points = ctx.getPointsWhenBarnIsConnected(p);
-//                game.scoreFeature(points, ctx, p);
-//            }
-//            for (Meeple m : ctx.getMeeples()) {
-//                if (!(m instanceof Barn)) {
-//                    undeloyMeeple(m);
-//                }
-//            }
-//        }
-        return state;
-    }
-
     @Override
     public void enter(GameState state) {
-        Player player = state.getTurnPlayer();
-        if (isLocalPlayer(player)) {
-            boolean needsConfirm = false;
-            // IMMUTABLE TODO
-            PlayEvent last = state.getEvents().last();
-            if (last instanceof MeepleDeployed) {
-                ConfirmConfig cfg =  getConfig().getConfirm();
-                MeepleDeployed ev = (MeepleDeployed) last;
-                if (cfg.getAny_deployment()) {
-                    needsConfirm = true;
-                } else if (cfg.getFarm_deployment() && ev.getLocation().isFarmLocation()) {
-                    needsConfirm = true;
-                } else if (cfg.getOn_tower_deployment() && ev.getLocation() == Location.TOWER) {
-                    needsConfirm = true;
-                }
-            }
-            if (!needsConfirm) {
-                promote(state);
-                getConnection().send(new CommitMessage(game.getGameId()));
-                return;
-            }
-        }
-
-        //if player is not active, always trigger event and wait for remote CommitMessage
-        state = state.setPlayerActions(
-            new ActionsState(player, new ConfirmAction(), false)
-        );
-        promote(state);
-    }
-
-    @WsSubscribe
-    public void handleCommit(CommitMessage msg) {
-        game.clearUndo();
-        game.updateRandomSeed(msg.getCurrentTime());
-
-        GameState state = game.getState();
         Board board = state.getBoard(); //can keep ref because only points are changed
         Tile tile = board.getLastPlaced();
         Position pos = tile.getPosition();

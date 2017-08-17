@@ -135,6 +135,7 @@ public class CreateGamePhase extends ServerAwarePhase {
         next = addPhase(next, new WagonPhase(game, gc));
         next = addPhase(next, new ScorePhase(game, gc));
         next = addPhase(next, new CocPreScorePhase(game, gc));
+        next = addPhase(next, new CommitActionPhase(game, gc));
         next = addPhase(next, new CastlePhase(game));
 
         if (!game.getBooleanValue(CustomRule.DRAGON_MOVE_AFTER_SCORING)) {
