@@ -223,7 +223,7 @@ public class TileDefinitionBuilder {
         return new FeaturePointer(Position.ZERO, locRef.get());
     }
 
-    private Set<Edge> initOpenEdges(Stream<Location> sides) {
+    public static Set<Edge> initOpenEdges(Stream<Location> sides) {
         return HashSet.ofAll(
             sides.filter(loc -> loc.isEdgeLocation()).map(loc -> new Edge(Position.ZERO, loc))
         );

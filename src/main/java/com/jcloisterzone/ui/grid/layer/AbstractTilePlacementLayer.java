@@ -14,6 +14,7 @@ import com.jcloisterzone.ui.grid.GridPanel;
 
 import io.vavr.collection.Set;
 
+//TODO merge with TilePlacementLayer
 public abstract class AbstractTilePlacementLayer extends AbstractGridLayer implements GridMouseListener {
 
     protected static final Composite ALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .8f);

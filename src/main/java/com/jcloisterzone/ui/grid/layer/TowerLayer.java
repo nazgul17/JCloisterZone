@@ -36,7 +36,6 @@ public class TowerLayer extends AbstractGridLayer {
 
     public TowerLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
-
         gc.register(this);
     }
 
@@ -56,7 +55,6 @@ public class TowerLayer extends AbstractGridLayer {
 
         if (towersChanged) {
             model = createModel(ev.getCurrentState());
-            gridPanel.repaint();
         }
     }
 

@@ -122,15 +122,37 @@ public class EdgePattern implements Serializable {
         return false;
     }
 
-    public boolean isBridgeAllowed(Location bridge, Rotation tileRotation) {
+    public boolean isBridgeAllowed(Location bridge) {
+        assert bridge == Location.NS || bridge == Location.WE;
         if (bridge == Location.NS) {
-            if (at(Location.N, tileRotation) != EdgeType.FARM) return false;
-            if (at(Location.S, tileRotation) != EdgeType.FARM) return false;
+            if (at(Location.N) != EdgeType.FARM) return false;
+            if (at(Location.S) != EdgeType.FARM) return false;
         } else {
-            if (at(Location.W, tileRotation) != EdgeType.FARM) return false;
-            if (at(Location.E, tileRotation) != EdgeType.FARM) return false;
+            if (at(Location.W) != EdgeType.FARM) return false;
+            if (at(Location.E) != EdgeType.FARM) return false;
         }
         return true;
+    }
+
+    private EdgeType getBridgeReplacement(Location side) {
+        switch (at(side)) {
+        case FARM: return EdgeType.ROAD;
+        case UNKNOWN: return EdgeType.UNKNOWN;
+        default: throw new IllegalArgumentException();
+        }
+    }
+
+    public EdgePattern getBridgePattern(Location bridge) {
+        assert bridge == Location.NS || bridge == Location.WE;
+        try {
+            if (bridge == Location.NS) {
+                return new EdgePattern(getBridgeReplacement(Location.N), at(Location.E), getBridgeReplacement(Location.S), at(Location.W));
+            } else {
+                return new EdgePattern(at(Location.N), getBridgeReplacement(Location.E), at(Location.S), getBridgeReplacement(Location.W));
+            }
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Pattern annot be extended with " + bridge + "bridge.");
+        }
     }
 
     @Override

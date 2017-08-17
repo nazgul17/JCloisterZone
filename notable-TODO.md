@@ -20,3 +20,5 @@ and get it by one one instead of all per tile
 
 * add ZMG Castle variant - allow any (non-semicircular) cities as casle base
 * do not eat meeples by Dragon on castles, do not capture by Tower
+
+* TODO: draw bridge preview on tile preview icon if bridge is mandatory

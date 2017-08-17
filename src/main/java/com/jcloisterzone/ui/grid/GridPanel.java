@@ -34,37 +34,26 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.config.ConfigLoader;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.figure.BigFollower;
-import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.UiUtils;
-import com.jcloisterzone.ui.annotations.LinkedImage;
 import com.jcloisterzone.ui.annotations.LinkedPanel;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.grid.actionpanel.ActionInteractionPanel;
-import com.jcloisterzone.ui.grid.actionpanel.BazaarPanel;
-import com.jcloisterzone.ui.grid.actionpanel.PrisonersExchangePanel;
-import com.jcloisterzone.ui.grid.actionpanel.SelectMageWitchRemovalPanel;
-import com.jcloisterzone.ui.grid.layer.AbbeyPlacementLayer;
 import com.jcloisterzone.ui.grid.layer.AbstractAreaLayer;
-import com.jcloisterzone.ui.grid.layer.AbstractTilePlacementLayer;
 import com.jcloisterzone.ui.grid.layer.TileActionLayer;
 import com.jcloisterzone.ui.plugin.Plugin;
 import com.jcloisterzone.ui.plugin.ResourcePlugin;
 import com.jcloisterzone.ui.view.GameView;
 
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Set;
 import net.miginfocom.swing.MigLayout;
 
 public class GridPanel extends JPanel implements ForwardBackwardListener {

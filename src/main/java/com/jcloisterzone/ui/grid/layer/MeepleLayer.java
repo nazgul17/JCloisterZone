@@ -16,6 +16,7 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Figure;
 import com.jcloisterzone.figure.Follower;
@@ -107,7 +108,11 @@ public class MeepleLayer extends AbstractGridLayer {
                 }
                 fillFigureImage(fi, tile, fig, fp);
 
-                model.outsideBridge.add(fi);
+                if (tile.getInitialFeaturePartOf(fp.getLocation()) instanceof Bridge) {
+                    model.onBridge.add(fi);
+                } else {
+                    model.outsideBridge.add(fi);
+                }
                 order++;
             }
         });
@@ -192,11 +197,10 @@ public class MeepleLayer extends AbstractGridLayer {
         return;
     }
 
-    @Override
-    public void paint(Graphics2D g) {
+    private void paintFigureImages(Graphics2D g, ArrayList<FigureImage> images) {
         int baseSize = getTileWidth();
         AffineTransform originalTransform = g.getTransform();
-        for (FigureImage fi : model.outsideBridge) {
+        for (FigureImage fi : images) {
             Image scaled = fi.getScaledInstance(baseSize);
             int width = scaled.getWidth(null);
             int height = scaled.getHeight(null);
@@ -209,7 +213,15 @@ public class MeepleLayer extends AbstractGridLayer {
             g.drawImage(scaled, x - width / 2, y - height / 2, gridPanel);
             g.setTransform(originalTransform);
         }
+    }
 
+    @Override
+    public void paint(Graphics2D g) {
+        paintFigureImages(g, model.outsideBridge);
+    }
+
+    public void paintMeeplesOnBridges(Graphics2D g) {
+        paintFigureImages(g, model.onBridge);
     }
 
     // Legacy

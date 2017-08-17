@@ -1,15 +1,20 @@
 package com.jcloisterzone.board;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Immutable;
+import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Stream;
 
 @Immutable
 public class TileDefinition implements Serializable {
@@ -77,6 +82,15 @@ public class TileDefinition implements Serializable {
 
     public TileDefinition setInitialFeatures(Map<Location, Feature> initialFeatures) {
         return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+    }
+
+    public TileDefinition addBridge(Location bridgeLoc) {
+        assert bridgeLoc == Location.NS || bridgeLoc == Location.WE;
+        Bridge bridge = new Bridge(
+            List.of(new FeaturePointer(Position.ZERO, bridgeLoc)),
+            TileDefinitionBuilder.initOpenEdges(Stream.ofAll(Arrays.asList(bridgeLoc.splitToSides())))
+        );
+        return setInitialFeatures(initialFeatures.put(bridgeLoc, bridge));
     }
 
     public boolean isAbbeyTile() {

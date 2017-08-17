@@ -57,7 +57,7 @@ public class AbbeyPhase extends ServerAwarePhase {
                     abbey,
                     holes.flatMap(t ->
                         Array.ofAll(Arrays.asList(Rotation.values()))
-                            .map(r -> new TilePlacement(t._1, r))
+                            .map(r -> new TilePlacement(t._1, r, null))
                     ).toSet()
                 );
 

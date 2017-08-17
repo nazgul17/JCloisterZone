@@ -143,7 +143,7 @@ public class TilePlacementLayer extends AbstractTilePlacementLayer implements Ac
         if (e.getButton() == MouseEvent.BUTTON1) {
             if (getPreviewPosition() != null && isActive() && allowedRotation) {
                 e.consume();
-                getAction().perform(gc, new TilePlacement(p, previewRotation));
+                getAction().perform(gc, new TilePlacement(p, previewRotation, null));
             }
         }
     }

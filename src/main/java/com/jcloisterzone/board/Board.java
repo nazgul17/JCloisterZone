@@ -5,14 +5,17 @@ import java.awt.Rectangle;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
+import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashSet;
+import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 import io.vavr.control.Option;
 
 
@@ -79,27 +82,43 @@ public class Board {
         });
     }
 
-//    // TODO is it needed to by public?
-//    // in any case this is confusion against getTilePlacements
-//    // maybe is needed, look at this when adding bridges
-//    public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements(TileDefinition tile) {
-//        return getAvailablePlacements().filter(t -> {
-//            //TODO check bridge
-//            return true;
-//            //return game.isTilePlacementAllowed(tile, t._1);
-//            // TODO IMMUTABLE - call it when capabilities are moved into state
-//        });
-//    }
-
     public Stream<Tuple2<Position, EdgePattern>> getHoles() {
         return getAvailablePlacements().filter(t -> t._2.wildcardSize() == 0);
     }
 
+    private Vector<Tuple2<EdgePattern, Location>> getBridgePatterns(EdgePattern basePattern) {
+        Vector<Tuple2<EdgePattern, Location>> patterns = Vector.empty();
+        for (Location loc : List.of(Location.NS, Location.WE)) {
+            if (basePattern.isBridgeAllowed(loc)) {
+                patterns = patterns.append(new Tuple2<>(basePattern.getBridgePattern(loc), loc));
+            }
+        }
+        return patterns;
+    }
+
     public Stream<TilePlacement> getTilePlacements(TileDefinition tile) {
-        return getAvailablePlacements().flatMap(t -> {
+        boolean playerHasBridge = state.getPlayers().getPlayerTokenCount(
+            state.getTurnPlayer().getIndex(), Token.BRIDGE) > 0;
+
+        EdgePattern basePattern = tile.getEdgePattern();
+        Vector<Tuple2<EdgePattern, Location>> bridgePatterns = playerHasBridge ? getBridgePatterns(basePattern) : Vector.empty();
+
+        return getAvailablePlacements().flatMap(avail -> {
             return Stream.of(Rotation.values())
-                .filter(r -> t._2.isMatchingExact(tile.getEdgePattern().rotate(r)))
-                .map(r -> new TilePlacement(t._1, r));
+                .map(rot -> {
+                    Position pos = avail._1;
+                    EdgePattern border = avail._2;
+                    if (border.isMatchingExact(basePattern.rotate(rot))) {
+                        return new TilePlacement(pos, rot, null);
+                    }
+                    for (Tuple2<EdgePattern, Location> t : bridgePatterns) {
+                        if (border.isMatchingExact(t._1.rotate(rot))) {
+                            return new TilePlacement(pos, rot, new FeaturePointer(pos, t._2.rotateCW(rot)));
+                        }
+                    }
+                    return null;
+                })
+                .filter(Predicates.isNotNull());
         });
     }
 

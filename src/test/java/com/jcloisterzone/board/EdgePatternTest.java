@@ -48,5 +48,16 @@ public class EdgePatternTest {
         assertEquals(TileSymmetry.NONE, EdgePattern.fromString("FRCR").getSymmetry());
     }
 
+    @Test
+    public void getBridgePattern() {
+        assertEquals("RFRF", EdgePattern.fromString("FFFF").getBridgePattern(Location.NS).toString());
+        assertEquals("FRFR", EdgePattern.fromString("FFFF").getBridgePattern(Location.WE).toString());
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void getBridgePatternThrows() {
+        EdgePattern.fromString("RRRF").getBridgePattern(Location.NS);
+    }
+
 }
 

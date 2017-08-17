@@ -15,11 +15,9 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.AbbeyPlacementAction;
 import com.jcloisterzone.action.MageAndWitchAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.action.TunnelAction;
 import com.jcloisterzone.ui.Client;
@@ -136,12 +134,17 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         int maxIconSize = 40;
         imgOffset = 0;
 
-        if (actions.get().getAction() instanceof TilePlacementAction) {
-            imgOffset = -10;
-            maxIconSize = 62;
-        } else if (actions.get().getAction() instanceof AbbeyPlacementAction) {
-            imgOffset = 4;
-            maxIconSize = 52;
+        PlayerAction<?> action = actions.get().getAction();
+
+        if (action instanceof TilePlacementAction) {
+            TilePlacementAction tpa = (TilePlacementAction) action;
+            if (tpa.getTile().isAbbeyTile()) {
+                imgOffset = 4;
+                maxIconSize = 52;
+            } else {
+                imgOffset = -10;
+                maxIconSize = 62;
+            }
         }  else {
             maxIconSize = 40;
         }

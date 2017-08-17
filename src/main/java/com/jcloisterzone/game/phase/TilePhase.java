@@ -6,17 +6,26 @@ import java.util.List;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.TilePlacementAction;
+import com.jcloisterzone.board.Board;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.TileTrigger;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
+import com.jcloisterzone.event.play.TilePlacedEvent;
+import com.jcloisterzone.event.play.BridgePlaced;
+import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BazaarItem;
+import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
 import com.jcloisterzone.reducers.PlaceTile;
@@ -166,32 +175,43 @@ public class TilePhase extends ServerAwarePhase {
     public void handlePlaceTile(PlaceTileMessage msg) {
         game.markUndo();
         GameState state = game.getState();
-
         TileDefinition tile = state.getDrawnTile();
-
-        //IMMUTABLE TODO bridge
-        //boolean bridgeRequired = bridgeCap != null && !getBoard().isPlacementAllowed(tile, p);
+        Position pos = msg.getPosition();
+        Rotation rot = msg.getRotation();
+        Player player = state.getActivePlayer();
 
         assert tile.getId().equals(msg.getTileId());
 
+        TilePlacementAction action = (TilePlacementAction) state.getPlayerActions().getActions().get();
+
+        TilePlacement placement = action.getOptions()
+            .find(tp -> tp.getPosition().equals(pos) && tp.getRotation().equals(rot))
+            .getOrElseThrow(() -> new IllegalArgumentException("Invalid placement " + pos + "," + rot));
+
+        FeaturePointer mandatoryBridge = placement.getMandatoryBridge();
+
+        if (mandatoryBridge != null) {
+            state = state.updatePlayers(ps ->
+                ps.addPlayerTokenCount(player.getIndex(), Token.BRIDGE, -1)
+            );
+            state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
+
+            if (mandatoryBridge.getPosition().equals(pos)) {
+                //bridge must be on just placed tile
+                tile = tile.addBridge(mandatoryBridge.getLocation().rotateCCW(rot));
+            }
+        }
+
         state = (new PlaceTile(tile, msg.getPosition(), msg.getRotation())).apply(state);
+
+        if (mandatoryBridge != null) {
+            state = state.appendEvent(
+                new BridgePlaced(PlayEventMeta.createWithPlayer(player), mandatoryBridge)
+            );
+        }
+
         state = clearActions(state);
 
-        //IMMUTABLE TODO bridge
-//        if (tile.getTower() != null) {
-//            game.getCapability(TowerCapability.class).registerTower(p);
-//        }
-
-//        if (bridgeRequired) {
-//            BridgeAction action = bridgeCap.prepareMandatoryBridgeAction();
-//
-//            assert action.getOptions().size() == 1;
-//            FeaturePointer bp = action.getOptions().iterator().next();
-//
-//            bridgeCap.decreaseBridges(getActivePlayer());
-//            bridgeCap.deployBridge(bp.getPosition(), bp.getLocation(), true);
-//        }
-        //getBoard().mergeFeatures(tile);
 
         if (tile.getTrigger() == TileTrigger.BAZAAR) {
             BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);

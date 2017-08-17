@@ -2,13 +2,11 @@ package com.jcloisterzone.reducers;
 
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Edge;
-import com.jcloisterzone.board.EdgePattern;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.debug.GameStateDumper;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TilePlacedEvent;
 import com.jcloisterzone.feature.Cloister;
@@ -22,7 +20,6 @@ import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
-import io.vavr.collection.Map;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.control.Option;
@@ -45,18 +42,6 @@ public class PlaceTile implements Reducer {
         LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
         assert !placedTiles.containsKey(pos);
         boolean abbeyPlacement = TileDefinition.ABBEY_TILE_ID.equals(tile.getId());
-
-        Option<Tuple2<Position, EdgePattern>> patterns = state.getBoard().getAvailablePlacements().find(t -> t._1.equals(pos));
-        if (patterns.isEmpty()) {
-            throw new IllegalArgumentException("Invalid position " + pos + "," + rot);
-        }
-        if (abbeyPlacement) {
-            //TODO validate hole placement
-        } else {
-            if (!patterns.get()._2.isMatchingExact(tile.getEdgePattern().rotate(rot))) {
-                throw new IllegalArgumentException("Invalid rotation " + pos + "," + rot);
-            }
-        }
 
         state = state.setPlacedTiles(
             placedTiles.put(pos, new Tuple2<>(tile, rot))
