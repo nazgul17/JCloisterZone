@@ -89,7 +89,6 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
             + getSpecialMeeples(state).count(m -> (m instanceof Pig) && m.getPlayer().equals(player));
     }
 
-    @Override
     public int getPoints(GameState state, Player player) {
         return getCityPoints(state, getPointsPerCity(state, player, 3)) + getLittleBuildingPoints(state);
     }

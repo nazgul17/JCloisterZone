@@ -12,7 +12,9 @@ public interface Scoreable extends Feature {
     PointCategory getPointCategory();
 
     Set<Player> getOwners(GameState state);
-    int getPoints(GameState state, Player player);
 
     Follower getSampleFollower(GameState state, Player player);
+
+    // getPoints is not present on this interface because of different nature
+    // of Completable, Farm and Castle scoring
 }

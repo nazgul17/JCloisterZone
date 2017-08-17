@@ -19,7 +19,7 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
 /** Score feature followers */
-public class ScoreFeature implements Reducer {
+public abstract class ScoreFeature implements Reducer {
 
     private final Scoreable feature;
 
@@ -27,9 +27,7 @@ public class ScoreFeature implements Reducer {
         this.feature = feature;
     }
 
-    protected int getFeaturePoints(GameState state, Player player) {
-        return feature.getPoints(state, player);
-    }
+    abstract int getFeaturePoints(GameState state, Player player);
 
     private GameState scorePlayer(GameState state, Player p, Follower nextToFairy, boolean finalScoring) {
         int points = getFeaturePoints(state, p);

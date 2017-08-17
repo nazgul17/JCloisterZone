@@ -38,6 +38,9 @@ public abstract class CompletableFeature<T extends CompletableFeature<?>> extend
         return neighboring;
     }
 
+    public Set<Position> getTilePositions() {
+        return getPlaces().map(fp -> fp.getPosition()).toSet();
+    }
 
     // immutable helpers
 

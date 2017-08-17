@@ -1,5 +1,6 @@
 package com.jcloisterzone.reducers;
 
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Barn;
@@ -16,8 +17,9 @@ public class FinalScoring implements Reducer {
         Stream<Scoreable> scoreables = state.getBoard().getOccupiedScoreables();
 
         //score first all except farms
-        for (Scoreable feature : scoreables.filter(Predicates.<Scoreable>instanceOf(Farm.class).negate())) {
-            state = (new ScoreFeature(feature)).apply(state);
+        for (Scoreable feature : scoreables.filter(Predicates.instanceOf(Completable.class))) {
+            Completable completable = (Completable) feature;
+            state = (new ScoreCompletable(completable)).apply(state);
         }
 
         //then score farms
@@ -28,7 +30,7 @@ public class FinalScoring implements Reducer {
             if (hasBarn) {
                    state = (new ScoreFarmBarn(farm)).apply(state);
             } else {
-                state = (new ScoreFeature(farm)).apply(state);
+                state = (new ScoreFarm(farm)).apply(state);
             }
         }
 

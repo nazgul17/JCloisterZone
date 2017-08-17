@@ -110,13 +110,13 @@ public class Road extends CompletableFeature<Road> {
 //    }
 
     @Override
-    public int getPoints(GameState state, Player player) {
-        int length = getPlaces().size();
+    public int getPoints(GameState state) {
+        int tileCount = getPlaces().map(fp -> fp.getPosition()).distinct().size();
         int points;
         if (inn) {
-            points = isCompleted(state) ? length * 2 : 0;
+            points = isCompleted(state) ? tileCount * 2 : 0;
         } else {
-            points = length;
+            points = tileCount;
         }
         return getMageAndWitchPoints(state, points) + getLittleBuildingPoints(state);
     }

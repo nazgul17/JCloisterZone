@@ -28,9 +28,6 @@ public abstract class ScoreableFeature extends TileFeature implements Scoreable 
     }
 
     @Override
-    public abstract int getPoints(GameState state, Player player);
-
-    @Override
     public Set<Player> getOwners(GameState state) {
         HashMap<Player, Integer> powers = getFollowers(state)
             .foldLeft(HashMap.<Player, Integer>empty(), (acc, m) -> {

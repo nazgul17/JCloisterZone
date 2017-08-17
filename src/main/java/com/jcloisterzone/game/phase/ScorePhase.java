@@ -28,6 +28,8 @@ import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.reducers.ScoreCompletable;
+import com.jcloisterzone.reducers.ScoreFarm;
 import com.jcloisterzone.reducers.ScoreFarmWhenBarnIsConnected;
 import com.jcloisterzone.reducers.ScoreFeature;
 import com.jcloisterzone.reducers.UndeployMeeples;
@@ -160,7 +162,7 @@ public class ScorePhase extends ServerAwarePhase {
             Farm placedBarnFarm = placedBarnPtr == null ? null : (Farm) board.get(placedBarnPtr);
             if (placedBarnFarm != null) {
                 //ScoreFeature is scoring just followers!
-                state = (new ScoreFeature(placedBarnFarm)).apply(state);
+                state = (new ScoreFarm(placedBarnFarm)).apply(state);
                 state = (new UndeployMeeples(placedBarnFarm)).apply(state);
             }
 
@@ -268,7 +270,7 @@ public class ScorePhase extends ServerAwarePhase {
                 state = cap.onCompleted(state, completable);
             }
 
-            state = (new ScoreFeature(completable)).apply(state);
+            state = (new ScoreCompletable(completable)).apply(state);
             state = (new UndeployMeeples(completable)).apply(state);
         }
 

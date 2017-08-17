@@ -14,4 +14,6 @@ public interface Completable extends Scoreable {
 
     Completable setNeighboring(Set<FeaturePointer> neighboring);
     Set<FeaturePointer> getNeighboring();
+
+    int getPoints(GameState state);
 }

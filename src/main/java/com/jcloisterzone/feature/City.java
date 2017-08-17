@@ -142,9 +142,9 @@ public class City extends CompletableFeature<City> {
     }
 
     @Override
-    public int getPoints(GameState state, Player player) {
+    public int getPoints(GameState state) {
         boolean completed = isCompleted(state);
-        int size = getPlaces().size();
+        int tileCount = getTilePositions().size();
 
         int pointsPerUnit = 2;
         if (besieged) pointsPerUnit--;
@@ -157,7 +157,7 @@ public class City extends CompletableFeature<City> {
                 pointsPerUnit--;
             }
         }
-        return getMageAndWitchPoints(state, pointsPerUnit * (size + pennants)) + getLittleBuildingPoints(state);
+        return getMageAndWitchPoints(state, pointsPerUnit * (tileCount + pennants)) + getLittleBuildingPoints(state);
     }
 
     @Override

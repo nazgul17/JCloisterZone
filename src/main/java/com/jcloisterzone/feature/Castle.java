@@ -26,11 +26,6 @@ public class Castle extends ScoreableFeature {
         return PointCategory.CASTLE;
     }
 
-    @Override
-    public int getPoints(GameState state, Player player) {
-        return 0;
-    }
-
     public Edge getEdge() {
         return new Edge(places.get(0).getPosition(), places.get(1).getPosition());
     }
