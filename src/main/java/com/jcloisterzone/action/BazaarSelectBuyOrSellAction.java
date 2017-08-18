@@ -29,4 +29,9 @@ public class BazaarSelectBuyOrSellAction extends PlayerAction<BuyOrSellOption>{
         );
     }
 
+    @Override
+    public String toString() {
+        return "BUY or SELL";
+    }
+
 }

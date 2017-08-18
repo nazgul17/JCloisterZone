@@ -20,4 +20,8 @@ public class BazaarSelectTileAction extends PlayerAction<BazaarItem> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String toString() {
+        return "select bazaar tile";
+    }
 }

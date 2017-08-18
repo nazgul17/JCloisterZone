@@ -163,7 +163,7 @@ public class Location implements Serializable {
         return shift(6);
     }
 
-    /** Returns opposite location, mirrored by axis */
+    /** Returns opposite location, mirrored by axes */
     public Location rev() {
         // odd bits shift by 5, even by 3;
         int mLo = mask & 255;

@@ -17,4 +17,9 @@ public class BazaarBidAction extends PlayerAction<Void> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public String toString() {
+        return "make bazaar bid";
+    }
+
 }

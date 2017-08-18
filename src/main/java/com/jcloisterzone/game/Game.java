@@ -128,18 +128,28 @@ public class Game extends GameSettings implements EventProxy {
         replaceState(f4.apply(f3.apply(f2.apply(f1.apply(this.state)))));
     }
 
-//    public void replaceState(Reducer... fs) {
-//        GameState state = this.state;
-//        for (Reducer f : fs) {
-//            state = f.apply(state);
-//        }
-//        replaceState(state);
-//    }
-
     public void replaceState(GameState state) {
         GameState prev = this.state;
         this.state = state;
         post(new GameChangedEvent(prev, state));
+
+        if (logger.isInfoEnabled()) {
+            ActionsState as = state.getPlayerActions();
+            if (as != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append(as.getPlayer().getNick());
+                sb.append("'s actions:");
+                for (PlayerAction<?> action : as.getActions()) {
+                    sb.append("\n  - ");
+                    sb.append(action.toString());
+                    if (action.getOptions() != null) { // bazaar actions can be empty, handled in differente way
+                        sb.append("\n    ");
+                        sb.append(String.join(", " , action.getOptions().map(Object::toString)));
+                    }
+                }
+                logger.info(sb.toString());
+            }
+        }
     }
 
     @Deprecated
@@ -177,43 +187,7 @@ public class Game extends GameSettings implements EventProxy {
     @Override
     public void post(Event event) {
         eventBus.post(event);
-        //IMMUTABLE TOTO make state always be not null
- //       eventQueue.add(event);
-//        if (event instanceof PlayEvent && !event.isUndo()) {
-//            if (isUiSupportedUndo(event)) {
-//                if ((event instanceof BridgeEvent && ((BridgeEvent)event).isForced()) ||
-//                     event instanceof GoldChangeEvent && ((GoldChangeEvent)event).getPos().equals(getCurrentTile().getPosition()) ||
-//                     event instanceof ScoreEvent) {
-//                    //just add to chain after tile event
-//                    lastUndoable.add((Undoable) event);
-//                } else {
-//                    lastUndoable.clear();
-//                    lastUndoable.add((Undoable) event);
-//                    lastUndoablePhase = phase;
-//                }
-//            } else {
-//                if (event.getClass().getAnnotation(Idempotent.class) == null) {
-//                    lastUndoable.clear();
-//                    lastUndoablePhase = null;
-//                }
-//            }
-//        }
-        // process capabilities after undo processing
-        // capability can trigger another event and order is important! (eg. windrose scoring)
-//        if (event instanceof PlayEvent) {
-//            for (Capability capability: getCapabilities()) {
-//                capability.handleEvent((PlayEvent) event);
-//            }
-//        }
     }
-
-//    public void flushEventQueue() {
-//        Event event;
-//        while ((event = eventQueue.poll()) != null) {
-//            eventBus.post(event);
-//        }
-//    }
-
 
     public PlayerSlot[] getPlayerSlots() {
         // need to match subtypes, can't use getInstance on phases

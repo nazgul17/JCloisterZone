@@ -60,7 +60,7 @@ public class Position implements BoardPointer, Comparable<Position> {
 
     @Override
     public String toString() {
-        return String.format("[x=%s,y=%s]", x, y);
+        return String.format("[%s,%s]", x, y);
     }
 
     public Position add(Position p) {

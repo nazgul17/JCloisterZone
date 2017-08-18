@@ -7,6 +7,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Board;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
@@ -17,6 +18,8 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
 import com.jcloisterzone.event.play.TilePlacedEvent;
+import com.jcloisterzone.feature.Bridge;
+import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.event.play.BridgePlaced;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.game.Game;
@@ -34,6 +37,7 @@ import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
@@ -196,9 +200,23 @@ public class TilePhase extends ServerAwarePhase {
             );
             state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
 
-            if (mandatoryBridge.getPosition().equals(pos)) {
+            Position bridgePos = mandatoryBridge.getPosition();
+            Location bridgeLoc = mandatoryBridge.getLocation();
+            if (bridgePos.equals(pos)) {
                 //bridge must be on just placed tile
-                tile = tile.addBridge(mandatoryBridge.getLocation().rotateCCW(rot));
+                tile = tile.addBridge(bridgeLoc.rotateCCW(rot));
+            } else {
+                LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
+                Tuple2<TileDefinition, Rotation> adjTile = placedTiles.get(bridgePos).get();
+                Rotation adjTileRotation = adjTile._2;
+                adjTile = adjTile.map1(t -> t.addBridge(bridgeLoc.rotateCCW(adjTileRotation)));
+                state = state.setPlacedTiles(placedTiles.put(bridgePos, adjTile));
+
+                Bridge bridge = new Bridge(bridgeLoc);
+                Road bridgeRoad = bridge.placeOnBoard(bridgePos, adjTileRotation);
+                state = state.setFeatures(
+                    state.getFeatures().put(mandatoryBridge, bridgeRoad)
+                );
             }
         }
 
@@ -211,7 +229,6 @@ public class TilePhase extends ServerAwarePhase {
         }
 
         state = clearActions(state);
-
 
         if (tile.getTrigger() == TileTrigger.BAZAAR) {
             BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);

@@ -6,6 +6,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
@@ -101,19 +102,60 @@ public class Board {
             state.getTurnPlayer().getIndex(), Token.BRIDGE) > 0;
 
         EdgePattern basePattern = tile.getEdgePattern();
-        Vector<Tuple2<EdgePattern, Location>> bridgePatterns = playerHasBridge ? getBridgePatterns(basePattern) : Vector.empty();
+        Vector<Tuple2<EdgePattern, Location>> baseBridgePatterns = playerHasBridge ? getBridgePatterns(basePattern) : null;
 
         return getAvailablePlacements().flatMap(avail -> {
             return Stream.of(Rotation.values())
                 .map(rot -> {
                     Position pos = avail._1;
                     EdgePattern border = avail._2;
-                    if (border.isMatchingExact(basePattern.rotate(rot))) {
+                    EdgePattern tilePattern = basePattern.rotate(rot);
+                    if (border.isMatchingExact(tilePattern)) {
                         return new TilePlacement(pos, rot, null);
                     }
-                    for (Tuple2<EdgePattern, Location> t : bridgePatterns) {
-                        if (border.isMatchingExact(t._1.rotate(rot))) {
-                            return new TilePlacement(pos, rot, new FeaturePointer(pos, t._2.rotateCW(rot)));
+                    if (playerHasBridge) {
+                        Set<FeaturePointer> placedBridges = state.getCapabilities().getModel(BridgeCapability.class);
+
+                        // check bridges on tile
+                        for (Tuple2<EdgePattern, Location> t : baseBridgePatterns) {
+                            EdgePattern tileWithBridgePattern = t._1.rotate(rot);
+                            if (border.isMatchingExact(tileWithBridgePattern)) {
+                                Location bridgeLocation = t._2.rotateCW(rot);
+                                return new TilePlacement(pos, rot, new FeaturePointer(pos, bridgeLocation));
+                            }
+                        }
+                        // check bridges on adjacent tiles
+                        for (Location side : Location.sides()) {
+                            Position adjPos = pos.add(side);
+                            Tile adj = get(adjPos);
+                            Tile adj2 = get(adjPos.add(side));
+
+                            // for valid placement there must be adjacent place with empty
+                            // space on the other side
+                            if (adj == null || adj2 != null) {
+                                continue;
+                            }
+                            // also no bridge must be already placed on adjacent tile
+                            if (placedBridges.find(fp -> fp.getPosition().equals(adj)).isDefined()) {
+                                continue;
+                            }
+
+                            //bridge must be legal on adjacent tile
+                            Location bridgeLoc;
+                            if (side == Location.N || side == Location.S) {
+                                bridgeLoc = Location.NS;
+                            } else {
+                                bridgeLoc = Location.WE;
+                            }
+                            if (!adj.getEdgePattern().isBridgeAllowed(bridgeLoc)) {
+                                continue;
+                            }
+
+                            //and finally placed tile must fit into
+                            EdgePattern borderWithBridgePattern = border.replace(side, EdgeType.ROAD);
+                            if (borderWithBridgePattern.isMatchingExact(tilePattern)) {
+                                return new TilePlacement(pos, rot, new FeaturePointer(adjPos, bridgeLoc));
+                            }
                         }
                     }
                     return null;

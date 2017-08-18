@@ -34,6 +34,6 @@ public class MeepleAction extends SelectFeatureAction {
 
     @Override
     public String toString() {
-        return "place " + meepleType.getSimpleName() + " ? " + getOptions();
+        return "place " + meepleType.getSimpleName();
     }
 }

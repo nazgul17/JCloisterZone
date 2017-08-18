@@ -82,7 +82,7 @@ public class FeaturePointer implements BoardPointer {
 
     @Override
     public String toString() {
-        return String.format("[x=%s,y=%s,loc=%s]", position.x, position.y, location);
+        return String.format("{%s,%s}", position, location);
     }
 
     @Override

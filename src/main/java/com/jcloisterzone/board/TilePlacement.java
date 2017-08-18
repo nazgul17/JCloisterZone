@@ -35,8 +35,15 @@ public class TilePlacement implements Comparable<TilePlacement> {
 
     @Override
     public String toString() {
-        return new StringBuilder().append("[x=").append(position.x).append(",y=")
-                .append(position.y).append(",").append(rotation).append("]").toString();
+        StringBuilder sb = new StringBuilder();
+        sb.append("{");
+        sb.append(position).append(",").append(rotation);
+        if (mandatoryBridge != null) {
+            sb.append(",bridge=");
+            sb.append(mandatoryBridge);
+        }
+        sb.append("}");
+        return sb.toString();
     }
 
     @Override

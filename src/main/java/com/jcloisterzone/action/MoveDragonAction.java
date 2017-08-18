@@ -29,7 +29,7 @@ public class MoveDragonAction extends SelectTileAction {
 
     @Override
     public String toString() {
-        return "move dragon";
+        return "move " + figureId;
     }
 
 }

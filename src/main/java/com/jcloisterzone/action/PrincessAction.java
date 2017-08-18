@@ -23,6 +23,6 @@ public class PrincessAction extends SelectFollowerAction {
 
     @Override
     public String toString() {
-        return "returm meeple by princesss";
+        return "return meeple by princesss";
     }
 }

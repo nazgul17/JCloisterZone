@@ -19,4 +19,9 @@ public class ConfirmAction extends PlayerAction<Boolean> {
         Game game = gc.getGame();
         gc.getConnection().send(new CommitMessage(game.getGameId()));
     }
+
+    @Override
+    public String toString() {
+        return "confirm actions";
+    }
 }

@@ -86,10 +86,7 @@ public class TileDefinition implements Serializable {
 
     public TileDefinition addBridge(Location bridgeLoc) {
         assert bridgeLoc == Location.NS || bridgeLoc == Location.WE;
-        Bridge bridge = new Bridge(
-            List.of(new FeaturePointer(Position.ZERO, bridgeLoc)),
-            TileDefinitionBuilder.initOpenEdges(Stream.ofAll(Arrays.asList(bridgeLoc.splitToSides())))
-        );
+        Bridge bridge = new Bridge(bridgeLoc);
         return setInitialFeatures(initialFeatures.put(bridgeLoc, bridge));
     }
 

@@ -77,7 +77,16 @@ public class EdgePattern implements Serializable {
         return new EdgePattern(l.get(0), l.get(1), l.get(2), l.get(3));
     }
 
-    @Deprecated //use rotate on EdgePattern instad
+     public EdgePattern replace(Location loc, EdgeType type) {
+        return new EdgePattern(
+            loc == Location.N ? type : at(Location.N),
+            loc == Location.E ? type : at(Location.E),
+            loc == Location.S ? type : at(Location.S),
+            loc == Location.W ? type : at(Location.W)
+        );
+     }
+
+    @Deprecated //use rotate on EdgePattern instead
     public EdgeType at(Location loc, Rotation rotation) {
         return at(loc.rotateCCW(rotation));
     }

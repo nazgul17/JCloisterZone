@@ -25,4 +25,9 @@ public class MageAndWitchAction extends SelectFeatureAction {
     public String getFigureId() {
         return figureId;
     }
+
+    @Override
+    public String toString() {
+        return "move " + figureId;
+    }
 }
