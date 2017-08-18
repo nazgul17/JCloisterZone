@@ -35,7 +35,7 @@ public class FairyCapability extends Capability<Void> {
     public GameState onActionPhaseEntered(GameState state) {
         boolean fairyOnTile = state.getBooleanValue(CustomRule.FAIRY_ON_TILE);
         Player activePlayer = state.getPlayerActions().getPlayer();
-        PlayerAction<?> fairyAction = null;
+
 
         LinkedHashMap<Follower, FeaturePointer> followers = LinkedHashMap.narrow(
             state.getDeployedMeeples()
@@ -46,94 +46,18 @@ public class FairyCapability extends Capability<Void> {
 
         if (fairyOnTile) {
             Set<Position> options = followers.values().map(fp -> fp.getPosition()).toSet();
-            if (!options.isEmpty()) {
-                fairyAction = new FairyOnTileAction(fairy.getId(), options);
+            if (options.isEmpty()) {
+                return state;
             }
+            return appendAction(state, new FairyOnTileAction(fairy.getId(), options));
         } else {
             Set<MeeplePointer> options = followers
                 .map(t -> new MeeplePointer(t._2, t._1.getId()))
                 .toSet();
-            if (!options.isEmpty()) {
-                fairyAction = new FairyNextToAction(fairy.getId(), options);
+            if (options.isEmpty()) {
+                return state;
             }
+            return appendAction(state, new FairyNextToAction(fairy.getId(), options));
         }
-
-        if (fairyAction == null) {
-            return state;
-        }
-
-        ActionsState as = state.getPlayerActions();
-        return state.setPlayerActions(as.appendAction(fairyAction));
     }
-
-//    @Override
-//    public void handleEvent(PlayEvent event) {
-//       if (event instanceof MeepleEvent) {
-//           undeployed((MeepleEvent) event);
-//       }
-//
-//    }
-//
-//    private void undeployed(MeepleEvent ev) {
-//        if (ev.getFrom() == null) return;
-//        if (ev.getMeeple() == fairy.getNextTo()) {
-//            fairy.setNextTo(null);
-//        }
-//    }
-
-
-//    public boolean isNextTo(Follower f) {
-//        if (game.getBooleanValue(CustomRule.FAIRY_ON_TILE)) {
-//            Position pos = f.getPosition();
-//            return pos != null && pos.equals(fairy.getPosition());
-//        } else {
-//            return fairy.getNextTo() == f && f.at(fairy.getFeaturePointer());
-//        }
-//    }
-
-//    public List<Follower> getFollowersNextToFairy() {
-//        if (fairy.getFeaturePointer() == null) {
-//            return Collections.emptyList();
-//        }
-//        List<Follower> result = new ArrayList<>();
-//        for (Meeple m : game.getDeployedMeeples()) {
-//            if (m instanceof Follower) {
-//                Follower f = (Follower) m;
-//                if (isNextTo(f)) {
-//                    result.add(f);
-//                }
-//            }
-//        }
-//        return result;
-//    }
-//
-//
-//    @Override
-//    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-//        boolean fairyOnTile = game.getBooleanValue(CustomRule.FAIRY_ON_TILE);
-//        Player activePlayer = game.getActivePlayer();
-//        PlayerAction<?> fairyAction;
-//        if (fairyOnTile) {
-//            fairyAction = new FairyOnTileAction();
-//        } else {
-//            fairyAction = new FairyNextToAction();
-//        }
-//
-//        for (Follower m : Iterables.filter(activePlayer.getFollowers(), MeeplePredicates.deployed())) {
-//            if (fairyOnTile) {
-//                if (!m.at(fairy.getPosition())) {
-//                    ((FairyOnTileAction) fairyAction).add(m.getPosition());
-//                }
-//            } else {
-//                if (!m.equals(fairy.getNextTo())) {
-//                    ((FairyNextToAction) fairyAction).add(new MeeplePointer(m));
-//                }
-//            }
-//        }
-//
-//        if (!fairyAction.isEmpty()) {
-//            actions.add(fairyAction);
-//        }
-//    }
-
 }

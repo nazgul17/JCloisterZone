@@ -25,6 +25,7 @@ public class BazaarCapability extends Capability<BazaarCapabilityModel> {
         return setModel(state, new BazaarCapabilityModel());
     }
 
+
     @Override
     public GameState onTurnCleanUp(GameState state) {
         return updateModel(state, model -> {

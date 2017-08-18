@@ -25,6 +25,11 @@ public abstract class PlayEvent implements Serializable {
         return metadata;
     }
 
+    @Override
+    public String toString() {
+        return getClass().getSimpleName();
+    }
+
     @Immutable
     public static class PlayEventMeta implements Serializable {
 

@@ -1,30 +1,19 @@
 package com.jcloisterzone.game.phase;
 
-import java.util.function.Predicate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jcloisterzone.Player;
-import com.jcloisterzone.PointCategory;
-import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.Snapshot;
-import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.GameState.Flag;
-import com.jcloisterzone.reducers.AddPoints;
+import com.jcloisterzone.game.state.GameStateHelpers;
 import com.jcloisterzone.reducers.PayRansom;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PayRansomMessage;
 
-import io.vavr.collection.Array;
-import io.vavr.collection.List;
 
-
-public abstract class Phase {
+public abstract class Phase implements GameStateHelpers {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 

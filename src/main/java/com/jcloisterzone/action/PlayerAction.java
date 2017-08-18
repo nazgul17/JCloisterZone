@@ -17,7 +17,7 @@ public abstract class PlayerAction<T> implements Iterable<T>, Serializable {
        this.options = options;
     }
 
-    public abstract void perform(GameController gc, T target);
+    public abstract void perform(GameController gc, T option);
 
     @Override
     public Iterator<T> iterator() {

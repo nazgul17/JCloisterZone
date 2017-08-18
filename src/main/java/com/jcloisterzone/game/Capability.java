@@ -21,12 +21,13 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameStateHelpers;
 
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
 @Immutable
-public abstract class Capability<T> implements Serializable {
+public abstract class Capability<T> implements Serializable, GameStateHelpers {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -73,41 +74,6 @@ public abstract class Capability<T> implements Serializable {
     public List<Special> createPlayerSpecialMeeples(Player player, MeepleIdProvider idProvider) {
         return List.empty();
     }
-
-    /** convenient method to find follower action in all actions */
-    @Deprecated
-    protected java.util.List<MeepleAction> findFollowerActions(java.util.List<PlayerAction<?>> actions) {
-        java.util.List<MeepleAction> followerActions = new ArrayList<>();
-        for (PlayerAction<?> a : actions) {
-            if (a instanceof MeepleAction) {
-                MeepleAction ma = (MeepleAction) a;
-                if (Follower.class.isAssignableFrom(ma.getMeepleType())) {
-                    followerActions.add(ma);
-                }
-            }
-        }
-        return followerActions;
-    }
-
-//    /** convenient method to find follower action in all actions, or create new if player has follower and action doesn't exists*/
-//    @Deprecated
-//    protected java.util.List<MeepleAction> findAndFillFollowerActions(java.util.List<PlayerAction<?>> actions) {
-//        java.util.List<MeepleAction> followerActions = findFollowerActions(actions);
-//        java.util.Set<Class<? extends Meeple>> hasAction = new java.util.HashSet<>();
-//        for (MeepleAction ma : followerActions) {
-//            hasAction.add(ma.getMeepleType());
-//        }
-//
-//        for (Follower f : game.getActivePlayer().getFollowers()) {
-//            if (f.isInSupply() && !hasAction.contains(f.getClass())) {
-//                MeepleAction ma = new MeepleAction(f.getClass());
-//                actions.add(ma);
-//                followerActions.add(ma);
-//                hasAction.add(f.getClass());
-//            }
-//        }
-//        return followerActions;
-//    }
 
     @Deprecated
     public Set<FeaturePointer> extendFollowOptions(Set<FeaturePointer> locations) {

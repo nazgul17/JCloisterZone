@@ -28,7 +28,7 @@ public class Bridge extends Road {
     public Bridge(Location bridgeLoc) {
         this(
             List.of(new FeaturePointer(Position.ZERO, bridgeLoc)),
-            TileDefinitionBuilder.initOpenEdges(Stream.ofAll(Arrays.asList(bridgeLoc.splitToSides())))
+            TileDefinitionBuilder.initOpenEdges(Stream.ofAll(bridgeLoc.splitToSides()))
         );
     }
 

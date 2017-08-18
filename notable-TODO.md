@@ -17,6 +17,7 @@ and get it by one one instead of all per tile
 
 * test if builders works properly in extra abbey round (-> means buiders are ignored)
 
+* if tile can be placed only with bridge, player can choose to discard tile
 
 * add ZMG Castle variant - allow any (non-semicircular) cities as casle base
 * do not eat meeples by Dragon on castles, do not capture by Tower

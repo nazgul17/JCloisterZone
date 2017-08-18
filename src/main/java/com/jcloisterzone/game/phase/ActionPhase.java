@@ -40,6 +40,7 @@ import com.jcloisterzone.game.state.GameState.Flag;
 import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.PayRansom;
+import com.jcloisterzone.reducers.PlaceBridge;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
@@ -145,8 +146,8 @@ public class ActionPhase extends Phase {
 
     @WsSubscribe
     public void handleDeployMeeple(DeployMeepleMessage msg) {
-        FeaturePointer fp = msg.getPointer();
         game.markUndo();
+        FeaturePointer fp = msg.getPointer();
         GameState state = game.getState();
         Meeple m = state.getActivePlayer().getMeepleFromSupply(state, msg.getMeepleId());
         //TODO validate against players actions instead
@@ -172,6 +173,7 @@ public class ActionPhase extends Phase {
 
     @WsSubscribe
     public void handleMoveNeutralFigure(MoveNeutralFigureMessage msg) {
+        game.markUndo();
         GameState state = game.getState();
         BoardPointer ptr = msg.getTo();
         NeutralFigure<?> fig = state.getNeutralFigures().getById(msg.getFigureId());
@@ -192,6 +194,7 @@ public class ActionPhase extends Phase {
     @WsSubscribe
     public void handleReturnMeeple(ReturnMeepleMessage msg) {
         //TOOD use different messages for undeploy actions?
+        game.markUndo();
         GameState state = game.getState();
         MeeplePointer ptr = msg.getPointer();
 
@@ -220,18 +223,20 @@ public class ActionPhase extends Phase {
 
     @WsSubscribe
     public void handlePlaceToken(PlaceTokenMessage msg) {
+        game.markUndo();
         GameState state = game.getState();
         Player player = state.getActivePlayer();
 
         FeaturePointer ptr = msg.getPointer();
         Token token = msg.getToken();
 
-        if (token == Token.TOWER_PIECE) {
-            // TODO validation against ActionState
+        state = state.updatePlayers(ps ->
+            ps.addPlayerTokenCount(player.getIndex(), token, -1)
+        );
 
-            state = state.updatePlayers(ps ->
-                 ps.addPlayerTokenCount(player.getIndex(), Token.TOWER_PIECE, -1)
-            );
+        switch (token) {
+        case TOWER_PIECE:
+            // TODO validation against ActionState
             Tower tower = (Tower) state.getFeatures().get(ptr).getOrElseThrow(() -> new IllegalArgumentException("No tower"));
             tower = tower.increaseHeight();
 
@@ -240,8 +245,15 @@ public class ActionPhase extends Phase {
                 PlayEventMeta.createWithActivePlayer(state), token, ptr)
             );
 
+            state = clearActions(state);
             next(state, TowerCapturePhase.class);
-        } else {
+            return;
+        case BRIDGE:
+            state = (new PlaceBridge(msg.getPointer())).apply(state);
+            state = clearActions(state);
+            enter(state);
+            return;
+        default:
             throw new IllegalArgumentException(String.format("%s placement is not allowed", token));
         }
     }
@@ -262,15 +274,6 @@ public class ActionPhase extends Phase {
 //    @Override
 //    public void placeTunnelPiece(FeaturePointer fp, boolean isB) {
 //        game.get(TunnelCapability.class).placeTunnelPiece(fp, isB);
-//        next(ActionPhase.class);
-//    }
-//
-//
-//    @Override
-//    public void deployBridge(Position pos, Location loc) {
-//        BridgeCapability bridgeCap = game.get(BridgeCapability.class);
-//        bridgeCap.decreaseBridges(getActivePlayer());
-//        bridgeCap.deployBridge(pos, loc, false);
 //        next(ActionPhase.class);
 //    }
 //

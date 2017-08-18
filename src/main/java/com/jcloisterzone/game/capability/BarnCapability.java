@@ -69,10 +69,7 @@ public final class BarnCapability extends Capability<FeaturePointer> {
             return state;
         }
 
-        ActionsState as = state.getPlayerActions();
-        as = as.appendAction(new MeepleAction(Barn.class, options));
-        return state.setPlayerActions(as);
-
+        return appendAction(state, new MeepleAction(Barn.class, options));
     }
 
     @Override

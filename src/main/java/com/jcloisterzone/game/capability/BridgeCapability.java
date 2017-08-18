@@ -1,12 +1,21 @@
 package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.action.BridgeAction;
+import com.jcloisterzone.board.Board;
+import com.jcloisterzone.board.EdgePattern;
+import com.jcloisterzone.board.Location;
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.event.play.BridgePlaced;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.GameState;
 
+import io.vavr.Predicates;
 import io.vavr.collection.HashSet;
+import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
 
@@ -26,6 +35,48 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
         });
         state = setModel(state, HashSet.empty());
         return state;
+    }
+
+    @Override
+    public GameState onActionPhaseEntered(GameState state) {
+        Player player = state.getPlayerActions().getPlayer();
+
+        boolean playerHasBridge = state.getPlayers().getPlayerTokenCount(
+            player.getIndex(), Token.BRIDGE) > 0;
+
+        if (!playerHasBridge ||
+            state.getCurrentTurnEvents().find(Predicates.instanceOf(BridgePlaced.class)).isDefined()) {
+            return state;
+        }
+
+        Board board = state.getBoard();
+        Tile currentTile = board.getLastPlaced();
+        Position pos = currentTile.getPosition();
+        EdgePattern tileEdgePattern = currentTile.getEdgePattern();
+        Set<FeaturePointer> options = HashSet.empty();
+
+
+        for (Location bridgeLoc : new Location[] {Location.NS, Location.WE}) {
+            if (!tileEdgePattern.isBridgeAllowed(bridgeLoc)) {
+                continue;
+            }
+
+            boolean adjExists = bridgeLoc.splitToSides()
+                .map(l -> board.get(pos.add(l)))
+                .find(Predicates.isNotNull())
+                .isDefined();
+            if (adjExists) {
+                continue;
+            }
+
+            options = options.add(new FeaturePointer(pos, bridgeLoc));
+        }
+
+        if (options.isEmpty()) {
+            return state;
+        }
+
+        return appendAction(state, new BridgeAction(options));
     }
 
 

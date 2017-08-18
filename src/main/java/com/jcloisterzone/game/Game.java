@@ -51,6 +51,7 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
+import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
@@ -131,12 +132,25 @@ public class Game extends GameSettings implements EventProxy {
     public void replaceState(GameState state) {
         GameState prev = this.state;
         this.state = state;
-        post(new GameChangedEvent(prev, state));
+        GameChangedEvent ev = new GameChangedEvent(prev, state);
+        post(ev);
 
         if (logger.isInfoEnabled()) {
+            StringBuilder sb;
+            Queue<PlayEvent> playEvents = ev.getNewPlayEvents();
+            if (!playEvents.isEmpty()) {
+                sb = new StringBuilder();
+                sb.append("play events:");
+                for (PlayEvent pev : ev.getNewPlayEvents()) {
+                    sb.append("\n  - ");
+                    sb.append(pev.toString());
+                }
+                logger.info(sb.toString());
+            }
+
             ActionsState as = state.getPlayerActions();
             if (as != null) {
-                StringBuilder sb = new StringBuilder();
+                sb = new StringBuilder();
                 sb.append(as.getPlayer().getNick());
                 sb.append("'s actions:");
                 for (PlayerAction<?> action : as.getActions()) {

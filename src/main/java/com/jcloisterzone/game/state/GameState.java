@@ -16,6 +16,7 @@ import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.PlayEvent;
+import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
@@ -367,6 +368,7 @@ public class GameState implements Serializable {
     }
 
     // ------ helpers -------------
+    //TOOD move something to GameStateHelpers
 
     private Board board;
 
@@ -395,7 +397,18 @@ public class GameState implements Serializable {
         return GameOverPhase.class.equals(phase);
     }
 
-    //TODO use two builder keys for it?
+    public Queue<PlayEvent> getCurrentTurnEvents() {
+        Queue<PlayEvent> res = Queue.empty();
+        for (PlayEvent ev : events.reverseIterator()) {
+            res.prepend(ev);
+            if (ev instanceof PlayerTurnEvent) {
+                break;
+            }
+        }
+        return res;
+    }
+
+
     public static enum Flag {
         // Cleared at the turn end
         RANSOM_PAID, BAZAAR_AUCTION,

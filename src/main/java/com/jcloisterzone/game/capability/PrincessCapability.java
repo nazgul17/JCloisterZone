@@ -33,23 +33,25 @@ public class PrincessCapability extends Capability<Void> {
         }
 
         Tile tile = state.getBoard().getLastPlaced();
-        Set<MeeplePointer> options = tile.getScoreables(false).filter(t -> {
+        Set<MeeplePointer> options = tile.getScoreables(false)
+        .filter(t -> {
             if (t._2 instanceof City) {
                 City part = (City) tile.getInitialFeaturePartOf(t._1);
                 return part.isPrincess();
             } else {
                 return false;
             }
-        }).flatMap(featureTuple -> {
+        })
+        .flatMap(featureTuple -> {
             City cityWithPrincess = (City) featureTuple._2;
             return cityWithPrincess.getFollowers2(state).map(t -> new MeeplePointer(t._2, t._1.getId()));
-        }).toSet();
+        })
+        .toSet();
 
         if (options.isEmpty()) {
             return state;
         }
 
-        ActionsState as = state.getPlayerActions();
-        return state.setPlayerActions(as.appendAction(new PrincessAction(options)));
+        return appendAction(state, new PrincessAction(options));
     }
 }

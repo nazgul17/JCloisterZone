@@ -39,7 +39,7 @@ public class Board {
         return state.getPlacedTiles().get(pos).getOrNull();
     }
 
-    private EdgePattern getEdgetPattern(Position pos) {
+    private EdgePattern getEdgePattern(Position pos) {
         Tuple2<TileDefinition, Rotation> placed = getPlacedTile(pos);
         if (placed != null) {
             return placed._1.getEdgePattern().rotate(placed._2);
@@ -75,7 +75,7 @@ public class Board {
             for (Position offset: Position.ADJACENT.values()) {
                 Position adj = pos.add(offset);
                 if (!used.contains(adj) && !placedTiles.containsKey(adj)) {
-                    avail.add(new Tuple2<Position, EdgePattern>(adj, getEdgetPattern(adj)));
+                    avail.add(new Tuple2<Position, EdgePattern>(adj, getEdgePattern(adj)));
                     used.add(adj);
                 }
             }

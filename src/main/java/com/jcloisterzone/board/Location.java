@@ -134,7 +134,7 @@ public class Location implements Serializable {
     /** West right farm */
     public static final Location WR = new Location("WR", 128);
 
-
+    //TODO make public and immutable, remove helper methods
     private static final Location[] SIDES = {N, E, S, W};
     private static final Location[] DIAGONAL_SIDES = {NE, SE, SW, NW};
     private static final Location[] FARM_SIDES = {NL, NR, EL, ER, SL, SR, WL, WR};
@@ -275,26 +275,15 @@ public class Location implements Serializable {
         return create(mask & d.mask);
     }
 
-    public Location[] intersectMulti(Location[] locs) {
-        List<Location> result = new ArrayList<>();
-        for (Location loc: locs) {
-            Location i = this.intersect(loc);
-            if (i != null) {
-                result.add(i);
-            }
-        }
-        return result.toArray(new Location[result.size()]);
-    }
-
-    public Location[] splitToSides() {
-        ArrayList<Location> result = new ArrayList<Location>(4);
+    public Vector<Location> splitToSides() {
+        Vector<Location> result = Vector.empty();
         for (Location side: Location.sides()) {
-            Location part = this.intersect(side);
+            Location part = intersect(side);
             if (part != null) {
-                result.add(part);
+                result = result.append(part);
             }
         }
-        return result.toArray(new Location[result.size()]);
+        return result;
     }
 
     /** Creates instance according to name */
