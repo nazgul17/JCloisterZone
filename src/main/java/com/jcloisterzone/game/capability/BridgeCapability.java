@@ -15,7 +15,6 @@ import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
 import io.vavr.collection.HashSet;
-import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
 
@@ -52,24 +51,13 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
         Board board = state.getBoard();
         Tile currentTile = board.getLastPlaced();
         Position pos = currentTile.getPosition();
-        EdgePattern tileEdgePattern = currentTile.getEdgePattern();
         Set<FeaturePointer> options = HashSet.empty();
 
-
         for (Location bridgeLoc : new Location[] {Location.NS, Location.WE}) {
-            if (!tileEdgePattern.isBridgeAllowed(bridgeLoc)) {
-                continue;
+            FeaturePointer ptr = new FeaturePointer(pos, bridgeLoc);
+            if (isBridgePlacementAllowed(state, ptr)) {
+                options = options.add(ptr);
             }
-
-            boolean adjExists = bridgeLoc.splitToSides()
-                .map(l -> board.get(pos.add(l)))
-                .find(Predicates.isNotNull())
-                .isDefined();
-            if (adjExists) {
-                continue;
-            }
-
-            options = options.add(new FeaturePointer(pos, bridgeLoc));
         }
 
         if (options.isEmpty()) {
@@ -79,142 +67,30 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
         return appendAction(state, new BridgeAction(options));
     }
 
+    public boolean isBridgePlacementAllowed(GameState state, FeaturePointer bridgePtr) {
+        Board board = state.getBoard();
+        Position pos = bridgePtr.getPosition();
+        Location loc = bridgePtr.getLocation();
 
-//    @Override
-//    public void turnPartCleanUp() {
-//        bridgeUsed = false;
-//    }
+        // for valid placement there must be adjacent place with empty
+        // space on the other side
+        boolean adjExists = loc.splitToSides()
+                .map(l -> board.get(pos.add(l)))
+                .find(Predicates.isNotNull())
+                .isDefined();
 
-//    @Override
-//    public void prepareActions(List<PlayerAction<?>> actions, Set<FeaturePointer> followerOptions) {
-//        if (!bridgeUsed && getPlayerBridges(game.getPhase().getActivePlayer()) > 0) {
-//            BridgeAction action = prepareBridgeAction();
-//            if (action != null) {
-//                actions.add(action);
-//            }
-//        }
-//    }
+        if (adjExists) {
+            return false;
+        }
 
-//    public BridgeAction prepareMandatoryBridgeAction() {
-//        Tile tile = game.getCurrentTile();
-//        for (Entry<Location, Tile> entry : getBoard().getAdjacentTilesMap(tile.getPosition()).entrySet()) {
-//            Tile adjacent = entry.getValue();
-//            Location rel = entry.getKey();
-//
-//            EdgeType adjacentSide = adjacent.getEdge(rel.rev());
-//            EdgeType tileSide = tile.getEdge(rel);
-//            if (tileSide != adjacentSide) {
-//                Location bridgeLoc = getBridgeLocationForAdjacent(rel);
-//                BridgeAction action = prepareTileBridgeAction(tile, null, bridgeLoc);
-//                if (action != null) return action;
-//                return prepareTileBridgeAction(adjacent, null, bridgeLoc);
-//            }
-//        }
-//        throw new IllegalStateException();
-//    }
-//
-//    private Location getBridgeLocationForAdjacent(Location rel) {
-//        if (rel == Location.N || rel == Location.S) {
-//            return Location.NS;
-//        } else {
-//            return Location.WE;
-//        }
-//    }
-//
-//    private BridgeAction prepareBridgeAction() {
-//        BridgeAction action = null;
-//        Tile tile = game.getCurrentTile();
-//        action = prepareTileBridgeAction(tile, action, Location.NS);
-//        action = prepareTileBridgeAction(tile, action, Location.WE);
-//        for (Entry<Location, Tile> entry : getBoard().getAdjacentTilesMap(tile.getPosition()).entrySet()) {
-//            Tile adjacent = entry.getValue();
-//            Location rel = entry.getKey();
-//            action = prepareTileBridgeAction(adjacent, action, getBridgeLocationForAdjacent(rel));
-//        }
-//        return action;
-//    }
-//
-//    private BridgeAction prepareTileBridgeAction(Tile tile, BridgeAction action, Location bridgeLoc) {
-//        if (isBridgePlacementAllowed(tile, tile.getPosition(), bridgeLoc)) {
-//            if (action == null) action = new BridgeAction();
-//            action.add(new FeaturePointer(tile.getPosition(), bridgeLoc));
-//        }
-//        return action;
-//    }
-//
-//    private boolean isBridgePlacementAllowed(Tile tile, Position p, Location bridgeLoc) {
-//        if (!tile.isBridgeAllowed(bridgeLoc)) return false;
-//        for (Entry<Location, Tile> e : getBoard().getAdjacentTilesMap(p).entrySet()) {
-//            Location rel = e.getKey();
-//            if (rel.intersect(bridgeLoc) != null) {
-//                Tile adjacent = e.getValue();
-//                EdgeType adjacentSide = adjacent.getEdge(rel.rev());
-//                if (adjacentSide != EdgeType.ROAD) return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    public boolean isTilePlacementWithBridgePossible(Tile tile, Position p) {
-//        if (getPlayerBridges(game.getActivePlayer()) > 0) {
-//            if (isTilePlacementWithBridgeAllowed(tile, p, Location.NS)) return true;
-//            if (isTilePlacementWithBridgeAllowed(tile, p, Location.WE)) return true;
-//            if (isTilePlacementWithOneAdjacentBridgeAllowed(tile, p)) return true;
-//        }
-//        return false;
-//    }
-//
-//    private boolean isTilePlacementWithBridgeAllowed(Tile tile, Position p, Location bridgeLoc) {
-//        if (!tile.isBridgeAllowed(bridgeLoc)) return false;
-//
-//        for (Entry<Location, Tile> e : getBoard().getAdjacentTilesMap(p).entrySet()) {
-//            Tile adjacent = e.getValue();
-//            Location rel = e.getKey();
-//
-//            EdgeType adjacentSide = adjacent.getEdge(rel.rev());
-//            EdgeType tileSide = tile.getEdge(rel);
-//            if (rel.intersect(bridgeLoc) != null) {
-//                if (adjacentSide != EdgeType.ROAD) return false;
-//            } else {
-//                if (adjacentSide != tileSide) return false;
-//            }
-//        }
-//        return true;
-//    }
-//
-//    private boolean isTilePlacementWithOneAdjacentBridgeAllowed(Tile tile, Position p) {
-//        boolean bridgeUsed = false;
-//        for (Entry<Location, Tile> e : getBoard().getAdjacentTilesMap(p).entrySet()) {
-//            Tile adjacent = e.getValue();
-//            Location rel = e.getKey();
-//
-//            EdgeType tileSide = tile.getEdge(rel);
-//            EdgeType adjacentSide = adjacent.getEdge(rel.rev());
-//
-//            if (tileSide != adjacentSide) {
-//                if (bridgeUsed) return false;
-//                if (tileSide != EdgeType.ROAD) return false;
-//
-//                Location bridgeLoc = getBridgeLocationForAdjacent(rel);
-//                if (!isBridgePlacementAllowed(adjacent, adjacent.getPosition(), bridgeLoc)) return false;
-//                bridgeUsed = true;
-//            }
-//        }
-//        return bridgeUsed; //ok if exactly one bridge is used
-//    }
-//
-//    public void deployBridge(Position pos, Location loc, boolean forced) {
-//        Tile tile = getBoard().getPlayer(pos);
-//        if (!tile.isBridgeAllowed(loc)) {
-//            throw new IllegalArgumentException("Cannot deploy " + loc + " bridge on " + pos);
-//        }
-//        bridgeUsed = true;
-//        tile.placeBridge(loc);
-//        BridgeEvent ev = new BridgeEvent(BridgeEvent.DEPLOY, game.getActivePlayer(), pos, loc);
-//        ev.setForced(forced);
-//        game.post(ev);
-//    }
+        // also no bridge must be already placed on adjacent tile
+        Set<FeaturePointer> placedBridges = getModel(state);
+        if (placedBridges.find(fp -> fp.getPosition().equals(pos)).isDefined()) {
+            return false;
+        }
 
-
-
+        //and bridge must be legal on tile
+        Tile tile = board.get(pos);
+        return tile.getEdgePattern().isBridgeAllowed(loc);
+    }
 }

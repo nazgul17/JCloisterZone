@@ -114,8 +114,6 @@ public class Board {
                         return new TilePlacement(pos, rot, null);
                     }
                     if (playerHasBridge) {
-                        Set<FeaturePointer> placedBridges = state.getCapabilities().getModel(BridgeCapability.class);
-
                         // check bridges on tile
                         for (Tuple2<EdgePattern, Location> t : baseBridgePatterns) {
                             EdgePattern tileWithBridgePattern = t._1.rotate(rot);
@@ -125,36 +123,29 @@ public class Board {
                             }
                         }
                         // check bridges on adjacent tiles
+                        BridgeCapability bridgeCap = state.getCapabilities().get(BridgeCapability.class);
                         for (Location side : Location.sides()) {
                             Position adjPos = pos.add(side);
-                            Tile adj = get(adjPos);
-                            Tile adj2 = get(adjPos.add(side));
-
-                            // for valid placement there must be adjacent place with empty
-                            // space on the other side
-                            if (adj == null || adj2 != null) {
-                                continue;
-                            }
-                            // also no bridge must be already placed on adjacent tile
-                            if (placedBridges.find(fp -> fp.getPosition().equals(adj)).isDefined()) {
+                            if (get(adjPos) == null) {
                                 continue;
                             }
 
-                            //bridge must be legal on adjacent tile
-                            Location bridgeLoc;
+                            FeaturePointer bridgePtr;
                             if (side == Location.N || side == Location.S) {
-                                bridgeLoc = Location.NS;
+                                bridgePtr = new FeaturePointer(adjPos, Location.NS);
                             } else {
-                                bridgeLoc = Location.WE;
+                                bridgePtr = new FeaturePointer(adjPos, Location.WE);
                             }
-                            if (!adj.getEdgePattern().isBridgeAllowed(bridgeLoc)) {
+
+                            // bridge must be legal on adjacent tile
+                            if (!bridgeCap.isBridgePlacementAllowed(state, bridgePtr)) {
                                 continue;
                             }
 
-                            //and finally placed tile must fit into
+                            // and current til edge must be ROAD
                             EdgePattern borderWithBridgePattern = border.replace(side, EdgeType.ROAD);
                             if (borderWithBridgePattern.isMatchingExact(tilePattern)) {
-                                return new TilePlacement(pos, rot, new FeaturePointer(adjPos, bridgeLoc));
+                                return new TilePlacement(pos, rot, bridgePtr);
                             }
                         }
                     }
