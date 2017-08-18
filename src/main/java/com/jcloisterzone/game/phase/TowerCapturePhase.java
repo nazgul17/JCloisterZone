@@ -125,40 +125,4 @@ public class TowerCapturePhase extends Phase {
         return state.getCapabilities().getModel(TowerCapability.class)
             .get(jailer.getIndex()).filter(f -> f.getPlayer().equals(owner));
     }
-
-
-//    @Override
-//    public void takePrisoner(MeeplePointer mp) {
-//        Follower m = (Follower) game.getMeeple(mp);
-//        m.undeploy();
-//        //undeploy returns figure to owner -> we must handle capture / prisoner exchange
-//        Player me = getActivePlayer();
-//        if (m.getPlayer() != me) {
-//            TowerCapability towerCap = game.get(TowerCapability.class);
-//            List<Follower> prisoners = towerCap.getPrisoners().get(m.getPlayer());
-//            List<Follower> myCapturedFollowers = new ArrayList<>();
-//            for (Follower f : prisoners) {
-//                if (f.getPlayer() == me) {
-//                    myCapturedFollowers.add(f);
-//                }
-//            }
-//
-//            if (myCapturedFollowers.isEmpty()) {
-//                towerCap.inprison(m, me);
-//            } else {
-//                //opponent has my prisoner - figure exchange
-//                Follower exchanged = myCapturedFollowers.get(0); //TODO same type?
-//                boolean removeOk = prisoners.remove(exchanged);
-//                assert removeOk;
-//                exchanged.setInPrison(false);
-//                game.post(new MeeplePrisonEvent(exchanged, m.getPlayer(), null));
-//            }
-//        }
-//        next();
-//    }
-
-//    @WsSubscribe
-//    public void handlePass(PassMessage msg) {
-//        next();
-//    }
 }

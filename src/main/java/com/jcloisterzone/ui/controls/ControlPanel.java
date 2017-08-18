@@ -301,13 +301,6 @@ public class ControlPanel extends JPanel {
         return actionPanel;
     }
 
-    public void selectAction(Player targetPlayer, IndexedSeq<PlayerAction<?>> actions, boolean canPass) {
-        boolean isLocal = targetPlayer.isLocalHuman();
-        actionPanel.setActions(isLocal, actions);
-        passButton.setVisible(isLocal && canPass);
-
-    }
-
     public void clearActions() {
         actionPanel.clearActions();
         passButton.setVisible(false);
@@ -373,7 +366,8 @@ public class ControlPanel extends JPanel {
                     //ignore actions managed by panels
                     //TOOD show image anyway on control/action panel
                 } else {
-                    selectAction(actionsState.getPlayer(), actions, actionsState.isPassAllowed());
+                    actionPanel.onPlayerActionsChanged(actionsState);
+                    passButton.setVisible(actionsState.getPlayer().isLocalHuman() && actionsState.isPassAllowed());
                 }
             }
         }

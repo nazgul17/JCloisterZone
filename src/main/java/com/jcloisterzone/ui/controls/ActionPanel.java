@@ -15,6 +15,7 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MageAndWitchAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
@@ -47,6 +48,7 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
 
     public static final double ACTIVE_SIZE_RATIO = 1.375;
 
+    private ActionsState actionsState;
     private boolean active;
     private IndexedSeq<ActionWrapper> actions = Vector.empty();
     private int selectedActionIndex = -1;
@@ -85,12 +87,16 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         return actions;
     }
 
-    public void setActions(boolean active, IndexedSeq<PlayerAction<?>> actions) {
-        this.active = active;
+    public void onPlayerActionsChanged(ActionsState actionsState) {
+        this.actionsState = actionsState;
+        Vector<PlayerAction<?>> actions = actionsState.getActions();
+
+        active = actionsState.getPlayer().isLocalHuman();
         selected = new Image[actions.size()];
         deselected = new Image[actions.size()];
         refreshImages = true;
         refreshMouseRegions = true;
+
         this.actions = actions.map(a -> {
             if (a instanceof TilePlacementAction) {
                 return new TilePlacementActionWrapper((TilePlacementAction) a);
@@ -138,7 +144,7 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
 
         if (action instanceof TilePlacementAction) {
             TilePlacementAction tpa = (TilePlacementAction) action;
-            if (tpa.getTile().isAbbeyTile()) {
+            if (tpa.getTile().isAbbeyTile() || actionsState.isPassAllowed()) {
                 imgOffset = 4;
                 maxIconSize = 52;
             } else {
@@ -173,6 +179,7 @@ public class ActionPanel extends MouseTrackingComponent implements ForwardBackwa
         refreshImages = true;
         refreshMouseRegions = true;
         active = false;
+        actionsState = null;
         repaint();
     }
 

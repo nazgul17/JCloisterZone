@@ -35,6 +35,7 @@ import com.jcloisterzone.reducers.PlaceBridge;
 import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PlaceTileMessage;
 
 import io.vavr.Tuple2;
@@ -155,18 +156,18 @@ public class TilePhase extends ServerAwarePhase {
             Set<TilePlacement> placements = state.getBoard().getTilePlacements(tile).toSet();
 
             if (placements.isEmpty()) {
-                state = state
-                    .setDiscardedTiles(state.getDiscardedTiles().append(tile))
-                    .appendEvent(new TileDiscardedEvent(tile));
+                state = discardTile(state);
 
                 //if (riverCap != null) riverCap.turnPartCleanUp(); //force group activation if neeeded
             } else {
                 TilePlacementAction action = new TilePlacementAction(tile, placements);
 
+                boolean canPass = placements.find(p -> p.getMandatoryBridge() == null).isEmpty();
+
                 state = state.setPlayerActions(new ActionsState(
                     state.getTurnPlayer(),
                     Vector.of(action),
-                    false
+                    canPass
                 ));
 
                 toggleClock(state.getTurnPlayer());
@@ -176,7 +177,20 @@ public class TilePhase extends ServerAwarePhase {
         }
     }
 
-        @WsSubscribe
+    @WsSubscribe
+    public void handlePass(PassMessage msg) {
+        GameState state = game.getState();
+        TilePlacementAction action = (TilePlacementAction) getAction(state);
+
+        if (action.getOptions().find(p -> p.getMandatoryBridge() == null).isDefined()) {
+            throw new IllegalStateException("Pass is not allowed");
+        }
+
+        state = discardTile(state);
+        enter(state);
+    }
+
+    @WsSubscribe
     public void handlePlaceTile(PlaceTileMessage msg) {
         game.markUndo();
         GameState state = game.getState();
@@ -231,5 +245,12 @@ public class TilePhase extends ServerAwarePhase {
         }
 
         next(state);
+    }
+
+    private GameState discardTile(GameState state) {
+        TileDefinition tile = state.getDrawnTile();
+        return state
+            .setDiscardedTiles(state.getDiscardedTiles().append(tile))
+            .appendEvent(new TileDiscardedEvent(tile));
     }
 }

@@ -7,6 +7,11 @@ public interface GameStateHelpers {
 
     // Actions
 
+    default PlayerAction<?> getAction(GameState state) {
+        ActionsState as = state.getPlayerActions();
+        return as == null ? null : as.getActions().get();
+    }
+
     default GameState appendAction(GameState state, PlayerAction<?> action) {
         assert action != null;
         ActionsState as = state.getPlayerActions();
