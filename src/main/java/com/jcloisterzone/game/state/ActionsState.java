@@ -1,10 +1,12 @@
-package com.jcloisterzone.action;
+package com.jcloisterzone.game.state;
 
 import java.io.Serializable;
 
 import com.google.common.base.Predicates;
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
+import com.jcloisterzone.action.MeepleAction;
+import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 
 import io.vavr.collection.Seq;

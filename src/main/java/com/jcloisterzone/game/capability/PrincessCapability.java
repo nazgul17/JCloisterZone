@@ -4,13 +4,13 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 
 import org.w3c.dom.Element;
 
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PrincessAction;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
 
@@ -52,6 +52,6 @@ public class PrincessCapability extends Capability<Void> {
             return state;
         }
 
-        return appendAction(state, new PrincessAction(options));
+        return state.appendAction(new PrincessAction(options));
     }
 }

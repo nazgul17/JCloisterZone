@@ -1,7 +1,6 @@
 package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TowerPieceAction;
@@ -16,6 +15,7 @@ import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;

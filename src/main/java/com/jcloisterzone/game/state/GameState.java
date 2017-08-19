@@ -5,27 +5,20 @@ import java.util.function.Function;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerClock;
-import com.jcloisterzone.PlayerScore;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
-import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.game.state.mixins.ActionsStateMixin;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -37,10 +30,9 @@ import io.vavr.collection.Map;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
-import io.vavr.collection.Vector;
 
 @Immutable
-public class GameState implements Serializable {
+public class GameState implements ActionsStateMixin, Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
@@ -29,6 +28,7 @@ import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.game.capability.BridgeCapability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.PlaceBridge;
@@ -188,7 +188,7 @@ public class TilePhase extends ServerAwarePhase {
     @WsSubscribe
     public void handlePass(PassMessage msg) {
         GameState state = game.getState();
-        TilePlacementAction action = (TilePlacementAction) getAction(state);
+        TilePlacementAction action = (TilePlacementAction) state.getAction();
 
         if (action.getOptions().find(p -> p.getMandatoryBridge() == null).isDefined()) {
             throw new IllegalStateException("Pass is not allowed");

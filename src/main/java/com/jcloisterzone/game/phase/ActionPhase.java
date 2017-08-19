@@ -1,7 +1,6 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.PrincessAction;
@@ -35,6 +34,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.DeployMeeple;

@@ -64,7 +64,7 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
             return state;
         }
 
-        return appendAction(state, new BridgeAction(options));
+        return state.appendAction(new BridgeAction(options));
     }
 
     public boolean isBridgePlacementAllowed(GameState state, FeaturePointer bridgePtr) {

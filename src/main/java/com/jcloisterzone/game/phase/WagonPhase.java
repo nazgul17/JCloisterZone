@@ -1,6 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Board;
@@ -10,6 +9,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.WagonCapability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.DeployMeeple;

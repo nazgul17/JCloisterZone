@@ -1,9 +1,9 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CommitMessage;

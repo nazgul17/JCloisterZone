@@ -1,6 +1,5 @@
 package com.jcloisterzone.game.state;
 
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
@@ -9,7 +8,7 @@ import com.jcloisterzone.game.phase.GameOverPhase;
 import io.vavr.Predicates;
 import io.vavr.collection.Stream;
 
-// bad idea, put helper methods rather on game state
+@Deprecated // use mixins instead
 public interface GameStateHelpers {
 
     // Actions

@@ -2,7 +2,6 @@ package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.FairyNextToAction;
 import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.action.PlayerAction;
@@ -13,6 +12,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.LinkedHashMap;
@@ -49,7 +49,7 @@ public class FairyCapability extends Capability<Void> {
             if (options.isEmpty()) {
                 return state;
             }
-            return appendAction(state, new FairyOnTileAction(fairy.getId(), options));
+            return state.appendAction(new FairyOnTileAction(fairy.getId(), options));
         } else {
             Set<MeeplePointer> options = followers
                 .map(t -> new MeeplePointer(t._2, t._1.getId()))
@@ -57,7 +57,7 @@ public class FairyCapability extends Capability<Void> {
             if (options.isEmpty()) {
                 return state;
             }
-            return appendAction(state, new FairyNextToAction(fairy.getId(), options));
+            return state.appendAction(new FairyNextToAction(fairy.getId(), options));
         }
     }
 }

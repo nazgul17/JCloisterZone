@@ -1,7 +1,6 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.CastleAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;
@@ -15,6 +14,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.CastleCapability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.wsio.WsSubscribe;

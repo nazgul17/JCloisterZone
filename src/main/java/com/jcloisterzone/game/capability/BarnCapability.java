@@ -1,7 +1,6 @@
 package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Corner;
@@ -16,6 +15,7 @@ import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;
@@ -69,7 +69,7 @@ public final class BarnCapability extends Capability<FeaturePointer> {
             return state;
         }
 
-        return appendAction(state, new MeepleAction(Barn.class, options));
+        return state.appendAction(new MeepleAction(Barn.class, options));
     }
 
     @Override

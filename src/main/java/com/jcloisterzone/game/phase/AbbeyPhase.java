@@ -3,7 +3,6 @@ package com.jcloisterzone.game.phase;
 import java.util.Arrays;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.EdgePattern;
 import com.jcloisterzone.board.Position;
@@ -17,6 +16,7 @@ import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.BuilderState;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.PlaceTile;

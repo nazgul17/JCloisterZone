@@ -15,12 +15,12 @@ import java.awt.event.MouseEvent;
 import javax.swing.ImageIcon;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.MageAndWitchAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.action.TunnelAction;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.annotations.LinkedGridLayer;
 import com.jcloisterzone.ui.component.MultiLineLabel;

@@ -1,7 +1,6 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.CaptureFollowerAction;
 import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.board.Position;
@@ -15,6 +14,7 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.CaptureMeeple;
