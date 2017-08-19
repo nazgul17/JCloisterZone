@@ -33,3 +33,6 @@ and get it by one one instead of all per tile
 * pass when only placement with bridge exists during auction
 
 * there is still some bug probably related to bridges / or putting road piece inside
+
+* do not challenge yaga hut with shrine - separate feature for yaga's hut? probably not
+* + yaga scoring

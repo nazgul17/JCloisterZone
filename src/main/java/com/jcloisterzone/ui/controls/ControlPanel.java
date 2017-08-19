@@ -328,13 +328,13 @@ public class ControlPanel extends JPanel {
         if (!showProjectedPoints) return;
 
         GameState state = game.getState();
-        if (projectedPointsSource == state) return;
+        if (projectedPointsSource != state) {
+            projectedPointsSource = state;
+            GameState scored = (new FinalScoring()).apply(state);
 
-        projectedPointsSource = state;
-        GameState scored = (new FinalScoring()).apply(state);
-
-        for (PlayerPanel playerPanel : playerPanels) {
-            playerPanel.setPotentialPoints(playerPanel.getPlayer().getPoints(scored));
+            for (PlayerPanel playerPanel : playerPanels) {
+                playerPanel.setPotentialPoints(playerPanel.getPlayer().getPoints(scored));
+            }
         }
 
         repaint();

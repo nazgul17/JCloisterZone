@@ -1,6 +1,5 @@
 package com.jcloisterzone.ui.controls;
 
-import static com.jcloisterzone.ui.I18nUtils._;
 import static com.jcloisterzone.ui.controls.ControlPanel.CORNER_DIAMETER;
 
 import java.awt.Color;
@@ -14,8 +13,6 @@ import java.awt.RenderingHints;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
-import javax.swing.JOptionPane;
-
 import com.jcloisterzone.Player;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.SmallFollower;
@@ -23,6 +20,7 @@ import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
+import com.jcloisterzone.game.capability.KingAndRobberBaronCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameState.Flag;
@@ -260,55 +258,57 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 //            drawMeepleBox(null, "lb-house", lbCap.getBuildingsCount(player, LittleBuilding.HOUSE), true);
 //            drawMeepleBox(null, "lb-tower", lbCap.getBuildingsCount(player, LittleBuilding.TOWER), true);
 //        }
-//
-//        if (kingRobberCap != null) {
-//            if (kingRobberCap.getKing() == player) {
-//                Rectangle r = drawMeepleBox(null, "king", 1, false, "king");
-//                if ("king".equals(mouseOverKey)) {
-//                    g2.setFont(FONT_KING_ROBBER_OVERLAY);
-//                    g2.setColor(KING_ROBBER_OVERLAY);
-//                    g2.fillRect(r.x, r.y, r.width, r.height);
-//                    g2.setColor(Color.WHITE);
-//                    int size = kingRobberCap.getBiggestCitySize();
-//                    g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
-//                    g2.setFont(FONT_MEEPLE);
-//                }
-//            }
-//            if (kingRobberCap.getRobberBaron() == player) {
-//                Rectangle r = drawMeepleBox(null, "robber", 1, false, "robber");
-//                if ("robber".equals(mouseOverKey)) {
-//                    g2.setFont(FONT_KING_ROBBER_OVERLAY);
-//                    g2.setColor(KING_ROBBER_OVERLAY);
-//                    g2.fillRect(r.x, r.y, r.width, r.height);
-//                    g2.setColor(Color.WHITE);
-//                    int size = kingRobberCap.getLongestRoadLength();
-//                    g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
-//                    g2.setFont(FONT_MEEPLE);
-//                }
-//            }
-//        }
 
-            drawMeepleBox(null, "cloth", ps.getPlayerTokenCount(index, Token.CLOTH), true);
-            drawMeepleBox(null, "grain", ps.getPlayerTokenCount(index, Token.GRAIN), true);
-            drawMeepleBox(null, "wine", ps.getPlayerTokenCount(index, Token.WINE), true);
+        if (ps.getPlayerTokenCount(index, Token.KING) > 0) {
+            KingAndRobberBaronCapability cap = state.getCapabilities().get(KingAndRobberBaronCapability.class);
+            Rectangle r = drawMeepleBox(null, "king", 1, false, "king");
+            if ("king".equals(mouseOverKey)) {
+                g2.setFont(FONT_KING_ROBBER_OVERLAY);
+                g2.setColor(KING_ROBBER_OVERLAY);
+                g2.fillRect(r.x, r.y, r.width, r.height);
+                g2.setColor(Color.WHITE);
+                int size = cap.getBiggestCitySize(state);
+                g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
+                g2.setFont(FONT_MEEPLE);
+            }
+        }
+
+        if (ps.getPlayerTokenCount(index, Token.ROBBER) > 0) {
+            KingAndRobberBaronCapability cap = state.getCapabilities().get(KingAndRobberBaronCapability.class);
+            Rectangle r = drawMeepleBox(null, "robber", 1, false, "robber");
+            if ("robber".equals(mouseOverKey)) {
+                g2.setFont(FONT_KING_ROBBER_OVERLAY);
+                g2.setColor(KING_ROBBER_OVERLAY);
+                g2.fillRect(r.x, r.y, r.width, r.height);
+                g2.setColor(Color.WHITE);
+                int size = cap.getLongestRoadSize(state);
+                g2.drawString((size < 10 ? " " : "") + size, r.x+2, r.y+20);
+                g2.setFont(FONT_MEEPLE);
+            }
+        }
+
+
+        drawMeepleBox(null, "cloth", ps.getPlayerTokenCount(index, Token.CLOTH), true);
+        drawMeepleBox(null, "grain", ps.getPlayerTokenCount(index, Token.GRAIN), true);
+        drawMeepleBox(null, "wine", ps.getPlayerTokenCount(index, Token.WINE), true);
 
 //        if (gldCap != null) {
 //            drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);
 //        }
 
-            io.vavr.collection.Array<io.vavr.collection.List<Follower>> towerModel = state.getCapabilities().getModel(TowerCapability.class);
-            if (towerModel != null) {
-                towerModel.get(player.getIndex()).groupBy(m -> m.getPlayer()).forEach((opponent, prisoners) -> {
-                    boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
-                    boolean clickable = isOpponentActive && !state.hasFlag(Flag.RANSOM_PAID);
+        io.vavr.collection.Array<io.vavr.collection.List<Follower>> towerModel = state.getCapabilities().getModel(TowerCapability.class);
+        if (towerModel != null) {
+            towerModel.get(player.getIndex()).groupBy(m -> m.getPlayer()).forEach((opponent, prisoners) -> {
+                boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();
+                boolean clickable = isOpponentActive && !state.hasFlag(Flag.RANSOM_PAID);
 
-                    prisoners.groupBy(f -> f.getClass()).forEach((cls, items) -> {
-                        drawMeepleBox(opponent, cls.getSimpleName(), items.length(), false,
-                                clickable ? items.get().getId() : null, clickable
-                        );
-                    });
+                prisoners.groupBy(f -> f.getClass()).forEach((cls, items) -> {
+                    drawMeepleBox(opponent, cls.getSimpleName(), items.length(), false,
+                            clickable ? items.get().getId() : null, clickable
+                    );
                 });
-            }
+            });
+        }
 
 
 //		gp.profile(" > expansions");

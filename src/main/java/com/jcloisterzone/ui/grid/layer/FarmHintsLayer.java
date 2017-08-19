@@ -57,9 +57,6 @@ public class FarmHintsLayer extends AbstractGridLayer {
 
     private FarmHintsLayerModel model = new FarmHintsLayerModel();
 
-//    private boolean doRefreshHints;
-//    final Map<Tile, Map<Location, FeatureArea>> areas = new HashMap<>();
-//    private final List<FarmHint> hints = new ArrayList<>();
 
     public FarmHintsLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -103,40 +100,12 @@ public class FarmHintsLayer extends AbstractGridLayer {
         g2.setComposite(old);
     }
 
-    //@Subscribe
-    public void onTileEvent(/*TileEvent ev*/) {
-        //IMMUTABLE TODO
-        logger.warn("IMMUTABLE TODO");
-//
-//
-//        TileDefinition tile = ev.getTileDefinition();
-//        if (ev.getType() == TileEvent.PLACEMENT) {
-//            Set<Location> farmLocations = new HashSet<>();
-//            for (Feature f : tile.getFeatures()) {
-//                if (f instanceof Farm) {
-//                    farmLocations.translate(f.getLocation());
-//                }
-//            }
-//            if (farmLocations.isEmpty()) return;
-//            int w = gridPanel.getTileWidth();
-//            int h = gridPanel.getTileHeight();
-//            Map<Location, FeatureArea> tAreas = rm.getFeatureAreas(tile, FULL_SIZE, FULL_SIZE * h / w, farmLocations);
-//            areas.put(tile, tAreas);
-//            refreshHints();
-//        }
-//        if (ev.getType() == TileEvent.REMOVE) {
-//            areas.remove(tile);
-//            refreshHints();
-//        }
-
-    }
-
     private FarmHintsLayerModel createModel(GameState state) {
         ResourceManager rm = gc.getClient().getResourceManager();
         Board board = state.getBoard();
 
         FarmHintsLayerModel model = new FarmHintsLayerModel();
-        model.hints = Stream.ofAll(state.getBoard().getAllFeatures())
+        model.hints = getFeatures(state)
             .filter(Predicates.instanceOf(Farm.class))
             .map(feature -> (Farm) feature)
             .map(farm -> new Tuple2<>(farm, farm.getOwners(state)))

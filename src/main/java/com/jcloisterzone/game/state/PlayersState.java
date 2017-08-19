@@ -82,6 +82,9 @@ public class PlayersState implements Serializable {
             throw new IllegalArgumentException(String.format("Token %s count can't be %s", token, count));
         }
         Map<Token, Integer> playerTokens = tokens.get(index);
+        if (playerTokens.get(token).getOrElse(0) == count) {
+            return this;
+        }
         if (count == 0) {
             return setTokens(tokens.update(index, playerTokens.remove(token)));
         } else {

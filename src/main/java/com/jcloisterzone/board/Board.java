@@ -156,10 +156,6 @@ public class Board {
     }
 
 
-    public Set<Feature> getAllFeatures() {
-        return HashSet.ofAll(state.getFeatures().values());
-    }
-
     public Stream<Scoreable> getOccupiedScoreables() {
         return Stream.ofAll(state.getFeatures().values())
             .filter(Predicates.instanceOf(Scoreable.class))
