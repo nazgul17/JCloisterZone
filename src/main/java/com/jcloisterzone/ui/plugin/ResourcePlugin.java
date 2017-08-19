@@ -9,6 +9,7 @@ import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.function.Function;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -44,6 +45,7 @@ import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.ui.resources.svg.ThemeGeometry;
 
+import io.vavr.Function1;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
@@ -252,9 +254,9 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         return area;
     }
 
-    private Area getSubstractionArea(TileDefinition tile, boolean farm) {
-        Area d = defaultGeometry.getSubstractionArea(tile, farm),
-             p = pluginGeometry.getSubstractionArea(tile, farm),
+    private Area getSubtractionArea(TileDefinition tile, boolean farm) {
+        Area d = defaultGeometry.getSubtractionArea(tile, farm),
+             p = pluginGeometry.getSubtractionArea(tile, farm),
              area = new Area();
 
         if (d != null) {
@@ -308,47 +310,89 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
         TileDefinition tileDef = tile.getTileDefinition();
+        Map<Location, Feature> features = tileDef.getInitialFeatures();
         Rotation rot = tile.getRotation();
-        locations = locations.map(loc -> loc.rotateCCW(rot));
+        Set<Location> initialLocations = locations.map(loc -> loc.rotateCCW(rot));
 
-        Map<Location, FeatureArea> areas = HashMap.empty();
-        Area subsBridge = getBaseRoadAndCitySubstractions(tileDef);
-        Area subsRoadCity = new Area(subsBridge);
-        substractBridge(subsRoadCity, tile);
-        Area subsFarm = getFarmSubstractions(tileDef);
+        Location complementFarm = features
+            .find(t -> t._2 instanceof Farm && isFarmComplement(tileDef, t._1))
+            .map(Tuple2::_1).getOrNull();
+        Location bridgeLoc = features
+            .find(t -> t._2 instanceof Bridge)
+            .map(Tuple2::_1).getOrNull();
 
-        for (Tuple2<Location, Feature> t : tile.getTileDefinition().getInitialFeatures()) {
+        // get base areas for all features
+        Map<Location, FeatureArea> baseAreas = features
+            .filter(t -> t._1 != complementFarm)
+            .map((loc, feature) -> new Tuple2<>(loc, getFeatureArea(tileDef, feature.getClass(), loc)));
+
+        // complement farm area is remaining uncovered area
+        if (complementFarm != null) {
+            Area union = baseAreas.foldLeft(new Area(), (area, t) -> {
+                area.add(t._2.getTrackingArea()); // Area is mutable, returning same ref
+                return area;
+            });
+            Area farmArea = new Area(getFullRectangle());
+            farmArea.subtract(union);
+            baseAreas = baseAreas.put(complementFarm, new FeatureArea(farmArea, FeatureArea.DEFAULT_FARM_ZINDEX));
+        }
+
+        // farms are defined in shapes.xml as bounding regions, other non-farm
+        // features must be subtract for get clear shape
+        Area nonFarmUnion = baseAreas.foldLeft(new Area(), (area, t) -> {
+            if (!t._1.isFarmLocation()) {
+                area.add(t._2.getTrackingArea()); // Area is mutable, returning same ref
+            }
+            return area;
+        });
+        baseAreas = baseAreas.toMap(t -> {
+            if (!t._1.isFarmLocation()) {
+                return t;
+            }
+            return t.map2(fa -> fa.subtract(nonFarmUnion));
+        });
+
+        // subtract "restricted" areas
+        Area onlyFarmSubtraction = getSubtractionArea(tileDef, true);
+        Area allSubtraction = getSubtractionArea(tileDef, false);
+        baseAreas = baseAreas.toMap(t -> {
             Location loc = t._1;
-            Feature feature = t._2;
-            boolean aliasAbbot = false;
-            if (loc == Location.CLOISTER && locations.contains(Location.ABBOT)) {
-                aliasAbbot = true;
-            }
-            if (!aliasAbbot && !locations.contains(loc)) {
-                continue;
-            }
+            if (loc == bridgeLoc) return t;
+            if (loc.isFarmLocation()) t = t.map2(fa -> fa.subtract(onlyFarmSubtraction));
+            return t.map2(fa -> fa.subtract(allSubtraction));
+        });
 
-            FeatureArea fa;
-            if (feature instanceof Farm) {
-                fa = getFarmArea(loc, tileDef, subsFarm);
-                areas = areas.put(loc.rotateCW(rot), fa);
-                continue;
-            }
+        //subtract tower
+        FeatureArea towerArea = baseAreas.get(Location.TOWER).getOrNull();
+        if (towerArea != null) {
+            baseAreas = baseAreas.toMap(t -> {
+                Location loc = t._1;
+                if (loc == bridgeLoc || loc == Location.TOWER) return t;
+                return t.map2(fa -> fa.subtract(towerArea));
+            });
+        }
 
-            fa = getFeatureArea(tileDef, feature.getClass(), loc);
-            if (feature instanceof City || feature instanceof Road) {
-                Area subs = feature instanceof Bridge ? subsBridge : subsRoadCity;
-                if (!subs.isEmpty()) {
-                    fa.getTrackingArea().subtract(subs);
-                }
-            }
-            loc =  aliasAbbot ? Location.ABBOT : loc;
-            areas = areas.put(loc.rotateCW(rot), fa);
+        // if flier area is requested, add it to result and subtract it from others
+        //TODO don't subtract if contained in locations but subtract when present on tile
+//        if (locations.contains(Location.FLIER)) {
+//            FeatureArea flierArea = getFeatureArea(tileDef, null, Location.FLIER);
+//            baseAreas = baseAreas.mapValues(fa -> fa.subtract(flierArea));
+//            baseAreas = baseAreas.put(Location.FLIER, flierArea);
+//        }
+
+        // bridge should be above all, make bridge active on intersection with common areas
+        // -> subtract bridge from other areas
+        if (bridgeLoc != null) {
+            FeatureArea bridgeArea = baseAreas.get(bridgeLoc).get();
+            baseAreas = baseAreas.toMap(t -> {
+                if (t._1 == bridgeLoc || t._1.isFarmLocation()) return t;
+                return t.map2(fa -> fa.subtract(bridgeArea));
+            });
         }
-        if (locations.contains(Location.FLIER)) {
-            FeatureArea fa = getFeatureArea(tileDef, null, Location.FLIER);
-            areas = areas.put(Location.FLIER, fa);
-        }
+
+        // filter result to requested locations
+        baseAreas = baseAreas.filterKeys(loc -> initialLocations.contains(loc));
+
 
         double ratioX;
         double ratioY;
@@ -364,7 +408,10 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         // (concatenate in reverse order)
         AffineTransform tx = AffineTransform.getScaleInstance(ratioX, ratioY);
         tx.concatenate(rot.getAffineTransform(NORMALIZED_SIZE));
-        return areas.mapValues(fa -> fa.transform(tx));
+        return baseAreas.bimap(
+            loc -> loc.rotateCW(rot),
+            fa -> fa.transform(tx)
+        );
     }
 
     @Override
@@ -393,15 +440,6 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         return new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
     }
 
-    private void substractBridge(Area substractions, Tile tile) {
-        //IMMUTABLE TODO
-//        Bridge bridge = tile.getBridge();
-//        if (bridge != null) {
-//            Area area;
-//            area = getFeatureArea(tile, Bridge.class, bridge.getLocation()).getTrackingArea();
-//            substractions.add(area);
-//        }
-    }
 
     private Area getBaseRoadAndCitySubstractions(TileDefinition tile) {
         Area sub = new Area();
@@ -411,49 +449,11 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         if (tile.getFlier() != null) {
             sub.add(getFeatureArea(tile, null, Location.FLIER).getTrackingArea());
         }
-        sub.add(getSubstractionArea(tile, false));
-        return sub;
-    }
-
-    private Area getFarmSubstractions(TileDefinition tile) {
-        Area sub = new Area();
-        for (Tuple2<Location, Feature> t : tile.getInitialFeatures()) {
-            if (!(t._2 instanceof Farm)) {
-                Area area = getFeatureArea(tile, t._2.getClass(), t._1).getTrackingArea();
-                sub.add(area);
-            }
-
-        }
-
-        if (tile.getFlier() != null) {
-            sub.add(getFeatureArea(tile, null, Location.FLIER).getTrackingArea());
-        }
-        sub.add(getSubstractionArea(tile, true));
+        sub.add(getSubtractionArea(tile, false));
         return sub;
     }
 
     private Rectangle getFullRectangle() {
         return new Rectangle(0,0, NORMALIZED_SIZE-1, (int) (NORMALIZED_SIZE * getImageSizeRatio()));
-    }
-
-    private FeatureArea getFarmArea(Location farm, TileDefinition tile, Area sub) {
-        FeatureArea result;
-        if (isFarmComplement(tile, farm)) { //is complement farm
-            Area base = new Area(getFullRectangle());
-            for (Tuple2<Location, Feature> t : tile.getInitialFeatures()) {
-                if (t._2 instanceof Farm && t._1 != farm) {
-                    Area area = getFeatureArea(tile, Farm.class, t._1).getTrackingArea();
-                    base.subtract(area);
-                }
-
-            }
-            result = new FeatureArea(base, FeatureArea.DEFAULT_FARM_ZINDEX);
-        } else {
-            result = getFeatureArea(tile, Farm.class, farm);
-        }
-        if (!sub.isEmpty()) {
-            result.getTrackingArea().subtract(sub);
-        }
-        return result;
     }
 }

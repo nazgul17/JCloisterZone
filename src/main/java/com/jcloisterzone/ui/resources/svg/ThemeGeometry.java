@@ -58,8 +58,8 @@ public class ThemeGeometry {
     private final double imageSizeRatio;
     private final Map<String, String> aliases = new HashMap<>();
     private final Map<FeatureDescriptor, FeatureArea> areas = new HashMap<>();
-    private final Map<String, Area> substractionAll = new HashMap<>(); //key tile ID
-    private final Map<String, Area> substractionFarm = new HashMap<>(); //key tile ID
+    private final Map<String, Area> subtractionAll = new HashMap<>(); //key tile ID
+    private final Map<String, Area> subtractionFarm = new HashMap<>(); //key tile ID
     private final Set<FeatureDescriptor> complementFarms = new HashSet<>();
     private final Map<FeatureDescriptor, ImmutablePoint> points;
 
@@ -149,7 +149,7 @@ public class ThemeGeometry {
 
             @Override
             public void processSubstract(Element node, String tileId, AffineTransform transform, boolean isFarm) {
-                Map<String, Area> target = isFarm ? substractionFarm : substractionAll;
+                Map<String, Area> target = isFarm ? subtractionFarm : subtractionAll;
                 //TODO merge if already exists
                 assert !target.containsKey(tileId);
                 target.put(tileId, az.area.createTransformedArea(transform));
@@ -179,18 +179,21 @@ public class ThemeGeometry {
     }
 
     public FeatureArea getArea(TileDefinition tile, Class<? extends Feature> featureClass, Location loc) {
+        FeatureArea fa;
         if (featureClass != null && featureClass.equals(Bridge.class)) {
             Area a =  getBridgeArea(loc);
-//            //bridge is independent on tile rotation
+            //bridge is independent on tile rotation
 //            if ((loc == Location.WE && (tileRotation == Rotation.R90 || tileRotation == Rotation.R180)) ||
 //                (loc == Location.NS && (tileRotation == Rotation.R180 || tileRotation == Rotation.R270))) {
 //                a = new Area(a);
 //                a.transform(Rotation.R180.getAffineTransform(ResourcePlugin.NORMALIZED_SIZE));
 //            }
-            return new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
+            fa = new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
+            fa = fa.setFixed(true);
+            return fa;
         }
         FeatureDescriptor lookups[] = getLookups(tile, featureClass, loc);
-        FeatureArea fa;
+
         for (FeatureDescriptor fd : lookups) {
             fa = areas.get(fd);
             if (fa != null) return fa;
@@ -205,20 +208,20 @@ public class ThemeGeometry {
         throw new IllegalArgumentException("Incorrect location");
     }
 
-    public Area getSubstractionArea(TileDefinition tile, boolean isFarm) {
+    public Area getSubtractionArea(TileDefinition tile, boolean isFarm) {
         if (isFarm) {
-            Area area = getSubstractionArea(substractionFarm, tile);
+            Area area = getSubtractionArea(subtractionFarm, tile);
             if (area != null) return area;
         }
-        return getSubstractionArea(substractionAll, tile);
+        return getSubtractionArea(subtractionAll, tile);
     }
 
-    private Area getSubstractionArea(Map<String, Area> substractions, TileDefinition tile) {
-        Area area = substractions.get(tile.getId());
+    private Area getSubtractionArea(Map<String, Area> subtractions, TileDefinition tile) {
+        Area area = subtractions.get(tile.getId());
         if (area == null) {
             String alias = aliases.get(tile.getId());
             if (alias != null) {
-                area = substractions.get(alias);
+                area = subtractions.get(alias);
             }
         }
         return area;

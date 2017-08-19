@@ -23,3 +23,8 @@ and get it by one one instead of all per tile
 * do not eat meeples by Dragon on castles, do not capture by Tower
 
 * TODO: draw bridge preview on tile preview icon if bridge is mandatory
+
+* TODO <susbtract> -> <subtract>
+
+* save game -> use history of messages
+    undo -> send how many messages should be stripped ?

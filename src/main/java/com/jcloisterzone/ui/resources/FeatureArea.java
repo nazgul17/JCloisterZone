@@ -3,6 +3,7 @@ package com.jcloisterzone.ui.resources;
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
+import java.io.ObjectInputStream.GetField;
 
 public class FeatureArea {
 
@@ -17,21 +18,23 @@ public class FeatureArea {
     private final int zIndex;
     private final Color forceAreaColor;
     private final AreaRotationScaling rotationScaling;
+    private final boolean fixed; //do not rotate with tile
 
     public FeatureArea(Area trackingArea, int zIndex) {
-        this(trackingArea, null, zIndex, null, AreaRotationScaling.NORMAL);
+        this(trackingArea, null, zIndex, null, AreaRotationScaling.NORMAL, false);
     }
 
     public FeatureArea(Area trackingArea, Area displayArea, int zIndex) {
-        this(trackingArea, displayArea, zIndex, null, AreaRotationScaling.NORMAL);
+        this(trackingArea, displayArea, zIndex, null, AreaRotationScaling.NORMAL, false);
     }
 
-    private FeatureArea(Area trackingArea, Area displayArea, int zIndex, Color forceAreaColor, AreaRotationScaling rotationScaling) {
+    private FeatureArea(Area trackingArea, Area displayArea, int zIndex, Color forceAreaColor, AreaRotationScaling rotationScaling, boolean fixed) {
         this.trackingArea = trackingArea;
         this.displayArea = displayArea;
         this.zIndex = zIndex;
         this.forceAreaColor = forceAreaColor;
         this.rotationScaling = rotationScaling;
+        this.fixed = fixed;
     }
 
     public FeatureArea transform(AffineTransform t) {
@@ -42,7 +45,24 @@ public class FeatureArea {
         if (this.displayArea != null) {
             displayArea = this.displayArea.createTransformedArea(t);
         }
-        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling);
+        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling, fixed);
+    }
+
+    public FeatureArea subtract(FeatureArea fa) {
+        return subtract(fa.getTrackingArea());
+    }
+
+    public FeatureArea subtract(Area area) {
+        Area trackingArea = null, displayArea = null;
+        if (this.trackingArea != null) {
+            trackingArea  = new Area(this.trackingArea);
+            trackingArea.subtract(area);
+        }
+        if (this.displayArea != null) {
+            displayArea = new Area(this.displayArea);
+            displayArea.subtract(area);
+        }
+        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling, fixed);
     }
 
     public Area getTrackingArea() {
@@ -65,12 +85,20 @@ public class FeatureArea {
         return rotationScaling;
     }
 
+    public boolean isFixed() {
+        return fixed;
+    }
+
     public FeatureArea setForceAreaColor(Color forceAreaColor) {
-        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling);
+        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling, fixed);
     }
 
     public FeatureArea setRotationScaling(AreaRotationScaling rotationScaling) {
-        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling);
+        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling, fixed);
+    }
+
+    public FeatureArea setFixed(boolean fixed) {
+        return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling, fixed);
     }
 
     @Override
