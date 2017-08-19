@@ -181,13 +181,7 @@ public class ThemeGeometry {
     public FeatureArea getArea(TileDefinition tile, Class<? extends Feature> featureClass, Location loc) {
         FeatureArea fa;
         if (featureClass != null && featureClass.equals(Bridge.class)) {
-            Area a =  getBridgeArea(loc);
-            //bridge is independent on tile rotation
-//            if ((loc == Location.WE && (tileRotation == Rotation.R90 || tileRotation == Rotation.R180)) ||
-//                (loc == Location.NS && (tileRotation == Rotation.R180 || tileRotation == Rotation.R270))) {
-//                a = new Area(a);
-//                a.transform(Rotation.R180.getAffineTransform(ResourcePlugin.NORMALIZED_SIZE));
-//            }
+            Area a = getBridgeArea(loc);
             fa = new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
             fa = fa.setFixed(true);
             return fa;

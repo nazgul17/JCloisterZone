@@ -9,7 +9,6 @@ import java.awt.geom.Area;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.function.Function;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -30,8 +29,6 @@ import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.Road;
-import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.capability.CountCapability;
@@ -45,9 +42,7 @@ import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.ui.resources.svg.ThemeGeometry;
 
-import io.vavr.Function1;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
@@ -322,14 +317,28 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             .find(t -> t._2 instanceof Bridge)
             .map(Tuple2::_1).getOrNull();
 
+        AffineTransform txRot = rot.getAffineTransform(NORMALIZED_SIZE);
+
         Area onlyFarmSubtraction = getSubtractionArea(tileDef, true);
         Area allSubtraction = getSubtractionArea(tileDef, false);
+        onlyFarmSubtraction.transform(txRot);
+        allSubtraction.transform(txRot);
 
         // get base areas for all features
         Map<Location, FeatureArea> baseAreas = features
             .filter(t -> t._1 != complementFarm)
-            .map((loc, feature) -> new Tuple2<>(loc, getFeatureArea(tileDef, feature.getClass(), loc)));
-
+            .map((loc, feature) -> {
+                FeatureArea fa;
+                if (bridgeLoc == loc) {
+                    fa = getBridgeArea(NORMALIZED_SIZE, NORMALIZED_SIZE, loc.rotateCCW(rot));
+                } else {
+                    fa = getFeatureArea(tileDef, feature.getClass(), loc);
+                }
+                if (!fa.isFixed()) {
+                    fa = fa.transform(txRot);
+                }
+                return new Tuple2<>(loc, fa);
+            });
 
         FeatureArea towerArea = baseAreas.get(Location.TOWER).getOrNull();
 
@@ -367,7 +376,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
                 return t.map2(fa -> fa.subtract(allSubtraction));
             });
 
-        //subtract tower
+        // subtract tower
         if (towerArea != null) {
             areas = areas.map(t -> {
                 Location loc = t._1;
@@ -413,12 +422,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             ratioX = (double) width / NORMALIZED_SIZE;
             ratioY = (double) height / NORMALIZED_SIZE / getImageSizeRatio();
         }
-
-        // Apply rotation + resize
-        // (concatenate in reverse order)
-        AffineTransform tx = AffineTransform.getScaleInstance(ratioX, ratioY);
-        tx.concatenate(rot.getAffineTransform(NORMALIZED_SIZE));
-        return tx;
+        return AffineTransform.getScaleInstance(ratioX, ratioY);
     }
 
     @Override
@@ -444,7 +448,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             transform1 = AffineTransform.getScaleInstance(ratioX,ratioY);
         }
         Area a = pluginGeometry.getBridgeArea(loc).createTransformedArea(transform1);
-        return new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
+        return (new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX)).setFixed(true);
     }
 
     private Rectangle getFullRectangle() {
