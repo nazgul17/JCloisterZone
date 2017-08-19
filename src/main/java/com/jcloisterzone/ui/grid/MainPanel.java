@@ -96,23 +96,24 @@ public class MainPanel extends JPanel {
         CapabilitiesState capabs = game.getState().getCapabilities();
 
         gridPanel.addLayer(tilePlacementLayer, false);
-        gridPanel.addLayer(tileLayer);  //zindex 2
+        gridPanel.addLayer(tileLayer);
 
-        if (capabs.contains(TowerCapability.class)) {
-            gridPanel.addLayer(new TowerLayer(gridPanel, gc)); //5
-        }
 
-        gridPanel.addLayer(farmHintLayer, false); //zindex 10
+        gridPanel.addLayer(farmHintLayer, false);
 
 
         if (capabs.contains(CastleCapability.class)) {
-            gridPanel.addLayer(new CastleLayer(gridPanel, gc)); //45
+            gridPanel.addLayer(new CastleLayer(gridPanel, gc));
         }
-        if (capabs.contains(PlagueCapability.class)) {
-            gridPanel.addLayer(new PlagueLayer(gridPanel, gc)); //45
+        if (capabs.contains(TowerCapability.class)) {
+            gridPanel.addLayer(new TowerLayer(gridPanel, gc));
         }
 
-        gridPanel.addLayer(meepleLayer); //zindex 50
+        if (capabs.contains(PlagueCapability.class)) {
+            gridPanel.addLayer(new PlagueLayer(gridPanel, gc));
+        }
+
+        gridPanel.addLayer(meepleLayer);
         //TODO add always
         if (capabs.contains(LittleBuildingsCapability.class) ||
             capabs.contains(TunnelCapability.class) ) {
@@ -129,26 +130,17 @@ public class MainPanel extends JPanel {
             gridPanel.addLayer(new GoldLayer(gridPanel, gc));
         }
 
-        gridPanel.addLayer(new FollowerAreaLayer(gridPanel, gc, meepleLayer), false); //70
+        gridPanel.addLayer(new FollowerAreaLayer(gridPanel, gc, meepleLayer), false);
 
-//        if (capabs.contains(DragonCapability.class)) {
-//            gridPanel.addLayer(new DragonLayer(gridPanel, gc));
-//        }
 
         gridPanel.addLayer(new FeatureAreaLayer(gridPanel, gc), false);
         gridPanel.addLayer(new TileActionLayer(gridPanel, gc), false);
 
-//        if (capabs.contains(AbbeyCapability.class)) {
-//            gridPanel.addLayer(new AbbeyPlacementLayer(gridPanel, gc), false);
-//        }
         if (capabs.contains(LittleBuildingsCapability.class)) {
-            gridPanel.addLayer(new LittleBuildingActionLayer(gridPanel, gc), false); //100
+            gridPanel.addLayer(new LittleBuildingActionLayer(gridPanel, gc), false);
         }
 
-        //abstractare - zindex 100
-        //tile placement 3
-
-        gridPanel.addLayer(new AnimationLayer(gridPanel, gc)); //zindex 800
+        gridPanel.addLayer(new AnimationLayer(gridPanel, gc));
 
         placementHistoryLayer = new PlacementHistory(gridPanel, gc);
         gridPanel.addLayer(placementHistoryLayer, false);

@@ -8,6 +8,8 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.TokenPlacedEvent;
+import com.jcloisterzone.feature.Castle;
+import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.Game;
@@ -47,6 +49,7 @@ public class TowerCapturePhase extends Phase {
         int towerHeight = tower.getHeight();
         Position towerPosition = ptr.getPosition();
 
+        Map<FeaturePointer, Feature> features = state.getFeatures();
         Set<MeeplePointer> options = Stream.ofAll(state.getDeployedMeeples())
             .filter(t -> {
                 Position pos = t._2.getPosition();
@@ -55,6 +58,7 @@ public class TowerCapturePhase extends Phase {
                     (pos.x == towerPosition.x || pos.y == towerPosition.y) &&
                     (pos.squareDistance(towerPosition) <= towerHeight);
             })
+            .filter(t -> !(features.get(t._2).get() instanceof Castle))
             .map(t -> new MeeplePointer(t._2, t._1.getId()))
             .toSet();
 
