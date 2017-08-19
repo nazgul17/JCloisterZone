@@ -32,3 +32,4 @@ and get it by one one instead of all per tile
 * fix auction
 * pass when only placement with bridge exists during auction
 
+* there is still some bug probably related to bridges / or putting road piece inside

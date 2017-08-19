@@ -96,60 +96,68 @@ public class TilePhase extends ServerAwarePhase {
     public void enter(GameState state) {
         for (;;) {
             BazaarCapabilityModel bazaarModel = state.getCapabilities().getModel(BazaarCapability.class);
-            if (bazaarModel != null) {
-                Queue<BazaarItem> supply = bazaarModel.getSupply();
-                if (supply != null) {
-                    Tuple2<BazaarItem, Queue<BazaarItem>> t = supply.dequeue();
-                    BazaarItem item = t._1;
-                    supply = t._2;
-                    bazaarModel = bazaarModel.setSupply(supply);
-                    state = state.setCapabilityModel(BazaarCapability.class, bazaarModel);
-                    state = state.setDrawnTile(item.getTile());
-                    next(state);
+            Queue<BazaarItem> supply = bazaarModel == null ? null : bazaarModel.getSupply();
+
+            if (supply != null) {
+                Tuple2<BazaarItem, Queue<BazaarItem>> t = supply.dequeue();
+                BazaarItem item = t._1;
+                if (!item.getOwner().equals(state.getTurnPlayer())) {
+                    // very rare case:
+                    // There was not legal placement for prev bazaar tile queued tile.
+                    // Or player pass tile placement (allowed when only legal placement was only with bridge)
+                    // Skip player's turn in that case.
+                    next(state, CleanUpTurnPhase.class);
                     return;
                 }
+                supply = t._2;
+                bazaarModel = bazaarModel.setSupply(supply);
+                state = state.setCapabilityModel(BazaarCapability.class, bazaarModel);
+                state = state.setDrawnTile(item.getTile());
             }
 
-            TilePackState tilePack = state.getTilePack();
-            boolean packIsEmpty = tilePack.isEmpty() || isDebugForcedEnd();
+            if (state.getDrawnTile() == null) {
+                // regular flow (not tile from Bazaar supply
+                TilePackState tilePack = state.getTilePack();
+                boolean packIsEmpty = tilePack.isEmpty() || isDebugForcedEnd();
 
-            //Abbey special case, every player has opportunity to place own abbey at the end.
-            if (packIsEmpty && state.getCapabilities().contains(AbbeyCapability.class)) {
-                Integer endPlayerIdx = state.getCapabilities().getModel(AbbeyCapability.class);
-                Player turnPlayer = state.getTurnPlayer();
-                if (endPlayerIdx == null) {
-                    //tile pack has been depleted jut now
-                    endPlayerIdx = turnPlayer.getPrevPlayer(state).getIndex();
-                    state = state.setCapabilityModel(AbbeyCapability.class, endPlayerIdx);
+                //Abbey special case, every player has opportunity to place own abbey at the end.
+                if (packIsEmpty && state.getCapabilities().contains(AbbeyCapability.class)) {
+                    Integer endPlayerIdx = state.getCapabilities().getModel(AbbeyCapability.class);
+                    Player turnPlayer = state.getTurnPlayer();
+                    if (endPlayerIdx == null) {
+                        //tile pack has been depleted jut now
+                        endPlayerIdx = turnPlayer.getPrevPlayer(state).getIndex();
+                        state = state.setCapabilityModel(AbbeyCapability.class, endPlayerIdx);
+                    }
+                    if (endPlayerIdx != turnPlayer.getIndex()) {
+                        next(state, CleanUpTurnPartPhase.class);
+                        return;
+                    }
+                    // otherwise proceed to game over
                 }
-                if (endPlayerIdx != turnPlayer.getIndex()) {
-                    next(state, CleanUpTurnPartPhase.class);
+
+                // Tile Pack is empty
+                if (packIsEmpty) {
+                    next(state, GameOverPhase.class);
                     return;
                 }
-                // otherwise proceed to game over
-            }
 
-            // Tile Pack is empty
-            if (packIsEmpty) {
-                next(state, GameOverPhase.class);
-                return;
-            }
-
-            // Handle forced debug draw
-            String debugDrawTileId = pullDebugDrawTileId();
-            boolean makeRegularDraw = true;
-            if (debugDrawTileId != null) {
-                try {
-                    state = drawTile(state, debugDrawTileId);
-                    makeRegularDraw = false;
-                } catch (IllegalArgumentException e) {
-                    logger.warn("Invalid debug draw id: " + debugDrawTileId);
+                // Handle forced debug draw
+                String debugDrawTileId = pullDebugDrawTileId();
+                boolean makeRegularDraw = true;
+                if (debugDrawTileId != null) {
+                    try {
+                        state = drawTile(state, debugDrawTileId);
+                        makeRegularDraw = false;
+                    } catch (IllegalArgumentException e) {
+                        logger.warn("Invalid debug draw id: " + debugDrawTileId);
+                    }
                 }
-            }
 
-            if (makeRegularDraw) {
-                int rndIndex = game.getRandom().nextInt(tilePack.size());
-                state = drawTile(state, rndIndex);
+                if (makeRegularDraw) {
+                    int rndIndex = game.getRandom().nextInt(tilePack.size());
+                    state = drawTile(state, rndIndex);
+                }
             }
 
             TileDefinition tile = state.getDrawnTile();
@@ -187,6 +195,7 @@ public class TilePhase extends ServerAwarePhase {
         }
 
         state = discardTile(state);
+        state = state.setDrawnTile(null);
         enter(state);
     }
 
@@ -235,6 +244,7 @@ public class TilePhase extends ServerAwarePhase {
         }
 
         state = clearActions(state);
+        state = state.setDrawnTile(null);
 
         if (tile.getTrigger() == TileTrigger.BAZAAR) {
             BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);

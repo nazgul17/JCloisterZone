@@ -86,7 +86,7 @@ public class BazaarPhase extends ServerAwarePhase {
 
     @WsSubscribe
     public void bazaarBid(BazaarBidMessage msg) {
-        int supplyIndez = msg.getSupplyIndex();
+        int supplyIndex = msg.getSupplyIndex();
         int price = msg.getPrice();
 
         game.clearUndo();
@@ -103,19 +103,19 @@ public class BazaarPhase extends ServerAwarePhase {
             if (isTileSelection) {
                 assert item == null;
 
-                item = model.getSupply().get(supplyIndez);
-                model = model.setAuctionedItemIndex(supplyIndez);
+                item = model.getSupply().get(supplyIndex);
+                model = model.setAuctionedItemIndex(supplyIndex);
                 if (noAuction) {
-                    item.setOwner(player);
-                    model = model.updateSupplyItem(supplyIndez, item);
+                    assert item.getCurrentPrice() == 0;
+                    item = item.setOwner(player);
+                    model = model.updateSupplyItem(supplyIndex, item);
                     return model;
-
                 }
             }
 
             item = item.setCurrentPrice(price);
             item = item.setCurrentBidder(player);
-            model = model.updateSupplyItem(supplyIndez, item);
+            model = model.updateSupplyItem(supplyIndex, item);
 
             return model;
         });
