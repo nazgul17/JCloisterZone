@@ -353,10 +353,9 @@ public class ControlPanel extends JPanel {
         if (ev.hasPlayerActionsChanged()) {
             GameState state = ev.getCurrentState();
             ActionsState actionsState = state.getPlayerActions();
-            boolean isLocal = actionsState.getPlayer().isLocalHuman();
-
             clearActions();
             if (actionsState != null) {
+                boolean isLocal = actionsState.getPlayer().isLocalHuman();
                 Vector<PlayerAction<?>> actions = actionsState.getActions();
                 PlayerAction<?> first = actions.getOrNull();
 

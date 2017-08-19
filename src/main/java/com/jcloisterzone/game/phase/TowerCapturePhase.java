@@ -59,11 +59,11 @@ public class TowerCapturePhase extends Phase {
             .toSet();
 
         if (options.isEmpty()) {
-            next(clearActions(state));
+            next(state);
             return;
         }
 
-        Player player = state.getActivePlayer();
+        Player player = state.getTurnPlayer();
         state = state.setPlayerActions(
             new ActionsState(player, new CaptureFollowerAction(options), true)
         );
