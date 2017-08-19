@@ -1,6 +1,5 @@
 package com.jcloisterzone.game.phase;
 
-import com.google.common.primitives.UnsignedBytes;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
@@ -45,7 +44,7 @@ import io.vavr.control.Option;
 
 public class ScorePhase extends ServerAwarePhase {
 
-    private java.util.Map<Completable, Integer> scoredCompletables = new java.util.HashMap<>();
+    private java.util.Map<Completable, Integer> completedMutable = new java.util.HashMap<>();
 
     public ScorePhase(Game game, GameController gc) {
         super(game, gc);
@@ -120,39 +119,9 @@ public class ScorePhase extends ServerAwarePhase {
             }
         }
 
-        if (state.getCapabilities().contains(CastleCapability.class)) {
-            java.util.Map<Castle, Integer> scoredCastles = new java.util.HashMap<>();
-            HashMap<Completable, Integer> scoredMap = HashMap.ofAll(scoredCompletables);
-            Array<Tuple2<Completable, Integer>> scored = Array.ofAll(scoredMap).sortBy(t -> -t._2);
-
-            for (Castle castle : board.getOccupiedScoreables(Castle.class)) {
-                Set<Position> vicinity = castle.getVicinity();
-                for (Tuple2<Completable, Integer> t : scored) {
-                    if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {
-                        state = (new ScoreCastle(castle, t._2)).apply(state);
-                        state = (new UndeployMeeples(castle)).apply(state);
-                        scoredCastles.put(castle, t._2);
-                        break;
-                    }
-                }
-            }
-
-            while (!scoredCastles.isEmpty()) {
-                Map<Castle, Integer> scoredCastlesCpy = HashMap.ofAll(scoredCastles);
-                scoredCastles.clear();
-                board = state.getBoard(); //get current board with up to date castles
-                for (Castle castle : board.getOccupiedScoreables(Castle.class)) {
-                    Set<Position> vicinity = castle.getVicinity();
-                    for (Tuple2<Castle, Integer> t : scoredCastlesCpy) {
-                        if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {
-                            state = (new ScoreCastle(castle, t._2)).apply(state);
-                            state = (new UndeployMeeples(castle)).apply(state);
-                            scoredCastles.put(castle, t._2);
-                            break;
-                        }
-                    }
-                }
-            }
+        HashMap<Completable, Integer> completed = HashMap.ofAll(completedMutable);
+        for (Capability<?> cap : state.getCapabilities().toSeq()) {
+            state = cap.onCompleted(state, completed);
         }
 
         if (state.getCapabilities().contains(GoldminesCapability.class)) {
@@ -172,7 +141,7 @@ public class ScorePhase extends ServerAwarePhase {
             state = state.setCapabilityModel(WagonCapability.class, model);
         }
 
-        scoredCompletables.clear();
+        completedMutable.clear();
         next(state);
     }
 
@@ -199,14 +168,10 @@ public class ScorePhase extends ServerAwarePhase {
             }
         }
 
-        if (completable.isCompleted(state) && !scoredCompletables.containsKey(completable)) {
+        if (completable.isCompleted(state) && !completedMutable.containsKey(completable)) {
             int points = completable.getPoints(state);
 
-            scoredCompletables.put(completable, points);
-
-            for (Capability<?> cap : state.getCapabilities().toSeq()) {
-                state = cap.onCompleted(state, completable);
-            }
+            completedMutable.put(completable, points);
 
             state = (new ScoreCompletable(completable, points)).apply(state);
             state = (new UndeployMeeples(completable)).apply(state);

@@ -28,3 +28,7 @@ and get it by one one instead of all per tile
 
 * save game -> use history of messages
     undo -> send how many messages should be stripped ?
+
+* fix auction
+* pass when only placement with bridge exists during auction
+

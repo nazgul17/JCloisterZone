@@ -23,6 +23,7 @@ import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameStateHelpers;
 
+import io.vavr.collection.HashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
@@ -92,7 +93,7 @@ public abstract class Capability<T> implements Serializable, GameStateHelpers {
         return state;
     }
 
-    public GameState onCompleted(GameState state, Completable feature) {
+    public GameState onCompleted(GameState state, HashMap<Completable, Integer> completed) {
         return state;
     }
 

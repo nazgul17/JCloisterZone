@@ -103,37 +103,5 @@ public final class KingAndRobberBaronCapability extends Capability<Void> {
     public Player getRobberBaron() {
         return robberBaron;
     }
-
-
-
-    @Override
-    public void saveToSnapshot(Document doc, Element node) {
-        if (king != null) {
-            node.setAttribute("king", king.getIndex() + "");
-        }
-        if (robberBaron != null) {
-            node.setAttribute("robber", robberBaron.getIndex() + "");
-        }
-        node.setAttribute("completedCities", "" + completedCities);
-        node.setAttribute("biggestCitySize", "" + biggestCitySize);
-        node.setAttribute("completedRoads", "" + completedRoads);
-        node.setAttribute("longestRoadLength", "" + longestRoadLength);
-    }
-
-    @Override
-    public void loadFromSnapshot(Document doc, Element node) throws SnapshotCorruptedException {
-        if (node.hasAttribute("king")) {
-            king = game.getPlayer(Integer.parseInt(node.getAttribute("king")));
-        }
-        if (node.hasAttribute("robber")) {
-            robberBaron = game.getPlayer(Integer.parseInt(node.getAttribute("robber")));
-        }
-        completedCities = Integer.parseInt(node.getAttribute("completedCities"));
-        biggestCitySize = Integer.parseInt(node.getAttribute("biggestCitySize"));
-        completedRoads = Integer.parseInt(node.getAttribute("completedRoads"));
-        longestRoadLength = Integer.parseInt(node.getAttribute("longestRoadLength"));
-    }
-
-
 }
 

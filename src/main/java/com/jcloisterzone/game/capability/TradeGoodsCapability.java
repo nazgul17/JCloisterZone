@@ -24,22 +24,24 @@ public class TradeGoodsCapability extends Capability<Void> {
     private static final long serialVersionUID = 1L;
 
     @Override
-    public GameState onCompleted(GameState state, Completable feature) {
-        if (!(feature instanceof City)) return state;
+    public GameState onCompleted(GameState state, HashMap<Completable, Integer> completed) {
+        for (Feature feature : completed.keySet()) {
+            if (!(feature instanceof City)) continue;
 
-        City city = (City) feature;
-        Map<TradeGoods, Integer> cityTradeGoods = city.getTradeGoods();
-        if (cityTradeGoods.isEmpty()) {
-            return state;
-        }
-
-        int playerIdx = state.getPlayers().getTurnPlayerIndex();
-        state = state.updatePlayers(ps -> {
-            for (Tuple2<TradeGoods, Integer> t : cityTradeGoods) {
-                ps = ps.addPlayerTokenCount(playerIdx, t._1.getToken(), t._2);
+            City city = (City) feature;
+            Map<TradeGoods, Integer> cityTradeGoods = city.getTradeGoods();
+            if (cityTradeGoods.isEmpty()) {
+                continue;
             }
-            return ps;
-        });
+
+            int playerIdx = state.getPlayers().getTurnPlayerIndex();
+            state = state.updatePlayers(ps -> {
+                for (Tuple2<TradeGoods, Integer> t : cityTradeGoods) {
+                    ps = ps.addPlayerTokenCount(playerIdx, t._1.getToken(), t._2);
+                }
+                return ps;
+            });
+        }
 
         return state;
     }
