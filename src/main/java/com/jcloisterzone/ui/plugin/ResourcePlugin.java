@@ -51,6 +51,7 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 
 public class ResourcePlugin extends Plugin implements ResourceManager {
@@ -321,10 +322,25 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             .find(t -> t._2 instanceof Bridge)
             .map(Tuple2::_1).getOrNull();
 
+        Area onlyFarmSubtraction = getSubtractionArea(tileDef, true);
+        Area allSubtraction = getSubtractionArea(tileDef, false);
+
         // get base areas for all features
         Map<Location, FeatureArea> baseAreas = features
             .filter(t -> t._1 != complementFarm)
             .map((loc, feature) -> new Tuple2<>(loc, getFeatureArea(tileDef, feature.getClass(), loc)));
+
+
+        FeatureArea towerArea = baseAreas.get(Location.TOWER).getOrNull();
+
+        // farms are defined in shapes.xml as bounding regions, other non-farm
+        // features must be subtract for get clear shape, compute farm subtraction now
+        Area nonFarmUnion = baseAreas.foldLeft(new Area(), (area, t) -> {
+            if (!t._1.isFarmLocation()) {
+                area.add(t._2.getTrackingArea()); // Area is mutable, returning same reference
+            }
+            return area;
+        });
 
         // complement farm area is remaining uncovered area
         if (complementFarm != null) {
@@ -337,35 +353,23 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             baseAreas = baseAreas.put(complementFarm, new FeatureArea(farmArea, FeatureArea.DEFAULT_FARM_ZINDEX));
         }
 
-        // farms are defined in shapes.xml as bounding regions, other non-farm
-        // features must be subtract for get clear shape
-        Area nonFarmUnion = baseAreas.foldLeft(new Area(), (area, t) -> {
-            if (!t._1.isFarmLocation()) {
-                area.add(t._2.getTrackingArea()); // Area is mutable, returning same ref
-            }
-            return area;
-        });
-        baseAreas = baseAreas.toMap(t -> {
-            if (!t._1.isFarmLocation()) {
-                return t;
-            }
-            return t.map2(fa -> fa.subtract(nonFarmUnion));
-        });
-
-        // subtract "restricted" areas
-        Area onlyFarmSubtraction = getSubtractionArea(tileDef, true);
-        Area allSubtraction = getSubtractionArea(tileDef, false);
-        baseAreas = baseAreas.toMap(t -> {
-            Location loc = t._1;
-            if (loc == bridgeLoc) return t;
-            if (loc.isFarmLocation()) t = t.map2(fa -> fa.subtract(onlyFarmSubtraction));
-            return t.map2(fa -> fa.subtract(allSubtraction));
-        });
+        Stream<Tuple2<Location, FeatureArea>> areas = Stream.ofAll(baseAreas)
+            .map(t -> {
+                // subtract other features from farms
+                if (!t._1.isFarmLocation()) return t;
+                return t.map2(fa -> fa.subtract(nonFarmUnion));
+            })
+            .map(t -> {
+                // subtract "restricted" areas
+                Location loc = t._1;
+                if (loc == bridgeLoc) return t;
+                if (loc.isFarmLocation()) t = t.map2(fa -> fa.subtract(onlyFarmSubtraction));
+                return t.map2(fa -> fa.subtract(allSubtraction));
+            });
 
         //subtract tower
-        FeatureArea towerArea = baseAreas.get(Location.TOWER).getOrNull();
         if (towerArea != null) {
-            baseAreas = baseAreas.toMap(t -> {
+            areas = areas.map(t -> {
                 Location loc = t._1;
                 if (loc == bridgeLoc || loc == Location.TOWER) return t;
                 return t.map2(fa -> fa.subtract(towerArea));
@@ -384,16 +388,22 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         // -> subtract bridge from other areas
         if (bridgeLoc != null) {
             FeatureArea bridgeArea = baseAreas.get(bridgeLoc).get();
-            baseAreas = baseAreas.toMap(t -> {
+            areas = areas.map(t -> {
                 if (t._1 == bridgeLoc || t._1.isFarmLocation()) return t;
                 return t.map2(fa -> fa.subtract(bridgeArea));
             });
         }
 
         // filter result to requested locations
-        baseAreas = baseAreas.filterKeys(loc -> initialLocations.contains(loc));
+        areas = areas.filter(t -> initialLocations.contains(t._1));
 
+        AffineTransform tx = getAreaScaleTransform(rot, width, height);
+        return areas.toMap(t ->
+            new Tuple2<>(t._1.rotateCW(rot), t._2.transform(tx))
+        );
+    }
 
+    private AffineTransform getAreaScaleTransform(Rotation rot, int width, int height) {
         double ratioX;
         double ratioY;
         if (rot == Rotation.R90 || rot  == Rotation.R270) {
@@ -408,10 +418,7 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         // (concatenate in reverse order)
         AffineTransform tx = AffineTransform.getScaleInstance(ratioX, ratioY);
         tx.concatenate(rot.getAffineTransform(NORMALIZED_SIZE));
-        return baseAreas.bimap(
-            loc -> loc.rotateCW(rot),
-            fa -> fa.transform(tx)
-        );
+        return tx;
     }
 
     @Override
@@ -438,19 +445,6 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         }
         Area a = pluginGeometry.getBridgeArea(loc).createTransformedArea(transform1);
         return new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX);
-    }
-
-
-    private Area getBaseRoadAndCitySubstractions(TileDefinition tile) {
-        Area sub = new Area();
-        if (tile.hasTower()) {
-            sub.add(getFeatureArea(tile, Tower.class, Location.TOWER).getTrackingArea());
-        }
-        if (tile.getFlier() != null) {
-            sub.add(getFeatureArea(tile, null, Location.FLIER).getTrackingArea());
-        }
-        sub.add(getSubtractionArea(tile, false));
-        return sub;
     }
 
     private Rectangle getFullRectangle() {
