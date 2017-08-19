@@ -1,5 +1,7 @@
 package com.jcloisterzone.ui.grid.layer;
 
+import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
@@ -15,12 +17,21 @@ import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.controls.action.TilePlacementActionWrapper;
 import com.jcloisterzone.ui.grid.ActionLayer;
 import com.jcloisterzone.ui.grid.ForwardBackwardListener;
+import com.jcloisterzone.ui.grid.GridMouseAdapter;
+import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.TileImage;
 
 import io.vavr.collection.Set;
 
-public class TilePlacementLayer extends AbstractTilePlacementLayer implements ActionLayer, ForwardBackwardListener {
+public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer, GridMouseListener, ForwardBackwardListener {
+
+    protected static final Composite ALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .8f);
+    protected static final Composite DISALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .4f);
+
+    private boolean active;
+    private Set<Position> availablePositions;
+    private Position previewPosition;
 
     private TilePlacementActionWrapper actionWrapper;
 
@@ -56,7 +67,19 @@ public class TilePlacementLayer extends AbstractTilePlacementLayer implements Ac
     }
 
     @Override
-    protected void drawPreviewIcon(Graphics2D g2, Position previewPosition) {
+    public void onShow() {
+        super.onShow();
+        attachMouseInputListener(new GridMouseAdapter(gridPanel, this));
+    }
+
+    @Override
+    public void onHide() {
+        super.onHide();
+        availablePositions = null;
+        previewPosition = null;
+    }
+
+    private void drawPreviewIcon(Graphics2D g2, Position previewPosition) {
         if (realRotation != actionWrapper.getTileRotation()) {
             preparePreviewRotation(previewPosition);
         }
@@ -127,15 +150,46 @@ public class TilePlacementLayer extends AbstractTilePlacementLayer implements Ac
     }
 
     @Override
-    public void squareEntered(MouseEvent e, Position p) {
-        realRotation = null;
-        super.squareEntered(e, p);
+    public void paint(Graphics2D g2) {
+        if (availablePositions == null) return;
+        int xSize = getTileWidth() - 4,
+            ySize = getTileHeight() - 4,
+            shift = 2,
+            thickness = xSize/14;
+
+        g2.setColor(getClient().getTheme().getTilePlacementColor());
+        for (Position p : availablePositions) {
+            if (previewPosition == null || !previewPosition.equals(p)) {
+                int x = getOffsetX(p)+shift, y = getOffsetY(p)+shift;
+                g2.fillRect(x, y, xSize, thickness);
+                g2.fillRect(x, y+ySize-thickness, xSize, thickness);
+                g2.fillRect(x, y, thickness, ySize);
+                g2.fillRect(x+xSize-thickness, y, thickness, ySize);
+            }
+        }
+
+        if (previewPosition != null) {
+            drawPreviewIcon(g2, previewPosition);
+        }
+        g2.setColor(active ? Color.BLACK : Color.GRAY);
     }
 
     @Override
-    public void squareExited(MouseEvent e, Position p) {
+    public void tileEntered(MouseEvent e, Position p) {
         realRotation = null;
-        super.squareExited(e, p);
+        if (availablePositions.contains(p)) {
+            previewPosition = p;
+            gridPanel.repaint();
+        }
+    }
+
+    @Override
+    public void tileExited(MouseEvent e, Position p) {
+        realRotation = null;
+        if (previewPosition != null) {
+            previewPosition = null;
+            gridPanel.repaint();
+        }
     }
 
     @Override
@@ -148,4 +202,19 @@ public class TilePlacementLayer extends AbstractTilePlacementLayer implements Ac
         }
     }
 
+    public void setAvailablePositions(Set<Position> availablePositions) {
+        this.availablePositions = availablePositions;
+    }
+
+    public Position getPreviewPosition() {
+        return previewPosition;
+    };
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
+    }
 }

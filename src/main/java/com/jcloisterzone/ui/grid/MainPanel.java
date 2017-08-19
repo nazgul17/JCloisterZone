@@ -22,7 +22,6 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.controls.chat.ChatPanel;
 import com.jcloisterzone.ui.grid.actionpanel.CornCirclesPanel;
-import com.jcloisterzone.ui.grid.layer.AbstractTilePlacementLayer;
 import com.jcloisterzone.ui.grid.layer.AnimationLayer;
 import com.jcloisterzone.ui.grid.layer.BridgeLayer;
 import com.jcloisterzone.ui.grid.layer.CastleLayer;
@@ -162,7 +161,7 @@ public class MainPanel extends JPanel {
 
     public void closeGame() {
         gridPanel.clearActionDecorations();
-        gridPanel.hideLayer(AbstractTilePlacementLayer.class);
+        gridPanel.hideLayer(TilePlacementLayer.class);
         gridPanel.removeInteractionPanels();
     }
 

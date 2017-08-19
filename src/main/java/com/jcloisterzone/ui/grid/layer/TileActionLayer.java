@@ -84,7 +84,7 @@ public class TileActionLayer extends AbstractGridLayer implements GridMouseListe
 
 
     @Override
-    public void squareEntered(MouseEvent e, Position p) { }
+    public void tileEntered(MouseEvent e, Position p) { }
     @Override
-    public void squareExited(MouseEvent e, Position p) {  }
+    public void tileExited(MouseEvent e, Position p) { }
 }

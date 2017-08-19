@@ -189,10 +189,6 @@ public abstract class AbstractGridLayer implements GridLayer {
         return gc.getGame();
     }
 
-    protected RmiProxy getRmiProxy() {
-        return gc.getRmiProxy();
-    }
-
     @Deprecated //TODO use absolute coordinates instead
     protected Area transformArea(Area area, Position pos) {
         return area.createTransformedArea(getAffineTransform(pos));

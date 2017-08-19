@@ -14,7 +14,6 @@ import javax.swing.ImageIcon;
 import javax.swing.event.MouseInputAdapter;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Tile;

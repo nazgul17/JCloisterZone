@@ -50,7 +50,7 @@ public class TileLayer extends AbstractGridLayer {
     @Override
     public void paint(Graphics2D g2) {
         //TODO nice shadow
-        if (!getClient().getGridPanel().isLayerVisible(AbstractTilePlacementLayer.class)) {
+        if (!getClient().getGridPanel().isLayerVisible(TilePlacementLayer.class)) {
 
             g2.setColor(getClient().getTheme().getTileBorder());
             int xSize = getTileWidth(),
