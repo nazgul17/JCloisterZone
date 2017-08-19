@@ -91,7 +91,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
         hint.setFont(FONT_ACTION);
         add(hint, "wrap, gap 20 20 0 5");
 
-        BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+        BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
 
         itemPanels = new BazaarItemPanel[model.getSupply().size()];
         int idx = 0;
@@ -112,7 +112,7 @@ public class BazaarPanel extends ActionInteractionPanel<PlayerAction<?>> impleme
             initComponents(state);
         }
 
-        this.model = state.getCapabilities().getModel(BazaarCapability.class);
+        this.model = state.getCapabilityModel(BazaarCapability.class);
         PlayerAction<?> action = getAction();
 
         if (!state.getActivePlayer().isLocalHuman()) {

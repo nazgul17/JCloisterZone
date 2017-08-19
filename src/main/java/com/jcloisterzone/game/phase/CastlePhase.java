@@ -97,7 +97,7 @@ public class CastlePhase extends Phase {
         state = state.updatePlayers(ps ->
            ps.addPlayerTokenCount(player.getIndex(), Token.CASTLE, -1)
         );
-        state = state.setFeatures(update.merge(state.getFeatures()));
+        state = state.setFeatureMap(update.merge(state.getFeatureMap()));
         state = state.appendEvent(new CastleCreated(
            PlayEventMeta.createWithPlayer(player),
            castle

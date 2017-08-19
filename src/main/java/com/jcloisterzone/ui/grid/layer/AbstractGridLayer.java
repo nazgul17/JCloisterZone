@@ -29,7 +29,7 @@ import com.jcloisterzone.ui.resources.ConvenientResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.wsio.RmiProxy;
 
-public abstract class AbstractGridLayer implements GridLayer, GameStateHelpers {
+public abstract class AbstractGridLayer implements GridLayer {
 
     protected boolean visible;
     protected final GridPanel gridPanel;

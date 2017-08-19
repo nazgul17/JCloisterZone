@@ -233,7 +233,7 @@ public class ControlPanel extends JPanel {
 
         if (bazaarSupplyPanel != null) {
             //TODO Immutable - change bazaarSupplyPanel state base on gameChangeEvent !!!
-            BazaarCapabilityModel model = gc.getGame().getState().getCapabilities().getModel(BazaarCapability.class);
+            BazaarCapabilityModel model = gc.getGame().getState().getCapabilityModel(BazaarCapability.class);
             boolean showSupply = model.getSupply() != null;
             if (showSupply ^ bazaarSupplyPanel.isVisible()) {
                 doRevalidate = true;
@@ -425,7 +425,7 @@ public class ControlPanel extends JPanel {
             Graphics2D g2 = (Graphics2D)g;
             super.paintComponent(g);
             GameState state = game.getState();
-            BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+            BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
             Queue<BazaarItem> supply = model.getSupply();
             if (supply != null && !state.getPhase().equals(BazaarPhase.class)) {
                 int x = LEFT_MARGIN+LEFT_PADDING;

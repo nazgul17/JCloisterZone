@@ -28,7 +28,7 @@ import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
 @Immutable
-public abstract class Capability<T> implements Serializable, GameStateHelpers {
+public abstract class Capability<T> implements Serializable {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -39,7 +39,7 @@ public abstract class Capability<T> implements Serializable, GameStateHelpers {
     }
 
     public final T getModel(GameState state) {
-        return state.getCapabilities().getModel(narrowClass());
+        return state.getCapabilityModel(narrowClass());
     }
 
     public final GameState updateModel(GameState state, Function<T, T> fn) {

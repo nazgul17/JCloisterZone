@@ -28,7 +28,7 @@ public class PayRansom implements Reducer {
         Player player = state.getActivePlayer();
         Predicate<Follower> pred = f -> f.getId().equals(meepleId);
 
-        Array<List<Follower>> model = state.getCapabilities().getModel(TowerCapability.class);
+        Array<List<Follower>> model = state.getCapabilityModel(TowerCapability.class);
         Follower follower = null;
         Player jailer = null;
 

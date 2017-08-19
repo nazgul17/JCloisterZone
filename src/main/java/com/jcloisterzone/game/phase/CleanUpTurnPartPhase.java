@@ -21,7 +21,7 @@ public class CleanUpTurnPartPhase extends Phase {
 
     @Override
     public void enter(GameState state) {
-        BuilderState builderState = state.getCapabilities().getModel(BuilderCapability.class);
+        BuilderState builderState = state.getCapabilityModel(BuilderCapability.class);
         boolean builderTakeAnotherTurn = builderState == BuilderState.USED;
 
         for (Capability<?> cap : state.getCapabilities().toSeq()) {

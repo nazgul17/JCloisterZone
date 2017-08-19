@@ -54,7 +54,7 @@ public class CastleLayer extends AbstractGridLayer {
     private CastleLayerModel createModel(GameState state) {
         CastleLayerModel model = new CastleLayerModel();
 
-        model.castles = Stream.ofAll(state.getFeatures().values())
+        model.castles = Stream.ofAll(state.getFeatureMap().values())
             .filter(Predicates.instanceOf(Castle.class))
             .distinct()
             .map(c -> ((Castle)c).getEdge())

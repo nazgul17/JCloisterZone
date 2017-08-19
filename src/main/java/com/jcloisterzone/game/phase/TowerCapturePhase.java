@@ -45,11 +45,11 @@ public class TowerCapturePhase extends Phase {
         assert event.getToken() == Token.TOWER_PIECE;
 
         FeaturePointer ptr = event.getPointer();
-        Tower tower = (Tower) state.getFeatures().get(ptr).get();
+        Tower tower = (Tower) state.getFeatureMap().get(ptr).get();
         int towerHeight = tower.getHeight();
         Position towerPosition = ptr.getPosition();
 
-        Map<FeaturePointer, Feature> features = state.getFeatures();
+        Map<FeaturePointer, Feature> features = state.getFeatureMap();
         Set<MeeplePointer> options = Stream.ofAll(state.getDeployedMeeples())
             .filter(t -> {
                 Position pos = t._2.getPosition();
@@ -126,7 +126,7 @@ public class TowerCapturePhase extends Phase {
     }
 
     private List<Follower> getPrisonersCapturedBy(GameState state, Player owner, Player jailer) {
-        return state.getCapabilities().getModel(TowerCapability.class)
+        return state.getCapabilityModel(TowerCapability.class)
             .get(jailer.getIndex()).filter(f -> f.getPlayer().equals(owner));
     }
 }

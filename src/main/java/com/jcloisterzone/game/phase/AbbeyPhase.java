@@ -41,8 +41,8 @@ public class AbbeyPhase extends ServerAwarePhase {
 
     @Override
     public void enter(GameState state) {
-        BazaarCapabilityModel bazaarModel = state.getCapabilities().getModel(BazaarCapability.class);
-        BuilderState builderState = state.getCapabilities().getModel(BuilderCapability.class);
+        BazaarCapabilityModel bazaarModel = state.getCapabilityModel(BazaarCapability.class);
+        BuilderState builderState = state.getCapabilityModel(BuilderCapability.class);
         boolean baazaarInProgress = bazaarModel != null && !bazaarModel.getSupply().isEmpty();
         boolean builderSecondTurnPart = builderState == BuilderState.SECOND_TURN;
         boolean hasAbbey = state.getPlayers().getPlayerTokenCount(state.getPlayers().getTurnPlayerIndex(), Token.ABBEY_TILE) > 0;

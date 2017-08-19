@@ -77,7 +77,7 @@ public class ScorePhase extends ServerAwarePhase {
         Map<Wagon, FeaturePointer> deployedWagonsBefore = getDeployedWagons(state);
 
         if (state.getCapabilities().contains(BarnCapability.class)) {
-            FeaturePointer placedBarnPtr = state.getCapabilities().getModel(BarnCapability.class);
+            FeaturePointer placedBarnPtr = state.getCapabilityModel(BarnCapability.class);
             Farm placedBarnFarm = placedBarnPtr == null ? null : (Farm) board.get(placedBarnPtr);
             if (placedBarnFarm != null) {
                 //ScoreFeature is scoring just followers!

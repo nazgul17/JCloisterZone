@@ -72,7 +72,7 @@ public class Tile {
     public Feature getFeature(Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
-        return state.getFeatures()
+        return state.getFeatureMap()
             .get(new FeaturePointer(position, loc))
             .getOrNull();
 
@@ -82,8 +82,8 @@ public class Tile {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
         FeaturePointer fp = new FeaturePointer(position, loc);
-        state.getFeatures().find(t -> fp.isPartOf(t._1)).map(Tuple2::_2);
-        return state.getFeatures()
+        state.getFeatureMap().find(t -> fp.isPartOf(t._1)).map(Tuple2::_2);
+        return state.getFeatureMap()
             .find(t -> fp.isPartOf(t._1))
             .map(Tuple2::_2)
             .getOrNull();
@@ -100,7 +100,7 @@ public class Tile {
 
     public Stream<Tuple2<Location, Feature>> getFeatures() {
         Rotation rot = getRotation();
-        Map<FeaturePointer, Feature> allFeatures = state.getFeatures();
+        Map<FeaturePointer, Feature> allFeatures = state.getFeatureMap();
         return Stream.ofAll(getTileDefinition().getInitialFeatures())
             .map(t -> t.update1(t._1.rotateCW(rot)))
             .map(t -> t.update2(

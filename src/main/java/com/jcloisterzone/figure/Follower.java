@@ -32,7 +32,7 @@ public abstract class Follower extends Meeple {
     }
 
     public boolean isCaptured(GameState state) {
-        Array<List<Follower>> model = state.getCapabilities().getModel(TowerCapability.class);
+        Array<List<Follower>> model = state.getCapabilityModel(TowerCapability.class);
         return model != null && Stream.concat(model).find(f -> f == this).isDefined();
     }
 

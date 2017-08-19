@@ -44,7 +44,7 @@ public class CocPreScorePhase extends ServerAwarePhase {
     private List<PlayerAction<?>> preparePlayerActions(Player player) {
         //List<PlayerAction<?>> result = new ArrayList<>();
         Map<Class<? extends Follower>, MeepleAction> actions = new HashMap<>();
-        for (Feature feature : getTile().getFeatures()) {
+        for (Feature feature : getTile().getFeatureMap()) {
             if (feature instanceof Farm) {
                 continue;
             }

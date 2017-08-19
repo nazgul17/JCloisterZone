@@ -296,7 +296,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 //            drawMeepleBox(null, "gold", gldCap.getPlayerGoldPieces(player), true);
 //        }
 
-        io.vavr.collection.Array<io.vavr.collection.List<Follower>> towerModel = state.getCapabilities().getModel(TowerCapability.class);
+        io.vavr.collection.Array<io.vavr.collection.List<Follower>> towerModel = state.getCapabilityModel(TowerCapability.class);
         if (towerModel != null) {
             towerModel.get(player.getIndex()).groupBy(m -> m.getPlayer()).forEach((opponent, prisoners) -> {
                 boolean isOpponentActive = opponent.equals(state.getActivePlayer()) && opponent.isLocalHuman();

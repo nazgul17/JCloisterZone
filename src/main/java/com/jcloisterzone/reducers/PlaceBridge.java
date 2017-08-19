@@ -42,8 +42,8 @@ public class PlaceBridge implements Reducer {
 
         Bridge bridge = new Bridge(bridgeLoc);
         Road bridgeRoad = bridge.placeOnBoard(bridgePos, tileRotation);
-        state = state.setFeatures(
-            state.getFeatures().put(ptr, bridgeRoad)
+        state = state.setFeatureMap(
+            state.getFeatureMap().put(ptr, bridgeRoad)
         );
         state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(ptr));
         if (!silent) {

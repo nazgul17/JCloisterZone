@@ -19,6 +19,11 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.mixins.ActionsStateMixin;
+import com.jcloisterzone.game.state.mixins.EventsStateMixin;
+import com.jcloisterzone.game.state.mixins.FeaturesStateMixin;
+import com.jcloisterzone.game.state.mixins.FlagsStateMixin;
+import com.jcloisterzone.game.state.mixins.PlayersStsteMixin;
+import com.jcloisterzone.game.state.mixins.SettingsStateMixin;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -32,7 +37,9 @@ import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 
 @Immutable
-public class GameState implements ActionsStateMixin, Serializable {
+public class GameState implements ActionsStateMixin, FeaturesStateMixin,
+        SettingsStateMixin, PlayersStsteMixin, EventsStateMixin,
+        FlagsStateMixin, Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,7 +55,7 @@ public class GameState implements ActionsStateMixin, Serializable {
 
     private final LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles;
     private final List<TileDefinition> discardedTiles;
-    private final Map<FeaturePointer, Feature> features;
+    private final Map<FeaturePointer, Feature> featureMap;
 
     private final NeutralFiguresState neutralFigures;
     private final LinkedHashMap<Meeple, FeaturePointer> deployedMeeples;
@@ -90,7 +97,7 @@ public class GameState implements ActionsStateMixin, Serializable {
             PlayersState players,
             TilePackState tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
-            List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> features,
+            List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> featureMap,
             NeutralFiguresState neutralFigures,
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
             ActionsState playerActions,
@@ -104,7 +111,7 @@ public class GameState implements ActionsStateMixin, Serializable {
         this.drawnTile = drawnTile;
         this.placedTiles = placedTiles;
         this.discardedTiles = discardedTiles;
-        this.features = features;
+        this.featureMap = featureMap;
         this.neutralFigures = neutralFigures;
         this.deployedMeeples = deployedMeeples;
         this.playerActions = playerActions;
@@ -113,44 +120,30 @@ public class GameState implements ActionsStateMixin, Serializable {
         this.phase = phase;
     }
 
+    @Override
     public GameState setCapabilities(CapabilitiesState capabilities) {
         if (capabilities == this.capabilities) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
         );
     }
 
-    public GameState updateCapabilities(Function<CapabilitiesState, CapabilitiesState> fn) {
-        return setCapabilities(fn.apply(capabilities));
-    }
-
-    public <M> GameState updateCapabilityModel(Class<? extends Capability<M>> cls, Function<M, M> fn) {
-        return setCapabilities(getCapabilities().updateModel(cls, fn));
-    }
-
-    public <M> GameState setCapabilityModel(Class<? extends Capability<M>> cls, M model) {
-        return setCapabilities(getCapabilities().setModel(cls, model));
-    }
-
+    @Override
     public GameState setPlayers(PlayersState players) {
         if (players == this.players) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
         );
-    }
-
-    public GameState updatePlayers(Function<PlayersState, PlayersState> fn) {
-        return setPlayers(fn.apply(players));
     }
 
     public GameState setTilePack(TilePackState tilePack) {
@@ -158,7 +151,7 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -170,7 +163,7 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -182,19 +175,20 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
         );
     }
 
-    public GameState setFeatures(Map<FeaturePointer, Feature> features) {
-        if (features == this.features) return this;
+    @Override
+    public GameState setFeatureMap(Map<FeaturePointer, Feature> featureMap) {
+        if (featureMap == this.featureMap) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -206,7 +200,7 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -218,7 +212,7 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -234,7 +228,7 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -246,36 +240,33 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
         );
     }
 
+    @Override
     public GameState setFlags(Set<Flag> flags) {
         if (flags == this.flags) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
         );
     }
 
-    public GameState addFlag(Flag flag) {
-        //HashSet makes contains check and returns same instance, no need to do it again here
-        return setFlags(flags.add(flag));
-    }
-
+    @Override
     public GameState setEvents(Queue<PlayEvent> events) {
         if (events == this.events) return this;
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
@@ -287,21 +278,19 @@ public class GameState implements ActionsStateMixin, Serializable {
         return new GameState(
             rules, capabilities, players,
             tilePack, drawnTile, placedTiles, discardedTiles,
-            features, neutralFigures,
+            featureMap, neutralFigures,
             deployedMeeples, playerActions,
             flags, events,
             phase
         );
     }
 
-    public GameState appendEvent(PlayEvent ev) {
-        return setEvents(events.append(ev));
-    }
-
-    public HashMap<CustomRule, Object> getRules() {
+    @Override
+    public Map<CustomRule, Object> getRules() {
         return rules;
     }
 
+    @Override
     public CapabilitiesState getCapabilities() {
         return capabilities;
     }
@@ -326,9 +315,9 @@ public class GameState implements ActionsStateMixin, Serializable {
         return discardedTiles;
     }
 
-    //TODO rename to featureMap to avoid confusion
-    public Map<FeaturePointer, Feature> getFeatures() {
-        return features;
+    @Override
+    public Map<FeaturePointer, Feature> getFeatureMap() {
+        return featureMap;
     }
 
     public NeutralFiguresState getNeutralFigures() {
@@ -339,18 +328,17 @@ public class GameState implements ActionsStateMixin, Serializable {
         return deployedMeeples;
     }
 
+    @Override
     public ActionsState getPlayerActions() {
         return playerActions;
     }
 
+    @Override
     public Set<Flag> getFlags() {
         return flags;
     }
 
-    public boolean hasFlag(Flag flag) {
-        return flags.contains(flag);
-    }
-
+    @Override
     public Queue<PlayEvent> getEvents() {
         return events;
     }
@@ -359,40 +347,12 @@ public class GameState implements ActionsStateMixin, Serializable {
         return phase;
     }
 
-    // ------ helpers -------------
-    //TOOD move something to GameStateHelpers
+    // TODO remove board in favor of mixins
 
     private Board board;
-
-    public boolean getBooleanValue(CustomRule rule) {
-        assert rule.getType().equals(Boolean.class);
-        return (Boolean) rules.get(rule).getOrElse(Boolean.FALSE);
-    }
-
-    public Player getTurnPlayer() {
-        return players.getTurnPlayer();
-    }
-
-    public Player getActivePlayer() {
-        if (playerActions == null) {
-            return null;
-        }
-        return playerActions.getPlayer();
-    }
 
     public Board getBoard() {
         if (board == null) board = new Board(this);
         return board;
-    }
-
-    public Queue<PlayEvent> getCurrentTurnEvents() {
-        Queue<PlayEvent> res = Queue.empty();
-        for (PlayEvent ev : events.reverseIterator()) {
-            res.prepend(ev);
-            if (ev instanceof PlayerTurnEvent) {
-                break;
-            }
-        }
-        return res;
     }
 }

@@ -37,7 +37,7 @@ public class WagonPhase extends ServerAwarePhase {
 
     @Override
     public void enter(GameState state) {
-        Queue<Tuple2<Wagon, FeaturePointer>> model = state.getCapabilities().getModel(WagonCapability.class);
+        Queue<Tuple2<Wagon, FeaturePointer>> model = state.getCapabilityModel(WagonCapability.class);
         while (!model.isEmpty()) {
             Tuple2<Tuple2<Wagon, FeaturePointer>, Queue<Tuple2<Wagon, FeaturePointer>>> dequeueTuple = model.dequeue();
             model = dequeueTuple._2;

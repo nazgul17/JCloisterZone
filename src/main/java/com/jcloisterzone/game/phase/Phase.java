@@ -13,7 +13,7 @@ import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PayRansomMessage;
 
 
-public abstract class Phase implements GameStateHelpers {
+public abstract class Phase {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 

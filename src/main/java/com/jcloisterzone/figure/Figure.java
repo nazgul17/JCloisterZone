@@ -35,7 +35,7 @@ public abstract class Figure<T extends BoardPointer> implements Serializable {
         if (fp == null) {
             return null;
         }
-        return state.getFeatures().get(fp).getOrNull();
+        return state.getFeatureMap().get(fp).getOrNull();
     }
 
     public Location getLocation(GameState state) {

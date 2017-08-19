@@ -237,10 +237,10 @@ public class ActionPhase extends Phase {
         switch (token) {
         case TOWER_PIECE:
             // TODO validation against ActionState
-            Tower tower = (Tower) state.getFeatures().get(ptr).getOrElseThrow(() -> new IllegalArgumentException("No tower"));
+            Tower tower = (Tower) state.getFeatureMap().get(ptr).getOrElseThrow(() -> new IllegalArgumentException("No tower"));
             tower = tower.increaseHeight();
 
-            state = state.setFeatures(state.getFeatures().put(ptr, tower));
+            state = state.setFeatureMap(state.getFeatureMap().put(ptr, tower));
             state = state.appendEvent(new TokenPlacedEvent(
                 PlayEventMeta.createWithActivePlayer(state), token, ptr)
             );

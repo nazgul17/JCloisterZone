@@ -54,7 +54,7 @@ public class BridgeLayer extends AbstractGridLayer {
     }
 
     private Set<FeaturePointer> createModel(GameState state) {
-        return state.getCapabilities().getModel(BridgeCapability.class);
+        return state.getCapabilityModel(BridgeCapability.class);
     }
 
     @Override

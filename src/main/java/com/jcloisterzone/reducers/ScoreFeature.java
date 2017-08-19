@@ -10,6 +10,7 @@ import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Tuple2;
@@ -68,7 +69,7 @@ public abstract class ScoreFeature implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        boolean finalScoring = isGameOver(state);
+        boolean finalScoring = GameOverPhase.class.equals(state.getPhase());
 
         Set<Player> players = feature.getOwners(state);
         if (players.isEmpty()) {

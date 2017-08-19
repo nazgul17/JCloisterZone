@@ -129,7 +129,7 @@ public class BazaarPhase extends ServerAwarePhase {
 
     private void nextBidder(GameState state) {
         Player nextBidder = state.getActivePlayer();
-        BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+        BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
         BazaarItem item = model.getAuctionedItem();
         Player tileSelectingPlayer = model.getTileSelectingPlayer();
 
@@ -160,7 +160,7 @@ public class BazaarPhase extends ServerAwarePhase {
     }
 
     private void nextSelectingPlayer(GameState state) {
-        BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+        BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
         Player currentSelectingPlayer = model.getTileSelectingPlayer();
         Player player = currentSelectingPlayer;
 
@@ -205,7 +205,7 @@ public class BazaarPhase extends ServerAwarePhase {
     @WsSubscribe
     public void handlePass(PassMessage msg) {
         GameState state = game.getState();
-        BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+        BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
         Player p = state.getActivePlayer();
 
         if (p.equals(model.getTileSelectingPlayer())) {
@@ -221,7 +221,7 @@ public class BazaarPhase extends ServerAwarePhase {
     }
 
     private void buyOrSell(GameState state, BuyOrSellOption option) {
-        BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+        BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
 
         BazaarItem bi = model.getAuctionedItem();
         int points = bi.getCurrentPrice();

@@ -40,7 +40,7 @@ public class DragonMovePhase extends ServerAwarePhase {
     }
 
     private Vector<Position> getVisitedPositions(GameState state) {
-        Vector<Position> visited = state.getCapabilities().getModel(DragonCapability.class);
+        Vector<Position> visited = state.getCapabilityModel(DragonCapability.class);
         return visited == null ? Vector.empty() : visited;
     }
 

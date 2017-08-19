@@ -66,7 +66,7 @@ public final class TowerCapability extends Capability<Array<List<Follower>>> {
             .map(Tuple2::_2)
             .toSet();
 
-        Stream<Tuple2<FeaturePointer, Feature>> openTowersStream = Stream.ofAll(state.getFeatures())
+        Stream<Tuple2<FeaturePointer, Feature>> openTowersStream = Stream.ofAll(state.getFeatureMap())
             .filter(t -> (t._2 instanceof Tower))
             .filter(t -> !occupiedTowers.contains(t._1));
 

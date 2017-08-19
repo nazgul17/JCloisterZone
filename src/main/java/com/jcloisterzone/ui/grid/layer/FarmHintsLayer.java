@@ -105,9 +105,7 @@ public class FarmHintsLayer extends AbstractGridLayer {
         Board board = state.getBoard();
 
         FarmHintsLayerModel model = new FarmHintsLayerModel();
-        model.hints = getFeatures(state)
-            .filter(Predicates.instanceOf(Farm.class))
-            .map(feature -> (Farm) feature)
+        model.hints = state.getFeatures(Farm.class)
             .map(farm -> new Tuple2<>(farm, farm.getOwners(state)))
             .filter(t -> {
                 Farm farm = t._1;

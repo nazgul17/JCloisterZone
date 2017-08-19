@@ -157,7 +157,7 @@ public class Board {
 
 
     public Stream<Scoreable> getOccupiedScoreables() {
-        return Stream.ofAll(state.getFeatures().values())
+        return Stream.ofAll(state.getFeatureMap().values())
             .filter(Predicates.instanceOf(Scoreable.class))
             .distinct()
             .filter(f -> f.isOccupied(state))
@@ -166,7 +166,7 @@ public class Board {
 
     @SuppressWarnings("unchecked")
     public <T extends Scoreable> Stream<T> getOccupiedScoreables(Class<T> cls) {
-        return Stream.ofAll(state.getFeatures().values())
+        return Stream.ofAll(state.getFeatureMap().values())
             .filter(Predicates.instanceOf(cls))
             .distinct()
             .filter(f -> f.isOccupied(state))
@@ -178,7 +178,7 @@ public class Board {
     }
 
     public Option<Tuple2<FeaturePointer, Feature>> getFeaturePartOf2(FeaturePointer fp) {
-        return state.getFeatures().find(t -> fp.isPartOf(t._1));
+        return state.getFeatureMap().find(t -> fp.isPartOf(t._1));
     }
 
     public Tile get(int x, int y) {
@@ -202,7 +202,7 @@ public class Board {
     }
 
     public Feature get(FeaturePointer fp) {
-        return state.getFeatures().get(fp).getOrNull();
+        return state.getFeatureMap().get(fp).getOrNull();
     }
 
     public Stream<Tile> getPlacedTiles() {

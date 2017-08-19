@@ -66,7 +66,7 @@ public final class KingAndRobberBaronCapability extends Capability<Void> {
     }
 
     private int getMaxSize(GameState state, Class<? extends Completable> cls, Set<Completable> exclude) {
-        return getFeatures(state, cls)
+        return state.getFeatures(cls)
             .filter(c -> !exclude.contains(c))
             .filter(c -> c.isCompleted(state))
             .map(c -> c.getTilePositions().size())
@@ -83,11 +83,11 @@ public final class KingAndRobberBaronCapability extends Capability<Void> {
     }
 
     public int countCompletedCities(GameState state) {
-        int count = getFeatures(state, City.class)
+        int count = state.getFeatures(City.class)
             .filter(c -> c.isCompleted(state))
             .size();
 
-        if (hasCapability(state, CountCapability.class)) {
+        if (state.hasCapability(CountCapability.class)) {
             count += 1;
         }
 
@@ -95,7 +95,7 @@ public final class KingAndRobberBaronCapability extends Capability<Void> {
     }
 
     public int countCompletedRoads(GameState state) {
-        return getFeatures(state, Road.class)
+        return state.getFeatures(Road.class)
             .filter(c -> c.isCompleted(state))
             .size();
     }

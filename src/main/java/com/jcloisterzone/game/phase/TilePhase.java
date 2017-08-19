@@ -95,7 +95,7 @@ public class TilePhase extends ServerAwarePhase {
     @Override
     public void enter(GameState state) {
         for (;;) {
-            BazaarCapabilityModel bazaarModel = state.getCapabilities().getModel(BazaarCapability.class);
+            BazaarCapabilityModel bazaarModel = state.getCapabilityModel(BazaarCapability.class);
             Queue<BazaarItem> supply = bazaarModel == null ? null : bazaarModel.getSupply();
 
             if (supply != null) {
@@ -122,7 +122,7 @@ public class TilePhase extends ServerAwarePhase {
 
                 //Abbey special case, every player has opportunity to place own abbey at the end.
                 if (packIsEmpty && state.getCapabilities().contains(AbbeyCapability.class)) {
-                    Integer endPlayerIdx = state.getCapabilities().getModel(AbbeyCapability.class);
+                    Integer endPlayerIdx = state.getCapabilityModel(AbbeyCapability.class);
                     Player turnPlayer = state.getTurnPlayer();
                     if (endPlayerIdx == null) {
                         //tile pack has been depleted jut now
@@ -247,7 +247,7 @@ public class TilePhase extends ServerAwarePhase {
         state = state.setDrawnTile(null);
 
         if (tile.getTrigger() == TileTrigger.BAZAAR) {
-            BazaarCapabilityModel model = state.getCapabilities().getModel(BazaarCapability.class);
+            BazaarCapabilityModel model = state.getCapabilityModel(BazaarCapability.class);
             //Do not trigger another auction is current is not resolved
             if (model.getSupply() == null) {
                 state = state.addFlag(Flag.BAZAAR_AUCTION);
