@@ -393,10 +393,6 @@ public class GameState implements Serializable {
         return board;
     }
 
-    public boolean isGameOver() {
-        return GameOverPhase.class.equals(phase);
-    }
-
     public Queue<PlayEvent> getCurrentTurnEvents() {
         Queue<PlayEvent> res = Queue.empty();
         for (PlayEvent ev : events.reverseIterator()) {
@@ -406,14 +402,5 @@ public class GameState implements Serializable {
             }
         }
         return res;
-    }
-
-
-    public static enum Flag {
-        // Cleared at the turn end
-        RANSOM_PAID, BAZAAR_AUCTION,
-
-        // Cleared at the turn part end
-        PORTAL_USED, PRINCESS_USED
     }
 }

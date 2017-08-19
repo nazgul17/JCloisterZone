@@ -5,8 +5,8 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.BuilderState;
+import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.GameState.Flag;
 
 import io.vavr.collection.HashSet;
 

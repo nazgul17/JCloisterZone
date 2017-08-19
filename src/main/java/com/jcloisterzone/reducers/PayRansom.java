@@ -6,8 +6,8 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.PointCategory;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.game.capability.TowerCapability;
+import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.GameState.Flag;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.List;

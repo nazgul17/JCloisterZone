@@ -36,3 +36,7 @@ and get it by one one instead of all per tile
 
 * do not challenge yaga hut with shrine - separate feature for yaga's hut? probably not
 * + yaga scoring
+
+* move stuff from Board to GameStateHelper
+* Location.sides() -> SIDES
+* add debug optiom to limit tile pack size

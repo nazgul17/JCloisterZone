@@ -11,8 +11,8 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
+import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.GameState.Flag;
 
 import io.vavr.collection.Set;
 

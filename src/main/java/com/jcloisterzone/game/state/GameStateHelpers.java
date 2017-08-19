@@ -2,15 +2,14 @@ package com.jcloisterzone.game.state;
 
 import com.jcloisterzone.action.ActionsState;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
+import com.jcloisterzone.game.phase.GameOverPhase;
 
 import io.vavr.Predicates;
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
+// bad idea, put helper methods rather on game state
 public interface GameStateHelpers {
 
     // Actions
@@ -45,6 +44,12 @@ public interface GameStateHelpers {
 
     default boolean hasCapability(GameState state, Class<? extends Capability<?>> cls) {
         return state.getCapabilities().contains(cls);
+    }
+
+    // Game state
+
+    default boolean isGameOver(GameState state) {
+        return GameOverPhase.class.equals(state.getPhase());
     }
 
 }

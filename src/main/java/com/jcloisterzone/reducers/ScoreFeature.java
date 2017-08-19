@@ -68,7 +68,7 @@ public abstract class ScoreFeature implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        boolean finalScoring = state.isGameOver();
+        boolean finalScoring = isGameOver(state);
 
         Set<Player> players = feature.getOwners(state);
         if (players.isEmpty()) {
