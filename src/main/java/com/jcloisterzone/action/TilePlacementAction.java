@@ -30,12 +30,7 @@ public class TilePlacementAction extends PlayerAction<TilePlacement> {
         return tile;
     }
 
-    public Map<Position, Set<Rotation>> groupByPosition() {
-        return getOptions()
-            .groupBy(tp -> tp.getPosition())
-            .mapValues(setOfPlacements -> setOfPlacements.map(tp -> tp.getRotation()));
-    }
-
+    @Deprecated
     public Set<Rotation> getRotations(Position pos) {
         return Stream.ofAll(getOptions())
             .filter(tp -> tp.getPosition().equals(pos))

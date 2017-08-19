@@ -13,6 +13,7 @@
 * Bridges, Castles, and Bazaars:
     - Bazaar auction is not triggered when tile is discarded.
     - When tile can place only with bridge, player is allowed to pass and let the tile to be discarded.
+    - Display bridge preview if bridge placement is mandatory (and bridge must be placed as part of tile placement)
 * technical notes:
     - Grand rewrite in favor of functional programming and immutable data structure.
     - vavr.io library is awesome!

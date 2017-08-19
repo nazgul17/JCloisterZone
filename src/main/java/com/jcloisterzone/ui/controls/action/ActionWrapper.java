@@ -4,7 +4,6 @@ import java.awt.Color;
 import java.awt.Image;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.BarnAction;
 import com.jcloisterzone.action.FairyNextToAction;
 import com.jcloisterzone.action.FairyOnTileAction;
 import com.jcloisterzone.action.GoldPieceAction;
@@ -13,6 +12,7 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.PrincessAction;
 import com.jcloisterzone.action.TowerPieceAction;
 import com.jcloisterzone.action.TunnelAction;
+import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Mayor;
@@ -57,6 +57,7 @@ public class ActionWrapper implements Comparable<ActionWrapper> {
             Class<? extends Meeple> meepleType = ((MeepleAction) action).getMeepleType();
             if (meepleType.equals(SmallFollower.class)) return 9;
             if (meepleType.equals(BigFollower.class)) return 10;
+            if (meepleType.equals(Barn.class)) return 10;
             if (meepleType.equals(Wagon.class)) return 12;
             if (meepleType.equals(Mayor.class)) return 13;
             if (meepleType.equals(Builder.class)) return 14;
@@ -66,7 +67,6 @@ public class ActionWrapper implements Comparable<ActionWrapper> {
         }
 
         if (action instanceof PrincessAction) return 1;
-        if (action instanceof BarnAction) return 11;
         if (action instanceof TowerPieceAction) return 20;
         if (action instanceof GoldPieceAction) return 29;
         if (action instanceof FairyNextToAction) return 30;

@@ -5,12 +5,17 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Area;
 
 import com.jcloisterzone.action.TilePlacementAction;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
+import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.TileSymmetry;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.ActionPanel;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
@@ -26,8 +31,9 @@ import io.vavr.collection.Set;
 
 public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer, GridMouseListener, ForwardBackwardListener {
 
-    protected static final Composite ALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .8f);
-    protected static final Composite DISALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .4f);
+    private static final Composite ALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .8f);
+    private static final Composite DISALLOWED_PREVIEW = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .4f);
+    private static final Composite BRIDGE_PREVIEW_FILL_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .75f);
 
     private boolean active;
     private Set<Position> availablePositions;
@@ -35,9 +41,11 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
 
     private TilePlacementActionWrapper actionWrapper;
 
+    private boolean allowedRotation;
     private Rotation realRotation;
     private Rotation previewRotation;
-    private boolean allowedRotation;
+    private FeaturePointer previewBridge;
+
 
     public TilePlacementLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -48,11 +56,11 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
         this.actionWrapper = (TilePlacementActionWrapper) actionWrapper;
         setActive(active);
         if (actionWrapper == null) {
-            setAvailablePositions(null);
+            availablePositions = null;
             realRotation = null;
         } else {
             this.actionWrapper.setForwardBackwardDelegate(this);
-            setAvailablePositions(getAction().groupByPosition().keySet());
+            availablePositions = getAction().getOptions().map(tp -> tp.getPosition()).distinct();
         };
     }
 
@@ -94,18 +102,24 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
         realRotation = getActionWrapper().getTileRotation();
         previewRotation = realRotation;
 
-        Set<Rotation> allowedRotations = getAction().getRotations(p);
-        if (allowedRotations.contains(previewRotation)) {
+        Set<TilePlacement> allowedRotations = getAction().getOptions().filter(tp -> tp.getPosition().equals(p));
+        TilePlacement matchingPlacement = allowedRotations
+            .find(tp -> tp.getRotation().equals(previewRotation))
+            .getOrNull();
+
+        if (matchingPlacement != null) {
             allowedRotation = true;
+            previewBridge = matchingPlacement.getMandatoryBridge();
         } else {
-            if (allowedRotations.size() == 1) {
-                previewRotation = allowedRotations.iterator().next();
+            TileSymmetry symmetry = getAction().getTile().getSymmetry();
+            if (allowedRotations.size() == 1 || symmetry == TileSymmetry.S2) {
+                TilePlacement tp = allowedRotations.get();
                 allowedRotation = true;
-            } else if (getAction().getTile().getSymmetry() == TileSymmetry.S2) {
-                previewRotation = realRotation.next();
-                allowedRotation = true;
+                previewRotation = tp.getRotation();
+                previewBridge = tp.getMandatoryBridge();
             } else {
                 allowedRotation = false;
+                previewBridge = null;
             }
         }
     }
@@ -171,7 +185,23 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
         if (previewPosition != null) {
             drawPreviewIcon(g2, previewPosition);
         }
-        g2.setColor(active ? Color.BLACK : Color.GRAY);
+    }
+
+    public void paintBridgePreview(Graphics2D g2) {
+        if (previewBridge != null) {
+            Composite oldComposite = g2.getComposite();
+            g2.setColor(Color.WHITE);
+            g2.setComposite(BRIDGE_PREVIEW_FILL_COMPOSITE);
+
+            Position bridgePos = previewBridge.getPosition();
+            Location bridgeLoc = previewBridge.getLocation();
+            //System.err.println(previewBridge);
+            Tile tile = gc.getGame().getState().getBoard().get(bridgePos);
+            Area a = rm.getBridgeArea(tile, getTileWidth(), getTileHeight(), bridgeLoc).getTrackingArea();
+            a.transform(AffineTransform.getTranslateInstance(getOffsetX(bridgePos), getOffsetY(bridgePos)));
+            g2.fill(a);
+            g2.setComposite(oldComposite);
+        }
     }
 
     @Override
@@ -188,6 +218,7 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
         realRotation = null;
         if (previewPosition != null) {
             previewPosition = null;
+            previewBridge = null;
             gridPanel.repaint();
         }
     }
@@ -200,10 +231,6 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
                 getAction().perform(gc, new TilePlacement(p, previewRotation, null));
             }
         }
-    }
-
-    public void setAvailablePositions(Set<Position> availablePositions) {
-        this.availablePositions = availablePositions;
     }
 
     public Position getPreviewPosition() {

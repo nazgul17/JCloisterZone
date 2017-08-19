@@ -60,17 +60,18 @@ public class BridgeLayer extends AbstractGridLayer {
     @Override
     public void paint(Graphics2D g2) {
         Composite oldComposite = g2.getComposite();
+        g2.setColor(Color.BLACK);
+        g2.setComposite(BRIDGE_FILL_COMPOSITE);
+
         Board board = getGame().getBoard();
         for (FeaturePointer bridge : model) {
             Position pos = bridge.getPosition();
             Location loc = bridge.getLocation();
             Tile tile = board.get(pos);
 
+            //TODO put ares into model instead of locations
             Area a = rm.getBridgeArea(tile, getTileWidth(), getTileHeight(), loc).getTrackingArea();
             a.transform(AffineTransform.getTranslateInstance(getOffsetX(pos), getOffsetY(pos)));
-
-            g2.setColor(Color.BLACK);
-            g2.setComposite(BRIDGE_FILL_COMPOSITE);
             g2.fill(a);
 
         }

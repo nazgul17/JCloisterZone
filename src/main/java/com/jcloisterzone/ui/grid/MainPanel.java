@@ -6,6 +6,7 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 import com.google.common.eventbus.Subscribe;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.event.CornCirclesOptionEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
@@ -87,12 +88,16 @@ public class MainPanel extends JPanel {
         controlPanel = new ControlPanel(gameView);
         gridPanel = new GridPanel(client, gameView, controlPanel, chatPanel, snapshot);
         MeepleLayer meepleLayer = new MeepleLayer(gridPanel, gc);
+        TilePlacementLayer tilePlacementLayer = new TilePlacementLayer(gridPanel, gc);
+        TileLayer tileLayer = new TileLayer(gridPanel, gc);
+        tileLayer.setTilePlacmentLayer(tilePlacementLayer);
         farmHintLayer = new FarmHintsLayer(gridPanel, gc);
 
         CapabilitiesState capabs = game.getState().getCapabilities();
 
-        gridPanel.addLayer(new TilePlacementLayer(gridPanel, gc), false);
-        gridPanel.addLayer(new TileLayer(gridPanel, gc));  //zindex 2
+        gridPanel.addLayer(tilePlacementLayer, false);
+        gridPanel.addLayer(tileLayer);  //zindex 2
+
         if (capabs.contains(TowerCapability.class)) {
             gridPanel.addLayer(new TowerLayer(gridPanel, gc)); //5
         }

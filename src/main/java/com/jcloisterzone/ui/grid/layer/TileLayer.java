@@ -19,6 +19,8 @@ import io.vavr.collection.TreeSet;
 
 public class TileLayer extends AbstractGridLayer {
 
+    private TilePlacementLayer tilePlacementLayer;
+
     class OrderByRowsComparator implements Comparator<Tuple2<Position, Tuple2<TileDefinition, Rotation>>> {
         @Override
         public int compare(Tuple2<Position, Tuple2<TileDefinition, Rotation>> o1, Tuple2<Position, Tuple2<TileDefinition, Rotation>> o2) {
@@ -50,8 +52,7 @@ public class TileLayer extends AbstractGridLayer {
     @Override
     public void paint(Graphics2D g2) {
         //TODO nice shadow
-        if (!getClient().getGridPanel().isLayerVisible(TilePlacementLayer.class)) {
-
+        if (!tilePlacementLayer.isVisible()) {
             g2.setColor(getClient().getTheme().getTileBorder());
             int xSize = getTileWidth(),
                 ySize = getTileHeight(),
@@ -63,6 +64,7 @@ public class TileLayer extends AbstractGridLayer {
             }
         }
 
+
         for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : sortedPlacedTiles) {
             Position p = t._1;
             TileDefinition tdef = t._2._1;
@@ -70,5 +72,18 @@ public class TileLayer extends AbstractGridLayer {
             TileImage tileImg = rm.getTileImage(tdef, rot);
             g2.drawImage(tileImg.getImage(), getAffineTransform(tileImg, p), null);
         }
+
+        if (tilePlacementLayer.isVisible()) {
+            tilePlacementLayer.paintBridgePreview(g2);
+        }
     }
+
+    public TilePlacementLayer getTilePlacmentLayer() {
+        return tilePlacementLayer;
+    }
+
+    public void setTilePlacmentLayer(TilePlacementLayer tilePlacementLayer) {
+        this.tilePlacementLayer = tilePlacementLayer;
+    }
+
 }
