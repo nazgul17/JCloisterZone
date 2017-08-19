@@ -27,11 +27,15 @@ import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.action.TilePlacementAction;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
+import com.jcloisterzone.config.Config.ConfirmConfig;
 import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.event.play.MeepleDeployed;
+import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarCapability;
@@ -347,19 +351,17 @@ public class ControlPanel extends JPanel {
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasPlayerActionsChanged()) {
+            GameState state = ev.getCurrentState();
+            ActionsState actionsState = state.getPlayerActions();
+            boolean isLocal = actionsState.getPlayer().isLocalHuman();
+
             clearActions();
-            ActionsState actionsState = ev.getCurrentState().getPlayerActions();
             if (actionsState != null) {
                 Vector<PlayerAction<?>> actions = actionsState.getActions();
                 PlayerAction<?> first = actions.getOrNull();
 
                 if (first instanceof ConfirmAction) {
-                    if (actionsState.getPlayer().isLocalHuman()) {
-                        setShowConfirmRequest(true);
-                    } else {
-                        actionPanel.setShowConfirmRequest(true, true);
-                        repaint();
-                    }
+                    handleConfirmAction(state, isLocal);
                 } else if (
                     first.getClass().isAnnotationPresent(LinkedPanel.class)
                 ) {
@@ -367,11 +369,38 @@ public class ControlPanel extends JPanel {
                     //TOOD show image anyway on control/action panel
                 } else {
                     actionPanel.onPlayerActionsChanged(actionsState);
-                    passButton.setVisible(actionsState.getPlayer().isLocalHuman() && actionsState.isPassAllowed());
+                    passButton.setVisible(isLocal && actionsState.isPassAllowed());
                 }
             }
         }
         refreshPotentialPoints();
+    }
+
+    public void handleConfirmAction(GameState state, boolean isLocal) {
+        if (isLocal) {
+            boolean needsConfirm = false;
+            // IMMUTABLE TODO
+            PlayEvent last = state.getEvents().last();
+            if (last instanceof MeepleDeployed) {
+                ConfirmConfig cfg =  gc.getConfig().getConfirm();
+                MeepleDeployed ev = (MeepleDeployed) last;
+                if (cfg.getAny_deployment()) {
+                    needsConfirm = true;
+                } else if (cfg.getFarm_deployment() && ev.getLocation().isFarmLocation()) {
+                    needsConfirm = true;
+                } else if (cfg.getOn_tower_deployment() && ev.getLocation() == Location.TOWER) {
+                    needsConfirm = true;
+                }
+            }
+            if (needsConfirm) {
+                setShowConfirmRequest(true);
+            } else {
+                gc.getConnection().send(new CommitMessage(game.getGameId()));
+            }
+        } else {
+            actionPanel.setShowConfirmRequest(true, true);
+            repaint();
+        }
     }
 
     @Subscribe
