@@ -14,6 +14,8 @@ import io.vavr.collection.Set;
 
 public interface ResourceManager {
 
+    static final int NORMALIZED_SIZE = 1000;
+
     TileImage getTileImage(TileDefinition tile, Rotation rot); //use custom rotation
     TileImage getAbbeyImage(Rotation rot);
 
@@ -21,10 +23,19 @@ public interface ResourceManager {
     Image getImage(String path);
     Image getLayeredImage(LayeredImageDescriptor lid);
 
-    //TODO do not use Tile, use TileDefinition + Rotation instead
-    Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations);
-    Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners);
-    Map<Location, FeatureArea> getBridgeAreas(Tile tile, int width, int height, Set<Location> locations);
+    //TODO make transofrmation on layer
+    Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations);
+    Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners);
+    FeatureArea getBridgeArea(Location bridgeLocation);
+
+    //TODO migrate to following
+
+    default Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, Set<Location> locations) {
+        return getFeatureAreas(tile, rotation, NORMALIZED_SIZE, NORMALIZED_SIZE, locations);
+    }
+    default Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, Set<Location> corners) {
+        return getBarnTileAreas(tile, rotation, NORMALIZED_SIZE, NORMALIZED_SIZE, corners);
+    }
 
     //TODO change to 1000x1000
     /** returns meeple offset on tile, normalized to 100x100 tile size */

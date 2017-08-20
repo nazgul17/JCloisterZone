@@ -90,7 +90,7 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners) {
+    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
         //TODO update method interface
         assert corners.size() == 1;
 
@@ -103,12 +103,12 @@ public class DefaultResourceManager implements ResourceManager {
 
 
     @Override
-    public Map<Location, FeatureArea> getBridgeAreas(Tile tile, int width, int height, Set<Location> locations) {
+    public FeatureArea getBridgeArea(Location bridgeLoc) {
         return null;
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
+    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations) {
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) {
             Map<Location, FeatureArea> areas = HashMap.empty();
             double rx = width * 0.6;

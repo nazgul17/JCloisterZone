@@ -100,7 +100,7 @@ public class MeepleLayer extends AbstractGridLayer {
             int order = 0;
 
             for (Figure<?> fig : list) {
-                PlacedTile placedTile = state.getPlacedTile(fp.getPosition()).get();
+                PlacedTile placedTile = state.getPlacedTile(fp.getPosition());
                 Tile tile = state.getBoard().get(placedTile.getPosition());
 
                 FigureImage fi = new FigureImage(fig);

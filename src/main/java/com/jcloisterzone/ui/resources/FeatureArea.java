@@ -5,6 +5,9 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 import java.io.ObjectInputStream.GetField;
 
+import com.jcloisterzone.board.Position;
+import com.jcloisterzone.ui.plugin.ResourcePlugin;
+
 public class FeatureArea {
 
     public final static int DEFAULT_FARM_ZINDEX = 10;
@@ -48,6 +51,12 @@ public class FeatureArea {
         return new FeatureArea(trackingArea, displayArea, zIndex, forceAreaColor, rotationScaling, fixed);
     }
 
+
+    public FeatureArea translateTo(Position pos) {
+        AffineTransform tx = AffineTransform.getTranslateInstance(pos.x * ResourcePlugin.NORMALIZED_SIZE, ResourcePlugin.NORMALIZED_SIZE);
+        return transform(tx);
+    }
+
     public FeatureArea subtract(FeatureArea fa) {
         return subtract(fa.getTrackingArea());
     }
@@ -70,7 +79,7 @@ public class FeatureArea {
     }
 
     public Area getDisplayArea() {
-        return displayArea;
+        return displayArea == null ? trackingArea : displayArea;
     }
 
     public int getzIndex() {

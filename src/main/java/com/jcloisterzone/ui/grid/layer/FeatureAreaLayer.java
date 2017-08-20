@@ -72,11 +72,13 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
 
             Map<Location, FeatureArea> locMap;
             if (action instanceof BridgeAction) {
-                locMap = rm.getBridgeAreas(tile, sizeX, sizeY, locations);
+                Location bridgeLoc = locations.get();
+                FeatureArea area = rm.getBridgeArea(bridgeLoc);
+                locMap = HashMap.of(bridgeLoc, area);
             } else if ((action instanceof MeepleAction) && ((MeepleAction)action).getMeepleType().equals(Barn.class)) {
-                locMap = rm.getBarnTileAreas(tile, sizeX, sizeY, locations);
+                locMap = rm.getBarnTileAreas(tile.getTileDefinition(), tile.getRotation(), sizeX, sizeY, locations);
             } else {
-                locMap = rm.getFeatureAreas(tile, sizeX, sizeY, locations);
+                locMap = rm.getFeatureAreas(tile.getTileDefinition(), tile.getRotation(), sizeX, sizeY, locations);
             }
             result = addAreasToResult(result, locMap, pos, sizeX, sizeY);
         }

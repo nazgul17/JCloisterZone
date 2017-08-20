@@ -19,12 +19,12 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.ResourceManager;
 
-import io.vavr.Predicates;
 import io.vavr.Tuple2;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.List;
@@ -102,7 +102,6 @@ public class FarmHintsLayer extends AbstractGridLayer {
 
     private FarmHintsLayerModel createModel(GameState state) {
         ResourceManager rm = gc.getClient().getResourceManager();
-        Board board = state.getBoard();
 
         FarmHintsLayerModel model = new FarmHintsLayerModel();
         model.hints = state.getFeatures(Farm.class)
@@ -123,15 +122,14 @@ public class FarmHintsLayer extends AbstractGridLayer {
                 for (FeaturePointer fp : farm.getPlaces()) {
                     Position pos = fp.getPosition();
                     Location loc = fp.getLocation();
-                    Tile tile = board.get(pos);
+                    PlacedTile pt = state.getPlacedTile(pos);
 
-                    FeatureArea fa = rm.getFeatureAreas(tile, FULL_SIZE, FULL_SIZE, HashSet.of(loc)).get(loc).get();
+                    FeatureArea fa = rm.getFeatureAreas(pt.getTile(), pt.getRotation(), FULL_SIZE, FULL_SIZE, HashSet.of(loc)).get(loc).get();
                     assert fa != null;
 
                     AffineTransform translation = AffineTransform.getTranslateInstance(pos.x * FULL_SIZE, pos.y * FULL_SIZE);
                     fa = fa.transform(translation);
-                    Area addArea = fa.getDisplayArea() == null ? fa.getTrackingArea() : fa.getDisplayArea();
-                    area.add(addArea);
+                    area.add(fa.getDisplayArea());
                 }
 
                 List<Color> colors;

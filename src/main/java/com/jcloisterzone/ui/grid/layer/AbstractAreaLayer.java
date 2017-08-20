@@ -203,9 +203,7 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
             Color color = selectedArea.getForceAreaColor();
             g2.setColor(color == null ? p.getColors().getMeepleColor() : color);
             g2.setComposite(AREA_ALPHA_COMPOSITE);
-            Area area = selectedArea.getDisplayArea();
-            if (area == null) area = selectedArea.getTrackingArea();
-            g2.fill(area);
+            g2.fill(selectedArea.getDisplayArea());
         }
     }
 }

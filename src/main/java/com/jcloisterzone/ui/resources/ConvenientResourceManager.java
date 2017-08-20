@@ -33,13 +33,8 @@ public class ConvenientResourceManager implements ResourceManager {
 
     //helper methods
 
-    public FeatureArea getBridgeArea(Tile tile, int width, int height, Location loc) {
-        Map<Location, FeatureArea> result = manager.getBridgeAreas(tile, width, height, HashSet.of(loc));
-        return result.isEmpty() ? null : result.get()._2;
-    }
-
     public FeatureArea getMeepleTileArea(Tile tile, int width, int height, Location loc) {
-        Map<Location, FeatureArea> result =  manager.getFeatureAreas(tile, width, height, HashSet.of(loc));
+        Map<Location, FeatureArea> result =  manager.getFeatureAreas(tile.getTileDefinition(), tile.getRotation(), width, height, HashSet.of(loc));
         return result.isEmpty() ? null : result.values().iterator().next();
     }
 
@@ -94,18 +89,18 @@ public class ConvenientResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners) {
-        return manager.getBarnTileAreas(tile, width, height, corners);
+    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
+        return manager.getBarnTileAreas(tile, rotation, width, height, corners);
     }
 
     @Override
-    public Map<Location, FeatureArea> getBridgeAreas(Tile tile, int width, int height, Set<Location> locations) {
-        return manager.getBridgeAreas(tile, width, height, locations);
+    public FeatureArea getBridgeArea(Location bridgeLoc) {
+        return manager.getBridgeArea(bridgeLoc);
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
-        return manager.getFeatureAreas(tile, width, height, locations);
+    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations) {
+        return manager.getFeatureAreas(tile, rotation, width, height, locations);
     }
 
 }

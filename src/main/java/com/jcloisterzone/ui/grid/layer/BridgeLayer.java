@@ -8,20 +8,20 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 
 import com.google.common.eventbus.Subscribe;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.BridgePlaced;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
+import com.jcloisterzone.ui.resources.FeatureArea;
 
-import io.vavr.collection.HashSet;
+import io.vavr.collection.List;
 import io.vavr.collection.Set;
 
 public class BridgeLayer extends AbstractGridLayer {
@@ -29,7 +29,7 @@ public class BridgeLayer extends AbstractGridLayer {
     private static final AlphaComposite BRIDGE_FILL_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, .6f);
 
     /** bridges */
-    private Set<FeaturePointer> model = HashSet.empty();
+    private List<FeatureArea> model = List.empty();
 
     private MeepleLayer meepleLayer;
 
@@ -53,8 +53,13 @@ public class BridgeLayer extends AbstractGridLayer {
         }
     }
 
-    private Set<FeaturePointer> createModel(GameState state) {
-        return state.getCapabilityModel(BridgeCapability.class);
+    private List<FeatureArea> createModel(GameState state) {
+        Set<FeaturePointer> placedBridges = state.getCapabilityModel(BridgeCapability.class);
+        return placedBridges.toList().map(bridge -> {
+            Position pos = bridge.getPosition();
+            Location loc = bridge.getLocation();
+            return rm.getBridgeArea(loc).translateTo(pos);
+        });
     }
 
     @Override
@@ -63,17 +68,10 @@ public class BridgeLayer extends AbstractGridLayer {
         g2.setColor(Color.BLACK);
         g2.setComposite(BRIDGE_FILL_COMPOSITE);
 
-        Board board = getGame().getBoard();
-        for (FeaturePointer bridge : model) {
-            Position pos = bridge.getPosition();
-            Location loc = bridge.getLocation();
-            Tile tile = board.get(pos);
-
-            //TODO put ares into model instead of locations
-            Area a = rm.getBridgeArea(tile, getTileWidth(), getTileHeight(), loc).getTrackingArea();
-            a.transform(AffineTransform.getTranslateInstance(getOffsetX(pos), getOffsetY(pos)));
+        AffineTransform scaleTx = getZoomScale();
+        for (FeatureArea bridgeArea : model) {
+            Area a = bridgeArea.getDisplayArea().createTransformedArea(scaleTx);
             g2.fill(a);
-
         }
         g2.setComposite(oldComposite);
 

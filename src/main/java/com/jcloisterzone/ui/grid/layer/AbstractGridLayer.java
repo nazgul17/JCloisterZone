@@ -25,6 +25,7 @@ import com.jcloisterzone.ui.grid.DragInsensitiveMouseClickListener;
 import com.jcloisterzone.ui.grid.GridLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.ConvenientResourceManager;
+import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
 
 public abstract class AbstractGridLayer implements GridLayer {
@@ -170,6 +171,15 @@ public abstract class AbstractGridLayer implements GridLayer {
 
     public int getOffsetY(Position pos) {
         return getTileHeight() * pos.y;
+    }
+
+    public AffineTransform getZoomScale() {
+        //TODO move imple on gridPanel with caching
+        double ratioX = gridPanel.getTileWidth() / (double)ResourceManager.NORMALIZED_SIZE;
+        //double ratioY = gridPanel.getTileHeight() / (double)ResourceManager.NORMALIZED_SIZE / getImageSizeRatio();
+        // TODO ignoring image image size ratio
+        double ratioY = gridPanel.getTileHeight() / (double)ResourceManager.NORMALIZED_SIZE;
+        return AffineTransform.getScaleInstance(ratioX, ratioY);
     }
 
     public int getTileWidth() {

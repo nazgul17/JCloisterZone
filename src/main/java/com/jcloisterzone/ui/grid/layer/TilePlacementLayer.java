@@ -5,17 +5,16 @@ import java.awt.Color;
 import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
 
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.TileSymmetry;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.controls.ActionPanel;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
@@ -25,6 +24,7 @@ import com.jcloisterzone.ui.grid.ForwardBackwardListener;
 import com.jcloisterzone.ui.grid.GridMouseAdapter;
 import com.jcloisterzone.ui.grid.GridMouseListener;
 import com.jcloisterzone.ui.grid.GridPanel;
+import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.TileImage;
 
 import io.vavr.collection.Set;
@@ -195,11 +195,9 @@ public class TilePlacementLayer extends AbstractGridLayer implements ActionLayer
 
             Position bridgePos = previewBridge.getPosition();
             Location bridgeLoc = previewBridge.getLocation();
-            //System.err.println(previewBridge);
-            Tile tile = gc.getGame().getState().getBoard().get(bridgePos);
-            Area a = rm.getBridgeArea(tile, getTileWidth(), getTileHeight(), bridgeLoc).getTrackingArea();
-            a.transform(AffineTransform.getTranslateInstance(getOffsetX(bridgePos), getOffsetY(bridgePos)));
-            g2.fill(a);
+            FeatureArea fa = rm.getBridgeArea(bridgeLoc).translateTo(bridgePos);
+            Area a = fa.getDisplayArea();
+            g2.fill(a.createTransformedArea(getZoomScale()));
             g2.setComposite(oldComposite);
         }
     }

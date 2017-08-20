@@ -51,6 +51,7 @@ import io.vavr.collection.Stream;
 
 public class ResourcePlugin extends Plugin implements ResourceManager {
 
+    @Deprecated // use constant from ResourceManager interface
     public static final int NORMALIZED_SIZE = 1000;
 
     private static ThemeGeometry defaultGeometry;
@@ -300,18 +301,16 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(Tile tile, int width, int height, Set<Location> locations) {
+    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rot, int width, int height, Set<Location> locations) {
         if (!containsTile(tile.getId())) return null;
         // dirty hack to not handle quarter locations
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
-        TileDefinition tileDef = tile.getTileDefinition();
-        Map<Location, Feature> features = tileDef.getInitialFeatures();
-        Rotation rot = tile.getRotation();
+        Map<Location, Feature> features = tile.getInitialFeatures();
         Set<Location> initialLocations = locations.map(loc -> loc.rotateCCW(rot));
 
         Location complementFarm = features
-            .find(t -> t._2 instanceof Farm && isFarmComplement(tileDef, t._1))
+            .find(t -> t._2 instanceof Farm && isFarmComplement(tile, t._1))
             .map(Tuple2::_1).getOrNull();
         Location bridgeLoc = features
             .find(t -> t._2 instanceof Bridge)
@@ -319,8 +318,8 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
 
         AffineTransform txRot = rot.getAffineTransform(NORMALIZED_SIZE);
 
-        Area onlyFarmSubtraction = getSubtractionArea(tileDef, true);
-        Area allSubtraction = getSubtractionArea(tileDef, false);
+        Area onlyFarmSubtraction = getSubtractionArea(tile, true);
+        Area allSubtraction = getSubtractionArea(tile, false);
         onlyFarmSubtraction.transform(txRot);
         allSubtraction.transform(txRot);
 
@@ -330,9 +329,9 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
             .map((loc, feature) -> {
                 FeatureArea fa;
                 if (bridgeLoc == loc) {
-                    fa = getBridgeArea(NORMALIZED_SIZE, NORMALIZED_SIZE, loc.rotateCCW(rot));
+                    fa = getBridgeArea(loc.rotateCCW(rot));
                 } else {
-                    fa = getFeatureArea(tileDef, feature.getClass(), loc);
+                    fa = getFeatureArea(tile, feature.getClass(), loc);
                 }
                 if (!fa.isFixed()) {
                     fa = fa.transform(txRot);
@@ -426,28 +425,14 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(Tile tile, int width, int height, Set<Location> corners) {
+    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
         return null;
     }
 
-    //TODO Move to default provider ???
-    @Override
-    public Map<Location, FeatureArea> getBridgeAreas(Tile tile, int width, int height, Set<Location> locations) {
-        if (!isEnabled()) return null;
-        return locations.toMap(Functions.identity(), loc -> getBridgeArea(width, height, loc));
-    }
-
     //TODO move to Area Provider ???
-    private FeatureArea getBridgeArea(int width, int height, Location loc) {
-        AffineTransform transform1;
-        if (width == NORMALIZED_SIZE && height == NORMALIZED_SIZE) {
-            transform1 = new AffineTransform();
-        } else {
-            double ratioX = width / (double)NORMALIZED_SIZE;
-            double ratioY = height / (double)NORMALIZED_SIZE / getImageSizeRatio();
-            transform1 = AffineTransform.getScaleInstance(ratioX,ratioY);
-        }
-        Area a = pluginGeometry.getBridgeArea(loc).createTransformedArea(transform1);
+    @Override
+    public FeatureArea getBridgeArea(Location loc) {
+        Area a = pluginGeometry.getBridgeArea(loc);
         return (new FeatureArea(a, FeatureArea.DEFAULT_BRIDGE_ZINDEX)).setFixed(true);
     }
 

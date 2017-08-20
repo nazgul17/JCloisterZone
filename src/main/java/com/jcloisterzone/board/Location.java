@@ -314,7 +314,11 @@ public class Location implements Serializable {
         return (mask & ~0x3FFFF) > 0;
     }
 
+    public boolean isBridgeLocation() {
+        return BRIDGES.contains(this);
+    }
+
     public boolean isCityOfCarcassonneQuarter() {
-        return this == QUARTER_CASTLE || this == QUARTER_MARKET || this == QUARTER_BLACKSMITH || this == QUARTER_CATHEDRAL;
+        return QUARTERS.contains(this);
     }
 }
