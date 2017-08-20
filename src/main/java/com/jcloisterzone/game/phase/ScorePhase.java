@@ -24,6 +24,7 @@ import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.ScoreCastle;
 import com.jcloisterzone.reducers.ScoreCompletable;
 import com.jcloisterzone.reducers.ScoreFarm;
@@ -58,9 +59,10 @@ public class ScorePhase extends ServerAwarePhase {
     }
 
     private GameState scoreCompletedNearAbbey(GameState state, Position pos) {
-        for (Tuple2<Location, Tile> t : state.getBoard().getAdjacentTilesMap(pos)) {
-            Tile tile = t._2;
-            Feature feature = tile.getFeaturePartOf(t._1.rev());
+        Board board = state.getBoard();
+        for (Tuple2<Location, PlacedTile> t : state.getAdjacentTiles(pos)) {
+            PlacedTile pt = t._2;
+            Feature feature = board.get(pt.getPosition()).getFeaturePartOf(t._1.rev());
             if (feature instanceof Completable) {
                 state = scoreCompleted(state, (Completable) feature, null);
             }
@@ -71,8 +73,8 @@ public class ScorePhase extends ServerAwarePhase {
     @Override
     public void enter(GameState state) {
         Board board = state.getBoard(); //can keep ref because only points are changed
-        Tile tile = board.getLastPlaced();
-        Position pos = tile.getPosition();
+        Position pos = state.getLastPlaced().getPosition();
+        Tile tile = board.get(pos);
 
         Map<Wagon, FeaturePointer> deployedWagonsBefore = getDeployedWagons(state);
 
@@ -112,9 +114,11 @@ public class ScorePhase extends ServerAwarePhase {
 //            }
         }
 
-        for (Tile neighbour : board.getAdjacentAndDiagonalTiles(pos)) {
-            Cloister cloister = neighbour.getCloister();
-            if (cloister != null) {
+        Set<Position> neighbourPositions = state.getAdjacentAndDiagonalTiles(pos)
+            .map(pt -> pt._2.getPosition()).toSet();
+
+        for (Cloister cloister : state.getFeatures(Cloister.class)) {
+            if (neighbourPositions.contains(cloister.getPlace().getPosition())) {
                 state = scoreCompleted(state, cloister, null);
             }
         }

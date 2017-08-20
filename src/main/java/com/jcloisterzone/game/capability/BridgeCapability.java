@@ -48,9 +48,7 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
             return state;
         }
 
-        Board board = state.getBoard();
-        Tile currentTile = board.getLastPlaced();
-        Position pos = currentTile.getPosition();
+        Position pos = state.getLastPlaced().getPosition();
         Set<FeaturePointer> options = HashSet.empty();
 
         for (Location bridgeLoc : Location.BRIDGES) {

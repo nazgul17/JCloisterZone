@@ -17,6 +17,7 @@ import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 
@@ -42,7 +43,8 @@ public class CastlePhase extends Phase {
             return HashSet.empty();
         }
 
-        Tile currentTile = state.getBoard().getLastPlaced();
+        PlacedTile placedTile = state.getLastPlaced();
+        Tile currentTile = state.getBoard().get(placedTile.getPosition());
         Position pos = currentTile.getPosition();
         return currentTile.getFeatures()
             .filter(t -> t._2 instanceof City)

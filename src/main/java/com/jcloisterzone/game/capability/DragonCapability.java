@@ -11,6 +11,7 @@ import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 
 import io.vavr.collection.Vector;
@@ -51,13 +52,13 @@ public class DragonCapability extends Capability<Vector<Position>> {
 
     @Override
     public GameState onTilePlaced(GameState state) {
-        Tile tile = state.getBoard().getLastPlaced();
-        if (tile.hasTrigger(TileTrigger.VOLCANO)) {
+        PlacedTile pt = state.getLastPlaced();
+        if (pt.getTile().getTrigger() == TileTrigger.VOLCANO) {
             state = state.setTilePack(
                 state.getTilePack().setGroupState("dragon", TileGroupState.ACTIVE)
             );
             state = (
-                new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), tile.getPosition())
+                new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), pt.getPosition())
             ).apply(state);
         }
         return state;

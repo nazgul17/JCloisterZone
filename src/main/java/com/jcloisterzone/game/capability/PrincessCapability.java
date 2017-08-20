@@ -6,6 +6,7 @@ import org.w3c.dom.Element;
 
 import com.jcloisterzone.action.PrincessAction;
 import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
@@ -13,6 +14,7 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.collection.Set;
 
@@ -32,11 +34,11 @@ public class PrincessCapability extends Capability<Void> {
             return state;
         }
 
-        Tile tile = state.getBoard().getLastPlaced();
-        Set<MeeplePointer> options = tile.getScoreables(false)
+        PlacedTile placedTile = state.getLastPlaced();
+        Set<MeeplePointer> options = state.getBoard().get(placedTile.getPosition()).getScoreables(false)
         .filter(t -> {
             if (t._2 instanceof City) {
-                City part = (City) tile.getInitialFeaturePartOf(t._1);
+                City part = (City) placedTile.getInitialFeaturePartOf(t._1);
                 return part.isPrincess();
             } else {
                 return false;

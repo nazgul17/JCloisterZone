@@ -32,6 +32,10 @@ public abstract class TileFeature implements Feature, Serializable {
        return places;
     }
 
+    public FeaturePointer getPlace() {
+        return places.get();
+    }
+
     @Override
     public Stream<Tuple2<Meeple, FeaturePointer>> getMeeples2(GameState state) {
         Set<FeaturePointer> fps = HashSet.ofAll(places);

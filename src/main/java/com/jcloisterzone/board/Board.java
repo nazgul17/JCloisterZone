@@ -245,20 +245,6 @@ public class Board {
         return getBounds().y;
     }
 
-    @Deprecated //BoardMixin
-    public Stream<Tuple2<Location, Tile>> getAdjacentTilesMap(Position pos) {
-        return Stream.ofAll(Position.ADJACENT)
-            .map(t -> t.map2(offset -> get(pos.add(offset))))
-            .filter(t -> t._2 != null);
-    }
-
-    public Stream<Tile> getAdjacentAndDiagonalTiles(Position pos) {
-        return Stream.ofAll(Position.ADJACENT_AND_DIAGONAL.values())
-            .map(pos::add)
-            .map(this::get)
-            .filter(Predicates.isNotNull());
-    }
-
     public int getContinuousRowSize(Position start, Location direction) {
         start = start.add(direction);
         int size = 0;
@@ -268,9 +254,4 @@ public class Board {
         }
         return size;
     }
-
-    public Tile getLastPlaced() {
-        return get(state.getPlacedTiles().takeRight(1).get()._1);
-    }
-
 }

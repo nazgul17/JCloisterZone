@@ -85,6 +85,7 @@ public class Tile {
             .getOrNull();
     }
 
+    @Deprecated // use on PlacedTile
     public Feature getInitialFeaturePartOf(Location loc) {
         Location initialLoc = loc.rotateCCW(getRotation());
         return getTileDefinition()

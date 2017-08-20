@@ -37,6 +37,7 @@ import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.DeployMeeple;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.PayRansom;
@@ -72,8 +73,8 @@ public class ActionPhase extends Phase {
                 Wagon.class, Mayor.class, Builder.class, Pig.class)
         );
 
-        Tile currentTile = state.getBoard().getLastPlaced();
-        Position currentTilePos = currentTile.getPosition();
+        Position currentTilePos = state.getLastPlaced().getPosition();
+        Tile currentTile = state.getBoard().get(currentTilePos);
         Stream<Tile> tiles;
 
         if (currentTile.hasTrigger(TileTrigger.PORTAL) && !state.getFlags().contains(Flag.PORTAL_USED)) {
@@ -156,11 +157,14 @@ public class ActionPhase extends Phase {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }
-        Tile tile = state.getBoard().getLastPlaced();
+        PlacedTile placedTile = state.getLastPlaced();
 
         state = (new DeployMeeple(m, fp)).apply(state);
 
-        if (fp.getLocation() != Location.TOWER && tile.hasTrigger(TileTrigger.PORTAL) && !fp.getPosition().equals(tile.getPosition())) {
+        if (fp.getLocation() != Location.TOWER
+            && placedTile.getTile().getTrigger() == TileTrigger.PORTAL
+            && !fp.getPosition().equals(placedTile.getPosition())
+        ) {
             state = state.addFlag(Flag.PORTAL_USED);
         }
         if (m instanceof Barn) {

@@ -17,7 +17,6 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
@@ -45,7 +44,7 @@ public class PlaceTile implements Reducer {
         boolean abbeyPlacement = TileDefinition.ABBEY_TILE_ID.equals(tile.getId());
 
         state = state.setPlacedTiles(
-            placedTiles.put(pos, new PlacedTile(tile, rot))
+            placedTiles.put(pos, new PlacedTile(tile, pos, rot))
         );
 
         Board board = state.getBoard();

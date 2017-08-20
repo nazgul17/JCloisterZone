@@ -43,8 +43,7 @@ public final class BarnCapability extends Capability<FeaturePointer> {
             return state;
         }
 
-        Tile currentTile = state.getBoard().getLastPlaced();
-        Position pos = currentTile.getPosition();
+        Position pos = state.getLastPlaced().getPosition();
 
         Set<FeaturePointer> options = Stream.of(
             new Position(pos.x - 1, pos.y - 1),
