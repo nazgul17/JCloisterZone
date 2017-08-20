@@ -23,19 +23,22 @@ public interface ResourceManager {
     Image getImage(String path);
     Image getLayeredImage(LayeredImageDescriptor lid);
 
-    //TODO make transofrmation on layer
-    Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations);
-    Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners);
+    FeatureArea getFeatureArea(TileDefinition tile, Rotation rot, Location loc);
+    FeatureArea getBarnArea();
     FeatureArea getBridgeArea(Location bridgeLocation);
+//
+//
+//    Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations);
+//    Map<Location, FeatureArea> getBarnTileAreas(Set<Location> corners);
+//    FeatureArea getBridgeArea(Location bridgeLocation);
 
-    //TODO migrate to following
-
-    default Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, Set<Location> locations) {
-        return getFeatureAreas(tile, rotation, NORMALIZED_SIZE, NORMALIZED_SIZE, locations);
-    }
-    default Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, Set<Location> corners) {
-        return getBarnTileAreas(tile, rotation, NORMALIZED_SIZE, NORMALIZED_SIZE, corners);
-    }
+    //default Map<Location, FeatureArea> getBridgeArea(Set<Location> brodgeLoca);...
+//
+//    //TODO migrate to following
+//
+//    default Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, Set<Location> locations) {
+//        return getFeatureAreas(tile, rotation, NORMALIZED_SIZE, NORMALIZED_SIZE, locations);
+//    }
 
     //TODO change to 1000x1000
     /** returns meeple offset on tile, normalized to 100x100 tile size */

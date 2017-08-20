@@ -10,10 +10,6 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
 
-import io.vavr.collection.HashSet;
-import io.vavr.collection.Map;
-import io.vavr.collection.Set;
-
 /** extends resource manager with convenient methods
  * and add tile image caching
  */
@@ -29,13 +25,6 @@ public class ConvenientResourceManager implements ResourceManager {
 
     public void clearCache() {
         imageCache.clear();
-    }
-
-    //helper methods
-
-    public FeatureArea getMeepleTileArea(Tile tile, int width, int height, Location loc) {
-        Map<Location, FeatureArea> result =  manager.getFeatureAreas(tile.getTileDefinition(), tile.getRotation(), width, height, HashSet.of(loc));
-        return result.isEmpty() ? null : result.values().iterator().next();
     }
 
     //delegate methods
@@ -89,8 +78,8 @@ public class ConvenientResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
-        return manager.getBarnTileAreas(tile, rotation, width, height, corners);
+    public FeatureArea getBarnArea() {
+        return manager.getBarnArea();
     }
 
     @Override
@@ -99,8 +88,8 @@ public class ConvenientResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations) {
-        return manager.getFeatureAreas(tile, rotation, width, height, locations);
+    public FeatureArea getFeatureArea(TileDefinition tile, Rotation rot, Location loc) {
+        return manager.getFeatureArea(tile, rot, loc);
     }
 
 }

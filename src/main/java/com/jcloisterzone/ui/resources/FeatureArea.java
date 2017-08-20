@@ -1,5 +1,7 @@
 package com.jcloisterzone.ui.resources;
 
+import static com.jcloisterzone.ui.resources.ResourceManager.NORMALIZED_SIZE;
+
 import java.awt.Color;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Area;
@@ -53,7 +55,7 @@ public class FeatureArea {
 
 
     public FeatureArea translateTo(Position pos) {
-        AffineTransform tx = AffineTransform.getTranslateInstance(pos.x * ResourcePlugin.NORMALIZED_SIZE, ResourcePlugin.NORMALIZED_SIZE);
+        AffineTransform tx = AffineTransform.getTranslateInstance(pos.x * NORMALIZED_SIZE, pos.y * NORMALIZED_SIZE);
         return transform(tx);
     }
 

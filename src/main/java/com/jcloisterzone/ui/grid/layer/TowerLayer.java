@@ -82,8 +82,10 @@ public class TowerLayer extends AbstractGridLayer {
         for (Tuple3<Tile, Position, Tower> t: model.towers) {
             Tile tile = t._1;
             Position pos = t._2;
-            Area ra = rm.getMeepleTileArea(tile, getTileWidth(), getTileHeight(), Location.TOWER).getTrackingArea();
-            g2.fill(transformArea(ra, pos));
+            Area ra = rm.getFeatureArea(tile.getTileDefinition(), tile.getRotation(), Location.TOWER)
+                .translateTo(pos)
+                .getDisplayArea();
+            g2.fill(ra.createTransformedArea(getZoomScale()));
             drawAntialiasedTextCenteredNoScale(g2,"" + t._3.getHeight(), 22, pos,
                     new ImmutablePoint((int)ra.getBounds2D().getCenterX(), (int)ra.getBounds2D().getCenterY()), Color.WHITE, null);
         }

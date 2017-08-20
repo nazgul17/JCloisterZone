@@ -1,35 +1,23 @@
 package com.jcloisterzone.ui.grid.layer;
 
-import static com.jcloisterzone.ui.I18nUtils._;
-
-import javax.swing.JOptionPane;
-
 import com.jcloisterzone.action.BridgeAction;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.action.SelectFeatureAction;
 import com.jcloisterzone.board.Location;
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Barn;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.HashSet;
 import io.vavr.collection.Map;
-import io.vavr.collection.Set;
 
 
 public class FeatureAreaLayer extends AbstractAreaLayer {
-
-    private Set<Position> abbotOption = HashSet.empty();
-    private Set<Position> abbotOnlyOption = HashSet.empty();
 
     public FeatureAreaLayer(GridPanel gridPanel, GameController gc) {
         super(gridPanel, gc);
@@ -43,47 +31,23 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
     @Override
     protected Map<BoardPointer, FeatureArea> prepareAreas() {
         SelectFeatureAction action = getAction();
-        Map<BoardPointer, FeatureArea> result = HashMap.empty();
-        abbotOption = HashSet.empty();
-        abbotOnlyOption = HashSet.empty();
 
-        for (Tuple2<Position, Set<Location>> t : action.groupByPosition()) {
-            Position pos = t._1;
-            Set<Location> locations = t._2;
+        return action.getOptions().toMap(fp -> {
+            FeatureArea fa;
+            Location loc = fp.getLocation();
 
-            if (locations.contains(Location.ABBOT)) {
-                abbotOption = abbotOption.add(pos);
-                if (!locations.contains(Location.CLOISTER)) {
-                    locations.add(Location.CLOISTER);
-                    abbotOnlyOption = abbotOnlyOption.add(pos);
-                }
-                locations.remove(Location.ABBOT);
-            }
-
-            Tile tile = gridPanel.getTile(pos);
-            int sizeX, sizeY;
-            if (tile.getRotation() == Rotation.R0 || tile.getRotation() == Rotation.R180) {
-                sizeX = getTileWidth();
-                sizeY = getTileHeight();
-            } else {
-                sizeY = getTileWidth();
-                sizeX = getTileHeight();
-            }
-
-            Map<Location, FeatureArea> locMap;
             if (action instanceof BridgeAction) {
-                Location bridgeLoc = locations.get();
-                FeatureArea area = rm.getBridgeArea(bridgeLoc);
-                locMap = HashMap.of(bridgeLoc, area);
+                fa = rm.getBridgeArea(loc);
             } else if ((action instanceof MeepleAction) && ((MeepleAction)action).getMeepleType().equals(Barn.class)) {
-                locMap = rm.getBarnTileAreas(tile.getTileDefinition(), tile.getRotation(), sizeX, sizeY, locations);
+                fa = rm.getBarnArea();
             } else {
-                locMap = rm.getFeatureAreas(tile.getTileDefinition(), tile.getRotation(), sizeX, sizeY, locations);
+                //Decouple from gc.getGame(), use state directly
+                PlacedTile pt = gc.getGame().getState().getPlacedTile(fp.getPosition());
+                fa = rm.getFeatureArea(pt.getTile(), pt.getRotation(), loc);
             }
-            result = addAreasToResult(result, locMap, pos, sizeX, sizeY);
-        }
 
-        return result;
+            return new Tuple2<>(fp, fa.translateTo(fp.getPosition()));
+        });
     }
 
 
@@ -98,25 +62,27 @@ public class FeatureAreaLayer extends AbstractAreaLayer {
                 getClient().getConnection().send(new DeployFlierMessage(getGame().getGameId(), ma.getMeepleType()));
                 return;
             }
-            if (fp.getLocation() == Location.CLOISTER && abbotOption.contains(fp.getPosition())) {
-                String[] options;
-                boolean abbotOnlyOptionValue = abbotOption.contains(fp.getPosition());
-                if (abbotOnlyOptionValue) {
-                    options = new String[] {_("Place as abbot")};
-                } else {
-                    options = new String[] {_("Place as monk"), _("Place as abbot") };
-                }
-                int result = JOptionPane.showOptionDialog(getClient(),
-                    _("How do you want to place follower on monastery?"),
-                    _("Monastery"),
-                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-                if (result == -1) { //closed dialog
-                    return;
-                }
-                if (abbotOnlyOptionValue || result == JOptionPane.NO_OPTION) {
-                    fp = new FeaturePointer(fp.getPosition(), Location.ABBOT);
-                }
-            }
+            //TODO id CLOISTER or ABBOT, check if action contians both for give pos and display dialog if needed
+
+//            if (fp.getLocation() == Location.CLOISTER && abbotOption.contains(fp.getPosition())) {
+//                String[] options;
+//                boolean abbotOnlyOptionValue = abbotOption.contains(fp.getPosition());
+//                if (abbotOnlyOptionValue) {
+//                    options = new String[] {_("Place as abbot")};
+//                } else {
+//                    options = new String[] {_("Place as monk"), _("Place as abbot") };
+//                }
+//                int result = JOptionPane.showOptionDialog(getClient(),
+//                    _("How do you want to place follower on monastery?"),
+//                    _("Monastery"),
+//                    JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+//                if (result == -1) { //closed dialog
+//                    return;
+//                }
+//                if (abbotOnlyOptionValue || result == JOptionPane.NO_OPTION) {
+//                    fp = new FeaturePointer(fp.getPosition(), Location.ABBOT);
+//                }
+//            }
         }
         action.perform(gc, fp);
         return;

@@ -17,7 +17,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import com.google.common.base.Functions;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Location;
@@ -50,9 +49,6 @@ import io.vavr.collection.Stream;
 
 
 public class ResourcePlugin extends Plugin implements ResourceManager {
-
-    @Deprecated // use constant from ResourceManager interface
-    public static final int NORMALIZED_SIZE = 1000;
 
     private static ThemeGeometry defaultGeometry;
     private ThemeGeometry pluginGeometry;
@@ -301,7 +297,15 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rot, int width, int height, Set<Location> locations) {
+    public FeatureArea getFeatureArea(TileDefinition tile, Rotation rot, Location loc) {
+        //TODO !!! getAll, cache and return
+        //just temporary solution
+        logger.warn("FIX get getFeatureAreas");
+        return getTileFeatureAreas(tile, rot, HashSet.of(loc)).get(loc).get();
+    }
+
+
+    public Map<Location, FeatureArea> getTileFeatureAreas(TileDefinition tile, Rotation rot, Set<Location> locations) {
         if (!containsTile(tile.getId())) return null;
         // dirty hack to not handle quarter locations
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
@@ -405,12 +409,13 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         // filter result to requested locations
         areas = areas.filter(t -> initialLocations.contains(t._1));
 
-        AffineTransform tx = getAreaScaleTransform(rot, width, height);
-        return areas.toMap(t ->
-            new Tuple2<>(t._1.rotateCW(rot), t._2.transform(tx))
-        );
+        //AffineTransform tx = getAreaScaleTransform(rot, width, height);
+        return areas.toMap(t -> t.map1(loc -> loc.rotateCW(rot)));
+//            new Tuple2<>(t._1.rotateCW(rot), t._2.transform(tx))
+//        );
     }
 
+    //TODO return back, just scale to NORMALIZED size but use ImageSizeRatio
     private AffineTransform getAreaScaleTransform(Rotation rot, int width, int height) {
         double ratioX;
         double ratioY;
@@ -425,11 +430,11 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
+    public FeatureArea getBarnArea() {
         return null;
     }
 
-    //TODO move to Area Provider ???
+    //TODO move to Default
     @Override
     public FeatureArea getBridgeArea(Location loc) {
         Area a = pluginGeometry.getBridgeArea(loc);

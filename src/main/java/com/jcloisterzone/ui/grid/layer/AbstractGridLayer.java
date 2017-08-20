@@ -1,6 +1,7 @@
 package com.jcloisterzone.ui.grid.layer;
 
 import java.awt.Color;
+
 import java.awt.Font;
 import java.awt.Graphics2D;
 import java.awt.Image;
@@ -27,6 +28,8 @@ import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.ConvenientResourceManager;
 import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
+
+import static com.jcloisterzone.ui.resources.ResourceManager.NORMALIZED_SIZE;
 
 public abstract class AbstractGridLayer implements GridLayer {
 
@@ -175,10 +178,10 @@ public abstract class AbstractGridLayer implements GridLayer {
 
     public AffineTransform getZoomScale() {
         //TODO move imple on gridPanel with caching
-        double ratioX = gridPanel.getTileWidth() / (double)ResourceManager.NORMALIZED_SIZE;
+        double ratioX = gridPanel.getTileWidth() / (double)NORMALIZED_SIZE;
         //double ratioY = gridPanel.getTileHeight() / (double)ResourceManager.NORMALIZED_SIZE / getImageSizeRatio();
         // TODO ignoring image image size ratio
-        double ratioY = gridPanel.getTileHeight() / (double)ResourceManager.NORMALIZED_SIZE;
+        double ratioY = gridPanel.getTileHeight() / (double)NORMALIZED_SIZE;
         return AffineTransform.getScaleInstance(ratioX, ratioY);
     }
 

@@ -14,8 +14,6 @@ import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.plugin.Plugin;
 
 import io.vavr.Predicates;
-import io.vavr.collection.Map;
-import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
 
@@ -88,9 +86,9 @@ public class PlugableResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
+    public FeatureArea getBarnArea() {
         for (ResourceManager manager : managers) {
-            Map<Location, FeatureArea> result = manager.getBarnTileAreas(tile, rotation, width, height, corners);
+            FeatureArea result = manager.getBarnArea();
             if (result != null) return result;
         }
         return null;
@@ -107,9 +105,9 @@ public class PlugableResourceManager implements ResourceManager {
 
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations) {
+    public FeatureArea getFeatureArea(TileDefinition tile, Rotation rot, Location loc) {
         for (ResourceManager manager : managers) {
-            Map<Location, FeatureArea> result = manager.getFeatureAreas(tile, rotation, width, height, locations);
+            FeatureArea result = manager.getFeatureArea(tile, rot, loc);
             if (result != null) return result;
         }
         return null;

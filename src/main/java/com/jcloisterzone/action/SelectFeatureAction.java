@@ -20,6 +20,7 @@ public abstract class SelectFeatureAction extends PlayerAction<FeaturePointer> {
 
     // TODO is map to Location needed
     // TODO is grouping needed at all?
+    @Deprecated
     public Map<Position, Set<Location>> groupByPosition() {
         return getOptions()
             .groupBy(tp -> tp.getPosition())

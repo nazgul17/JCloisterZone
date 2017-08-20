@@ -90,15 +90,11 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getBarnTileAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> corners) {
-        //TODO update method interface
-        assert corners.size() == 1;
-
-        int rx = width/2;
-        int ry = height/2;
-        Area a = new Area(new Ellipse2D.Double(width - rx, height - ry, 2 * rx, 2 * ry));
-
-        return HashMap.of(corners.get(), new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX));
+    public FeatureArea getBarnArea() {
+        int rx = NORMALIZED_SIZE / 2;
+        int ry = NORMALIZED_SIZE / 2;
+        Area a = new Area(new Ellipse2D.Double(NORMALIZED_SIZE - rx, NORMALIZED_SIZE - ry, NORMALIZED_SIZE, NORMALIZED_SIZE));
+        return (new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX)).setFixed(true);
     }
 
 
@@ -108,17 +104,14 @@ public class DefaultResourceManager implements ResourceManager {
     }
 
     @Override
-    public Map<Location, FeatureArea> getFeatureAreas(TileDefinition tile, Rotation rotation, int width, int height, Set<Location> locations) {
-        if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) {
+    public FeatureArea getFeatureArea(TileDefinition tile, Rotation rotation, Location loc) {
+        if (loc.isCityOfCarcassonneQuarter()) {
             Map<Location, FeatureArea> areas = HashMap.empty();
-            double rx = width * 0.6;
-            double ry = height * 0.6;
-            for (Location loc : locations) {
-                ImmutablePoint offset = COUNT_OFFSETS.get(loc).get();
-                Area a = new Area(new Ellipse2D.Double(-rx+offset.getX(),-ry+offset.getY(),2*rx,2*ry));
-                areas = areas.put(loc, new FeatureArea(a, FeatureArea.DEFAULT_STRUCTURE_ZINDEX));
-            }
-            return areas;
+            double rx = NORMALIZED_SIZE * 0.6;
+            double ry = NORMALIZED_SIZE * 0.6;
+            ImmutablePoint offset = COUNT_OFFSETS.get(loc).get();
+            Area a = new Area(new Ellipse2D.Double(-rx+offset.getX(),-ry+offset.getY(),2*rx,2*ry));
+            return new FeatureArea(a, FeatureArea.DEFAULT_STRUCTURE_ZINDEX);
         }
         return null;
     }

@@ -1,8 +1,9 @@
 package com.jcloisterzone.ui;
 
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Rotation;
 
-
+@Immutable
 public class ImmutablePoint {
 
     private final int x;

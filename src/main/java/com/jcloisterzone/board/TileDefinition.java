@@ -3,6 +3,7 @@ package com.jcloisterzone.board;
 import java.io.Serializable;
 import java.util.Arrays;
 
+import com.google.common.base.Objects;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -96,7 +97,7 @@ public class TileDefinition implements Serializable {
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        return Objects.hashCode(id, initialFeatures);
     }
 
     public Expansion getOrigin() {

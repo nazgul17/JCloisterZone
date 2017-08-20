@@ -47,3 +47,5 @@ and get it by one one instead of all per tile
 * change resource manager interface to use PlacedTile instead of Tile
 remove GridPanel.getTile
 ConvenienRM.getBridgeArea
+
+* test if works if barn are contain multiple spots

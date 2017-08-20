@@ -37,6 +37,11 @@ public class FollowerAreaLayer extends AbstractAreaLayer {
     }
 
     @Override
+    protected Map<BoardPointer, FeatureArea> scaleAreas() {
+        return prepareAreas();
+    }
+
+    @Override
     protected Map<BoardPointer, FeatureArea> prepareAreas() {
         SelectFollowerAction action = getAction();
         int tileWidth = getTileWidth();
@@ -82,11 +87,8 @@ public class FollowerAreaLayer extends AbstractAreaLayer {
         return result;
     }
 
-
     @Override
     protected void performAction(BoardPointer ptr) {
         getAction().perform(gc, (MeeplePointer) ptr);
     }
-
-
 }

@@ -34,6 +34,7 @@ import com.jcloisterzone.ui.plugin.ResourcePlugin;
 import com.jcloisterzone.ui.resources.AreaRotationScaling;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.FeatureDescriptor;
+import com.jcloisterzone.ui.resources.ResourceManager;
 import com.jcloisterzone.ui.resources.svg.SvgTransformationCollector.GeometryHandler;
 
 
@@ -69,7 +70,7 @@ public class ThemeGeometry {
         Area a = new Area(new Rectangle(400, 0, 200, 1000));
         a.subtract(new Area(new Ellipse2D.Double(300, 150, 200, 700)));
         BRIDGE_AREA_NS = new Area(a);
-        a.transform(Rotation.R270.getAffineTransform(ResourcePlugin.NORMALIZED_SIZE));
+        a.transform(Rotation.R270.getAffineTransform(ResourceManager.NORMALIZED_SIZE));
         BRIDGE_AREA_WE = a;
     }
 

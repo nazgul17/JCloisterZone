@@ -42,7 +42,8 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
 
     private Player player;
     private ActionWrapper actionWrapper;
-    private Map<BoardPointer, FeatureArea> areas = HashMap.empty();
+    private Map<BoardPointer, FeatureArea> areas;
+    private Map<BoardPointer, FeatureArea> scaledAreas;
     private FeatureArea selectedArea;
     private BoardPointer selectedFeaturePointer;
 
@@ -64,7 +65,7 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
     @Override
     public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
         this.actionWrapper = actionWrapper;
-        refreshAreas = true;
+        areas = prepareAreas();
     }
 
     @Override
@@ -87,28 +88,23 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
         cleanAreas();
     }
 
-    protected Map<BoardPointer, FeatureArea> addAreasToResult(Map<BoardPointer, FeatureArea> result, Map<Location, FeatureArea> locMap, Position pos, int sizeX, int sizeY) {
-        AffineTransform translation = AffineTransform.getTranslateInstance(pos.x * sizeX, pos.y * sizeY);
-        for (Tuple2<Location, FeatureArea> t : locMap) {
-            FeatureArea translated = t._2.transform(translation);
-            result = result.put(new FeaturePointer(pos, t._1), translated);
-        }
-        return result;
+    protected Map<BoardPointer, FeatureArea> scaleAreas() {
+        return areas.mapValues(fa -> fa.transform(getZoomScale()));
     }
 
     class AreaLayerMouseMotionListener extends MouseInputAdapter {
 
         @Override
         public void mouseMoved(MouseEvent e) {
-            if (refreshAreas) {
-                areas = prepareAreas();
+            if (scaledAreas == null) {
+                scaledAreas = scaleAreas();
             }
             FeatureArea swap = null;
             BoardPointer swapPointer = null;
             Point2D point = gridPanel.getRelativePoint(e.getPoint());
             int x = (int) point.getX();
             int y = (int) point.getY();
-            for (Tuple2<BoardPointer, FeatureArea> entry : areas) {
+            for (Tuple2<BoardPointer, FeatureArea> entry : scaledAreas) {
                 FeatureArea fa = entry._2;
                 if (fa.getTrackingArea().contains(x, y)) {
                     if (swap == null) {
@@ -149,13 +145,14 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
 
     private void cleanAreas() {
         areas = HashMap.empty();
+        scaledAreas = null;
         selectedFeaturePointer = null;
         selectedArea = null;
     }
 
     @Override
     public void zoomChanged(int squareSize) {
-        refreshAreas = true;
+        scaledAreas = null;
         super.zoomChanged(squareSize);
     }
 
