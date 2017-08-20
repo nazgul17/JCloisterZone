@@ -28,6 +28,7 @@ import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
@@ -99,7 +100,8 @@ public class MeepleLayer extends AbstractGridLayer {
             int order = 0;
 
             for (Figure<?> fig : list) {
-                Tile tile = state.getBoard().get(fp.getPosition());
+                PlacedTile placedTile = state.getPlacedTile(fp.getPosition()).get();
+                Tile tile = state.getBoard().get(placedTile.getPosition());
 
                 FigureImage fi = new FigureImage(fig);
                 fi.offset = getFigureOffset(tile, fig, fp);
@@ -108,7 +110,7 @@ public class MeepleLayer extends AbstractGridLayer {
                 }
                 fillFigureImage(fi, tile, fig, fp);
 
-                if (tile.getInitialFeaturePartOf(fp.getLocation()) instanceof Bridge) {
+                if (placedTile.getInitialFeaturePartOf(fp.getLocation()) instanceof Bridge) {
                     model.onBridge.add(fi);
                 } else {
                     model.outsideBridge.add(fi);

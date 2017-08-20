@@ -43,3 +43,5 @@ and get it by one one instead of all per tile
 
 * add function for applying reducer on state (reverse apply)
 * rename updateXYZ to mapXYX, add it for everything and move it from mixins to state
+
+* changet resource manager interface to use PlacedTile instead of Tile
