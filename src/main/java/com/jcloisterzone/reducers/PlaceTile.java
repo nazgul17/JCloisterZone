@@ -72,7 +72,7 @@ public class PlaceTile implements Reducer {
         if (abbeyPlacement) {
             FeaturePointer abbeyFp = new FeaturePointer(pos, Location.CLOISTER);
             Set<FeaturePointer> abbeyNeighboring = HashSet.empty();
-            for (Location side : Location.sides()) {
+            for (Location side : Location.SIDES) {
                 FeaturePointer adjPartOfPtr = new FeaturePointer(pos.add(side), side.rev());
                 Option<Feature> adjOption = board.getFeaturePartOf(adjPartOfPtr);
                 if (adjOption.isEmpty()) {

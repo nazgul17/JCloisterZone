@@ -46,7 +46,7 @@ public class FeaturePointer implements BoardPointer {
         boolean isFarm = Farm.class.isAssignableFrom(forType);
 
         if (isFarm) {
-            return Stream.of(Location.sides())
+            return Stream.ofAll(Location.SIDES)
                 .flatMap(loc -> {
                     List<FeaturePointer> res = List.empty();
                     Location l = loc.getLeftFarm();
@@ -60,7 +60,7 @@ public class FeaturePointer implements BoardPointer {
                     return res;
                 });
         } else {
-            return Stream.of(Location.sides())
+            return Stream.ofAll(Location.SIDES)
                 .filter(loc -> loc.intersect(location) != null)
                 .map(loc ->
                     new FeaturePointer(position.add(loc), loc.rev())

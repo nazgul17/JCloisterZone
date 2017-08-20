@@ -69,7 +69,7 @@ class LegacyAiScoreContext extends AbstractScoreContext implements CompletableSc
         double result = 1.0;
         //TODO: this method using internal contract of MultiTileFeature - encapsulation is violated here
         int i = 0;
-        for (Location side : Location.sides()) {
+        for (Location side : Location.SIDES) {
             if (side.intersect(completable.getLocation()) != null) {
                 if (completable.getEdges()[i] == null) {
                     //side is open

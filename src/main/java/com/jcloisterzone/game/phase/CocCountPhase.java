@@ -48,7 +48,7 @@ public class CocCountPhase extends Phase {
             }
         };
 
-        for (Location quarter : Location.quarters()) {
+        for (Location quarter : Location.QUARTERS) {
             if (countLoc != quarter) {
                 action.add(new FeaturePointer(pos, quarter));
             }

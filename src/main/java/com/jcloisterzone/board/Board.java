@@ -89,7 +89,7 @@ public class Board {
 
     private Vector<Tuple2<EdgePattern, Location>> getBridgePatterns(EdgePattern basePattern) {
         Vector<Tuple2<EdgePattern, Location>> patterns = Vector.empty();
-        for (Location loc : List.of(Location.NS, Location.WE)) {
+        for (Location loc : Location.BRIDGES) {
             if (basePattern.isBridgeAllowed(loc)) {
                 patterns = patterns.append(new Tuple2<>(basePattern.getBridgePattern(loc), loc));
             }
@@ -124,7 +124,7 @@ public class Board {
                         }
                         // check bridges on adjacent tiles
                         BridgeCapability bridgeCap = state.getCapabilities().get(BridgeCapability.class);
-                        for (Location side : Location.sides()) {
+                        for (Location side : Location.SIDES) {
                             Position adjPos = pos.add(side);
                             if (get(adjPos) == null) {
                                 continue;

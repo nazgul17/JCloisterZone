@@ -53,7 +53,7 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
         Position pos = currentTile.getPosition();
         Set<FeaturePointer> options = HashSet.empty();
 
-        for (Location bridgeLoc : new Location[] {Location.NS, Location.WE}) {
+        for (Location bridgeLoc : Location.BRIDGES) {
             FeaturePointer ptr = new FeaturePointer(pos, bridgeLoc);
             if (isBridgePlacementAllowed(state, ptr)) {
                 options = options.add(ptr);

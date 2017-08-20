@@ -2,13 +2,10 @@ package com.jcloisterzone.board;
 
 import java.io.ObjectStreamException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import com.jcloisterzone.Immutable;
 
+import io.vavr.collection.List;
 import io.vavr.collection.Vector;
 
 
@@ -32,7 +29,7 @@ public class Location implements Serializable {
     transient private String name;
     private int mask;
 
-    private static Map<Integer, Location> instances = new HashMap<>();
+    private static java.util.Map<Integer, Location> instances = new java.util.HashMap<>();
 
     /**
      * Obtains instance with given mask. For named location
@@ -134,11 +131,10 @@ public class Location implements Serializable {
     /** West right farm */
     public static final Location WR = new Location("WR", 128);
 
-    //TODO make public and immutable, remove helper methods
-    private static final Location[] SIDES = {N, E, S, W};
-    private static final Location[] DIAGONAL_SIDES = {NE, SE, SW, NW};
-    private static final Location[] FARM_SIDES = {NL, NR, EL, ER, SL, SR, WL, WR};
-    private static final Location[] QUARTERS = {QUARTER_CASTLE, QUARTER_MARKET, QUARTER_BLACKSMITH, QUARTER_CATHEDRAL};
+    public static final List<Location> SIDES = List.of(N, E, S, W);
+    public static final List<Location> FARM_SIDES = List.of(NL, NR, EL, ER, SL, SR, WL, WR);
+    public static final List<Location> BRIDGES = List.of(NS, WE);
+    public static final List<Location> QUARTERS = List.of(QUARTER_CASTLE, QUARTER_MARKET, QUARTER_BLACKSMITH, QUARTER_CATHEDRAL);
 
 
     @Override
@@ -208,23 +204,6 @@ public class Location implements Serializable {
         return shift(rot.ordinal()*2);
     }
 
-    public static Location[] sides() {
-        return SIDES;
-    }
-
-    public static Location[] sidesFarm() {
-        return FARM_SIDES;
-    }
-
-    public static Location[] sidesDiagonal() {
-        return DIAGONAL_SIDES;
-    }
-
-    public static Location[] quarters() {
-        return QUARTERS;
-    }
-
-
     public Location getLeftFarm() {
         assert isEdgeLocation();
         return create((mask >> 8) & 85);
@@ -275,15 +254,8 @@ public class Location implements Serializable {
         return create(mask & d.mask);
     }
 
-    public Vector<Location> splitToSides() {
-        Vector<Location> result = Vector.empty();
-        for (Location side: Location.sides()) {
-            Location part = intersect(side);
-            if (part != null) {
-                result = result.append(part);
-            }
-        }
-        return result;
+    public List<Location> splitToSides() {
+        return Location.SIDES.filter(side -> intersect(side) != null);
     }
 
     /** Creates instance according to name */
