@@ -14,6 +14,7 @@ import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.FeatureArea;
+import com.jcloisterzone.ui.resources.ResourceManager;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -23,6 +24,8 @@ import io.vavr.collection.Stream;
 
 
 public class FollowerAreaLayer extends AbstractAreaLayer {
+
+    private static int REF_SIZE = 100;
 
     private final MeepleLayer meepleLayer;
 
@@ -37,16 +40,10 @@ public class FollowerAreaLayer extends AbstractAreaLayer {
     }
 
     @Override
-    protected Map<BoardPointer, FeatureArea> scaleAreas() {
-        return prepareAreas();
-    }
-
-    @Override
     protected Map<BoardPointer, FeatureArea> prepareAreas() {
         SelectFollowerAction action = getAction();
-        int tileWidth = getTileWidth();
-        int r = (int) (tileWidth / 3.0);
-        int innerR = (int) (tileWidth / 4.2);
+        int r = (int) (REF_SIZE / 3.0);
+        int innerR = (int) (REF_SIZE / 4.2);
 
         Map<BoardPointer, FeatureArea> result = HashMap.empty();
         Map<String, Stream<FigureImage>> images = meepleLayer.getAllFigureImages()
@@ -77,7 +74,8 @@ public class FollowerAreaLayer extends AbstractAreaLayer {
                     FeatureArea fa = new FeatureArea(trackingArea, displyArea, order);
                     fa = fa.setForceAreaColor(((Meeple) pfi.getFigure()).getPlayer().getColors().getMeepleColor());
 
-                    AffineTransform translation = AffineTransform.getScaleInstance(tileWidth / 100.0, getTileHeight() / 100.0);
+                    int scale = ResourceManager.NORMALIZED_SIZE / REF_SIZE;
+                    AffineTransform translation = AffineTransform.getScaleInstance(scale, scale);
                     FeatureArea translated = fa.transform(translation);
                     result = result.put(pointer, translated);
                     order++;

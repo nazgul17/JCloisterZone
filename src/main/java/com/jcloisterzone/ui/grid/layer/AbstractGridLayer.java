@@ -219,6 +219,7 @@ public abstract class AbstractGridLayer implements GridLayer {
         return new Font(null, Font.BOLD, realSize);
     }
 
+    // TODO don't use pos arg, use abs coords instead
     public void drawAntialiasedTextCentered(Graphics2D g2, String text, int fontSize, Position pos, ImmutablePoint centerNoScaled, Color fgColor, Color bgColor) {
         //gridPanel.getBoardRotation().
         ImmutablePoint center = centerNoScaled.scale(getTileWidth(), getTileHeight());
@@ -226,7 +227,8 @@ public abstract class AbstractGridLayer implements GridLayer {
     }
 
 
-    //TODO misleading name - is centered around point and scaled font but not scale center point (probably :)
+    // TODO don't use pos arg, use abs coords instead
+    // TODO misleading name - is centered around point and scaled font but not scale center point (probably :)
     public void drawAntialiasedTextCenteredNoScale(Graphics2D g2, String text, int fontSize, Position pos, ImmutablePoint center, Color fgColor, Color bgColor) {
         Color original = g2.getColor();
         FontRenderContext frc = g2.getFontRenderContext();

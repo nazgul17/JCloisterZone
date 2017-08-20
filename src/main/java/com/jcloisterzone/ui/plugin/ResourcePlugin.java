@@ -56,6 +56,8 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     private int imageRatioX = 1;
     private int imageRatioY = 1;
 
+    private java.util.HashMap<Tuple2<TileDefinition, Rotation>, Map<Location, FeatureArea>> areaCache = new java.util.HashMap<>();
+
     private Set<String> supportedExpansions = HashSet.empty(); //expansion codes
 
     static {
@@ -298,20 +300,22 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
 
     @Override
     public FeatureArea getFeatureArea(TileDefinition tile, Rotation rot, Location loc) {
-        //TODO !!! getAll, cache and return
-        //just temporary solution
-        logger.warn("FIX get getFeatureAreas");
-        return getTileFeatureAreas(tile, rot, HashSet.of(loc)).get(loc).get();
+        Tuple2<TileDefinition, Rotation> key = new Tuple2<>(tile, rot);
+        Map<Location, FeatureArea> areas = areaCache.get(key);
+        if (areas == null) {
+            areas = getTileFeatureAreas(tile, rot);
+            areaCache.put(key, areas);
+        }
+        return areas.get(loc).get();
     }
 
 
-    public Map<Location, FeatureArea> getTileFeatureAreas(TileDefinition tile, Rotation rot, Set<Location> locations) {
+    public Map<Location, FeatureArea> getTileFeatureAreas(TileDefinition tile, Rotation rot) {
         if (!containsTile(tile.getId())) return null;
         // dirty hack to not handle quarter locations
         if (tile.getId().equals(CountCapability.QUARTER_ACTION_TILE_ID)) return null;
 
         Map<Location, Feature> features = tile.getInitialFeatures();
-        Set<Location> initialLocations = locations.map(loc -> loc.rotateCCW(rot));
 
         Location complementFarm = features
             .find(t -> t._2 instanceof Farm && isFarmComplement(tile, t._1))
@@ -405,9 +409,6 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
                 return t.map2(fa -> fa.subtract(bridgeArea));
             });
         }
-
-        // filter result to requested locations
-        areas = areas.filter(t -> initialLocations.contains(t._1));
 
         //AffineTransform tx = getAreaScaleTransform(rot, width, height);
         return areas.toMap(t -> t.map1(loc -> loc.rotateCW(rot)));
