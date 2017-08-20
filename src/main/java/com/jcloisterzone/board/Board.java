@@ -18,6 +18,7 @@ import io.vavr.collection.Vector;
 import io.vavr.control.Option;
 
 
+@Deprecated
 public class Board {
 
     private final GameState state;

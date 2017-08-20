@@ -41,10 +41,6 @@ public class Tile {
         this.placedTile = placedTile;
     }
 
-    private PlacedTile getPlacedTile() {
-        return placedTile;
-    }
-
     public TileDefinition getTileDefinition() {
         return placedTile.getTile();
     }
@@ -53,18 +49,12 @@ public class Tile {
         return placedTile.getRotation();
     }
 
-    public EdgePattern getEdgePattern() {
-        return placedTile.getEdgePattern();
-    }
-
     public String getId() {
         return getTileDefinition().getId();
     }
 
-    public Expansion getOrigin() {
-        return getTileDefinition().getOrigin();
-    }
 
+    @Deprecated
     public Feature getFeature(Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
@@ -74,40 +64,7 @@ public class Tile {
 
     }
 
-    public Feature getFeaturePartOf(Location loc) {
-        if (loc == Location.ABBOT) loc = Location.CLOISTER;
 
-        FeaturePointer fp = new FeaturePointer(position, loc);
-        state.getFeatureMap().find(t -> fp.isPartOf(t._1)).map(Tuple2::_2);
-        return state.getFeatureMap()
-            .find(t -> fp.isPartOf(t._1))
-            .map(Tuple2::_2)
-            .getOrNull();
-    }
-
-    public Stream<Tuple2<Location, Feature>> getFeatures() {
-        Rotation rot = getRotation();
-        Map<FeaturePointer, Feature> allFeatures = state.getFeatureMap();
-        return Stream.ofAll(getTileDefinition().getInitialFeatures())
-            .map(t -> t.update1(t._1.rotateCW(rot)))
-            .map(t -> t.update2(
-                allFeatures.get(new FeaturePointer(position, t._1)).get()
-            ));
-    }
-
-    public Stream<Tuple2<Location, Completable>> getCompletableFeatures() {
-        return getFeatures()
-            .filter(t -> t._2 instanceof Completable)
-            .map(t -> t.map2(f -> (Completable) f));
-    }
-
-    public boolean isAbbeyTile() {
-        return getTileDefinition().isAbbeyTile();
-    }
-
-    public TileSymmetry getSymmetry() {
-        return getTileDefinition().getSymmetry();
-    }
 
     public boolean hasCloister() {
         return getFeature(Location.CLOISTER) != null;
@@ -126,24 +83,9 @@ public class Tile {
     }
 
 
-    private boolean isValueNotCompleted(Tuple2<Location, ? extends Feature> t) {
-        if (t._2 instanceof Completable) {
-            return !((Completable)t._2).isCompleted(state);
-        } else {
-            return true;
-        }
-    }
 
 
-    public Stream<Tuple2<Location, Feature>> getPlayerFeatures(Player player, Class<? extends Feature> featureClass) {
-        return getFeatures()
-            .filter(t -> featureClass == null || featureClass.isInstance(t._2))
-            .filter(t -> t._2.isOccupiedBy(state, player));
-    }
 
-    public Stream<Tuple2<Location, Feature>> getPlayerUncompletedFeatures(Player player, Class<? extends Feature> featureClass) {
-        return getPlayerFeatures(player, featureClass).filter(this::isValueNotCompleted);
-    }
 
     @Override
     public String toString() {
@@ -162,18 +104,6 @@ public class Tile {
     public Class<? extends Feature> getCornCircle() {
         return getTileDefinition().getCornCircle();
     }
-
-//    public City getCityWithPrincess() {
-//        for (Feature p : features) {
-//            if (p instanceof City ) {
-//                City cp = (City) p;
-//                if (cp.isPricenss()) {
-//                    return cp;
-//                }
-//            }
-//        }
-//        return null;
-//    }
 
 
     public Location getRiver() {

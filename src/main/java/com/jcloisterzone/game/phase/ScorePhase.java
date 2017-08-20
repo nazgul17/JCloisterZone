@@ -4,9 +4,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Farm;
@@ -19,13 +17,11 @@ import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
-import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.capability.WagonCapability;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
-import com.jcloisterzone.reducers.ScoreCastle;
 import com.jcloisterzone.reducers.ScoreCompletable;
 import com.jcloisterzone.reducers.ScoreFarm;
 import com.jcloisterzone.reducers.ScoreFarmWhenBarnIsConnected;
@@ -34,7 +30,6 @@ import com.jcloisterzone.ui.GameController;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
-import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Map;
@@ -51,18 +46,17 @@ public class ScorePhase extends ServerAwarePhase {
         super(game, gc);
     }
 
-    private GameState scoreCompletedOnTile(GameState state, Tile tile) {
-        for (Tuple2<Location, Completable> t : tile.getCompletableFeatures()) {
+    private GameState scoreCompletedOnTile(GameState state, PlacedTile tile) {
+        for (Tuple2<Location, Completable> t : state.getTileFeatures2(tile.getPosition(), Completable.class)) {
             state = scoreCompleted(state, t._2, tile);
         }
         return state;
     }
 
     private GameState scoreCompletedNearAbbey(GameState state, Position pos) {
-        Board board = state.getBoard();
         for (Tuple2<Location, PlacedTile> t : state.getAdjacentTiles(pos)) {
             PlacedTile pt = t._2;
-            Feature feature = board.get(pt.getPosition()).getFeaturePartOf(t._1.rev());
+            Feature feature = state.getFeaturePartOf(new FeaturePointer(pt.getPosition(), t._1.rev()));
             if (feature instanceof Completable) {
                 state = scoreCompleted(state, (Completable) feature, null);
             }
@@ -72,15 +66,14 @@ public class ScorePhase extends ServerAwarePhase {
 
     @Override
     public void enter(GameState state) {
-        Board board = state.getBoard(); //can keep ref because only points are changed
-        Position pos = state.getLastPlaced().getPosition();
-        Tile tile = board.get(pos);
+        PlacedTile lastPlaced = state.getLastPlaced();
+        Position pos = lastPlaced.getPosition();
 
         Map<Wagon, FeaturePointer> deployedWagonsBefore = getDeployedWagons(state);
 
         if (state.getCapabilities().contains(BarnCapability.class)) {
             FeaturePointer placedBarnPtr = state.getCapabilityModel(BarnCapability.class);
-            Farm placedBarnFarm = placedBarnPtr == null ? null : (Farm) board.get(placedBarnPtr);
+            Farm placedBarnFarm = placedBarnPtr == null ? null : (Farm) state.getFeature(placedBarnPtr);
             if (placedBarnFarm != null) {
                 //ScoreFeature is scoring just followers!
                 state = (new ScoreFarm(placedBarnFarm)).apply(state);
@@ -88,7 +81,7 @@ public class ScorePhase extends ServerAwarePhase {
             }
 
             GameState _state = state;
-            for (Farm farm : tile.getFeatures()
+            for (Farm farm : state.getTileFeatures2(pos)
                 .map(Tuple2::_2)
                 .filter(f -> f != placedBarnFarm)
                 .filter(Predicates.instanceOf(Farm.class))
@@ -102,8 +95,8 @@ public class ScorePhase extends ServerAwarePhase {
             }
         }
 
-        state = scoreCompletedOnTile(state, tile);
-        if (tile.isAbbeyTile()) {
+        state = scoreCompletedOnTile(state, lastPlaced);
+        if (lastPlaced.getTile().isAbbeyTile()) {
             state = scoreCompletedNearAbbey(state, pos);
         }
 
@@ -156,7 +149,7 @@ public class ScorePhase extends ServerAwarePhase {
         );
     }
 
-    private GameState scoreCompleted(GameState state, Completable completable, Tile triggerBuilderForPlaced) {
+    private GameState scoreCompleted(GameState state, Completable completable, PlacedTile triggerBuilderForPlaced) {
         if (triggerBuilderForPlaced != null && state.getCapabilities().contains(BuilderCapability.class)) {
             Player player = state.getTurnPlayer();
             GameState _state = state;

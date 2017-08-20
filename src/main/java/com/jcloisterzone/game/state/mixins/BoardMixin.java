@@ -1,14 +1,10 @@
 package com.jcloisterzone.game.state.mixins;
 
-import java.util.function.Function;
-
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 
@@ -17,7 +13,6 @@ import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Stream;
-import io.vavr.control.Option;
 
 public interface BoardMixin {
 
@@ -82,5 +77,18 @@ public interface BoardMixin {
 
     default <T extends Feature> Stream<Tuple2<Location, T>> getTileFeatures2(Position pos, Class<T> cls) {
         return Stream.narrow(getTileFeatures2(pos).filter(t -> cls.isInstance(t._2)));
+    }
+
+    default Feature getFeature(FeaturePointer fp) {
+        if (fp.getLocation() == Location.ABBOT) fp = fp.setLocation(Location.CLOISTER);
+        return getFeatureMap().get(fp).getOrNull();
+    }
+
+    default Feature getFeaturePartOf(FeaturePointer fp) {
+        FeaturePointer normFp = fp.getLocation() == Location.ABBOT ? fp.setLocation(Location.CLOISTER) : fp;
+        return getFeatureMap()
+            .find(t -> normFp.isPartOf(t._1))
+            .map(Tuple2::_2)
+            .getOrNull();
     }
 }

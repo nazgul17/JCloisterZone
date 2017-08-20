@@ -12,6 +12,7 @@ import com.jcloisterzone.event.play.BridgePlaced;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Predicates;
 import io.vavr.collection.HashSet;
@@ -66,14 +67,13 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
     }
 
     public boolean isBridgePlacementAllowed(GameState state, FeaturePointer bridgePtr) {
-        Board board = state.getBoard();
         Position pos = bridgePtr.getPosition();
         Location loc = bridgePtr.getLocation();
 
         // for valid placement there must be adjacent place with empty
         // space on the other side
         boolean adjExists = loc.splitToSides()
-                .map(l -> board.get(pos.add(l)))
+                .map(l -> state.getPlacedTile(pos.add(l)))
                 .find(Predicates.isNotNull())
                 .isDefined();
 
@@ -88,7 +88,7 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
         }
 
         //and bridge must be legal on tile
-        Tile tile = board.get(pos);
-        return tile.getEdgePattern().isBridgeAllowed(loc);
+        PlacedTile placedTile = state.getPlacedTile(pos);
+        return placedTile.getEdgePattern().isBridgeAllowed(loc);
     }
 }

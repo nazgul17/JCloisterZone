@@ -259,11 +259,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
         });
     }
 
-    @Deprecated
-    public Tile getTile(Position p) {
-        return gc.getGame().getBoard().get(p);
-    }
-
     public Client getClient() {
         return client;
     }

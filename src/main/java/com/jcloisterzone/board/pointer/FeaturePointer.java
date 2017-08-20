@@ -76,8 +76,18 @@ public class FeaturePointer implements BoardPointer {
         return position;
     }
 
+    public FeaturePointer setPosition(Position position) {
+        if (this.position == position) return this;
+        return new FeaturePointer(position, location);
+    }
+
     public Location getLocation() {
         return location;
+    }
+
+    public FeaturePointer setLocation(Location location) {
+        if (this.location == location) return this;
+        return new FeaturePointer(position, location);
     }
 
     @Override

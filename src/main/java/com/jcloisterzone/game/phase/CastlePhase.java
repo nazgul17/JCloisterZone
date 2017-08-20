@@ -43,12 +43,10 @@ public class CastlePhase extends Phase {
             return HashSet.empty();
         }
 
-        PlacedTile placedTile = state.getLastPlaced();
-        Tile currentTile = state.getBoard().get(placedTile.getPosition());
-        Position pos = currentTile.getPosition();
-        return currentTile.getFeatures()
-            .filter(t -> t._2 instanceof City)
-            .filter(t -> ((City) t._2).isCastleBase())
+        PlacedTile lastPlaced = state.getLastPlaced();
+        Position pos = lastPlaced.getPosition();
+        return state.getTileFeatures2(pos, City.class)
+            .filter(t -> t._2.isCastleBase())
             .filter(t -> t._2.getPlaces().size() == 2)
             .filter(t -> {
                 List<Follower> followers = t._2.getFollowers(state).toList();
