@@ -13,6 +13,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TokenPlacedEvent;
+import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.figure.Barn;
@@ -73,14 +74,14 @@ public class ActionPhase extends Phase {
                 Wagon.class, Mayor.class, Builder.class, Pig.class)
         );
 
-        Position currentTilePos = state.getLastPlaced().getPosition();
-        Tile currentTile = state.getBoard().get(currentTilePos);
-        Stream<Tile> tiles;
+        PlacedTile lastPlaced = state.getLastPlaced();
+        Position currentTilePos = lastPlaced.getPosition();
+        Stream<PlacedTile> tiles;
 
-        if (currentTile.hasTrigger(TileTrigger.PORTAL) && !state.getFlags().contains(Flag.PORTAL_USED)) {
-            tiles = state.getBoard().getPlacedTiles();
+        if (lastPlaced.getTile().getTrigger() == TileTrigger.PORTAL && !state.getFlags().contains(Flag.PORTAL_USED)) {
+            tiles = Stream.ofAll(state.getPlacedTiles().values());
         } else {
-            tiles = Stream.of(currentTile);
+            tiles = Stream.of(lastPlaced);
         }
 
         Stream<Tuple2<FeaturePointer, Scoreable>> placesFp = tiles.flatMap(tile -> {
@@ -97,9 +98,21 @@ public class ActionPhase extends Phase {
 
             Stream<Tuple2<Location, Scoreable>> places;
             if (placementAllowed) {
-                places = tile.getScoreables(!isCurrentTile);
+                places = state.getTileFeatures2(pos, Scoreable.class);
+                //places = tile.getScoreables(!isCurrentTile);
             } else {
                 places = Stream.empty();
+            }
+
+            if (!isCurrentTile) {
+                //exclude completed
+                places = places.filter(t -> {
+                    if (t._2 instanceof Completable) {
+                        return !((Completable)t._2).isCompleted(state);
+                    } else {
+                        return true;
+                    }
+                });
             }
 
             return places.map(t -> t.map1(loc -> new FeaturePointer(pos, loc)));

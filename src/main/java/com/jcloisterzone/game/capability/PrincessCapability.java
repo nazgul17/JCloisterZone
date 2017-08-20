@@ -10,6 +10,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
@@ -34,11 +35,11 @@ public class PrincessCapability extends Capability<Void> {
             return state;
         }
 
-        PlacedTile placedTile = state.getLastPlaced();
-        Set<MeeplePointer> options = state.getBoard().get(placedTile.getPosition()).getScoreables(false)
+        PlacedTile lastTile = state.getLastPlaced();
+        Set<MeeplePointer> options = state.getTileFeatures2(lastTile.getPosition(), Scoreable.class)
         .filter(t -> {
             if (t._2 instanceof City) {
-                City part = (City) placedTile.getInitialFeaturePartOf(t._1);
+                City part = (City) lastTile.getInitialFeaturePartOf(t._1);
                 return part.isPrincess();
             } else {
                 return false;

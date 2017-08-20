@@ -4,9 +4,11 @@ import java.util.function.Function;
 
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
+import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 
@@ -67,4 +69,18 @@ public interface BoardMixin {
             .map(f -> (T) f);
     }
 
+    default Stream<Tuple2<Location, Feature>> getTileFeatures2(Position pos) {
+        PlacedTile placedTile = getPlacedTile(pos);
+        Rotation rot = placedTile.getRotation();
+        Map<FeaturePointer, Feature> allFeatures = getFeatureMap();
+        return Stream.ofAll(placedTile.getTile().getInitialFeatures())
+            .map(t -> t.update1(t._1.rotateCW(rot)))
+            .map(t -> t.update2(
+                allFeatures.get(new FeaturePointer(pos, t._1)).get()
+            ));
+    }
+
+    default <T extends Feature> Stream<Tuple2<Location, T>> getTileFeatures2(Position pos, Class<T> cls) {
+        return Stream.narrow(getTileFeatures2(pos).filter(t -> cls.isInstance(t._2)));
+    }
 }

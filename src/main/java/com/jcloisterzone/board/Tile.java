@@ -85,16 +85,6 @@ public class Tile {
             .getOrNull();
     }
 
-    @Deprecated // use on PlacedTile
-    public Feature getInitialFeaturePartOf(Location loc) {
-        Location initialLoc = loc.rotateCCW(getRotation());
-        return getTileDefinition()
-            .getInitialFeatures()
-            .find(t -> initialLoc.isPartOf(t._1))
-            .map(t -> t._2)
-            .getOrNull();
-    }
-
     public Stream<Tuple2<Location, Feature>> getFeatures() {
         Rotation rot = getRotation();
         Map<FeaturePointer, Feature> allFeatures = state.getFeatureMap();
@@ -110,67 +100,6 @@ public class Tile {
             .filter(t -> t._2 instanceof Completable)
             .map(t -> t.map2(f -> (Completable) f));
     }
-
-//    /** merge this to another tile - method argument is tile placed before */
-//    protected void merge(Tile tile, Location loc) {
-//        //if (logger.isDebugEnabled()) logger.debug("Merging " + id + " with " + tile.getId());
-//        Location oppositeLoc = loc.rev();
-//        MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
-//        if (oppositePiece != null) {
-//            if (tileDefinition.isAbbeyTile()) {
-//                oppositePiece.setAbbeyEdge(oppositeLoc);
-//            } else {
-//                MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
-//                oppositePiece.setEdge(oppositeLoc, thisPiece);
-//                thisPiece.setEdge(loc, oppositePiece);
-//            }
-//        }
-//        for (int i = 0; i < 2; i++) {
-//            Location halfSide = i == 0 ? loc.getLeftFarm() : loc.getRightFarm();
-//            Location oppositeHalfSide = halfSide.rev();
-//            oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
-//            if (oppositePiece != null) {
-//                if (tileDefinition.isAbbeyTile()) {
-//                    oppositePiece.setAbbeyEdge(oppositeHalfSide);
-//                } else {
-//                    MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
-//                    oppositePiece.setEdge(oppositeHalfSide, thisPiece);
-//                    thisPiece.setEdge(halfSide, oppositePiece);
-//                }
-//            }
-//        }
-//    }
-
-//    protected void unmerge(Tile tile, Location loc) {
-//        Location oppositeLoc = loc.rev();
-//        MultiTileFeature oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeLoc);
-//        if (oppositePiece != null) {
-//            oppositePiece.setEdge(oppositeLoc, null);
-//            if (!tileDefinition.isAbbeyTile()) {
-//                MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(loc);
-//                if (thisPiece != null) { //can be null for bridge undo
-//                    thisPiece.setEdge(loc, null);
-//                }
-//            }
-//        }
-//        for (int i = 0; i < 2; i++) {
-//            Location halfSide = i == 0 ? loc.getLeftFarm() : loc.getRightFarm();
-//            Location oppositeHalfSide = halfSide.rev();
-//            oppositePiece = (MultiTileFeature) tile.getFeaturePartOf(oppositeHalfSide);
-//            if (oppositePiece != null) {
-//                oppositePiece.setEdge(oppositeHalfSide, null);
-//                if (!tileDefinition.isAbbeyTile()) {
-//                    MultiTileFeature thisPiece = (MultiTileFeature) getFeaturePartOf(halfSide);
-//                    thisPiece.setEdge(halfSide, null);
-//                }
-//            }
-//        }
-//    }
-
-//    public void setRotation(Rotation rotation) {
-//        assert rotation != null;
-//        this.rotation =  rotation;
-//    }
 
     public boolean isAbbeyTile() {
         return getTileDefinition().isAbbeyTile();
@@ -196,27 +125,6 @@ public class Tile {
         return position;
     }
 
-//    public Bridge getBridge() {
-//        return bridge;
-//    }
-//
-//    public void placeBridge(Location bridgeLoc) {
-//        assert bridge == null && bridgeLoc != null; //TODO AI support - remove bridge from tile
-//        Location normalizedLoc = bridgeLoc.rotateCCW(rotation);
-//        bridge = new Bridge();
-//        bridge.setId(game.idSequnceNextVal());
-//        bridge.setTile(this);
-//        bridge.setLocation(normalizedLoc);
-//        features.add(bridge);
-//        edgePattern = edgePattern.getBridgePattern(normalizedLoc);
-//    }
-//
-//    public void removeBridge(Location bridgeLoc) {
-//        Location normalizedLoc = bridgeLoc.rotateCCW(rotation);
-//        features.remove(bridge);
-//        bridge = null;
-//        edgePattern = edgePattern.removeBridgePattern(normalizedLoc);
-//    }
 
     private boolean isValueNotCompleted(Tuple2<Location, ? extends Feature> t) {
         if (t._2 instanceof Completable) {
@@ -226,30 +134,6 @@ public class Tile {
         }
     }
 
-//    public Stream<Tuple2<Location, Scoreable>> getUnoccupiedScoreables(boolean excludeCompleted) {
-//        Stream<Tuple2<Location, Scoreable>> unoccupied = getFeatures()
-//            .filter(t -> t._2 instanceof Scoreable)
-//            .map(t -> t.map2(f -> (Scoreable) f))
-//            .filter(t -> !t._2.isOccupied(state));
-//
-//        if (excludeCompleted) {
-//            return unoccupied.filter(this::isValueNotCompleted);
-//        } else {
-//            return unoccupied;
-//        }
-//    }
-
-    public Stream<Tuple2<Location, Scoreable>> getScoreables(boolean excludeCompleted) {
-        Stream<Tuple2<Location, Scoreable>> unoccupied = getFeatures()
-            .filter(t -> t._2 instanceof Scoreable)
-            .map(t -> t.map2(f -> (Scoreable) f));
-
-        if (excludeCompleted) {
-            return unoccupied.filter(this::isValueNotCompleted);
-        } else {
-            return unoccupied;
-        }
-    }
 
     public Stream<Tuple2<Location, Feature>> getPlayerFeatures(Player player, Class<? extends Feature> featureClass) {
         return getFeatures()
