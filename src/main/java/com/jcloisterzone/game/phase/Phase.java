@@ -6,7 +6,6 @@ import org.slf4j.LoggerFactory;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.GameStateHelpers;
 import com.jcloisterzone.reducers.PayRansom;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;

@@ -11,6 +11,7 @@ import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
@@ -34,11 +35,11 @@ public class PlaceBridge implements Reducer {
         Position bridgePos = ptr.getPosition();
         Location bridgeLoc = ptr.getLocation();
 
-        LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
-        Tuple2<TileDefinition, Rotation> tile = placedTiles.get(bridgePos).get();
-        Rotation tileRotation = tile._2;
-        tile = tile.map1(t -> t.addBridge(bridgeLoc.rotateCCW(tileRotation)));
-        state = state.setPlacedTiles(placedTiles.put(bridgePos, tile));
+        LinkedHashMap<Position, PlacedTile> placedTiles = state.getPlacedTiles();
+        PlacedTile ptile = placedTiles.get(bridgePos).get();
+        Rotation tileRotation = ptile.getRotation();
+        ptile = ptile.mapTile(t -> t.addBridge(bridgeLoc.rotateCCW(tileRotation)));
+        state = state.setPlacedTiles(placedTiles.put(bridgePos, ptile));
 
         Bridge bridge = new Bridge(bridgeLoc);
         Road bridgeRoad = bridge.placeOnBoard(bridgePos, tileRotation);

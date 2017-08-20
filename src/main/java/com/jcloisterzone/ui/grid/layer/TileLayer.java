@@ -8,6 +8,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.TileImage;
@@ -21,9 +22,9 @@ public class TileLayer extends AbstractGridLayer {
 
     private TilePlacementLayer tilePlacementLayer;
 
-    class OrderByRowsComparator implements Comparator<Tuple2<Position, Tuple2<TileDefinition, Rotation>>> {
+    class OrderByRowsComparator implements Comparator<Tuple2<Position, PlacedTile>> {
         @Override
-        public int compare(Tuple2<Position, Tuple2<TileDefinition, Rotation>> o1, Tuple2<Position, Tuple2<TileDefinition, Rotation>> o2) {
+        public int compare(Tuple2<Position, PlacedTile> o1, Tuple2<Position, PlacedTile> o2) {
             if (o1._1 == null) {
                 return o2._1 == null ? 0 : 1;
             }
@@ -31,7 +32,7 @@ public class TileLayer extends AbstractGridLayer {
         }
     }
 
-    private SortedSet<Tuple2<Position, Tuple2<TileDefinition, Rotation>>> sortedPlacedTiles = TreeSet.empty();
+    private SortedSet<Tuple2<Position, PlacedTile>> sortedPlacedTiles = TreeSet.empty();
 
 
     public TileLayer(GridPanel gridPanel, GameController gc) {
@@ -43,7 +44,7 @@ public class TileLayer extends AbstractGridLayer {
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         if (ev.hasPlacedTilesChanged()) {
-            LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = ev.getCurrentState().getPlacedTiles();
+            LinkedHashMap<Position, PlacedTile> placedTiles = ev.getCurrentState().getPlacedTiles();
             sortedPlacedTiles = placedTiles.toSortedSet(new OrderByRowsComparator());
             gridPanel.repaint();
         }
@@ -57,7 +58,7 @@ public class TileLayer extends AbstractGridLayer {
             int xSize = getTileWidth(),
                 ySize = getTileHeight(),
                 thickness = xSize / 11;
-            for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : sortedPlacedTiles) {
+            for (Tuple2<Position, PlacedTile> t : sortedPlacedTiles) {
                 Position p = t._1;
                 int x = getOffsetX(p), y = getOffsetY(p);
                 g2.fillRect(x-thickness, y-thickness, xSize+2*thickness, ySize+2*thickness);
@@ -65,10 +66,10 @@ public class TileLayer extends AbstractGridLayer {
         }
 
 
-        for (Tuple2<Position, Tuple2<TileDefinition, Rotation>> t : sortedPlacedTiles) {
+        for (Tuple2<Position, PlacedTile> t : sortedPlacedTiles) {
             Position p = t._1;
-            TileDefinition tdef = t._2._1;
-            Rotation rot = t._2._2;
+            TileDefinition tdef = t._2.getTile();
+            Rotation rot = t._2.getRotation();
             TileImage tileImg = rm.getTileImage(tdef, rot);
             g2.drawImage(tileImg.getImage(), getAffineTransform(tileImg, p), null);
         }

@@ -15,6 +15,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Map;
@@ -27,38 +28,33 @@ public class Tile {
     protected final GameState state;
     private final Position position;
 
-    private final Tuple2<TileDefinition, Rotation> placedTile;
+    private final PlacedTile placedTile;
 
 
     public Tile(GameState state, Position position) {
         this(state, position, state.getPlacedTiles().get(position).getOrNull());
     }
 
-    public Tile(GameState state, Position position, Tuple2<TileDefinition, Rotation> placedTile) {
+    public Tile(GameState state, Position position, PlacedTile placedTile) {
         this.state = state;
         this.position = position;
         this.placedTile = placedTile;
     }
 
-    private Tuple2<TileDefinition, Rotation> getPlacedTile() {
+    private PlacedTile getPlacedTile() {
         return placedTile;
     }
 
     public TileDefinition getTileDefinition() {
-        return getPlacedTile()._1;
+        return placedTile.getTile();
     }
 
     public Rotation getRotation() {
-        return getPlacedTile()._2;
+        return placedTile.getRotation();
     }
 
     public EdgePattern getEdgePattern() {
-        Tuple2<TileDefinition, Rotation> pt = getPlacedTile();
-        return pt._1.getEdgePattern().rotate(pt._2);
-    }
-
-    public EdgeType getEdgeType(Location side) {
-        return getEdgePattern().at(side, getRotation());
+        return placedTile.getEdgePattern();
     }
 
     public String getId() {

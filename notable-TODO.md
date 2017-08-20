@@ -40,3 +40,6 @@ and get it by one one instead of all per tile
 * move stuff from Board to GameStateHelper
 * Location.sides() -> SIDES
 * add debug optiom to limit tile pack size
+
+* add function for applying reducer on state (reverse apply)
+* rename updateXYZ to mapXYX, add it for everything and move it from mixins to state

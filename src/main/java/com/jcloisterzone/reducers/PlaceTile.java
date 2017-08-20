@@ -15,6 +15,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.MultiTileFeature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.HashMap;
@@ -39,12 +40,12 @@ public class PlaceTile implements Reducer {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Override
     public GameState apply(GameState state) {
-        LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
+        LinkedHashMap<Position, PlacedTile> placedTiles = state.getPlacedTiles();
         assert !placedTiles.containsKey(pos);
         boolean abbeyPlacement = TileDefinition.ABBEY_TILE_ID.equals(tile.getId());
 
         state = state.setPlacedTiles(
-            placedTiles.put(pos, new Tuple2<>(tile, rot))
+            placedTiles.put(pos, new PlacedTile(tile, rot))
         );
 
         Board board = state.getBoard();

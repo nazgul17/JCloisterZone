@@ -7,25 +7,22 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.PlayEvent;
-import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.mixins.ActionsStateMixin;
+import com.jcloisterzone.game.state.mixins.BoardMixin;
 import com.jcloisterzone.game.state.mixins.EventsStateMixin;
-import com.jcloisterzone.game.state.mixins.FeaturesStateMixin;
 import com.jcloisterzone.game.state.mixins.FlagsStateMixin;
 import com.jcloisterzone.game.state.mixins.PlayersStsteMixin;
 import com.jcloisterzone.game.state.mixins.SettingsStateMixin;
 
-import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.HashSet;
@@ -37,7 +34,7 @@ import io.vavr.collection.Seq;
 import io.vavr.collection.Set;
 
 @Immutable
-public class GameState implements ActionsStateMixin, FeaturesStateMixin,
+public class GameState implements ActionsStateMixin, BoardMixin,
         SettingsStateMixin, PlayersStsteMixin, EventsStateMixin,
         FlagsStateMixin, Serializable {
 
@@ -53,7 +50,7 @@ public class GameState implements ActionsStateMixin, FeaturesStateMixin,
     private final TilePackState tilePack;
     private final TileDefinition drawnTile;
 
-    private final LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles;
+    private final LinkedHashMap<Position, PlacedTile> placedTiles;
     private final List<TileDefinition> discardedTiles;
     private final Map<FeaturePointer, Feature> featureMap;
 
@@ -96,7 +93,7 @@ public class GameState implements ActionsStateMixin, FeaturesStateMixin,
             CapabilitiesState capabilities,
             PlayersState players,
             TilePackState tilePack, TileDefinition drawnTile,
-            LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles,
+            LinkedHashMap<Position, PlacedTile> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> featureMap,
             NeutralFiguresState neutralFigures,
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples,
@@ -170,7 +167,8 @@ public class GameState implements ActionsStateMixin, FeaturesStateMixin,
         );
     }
 
-    public GameState setPlacedTiles(LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> placedTiles) {
+    @Override
+    public GameState setPlacedTiles(LinkedHashMap<Position, PlacedTile> placedTiles) {
         if (placedTiles == this.placedTiles) return this;
         return new GameState(
             rules, capabilities, players,
@@ -307,7 +305,8 @@ public class GameState implements ActionsStateMixin, FeaturesStateMixin,
         return drawnTile;
     }
 
-    public LinkedHashMap<Position, Tuple2<TileDefinition, Rotation>> getPlacedTiles() {
+    @Override
+    public LinkedHashMap<Position, PlacedTile> getPlacedTiles() {
         return placedTiles;
     }
 

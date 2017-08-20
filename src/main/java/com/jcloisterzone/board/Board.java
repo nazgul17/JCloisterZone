@@ -8,13 +8,11 @@ import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Predicates;
 import io.vavr.Tuple2;
-import io.vavr.collection.HashSet;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 import io.vavr.collection.Vector;
 import io.vavr.control.Option;
@@ -35,24 +33,24 @@ public class Board {
        this.state = state;
     }
 
-    private Tuple2<TileDefinition, Rotation> getPlacedTile(Position pos) {
+    private PlacedTile getPlacedTile(Position pos) {
         return state.getPlacedTiles().get(pos).getOrNull();
     }
 
     private EdgePattern getEdgePattern(Position pos) {
-        Tuple2<TileDefinition, Rotation> placed = getPlacedTile(pos);
+        PlacedTile placed = getPlacedTile(pos);
         if (placed != null) {
-            return placed._1.getEdgePattern().rotate(placed._2);
+            return placed.getEdgePattern();
         }
 
         return new EdgePattern(
             Position.ADJACENT.map((loc, offset) -> {
                 Position adj = pos.add(offset);
-                Tuple2<TileDefinition, Rotation> adjTile = getPlacedTile(adj);
+                PlacedTile  adjTile = getPlacedTile(adj);
                 if (adjTile == null) {
                     return new Tuple2<>(loc, EdgeType.UNKNOWN);
                 } else {
-                    EdgeType edge = adjTile._1.getEdgePattern().rotate(adjTile._2).at(loc.rev());
+                    EdgeType edge = adjTile.getEdgePattern().at(loc.rev());
                     return new Tuple2<>(loc, edge);
                 }
             })
@@ -61,7 +59,7 @@ public class Board {
 
     public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements() {
         java.util.Set<Position> used = new java.util.HashSet<>();
-        Map<Position, Tuple2<TileDefinition, Rotation>> placedTiles = state.getPlacedTiles();
+        Map<Position, PlacedTile> placedTiles = state.getPlacedTiles();
 
         if (placedTiles.isEmpty()) {
             return Stream.of(
@@ -188,7 +186,7 @@ public class Board {
     public Tile get(Position pos) {
         Option<Tile> o = tiles.get(pos);
         if (o == null) {
-            Tuple2<TileDefinition, Rotation> t = getPlacedTile(pos);
+            PlacedTile t = getPlacedTile(pos);
             if (t == null) {
                 tiles.put(pos, Option.none());
                 return null;
@@ -247,6 +245,7 @@ public class Board {
         return getBounds().y;
     }
 
+    @Deprecated //BoardMixin
     public Stream<Tuple2<Location, Tile>> getAdjacentTilesMap(Position pos) {
         return Stream.ofAll(Position.ADJACENT)
             .map(t -> t.map2(offset -> get(pos.add(offset))))

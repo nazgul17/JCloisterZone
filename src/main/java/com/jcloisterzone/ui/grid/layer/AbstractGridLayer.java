@@ -18,7 +18,6 @@ import javax.swing.event.MouseInputListener;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.state.GameStateHelpers;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
@@ -27,7 +26,6 @@ import com.jcloisterzone.ui.grid.GridLayer;
 import com.jcloisterzone.ui.grid.GridPanel;
 import com.jcloisterzone.ui.resources.ConvenientResourceManager;
 import com.jcloisterzone.ui.resources.TileImage;
-import com.jcloisterzone.wsio.RmiProxy;
 
 public abstract class AbstractGridLayer implements GridLayer {
 
