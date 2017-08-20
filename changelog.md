@@ -6,14 +6,15 @@
 * multiple undo steps are now supported (including eg. undoing paid ransom)
 * Princess and Dragon:
     - PRINCESS_MUST_REMOVE_KNIGHT rule implemented in proper way:
-      If enabled and there is option to remove princess no other action is allowed
+      If enabled and there is option to remove princess no other action is allowed.
 * Tower:
     - If players has several prisoners belonging to the other player
       during prisoners exchange, the owner may decide which prisoner should be returned.
 * Bridges, Castles, and Bazaars:
     - Bazaar auction is not triggered when tile is discarded.
     - When tile can place only with bridge, player is allowed to pass and let the tile to be discarded.
-    - Display bridge preview if bridge placement is mandatory (and bridge must be placed as part of tile placement)
+    - fix: When there is no legal placement for auctioned tile, tile is discarded and random tile is drawn instead.
+    - Display bridge preview if bridge placement is mandatory (and bridge must be placed as part of tile placement).
 * technical notes:
     - Grand rewrite in favor of functional programming and immutable data structure.
     - vavr.io library is awesome!

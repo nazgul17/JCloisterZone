@@ -49,3 +49,5 @@ remove GridPanel.getTile
 ConvenienRM.getBridgeArea
 
 * test if works if barn are contain multiple spots
+
+* implement zoom by single affinetransrom on grid layer

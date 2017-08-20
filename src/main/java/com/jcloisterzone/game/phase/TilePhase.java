@@ -96,29 +96,34 @@ public class TilePhase extends ServerAwarePhase {
     public void enter(GameState state) {
         for (;;) {
             BazaarCapabilityModel bazaarModel = state.getCapabilityModel(BazaarCapability.class);
-            Queue<BazaarItem> supply = bazaarModel == null ? null : bazaarModel.getSupply();
+            Queue<BazaarItem> bazaarSupply = bazaarModel == null ? null : bazaarModel.getSupply();
 
-            if (supply != null) {
-                Tuple2<BazaarItem, Queue<BazaarItem>> t = supply.dequeue();
+            if (bazaarSupply != null && !bazaarSupply.isEmpty()) { // can be empty when reinvoked after discard/pass
+                Tuple2<BazaarItem, Queue<BazaarItem>> t = bazaarSupply.dequeue();
                 BazaarItem item = t._1;
-                if (!item.getOwner().equals(state.getTurnPlayer())) {
-                    // very rare case:
-                    // There was not legal placement for prev bazaar tile queued tile.
-                    // Or player pass tile placement (allowed when only legal placement was only with bridge)
-                    // Skip player's turn in that case.
-                    next(state, CleanUpTurnPhase.class);
-                    return;
-                }
-                supply = t._2;
-                bazaarModel = bazaarModel.setSupply(supply);
-                state = state.setCapabilityModel(BazaarCapability.class, bazaarModel);
-                state = state.setDrawnTile(item.getTile());
+                if (item.getOwner().equals(state.getTurnPlayer())) {
+                    bazaarSupply = t._2;
+                    bazaarModel = bazaarModel.setSupply(bazaarSupply);
+                    state = state.setCapabilityModel(BazaarCapability.class, bazaarModel);
+                    state = state.setDrawnTile(item.getTile());
+                } /* else:
+                    very rare case when not legal placement has been found for prev bazaar tile
+                    (Or player pass tile placement (allowed when only legal placement is with bridge)
+                    Draw random tile instead
+                */
             }
 
             if (state.getDrawnTile() == null) {
                 // regular flow (not tile from Bazaar supply
                 TilePackState tilePack = state.getTilePack();
                 boolean packIsEmpty = tilePack.isEmpty() || isDebugForcedEnd();
+
+                if (packIsEmpty && bazaarSupply != null) {
+                    // Very edge case: no match for bazaar tile + no remaining tile in pack.
+                    // Skip player's turns
+                    next(state, CleanUpTurnPhase.class);
+                    return;
+                }
 
                 //Abbey special case, every player has opportunity to place own abbey at the end.
                 if (packIsEmpty && state.getCapabilities().contains(AbbeyCapability.class)) {

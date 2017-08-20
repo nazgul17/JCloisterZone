@@ -65,7 +65,11 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
     @Override
     public void setActionWrapper(boolean active, ActionWrapper actionWrapper) {
         this.actionWrapper = actionWrapper;
-        areas = prepareAreas();
+        if (actionWrapper == null) {
+            cleanAreas();
+        } else {
+            areas = prepareAreas();
+        }
     }
 
     @Override
@@ -144,7 +148,7 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
     }
 
     private void cleanAreas() {
-        areas = HashMap.empty();
+        areas = null;
         scaledAreas = null;
         selectedFeaturePointer = null;
         selectedArea = null;
