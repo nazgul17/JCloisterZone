@@ -1,6 +1,5 @@
 package com.jcloisterzone.game.capability;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map.Entry;
@@ -21,7 +20,6 @@ import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TileSymmetry;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 
 
 public class RiverCapability extends Capability<Void> {

@@ -5,7 +5,6 @@ import java.util.function.Function;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackState;
@@ -346,14 +345,5 @@ public class GameState implements ActionsStateMixin, BoardMixin,
 
     public Class<? extends Phase> getPhase() {
         return phase;
-    }
-
-    // TODO remove board in favor of mixins
-
-    private Board board;
-
-    public Board getBoard() {
-        if (board == null) board = new Board(this);
-        return board;
     }
 }

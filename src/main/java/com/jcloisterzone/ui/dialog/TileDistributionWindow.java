@@ -1,5 +1,7 @@
 package com.jcloisterzone.ui.dialog;
 
+import static com.jcloisterzone.ui.I18nUtils._;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -21,7 +23,6 @@ import javax.swing.event.ListSelectionListener;
 
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePackFactory;
 import com.jcloisterzone.board.TilePackFactory.TileCount;
@@ -34,9 +35,6 @@ import com.jcloisterzone.ui.resources.TileImage;
 import com.jcloisterzone.ui.theme.Theme;
 
 import io.vavr.collection.HashMap;
-import io.vavr.collection.Map;
-
-import static com.jcloisterzone.ui.I18nUtils._;
 
 
 public class TileDistributionWindow extends JFrame {

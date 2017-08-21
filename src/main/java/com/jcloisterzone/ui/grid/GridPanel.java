@@ -35,7 +35,6 @@ import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.config.ConfigLoader;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.game.Snapshot;

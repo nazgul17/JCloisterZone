@@ -1,16 +1,14 @@
 package com.jcloisterzone.game.capability;
 
+import static com.jcloisterzone.XMLUtils.attributeBoolValue;
+
 import org.w3c.dom.Element;
 
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.state.GameState;
-
-import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 
 
 public final class SiegeCapability extends Capability<Void> {

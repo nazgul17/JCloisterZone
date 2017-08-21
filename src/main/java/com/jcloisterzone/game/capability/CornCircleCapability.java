@@ -11,7 +11,6 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 
 public class CornCircleCapability extends Capability<Void> {
 

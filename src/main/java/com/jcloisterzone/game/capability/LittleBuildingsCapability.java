@@ -18,7 +18,6 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.LittleBuildingEvent;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 
 public class LittleBuildingsCapability extends Capability<Void> {
 

@@ -4,7 +4,6 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.FairyNextToAction;
 import com.jcloisterzone.action.FairyOnTileAction;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
@@ -12,7 +11,6 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.collection.LinkedHashMap;

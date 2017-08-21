@@ -166,12 +166,6 @@ public class Game extends GameSettings implements EventProxy {
         }
     }
 
-    @Deprecated
-    //call ir directly on state
-    public Board getBoard() {
-        return state.getBoard();
-    }
-
     @Override
     public EventBus getEventBus() {
         return eventBus;

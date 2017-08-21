@@ -42,9 +42,8 @@ and get it by one one instead of all per tile
 
 * test if works if barn are contain multiple spots
 
-* implement zoom by single affine transrom on grid layer? no problems with area checking
+* implement zoom by single affine transrom on grid layer? probably no - problems with area checking
 
-* remove Tile, remove Board (in favor of BoardMixin)
 * remove feature/meeple methods with state arg, eg isOccupied(state), put them rather on state
 
 * Tower, place tile, use same circular ares as for selecting follower

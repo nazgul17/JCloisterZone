@@ -5,9 +5,7 @@ import java.util.WeakHashMap;
 
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
 
 // move caching on PluggableResourceManager ? or rename to cached manager

@@ -4,7 +4,6 @@ import org.w3c.dom.Element;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
 import com.jcloisterzone.board.TileTrigger;

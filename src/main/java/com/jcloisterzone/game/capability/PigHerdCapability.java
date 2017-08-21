@@ -8,7 +8,6 @@ import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.GameSettings;
 import com.jcloisterzone.game.state.GameState;
 
 public class PigHerdCapability extends Capability<Void> {

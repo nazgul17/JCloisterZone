@@ -3,7 +3,6 @@ package com.jcloisterzone.game.phase;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.CastleAction;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.CastleCreated;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;

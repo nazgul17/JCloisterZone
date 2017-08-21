@@ -22,11 +22,9 @@ import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.visitor.FeatureVisitor;
-import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.Witch;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.state.GameState;
 
 public class MageAndWitchCapability extends Capability<Void> {

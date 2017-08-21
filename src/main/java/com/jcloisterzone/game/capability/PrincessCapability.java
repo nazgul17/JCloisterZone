@@ -5,14 +5,11 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 import org.w3c.dom.Element;
 
 import com.jcloisterzone.action.PrincessAction;
-import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Scoreable;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;

@@ -2,11 +2,9 @@ package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MeepleAction;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Corner;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Barn;
@@ -15,7 +13,6 @@ import com.jcloisterzone.figure.Pig;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 
 import io.vavr.Predicates;

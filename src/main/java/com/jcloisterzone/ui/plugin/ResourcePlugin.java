@@ -21,19 +21,15 @@ import com.jcloisterzone.Expansion;
 import com.jcloisterzone.XMLUtils;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.figure.Barn;
-import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.UiUtils;
-import com.jcloisterzone.ui.resources.AreaRotationScaling;
 import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.FeatureDescriptor;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
@@ -209,24 +205,24 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
         return null;
     }
 
-    private FeatureArea applyRotationScaling(Tile tile, ThemeGeometry geom, FeatureArea area) {
-        if (area == null) return null;
-        /* rectangular tiles can have noScale direction to keep one dimension unchanged by rotation */
-        AreaRotationScaling ars = area.getRotationScaling();
-        if (ars != AreaRotationScaling.NORMAL)  {
-            Rotation rot = tile.getRotation();
-            if (rot == Rotation.R90 || rot == Rotation.R270) {
-                AffineTransform t = new AffineTransform();
-                if (ars == AreaRotationScaling.NO_SCALE_HEIGHT) {
-                    ars.concatAffineTransform(t, geom.getImageSizeRatio());
-                } else {
-                    ars.concatAffineTransform(t, 1.0 / geom.getImageSizeRatio());
-                }
-                area = area.transform(t);
-            }
-        }
-        return area;
-    }
+//    private FeatureArea applyRotationScaling(Tile tile, ThemeGeometry geom, FeatureArea area) {
+//        if (area == null) return null;
+//        /* rectangular tiles can have noScale direction to keep one dimension unchanged by rotation */
+//        AreaRotationScaling ars = area.getRotationScaling();
+//        if (ars != AreaRotationScaling.NORMAL)  {
+//            Rotation rot = tile.getRotation();
+//            if (rot == Rotation.R90 || rot == Rotation.R270) {
+//                AffineTransform t = new AffineTransform();
+//                if (ars == AreaRotationScaling.NO_SCALE_HEIGHT) {
+//                    ars.concatAffineTransform(t, geom.getImageSizeRatio());
+//                } else {
+//                    ars.concatAffineTransform(t, 1.0 / geom.getImageSizeRatio());
+//                }
+//                area = area.transform(t);
+//            }
+//        }
+//        return area;
+//    }
 
     private FeatureArea getFeatureArea(TileDefinition tile, Class<? extends Feature> featureClass, Location loc) {
         if (loc == Location.ABBOT) loc = Location.CLOISTER;

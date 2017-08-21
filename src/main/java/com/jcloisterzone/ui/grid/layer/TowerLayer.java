@@ -5,10 +5,8 @@ import java.awt.Graphics2D;
 import java.awt.geom.Area;
 
 import com.google.common.eventbus.Subscribe;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.TokenPlacedEvent;
@@ -21,7 +19,6 @@ import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.grid.GridPanel;
 
 import io.vavr.Tuple2;
-import io.vavr.Tuple3;
 import io.vavr.collection.List;
 import io.vavr.collection.Stream;
 

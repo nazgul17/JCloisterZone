@@ -104,8 +104,7 @@ public class Farm extends ScoreableFeature implements MultiTileFeature<Farm> {
 
     private int getCityPoints(GameState state, int pointsPerCity) {
         int points = adjoiningCityOfCarcassonne ? pointsPerCity : 0;
-        Board board = state.getBoard();
-        Set<Feature> features = adjoiningCities.map(fp -> board.get(fp));
+        Set<Feature> features = adjoiningCities.map(fp -> state.getFeature(fp));
 
         for (Feature feature : features) {
             if (feature instanceof Castle) {

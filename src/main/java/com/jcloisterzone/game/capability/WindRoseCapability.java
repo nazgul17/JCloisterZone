@@ -11,12 +11,10 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.TileEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.SnapshotCorruptedException;
 
 public class WindRoseCapability extends Capability<Void> {

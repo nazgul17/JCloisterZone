@@ -5,7 +5,6 @@ import static com.jcloisterzone.XMLUtils.attributeBoolValue;
 import org.w3c.dom.Element;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
