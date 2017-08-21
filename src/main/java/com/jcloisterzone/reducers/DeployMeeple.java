@@ -22,7 +22,7 @@ public class DeployMeeple implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        Feature feature = state.getBoard().get(fp);
+        Feature feature = state.getFeature(fp);
         if (feature == null) {
             throw new IllegalArgumentException("There is no feature on " + fp);
         }

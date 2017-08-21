@@ -89,7 +89,7 @@ public class CastlePhase extends Phase {
         }
         GameState state = game.getState();
         Player player = state.getActivePlayer();
-        City city = (City) state.getBoard().get(msg.getPointer());
+        City city = (City) state.getFeature(msg.getPointer());
         Castle castle = new Castle(city.getPlaces());
 
         Map<FeaturePointer, Feature> update = city.getPlaces().toMap(ptr -> new Tuple2<>(ptr, castle));

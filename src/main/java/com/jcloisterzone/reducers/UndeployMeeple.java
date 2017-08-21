@@ -33,7 +33,7 @@ public class UndeployMeeple implements Reducer {
 
         // Undeploy lonely Builders and Pigs
         PlayEventMeta metaNoPlayer = PlayEventMeta.createWithoutPlayer();
-        Feature feature = state.getBoard().get(source);
+        Feature feature = state.getFeature(source);
         Stream<Tuple2<Meeple, FeaturePointer>> threatened = feature.getMeeples2(state)
             .filter(m -> (m._1 instanceof Pig) || (m._1 instanceof Builder))
             .filter(m -> m._1.getPlayer().equals(owner));

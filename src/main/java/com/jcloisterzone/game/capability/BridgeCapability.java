@@ -2,17 +2,13 @@ package com.jcloisterzone.game.capability;
 
 import com.jcloisterzone.Player;
 import com.jcloisterzone.action.BridgeAction;
-import com.jcloisterzone.board.Board;
-import com.jcloisterzone.board.EdgePattern;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.BridgePlaced;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Predicates;
 import io.vavr.collection.HashSet;
@@ -54,7 +50,7 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
 
         for (Location bridgeLoc : Location.BRIDGES) {
             FeaturePointer ptr = new FeaturePointer(pos, bridgeLoc);
-            if (isBridgePlacementAllowed(state, ptr)) {
+            if (state.isBridgePlacementAllowed(ptr)) {
                 options = options.add(ptr);
             }
         }
@@ -66,29 +62,4 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
         return state.appendAction(new BridgeAction(options));
     }
 
-    public boolean isBridgePlacementAllowed(GameState state, FeaturePointer bridgePtr) {
-        Position pos = bridgePtr.getPosition();
-        Location loc = bridgePtr.getLocation();
-
-        // for valid placement there must be adjacent place with empty
-        // space on the other side
-        boolean adjExists = loc.splitToSides()
-                .map(l -> state.getPlacedTile(pos.add(l)))
-                .find(Predicates.isNotNull())
-                .isDefined();
-
-        if (adjExists) {
-            return false;
-        }
-
-        // also no bridge must be already placed on adjacent tile
-        Set<FeaturePointer> placedBridges = getModel(state);
-        if (placedBridges.find(fp -> fp.getPosition().equals(pos)).isDefined()) {
-            return false;
-        }
-
-        //and bridge must be legal on tile
-        PlacedTile placedTile = state.getPlacedTile(pos);
-        return placedTile.getEdgePattern().isBridgeAllowed(loc);
-    }
 }

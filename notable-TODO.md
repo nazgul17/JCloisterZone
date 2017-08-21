@@ -35,15 +35,16 @@ and get it by one one instead of all per tile
 * do not challenge yaga hut with shrine - separate feature for yaga's hut? probably not
 * + yaga scoring
 
-* add debug optiom to limit tile pack size
+* add debug options to limit tile pack size
 
 * add function for applying reducer on state (reverse apply)
 * rename updateXYZ to mapXYX, add it for everything and move it from mixins to state
 
 * test if works if barn are contain multiple spots
 
-* implement zoom by single affine transrom on grid layer
+* implement zoom by single affine transrom on grid layer? no problems with area checking
 
 * remove Tile, remove Board (in favor of BoardMixin)
+* remove feature/meeple methods with state arg, eg isOccupied(state), put them rather on state
 
 * Tower, place tile, use same circular ares as for selecting follower

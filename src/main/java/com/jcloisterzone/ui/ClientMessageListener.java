@@ -37,7 +37,6 @@ import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.PlayerSlot.SlotState;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.phase.CreateGamePhase;
-import com.jcloisterzone.game.phase.LoadGamePhase;
 import com.jcloisterzone.online.Channel;
 import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.view.ChannelView;
@@ -215,16 +214,16 @@ public class ClientMessageListener implements MessageListener {
         Game game;
         GameController gc;
         CreateGamePhase phase;
-        if (snapshot == null) {
+ //       if (snapshot == null) {
             game = new Game(msg.getGameId());
             game.setName(msg.getName());
             gc = new GameController(client, game);
             phase = new CreateGamePhase(game, gc);
-        } else {
-            game = snapshot.asGame(msg.getGameId());
-            gc = new GameController(client, game);
-            phase = new LoadGamePhase(game, snapshot, gc);
-        }
+//        } else {
+//            game = snapshot.asGame(msg.getGameId());
+//            gc = new GameController(client, game);
+//            phase = new LoadGamePhase(game, snapshot, gc);
+//        }
         gc.setReportingTool(conn.getReportingTool());
         gc.setChannel(msg.getChannel());
         gc.setPasswordProtected(msg.isPasswordProtected());

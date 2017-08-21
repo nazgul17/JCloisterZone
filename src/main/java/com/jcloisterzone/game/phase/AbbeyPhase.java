@@ -47,7 +47,7 @@ public class AbbeyPhase extends ServerAwarePhase {
         boolean builderSecondTurnPart = builderState == BuilderState.SECOND_TURN;
         boolean hasAbbey = state.getPlayers().getPlayerTokenCount(state.getPlayers().getTurnPlayerIndex(), Token.ABBEY_TILE) > 0;
         if (hasAbbey && (builderSecondTurnPart || !baazaarInProgress)) {
-            Stream<Tuple2<Position, EdgePattern>> holes = state.getBoard().getHoles();
+            Stream<Tuple2<Position, EdgePattern>> holes = state.getHoles();
             if (!holes.isEmpty()) {
                 toggleClock(state.getTurnPlayer());
 

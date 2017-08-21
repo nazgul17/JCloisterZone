@@ -22,6 +22,7 @@ import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 public class CastleCapability extends Capability<Void> {
 
@@ -45,13 +46,16 @@ public class CastleCapability extends Capability<Void> {
         return feature;
     }
 
+    private Stream<Castle> getOccupiedCastles(GameState state) {
+        return state.getFeatures(Castle.class).filter(c -> c.isOccupied(state));
+    }
+
     @Override
     public GameState onCompleted(GameState state, HashMap<Completable, Integer> completed) {
-        Board board = state.getBoard();
         java.util.Map<Castle, Integer> scoredCastles = new java.util.HashMap<>();
         Array<Tuple2<Completable, Integer>> scored = Array.ofAll(completed).sortBy(t -> -t._2);
 
-        for (Castle castle : board.getOccupiedScoreables(Castle.class)) {
+        for (Castle castle : getOccupiedCastles(state)) {
             Set<Position> vicinity = castle.getVicinity();
             for (Tuple2<Completable, Integer> t : scored) {
                 if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {
@@ -66,8 +70,9 @@ public class CastleCapability extends Capability<Void> {
         while (!scoredCastles.isEmpty()) {
             Map<Castle, Integer> scoredCastlesCpy = HashMap.ofAll(scoredCastles);
             scoredCastles.clear();
-            board = state.getBoard(); //get current board with up to date castles
-            for (Castle castle : board.getOccupiedScoreables(Castle.class)) {
+
+            //must call getOccupiedCastles each iteration to get fresh castles
+            for (Castle castle : getOccupiedCastles(state)) {
                 Set<Position> vicinity = castle.getVicinity();
                 for (Tuple2<Castle, Integer> t : scoredCastlesCpy) {
                     if (!vicinity.intersect(t._1.getTilePositions()).isEmpty()) {

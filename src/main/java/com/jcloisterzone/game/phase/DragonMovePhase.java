@@ -4,7 +4,6 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.action.MoveDragonAction;
 import com.jcloisterzone.board.Board;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
@@ -16,6 +15,7 @@ import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.ui.GameController;
@@ -82,13 +82,11 @@ public class DragonMovePhase extends ServerAwarePhase {
         Position fairyPosition = fairyPtr == null ? null : fairyPtr.getPosition();
         Position dragonPosition = state.getNeutralFigures().getDragonDeployment();
 
-        Board board = state.getBoard();
-
         for (Position offset: Position.ADJACENT.values()) {
             Position pos = dragonPosition.add(offset);
-            Tile tile = board.get(pos);
+            PlacedTile pt = state.getPlacedTile(pos);
 
-            if (tile == null || CountCapability.isTileForbidden(tile.getTileDefinition())) continue;
+            if (pt == null || CountCapability.isTileForbidden(pt.getTile())) continue;
             if (visited.contains(pos)) continue;
             if (pos.equals(fairyPosition)) continue;
 

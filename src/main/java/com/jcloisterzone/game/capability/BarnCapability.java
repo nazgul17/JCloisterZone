@@ -83,17 +83,26 @@ public final class BarnCapability extends Capability<FeaturePointer> {
         return setModel(state, null);
     }
 
+    private Tuple2<FeaturePointer, Feature> getFarmLocationPartOf(GameState state, FeaturePointer fp) {
+        return state.getFeatureMap()
+            .find(t -> fp.isPartOf(t._1))
+            .getOrNull();
+    }
+
+    private boolean containsCorner(Tuple2<FeaturePointer, Feature> t, Corner c) {
+        return t != null && t._1.getLocation().getCorners().contains(c);
+    }
+
     private Tuple2<FeaturePointer, Feature> getCornerFeature(GameState state, Position pos) {
-        Board board = state.getBoard();
         Tuple2<FeaturePointer, Feature> t =
-            board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x + 1, pos.y), Location.SR)).getOrNull();
-        if (t == null || !t._1.getLocation().getCorners().contains(Corner.SW)) return null;
-        t = board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x + 1, pos.y + 1), Location.WR)).getOrNull();
-        if (t == null || !t._1.getLocation().getCorners().contains(Corner.NW)) return null;
-        t = board.getFeaturePartOf2(new FeaturePointer(new Position(pos.x, pos.y + 1), Location.NR)).getOrNull();
-        if (t == null || !t._1.getLocation().getCorners().contains(Corner.NE)) return null;
-        t = board.getFeaturePartOf2(new FeaturePointer(pos, Location.ER)).getOrNull();
-        if (t == null || !t._1.getLocation().getCorners().contains(Corner.SE)) return null;
+            getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x + 1, pos.y), Location.SR));
+        if (!containsCorner(t, Corner.SW)) return null;
+        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x + 1, pos.y + 1), Location.WR));
+        if (!containsCorner(t, Corner.NW)) return null;
+        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x, pos.y + 1), Location.NR));
+        if (!containsCorner(t, Corner.NE)) return null;
+        t = getFarmLocationPartOf(state, new FeaturePointer(pos, Location.ER));
+        if (!containsCorner(t, Corner.SE)) return null;
         return t;
     }
 }

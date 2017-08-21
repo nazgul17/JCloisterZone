@@ -166,7 +166,7 @@ public class TilePhase extends ServerAwarePhase {
             }
 
             TileDefinition tile = state.getDrawnTile();
-            Set<TilePlacement> placements = state.getBoard().getTilePlacements(tile).toSet();
+            Set<TilePlacement> placements = state.getTilePlacements(tile).toSet();
 
             if (placements.isEmpty()) {
                 state = discardTile(state);

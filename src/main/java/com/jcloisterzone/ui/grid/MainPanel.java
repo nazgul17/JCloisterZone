@@ -6,7 +6,6 @@ import java.awt.Component;
 import javax.swing.JPanel;
 
 import com.google.common.eventbus.Subscribe;
-import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.event.CornCirclesOptionEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
@@ -14,7 +13,6 @@ import com.jcloisterzone.game.capability.BridgeCapability;
 import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.LittleBuildingsCapability;
-import com.jcloisterzone.game.capability.PlagueCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
@@ -33,7 +31,6 @@ import com.jcloisterzone.ui.grid.layer.GoldLayer;
 import com.jcloisterzone.ui.grid.layer.LittleBuildingActionLayer;
 import com.jcloisterzone.ui.grid.layer.MeepleLayer;
 import com.jcloisterzone.ui.grid.layer.PlacementHistory;
-import com.jcloisterzone.ui.grid.layer.PlagueLayer;
 import com.jcloisterzone.ui.grid.layer.TileActionLayer;
 import com.jcloisterzone.ui.grid.layer.TileLayer;
 import com.jcloisterzone.ui.grid.layer.TilePlacementLayer;
@@ -107,10 +104,6 @@ public class MainPanel extends JPanel {
         }
         if (capabs.contains(TowerCapability.class)) {
             gridPanel.addLayer(new TowerLayer(gridPanel, gc));
-        }
-
-        if (capabs.contains(PlagueCapability.class)) {
-            gridPanel.addLayer(new PlagueLayer(gridPanel, gc));
         }
 
         gridPanel.addLayer(meepleLayer);

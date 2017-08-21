@@ -166,7 +166,7 @@ public class ActionPhase extends Phase {
         Meeple m = state.getActivePlayer().getMeepleFromSupply(state, msg.getMeepleId());
         //TODO validate against players actions instead
         if (m instanceof Follower) {
-            if (state.getBoard().get(fp).isOccupied(state)) {
+            if (state.getFeature(fp).isOccupied(state)) {
                 throw new IllegalArgumentException("Feature is occupied.");
             }
         }

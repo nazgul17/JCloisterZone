@@ -38,151 +38,9 @@ public class Board {
         return state.getPlacedTiles().get(pos).getOrNull();
     }
 
-    private EdgePattern getEdgePattern(Position pos) {
-        PlacedTile placed = getPlacedTile(pos);
-        if (placed != null) {
-            return placed.getEdgePattern();
-        }
-
-        return new EdgePattern(
-            Position.ADJACENT.map((loc, offset) -> {
-                Position adj = pos.add(offset);
-                PlacedTile  adjTile = getPlacedTile(adj);
-                if (adjTile == null) {
-                    return new Tuple2<>(loc, EdgeType.UNKNOWN);
-                } else {
-                    EdgeType edge = adjTile.getEdgePattern().at(loc.rev());
-                    return new Tuple2<>(loc, edge);
-                }
-            })
-         );
-    }
-
-    public Stream<Tuple2<Position, EdgePattern>> getAvailablePlacements() {
-        java.util.Set<Position> used = new java.util.HashSet<>();
-        Map<Position, PlacedTile> placedTiles = state.getPlacedTiles();
-
-        if (placedTiles.isEmpty()) {
-            return Stream.of(
-                new Tuple2<>(Position.ZERO, EdgePattern.fromString("????"))
-            );
-        }
-
-        return Stream.ofAll(placedTiles).flatMap(item -> {
-            Position pos = item._1;
-            java.util.List<Tuple2<Position, EdgePattern>> avail = new java.util.ArrayList<>(4);
-            for (Position offset: Position.ADJACENT.values()) {
-                Position adj = pos.add(offset);
-                if (!used.contains(adj) && !placedTiles.containsKey(adj)) {
-                    avail.add(new Tuple2<Position, EdgePattern>(adj, getEdgePattern(adj)));
-                    used.add(adj);
-                }
-            }
-            return avail;
-        });
-    }
-
-    public Stream<Tuple2<Position, EdgePattern>> getHoles() {
-        return getAvailablePlacements().filter(t -> t._2.wildcardSize() == 0);
-    }
-
-    private Vector<Tuple2<EdgePattern, Location>> getBridgePatterns(EdgePattern basePattern) {
-        Vector<Tuple2<EdgePattern, Location>> patterns = Vector.empty();
-        for (Location loc : Location.BRIDGES) {
-            if (basePattern.isBridgeAllowed(loc)) {
-                patterns = patterns.append(new Tuple2<>(basePattern.getBridgePattern(loc), loc));
-            }
-        }
-        return patterns;
-    }
-
-    public Stream<TilePlacement> getTilePlacements(TileDefinition tile) {
-        boolean playerHasBridge = state.getPlayers().getPlayerTokenCount(
-            state.getTurnPlayer().getIndex(), Token.BRIDGE) > 0;
-
-        EdgePattern basePattern = tile.getEdgePattern();
-        Vector<Tuple2<EdgePattern, Location>> baseBridgePatterns = playerHasBridge ? getBridgePatterns(basePattern) : null;
-
-        return getAvailablePlacements().flatMap(avail -> {
-            return Stream.of(Rotation.values())
-                .map(rot -> {
-                    Position pos = avail._1;
-                    EdgePattern border = avail._2;
-                    EdgePattern tilePattern = basePattern.rotate(rot);
-                    if (border.isMatchingExact(tilePattern)) {
-                        return new TilePlacement(pos, rot, null);
-                    }
-                    if (playerHasBridge) {
-                        // check bridges on tile
-                        for (Tuple2<EdgePattern, Location> t : baseBridgePatterns) {
-                            EdgePattern tileWithBridgePattern = t._1.rotate(rot);
-                            if (border.isMatchingExact(tileWithBridgePattern)) {
-                                Location bridgeLocation = t._2.rotateCW(rot);
-                                return new TilePlacement(pos, rot, new FeaturePointer(pos, bridgeLocation));
-                            }
-                        }
-                        // check bridges on adjacent tiles
-                        BridgeCapability bridgeCap = state.getCapabilities().get(BridgeCapability.class);
-                        for (Location side : Location.SIDES) {
-                            Position adjPos = pos.add(side);
-                            if (get(adjPos) == null) {
-                                continue;
-                            }
-
-                            FeaturePointer bridgePtr;
-                            if (side == Location.N || side == Location.S) {
-                                bridgePtr = new FeaturePointer(adjPos, Location.NS);
-                            } else {
-                                bridgePtr = new FeaturePointer(adjPos, Location.WE);
-                            }
-
-                            // bridge must be legal on adjacent tile
-                            if (!bridgeCap.isBridgePlacementAllowed(state, bridgePtr)) {
-                                continue;
-                            }
-
-                            // and current til edge must be ROAD
-                            EdgePattern borderWithBridgePattern = border.replace(side, EdgeType.ROAD);
-                            if (borderWithBridgePattern.isMatchingExact(tilePattern)) {
-                                return new TilePlacement(pos, rot, bridgePtr);
-                            }
-                        }
-                    }
-                    return null;
-                })
-                .filter(Predicates.isNotNull());
-        });
-    }
 
 
-    public Stream<Scoreable> getOccupiedScoreables() {
-        return Stream.ofAll(state.getFeatureMap().values())
-            .filter(Predicates.instanceOf(Scoreable.class))
-            .distinct()
-            .filter(f -> f.isOccupied(state))
-            .map(f -> (Scoreable) f);
-    }
 
-    @SuppressWarnings("unchecked")
-    public <T extends Scoreable> Stream<T> getOccupiedScoreables(Class<T> cls) {
-        return Stream.ofAll(state.getFeatureMap().values())
-            .filter(Predicates.instanceOf(cls))
-            .distinct()
-            .filter(f -> f.isOccupied(state))
-            .map(f -> (T) f);
-    }
-
-    public Option<Feature> getFeaturePartOf(FeaturePointer fp) {
-        return getFeaturePartOf2(fp).map(Tuple2::_2);
-    }
-
-    public Option<Tuple2<FeaturePointer, Feature>> getFeaturePartOf2(FeaturePointer fp) {
-        return state.getFeatureMap().find(t -> fp.isPartOf(t._1));
-    }
-
-    public Tile get(int x, int y) {
-        return get(new Position(x, y));
-    }
 
     public Tile get(Position pos) {
         Option<Tile> o = tiles.get(pos);
@@ -209,50 +67,28 @@ public class Board {
     }
 
 
-    private Rectangle computeBounds() {
-        int minX = 0;
-        int maxX = 0;
-        int minY = 0;
-        int maxY = 0;
-        for (Position pos : state.getPlacedTiles().keySet()) {
-            if (minX > pos.x) minX = pos.x;
-            if (maxX < pos.x) maxX = pos.x;
-            if (minY > pos.y) minY = pos.y;
-            if (maxY < pos.y) maxY = pos.y;
-        };
-        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-    }
 
-    public Rectangle getBounds() {
-        if (bounds == null) {
-            bounds = computeBounds();
-        }
-        return bounds;
-    }
-
-    public int getMaxX() {
-        return getBounds().width + getBounds().x;
-    }
-
-    public int getMinX() {
-        return getBounds().x;
-    }
-
-    public int getMaxY() {
-        return getBounds().height + getBounds().y;
-    }
-
-    public int getMinY() {
-        return getBounds().y;
-    }
-
-    public int getContinuousRowSize(Position start, Location direction) {
-        start = start.add(direction);
-        int size = 0;
-        while (getPlacedTile(start) != null) {
-            size++;
-            start = start.add(direction);
-        }
-        return size;
-    }
+//
+//    public Rectangle getBounds() {
+//        if (bounds == null) {
+//            bounds = computeBounds();
+//        }
+//        return bounds;
+//    }
+//
+//    public int getMaxX() {
+//        return getBounds().width + getBounds().x;
+//    }
+//
+//    public int getMinX() {
+//        return getBounds().x;
+//    }
+//
+//    public int getMaxY() {
+//        return getBounds().height + getBounds().y;
+//    }
+//
+//    public int getMinY() {
+//        return getBounds().y;
+//    }
 }

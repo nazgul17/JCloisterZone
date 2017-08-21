@@ -18,8 +18,10 @@ import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.mixins.ActionsStateMixin;
 import com.jcloisterzone.game.state.mixins.BoardMixin;
+import com.jcloisterzone.game.state.mixins.CapabilitiesMixin;
 import com.jcloisterzone.game.state.mixins.EventsStateMixin;
 import com.jcloisterzone.game.state.mixins.FlagsStateMixin;
+import com.jcloisterzone.game.state.mixins.PlacementsMixin;
 import com.jcloisterzone.game.state.mixins.PlayersStsteMixin;
 import com.jcloisterzone.game.state.mixins.SettingsStateMixin;
 
@@ -35,8 +37,8 @@ import io.vavr.collection.Set;
 
 @Immutable
 public class GameState implements ActionsStateMixin, BoardMixin,
-        SettingsStateMixin, PlayersStsteMixin, EventsStateMixin,
-        FlagsStateMixin, Serializable {
+        SettingsStateMixin, CapabilitiesMixin, PlayersStsteMixin, EventsStateMixin,
+        FlagsStateMixin, PlacementsMixin, Serializable {
 
     private static final long serialVersionUID = 1L;
 

@@ -45,12 +45,11 @@ public class WagonPhase extends ServerAwarePhase {
             Tuple2<Wagon, FeaturePointer> item = dequeueTuple._1;
 
             Wagon wagon = item._1;
-            Board board = state.getBoard();
-            Completable feature = (Completable) board.get(item._2);
+            Completable feature = (Completable) state.getFeature(item._2);
             GameState _state = state;
             Set<FeaturePointer> options = feature.getNeighboring()
                 .filter(fp -> {
-                    Completable nei = (Completable) board.get(fp);
+                    Completable nei = (Completable) _state.getFeature(fp);
                     return !nei.isCompleted(_state) && nei.getFollowers(_state).isEmpty();
                 });
 
