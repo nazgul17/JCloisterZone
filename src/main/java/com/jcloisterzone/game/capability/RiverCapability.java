@@ -26,11 +26,31 @@ public class RiverCapability extends Capability<Void> {
     @Override
     public GameState onStartGame(GameState state) {
         state = state.mapTilePack(pack -> {
-            pack = pack.setGroupState("default", TileGroupState.WAITING);
-            pack = pack.setGroupState("river-fork", TileGroupState.ACTIVE);
-            pack = pack.setGroupState("river", TileGroupState.ACTIVE);
+            pack = pack.deactivateGroup("default");
+            //pack = pack.activateGroup("river-fork");
+            pack = pack.activateGroup("river");
+//            //pack = pack.deactivateGroup("default");
+//            if (pack.getGroupSize("river-fork") > 0) {
+//                pack = pack.setGroupState("river-fork", TileGroupState.ACTIVE);
+//            } else {
+//                pack = pack.setGroupState("river", TileGroupState.ACTIVE);
+//            }
             return pack;
         });
+        return state;
+    }
+
+    @Override
+    public GameState onTurnPartCleanUp(GameState state) {
+//        return state.mapTilePack(pack -> {
+//            if (pack.getGroupState("river-fork") == TileGroupState.ACTIVE &&
+//                    pack.getGroupSize("river-fork") == 0) {
+//                pack = pack.setGroupState("river", TileGroupState.ACTIVE);
+//            } else {
+//                //...
+//            }
+//            return pack;
+//        });
         return state;
     }
 
@@ -98,6 +118,8 @@ public class RiverCapability extends Capability<Void> {
 //        }
 //    }
 //
+
+
 //    @Override
 //    public void turnPartCleanUp() {
 //        if (getCurrentTile().getRiver() == null) return;

@@ -7,7 +7,7 @@ import com.jcloisterzone.action.BazaarSelectBuyOrSellAction;
 import com.jcloisterzone.action.BazaarSelectTileAction;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePackState;
+import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BazaarCapability;
@@ -48,7 +48,7 @@ public class BazaarPhase extends ServerAwarePhase {
         }
 
         int size = state.getPlayers().length();
-        TilePackState tilePack = state.getTilePack();
+        TilePack tilePack = state.getTilePack();
 
         if (tilePack.size() < size) {
             next(state);
@@ -59,7 +59,7 @@ public class BazaarPhase extends ServerAwarePhase {
 
         for (int i = 0; i < size; i++) {
             int rndIndex = game.getRandom().nextInt(tilePack.size());
-            Tuple2<TileDefinition, TilePackState> t = tilePack.drawTile(rndIndex);
+            Tuple2<TileDefinition, TilePack> t = tilePack.drawTile(rndIndex);
             state = state.setTilePack(t._2);
             supply = supply.append(new BazaarItem(t._1, 0, null, null));
         }

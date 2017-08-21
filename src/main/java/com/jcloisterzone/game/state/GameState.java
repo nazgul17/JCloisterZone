@@ -7,7 +7,7 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePackState;
+import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.feature.Feature;
@@ -48,7 +48,7 @@ public class GameState implements ActionsStateMixin, BoardMixin,
     private final CapabilitiesState capabilities;
     private final PlayersState players;
 
-    private final TilePackState tilePack;
+    private final TilePack tilePack;
     private final TileDefinition drawnTile;
 
     private final LinkedHashMap<Position, PlacedTile> placedTiles;
@@ -93,7 +93,7 @@ public class GameState implements ActionsStateMixin, BoardMixin,
             HashMap<CustomRule, Object> rules,
             CapabilitiesState capabilities,
             PlayersState players,
-            TilePackState tilePack, TileDefinition drawnTile,
+            TilePack tilePack, TileDefinition drawnTile,
             LinkedHashMap<Position, PlacedTile> placedTiles,
             List<TileDefinition> discardedTiles, Map<FeaturePointer, Feature> featureMap,
             NeutralFiguresState neutralFigures,
@@ -144,7 +144,7 @@ public class GameState implements ActionsStateMixin, BoardMixin,
         );
     }
 
-    public GameState setTilePack(TilePackState tilePack) {
+    public GameState setTilePack(TilePack tilePack) {
         if (tilePack == this.tilePack) return this;
         return new GameState(
             rules, capabilities, players,
@@ -156,7 +156,7 @@ public class GameState implements ActionsStateMixin, BoardMixin,
         );
     }
 
-    public GameState mapTilePack(Function<TilePackState, TilePackState> fn) {
+    public GameState mapTilePack(Function<TilePack, TilePack> fn) {
         return setTilePack(fn.apply(tilePack));
     }
 
@@ -302,7 +302,7 @@ public class GameState implements ActionsStateMixin, BoardMixin,
         return players;
     }
 
-    public TilePackState getTilePack() {
+    public TilePack getTilePack() {
         return tilePack;
     }
 

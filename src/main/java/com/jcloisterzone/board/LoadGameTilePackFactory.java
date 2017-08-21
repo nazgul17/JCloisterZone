@@ -94,8 +94,8 @@ public class LoadGameTilePackFactory extends TilePackBuilder {
     }
 
     @Override
-    public TilePackState createTilePack() {
-        TilePackState pack = super.createTilePack();
+    public TilePack createTilePack() {
+        TilePack pack = super.createTilePack();
         for (PreplacedTile pt : preplaced) {
             pt.tile.setRotation(pt.rot);
             pt.tile.setPosition(pt.pos);
@@ -108,7 +108,7 @@ public class LoadGameTilePackFactory extends TilePackBuilder {
         return pack;
     }
 
-    public void activateGroups(TilePackState pack) {
+    public void activateGroups(TilePack pack) {
         for (Entry<String, TileGroupState> entry : snapshot.getActiveGroups().entrySet()) {
             pack.setGroupState(entry.getKey(), entry.getValue());
         }

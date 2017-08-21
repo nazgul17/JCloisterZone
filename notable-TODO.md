@@ -46,4 +46,5 @@ and get it by one one instead of all per tile
 
 * Tower, place tile, use same circular ares as for selecting follower
 
-* play lake as common case
+* play lake as common case - add note to release notes
+* Refactor groups in tile pack, use object for group

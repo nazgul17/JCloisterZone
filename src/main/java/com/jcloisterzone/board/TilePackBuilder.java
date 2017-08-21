@@ -5,6 +5,7 @@ import static com.jcloisterzone.XMLUtils.attributeStringValue;
 import static com.jcloisterzone.XMLUtils.getTileId;
 
 import java.net.URL;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -31,21 +32,22 @@ import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
+import io.vavr.collection.Vector;
 
 
 public class TilePackBuilder {
 
     public static class Tiles {
-        private final TilePackState tilePack;
+        private final TilePack tilePack;
         private Seq<PlacedTile> preplacedTiles;
 
-        public Tiles(TilePackState tilePack, Seq<PlacedTile> preplacedTiles) {
+        public Tiles(TilePack tilePack, Seq<PlacedTile> preplacedTiles) {
             super();
             this.tilePack = tilePack;
             this.preplacedTiles = preplacedTiles;
         }
 
-        public TilePackState getTilePack() {
+        public TilePack getTilePack() {
             return tilePack;
         }
 
@@ -285,9 +287,14 @@ public class TilePackBuilder {
             });
         });
 
-        Map<String, Array<TileDefinition>> groups = HashMap.ofAll(tiles).mapValues(l -> Array.ofAll(l));
+        LinkedHashMap<String, TileGroup> groups = LinkedHashMap.empty();
+        for (Entry<String, java.util.List<TileDefinition>> entry : tiles.entrySet()) {
+            String name = entry.getKey();
+            groups = groups.put(name, new TileGroup(name, Vector.ofAll(entry.getValue()), true));
+        }
+
         return new Tiles(
-            new TilePackState(groups),
+            new TilePack(groups),
             preplacedTiles.values()
         );
     }

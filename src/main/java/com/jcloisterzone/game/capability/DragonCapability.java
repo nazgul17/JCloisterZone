@@ -46,6 +46,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
     @Override
     public GameState onStartGame(GameState state) {
         state = state.mapNeutralFigures(nf -> nf.setDragon(new Dragon("dragon.1")));
+        state = state.mapTilePack(pack -> pack.deactivateGroup(TILE_GROUP_DRAGON));
         state = setModel(state, Vector.empty());
         return state;
     }
@@ -54,9 +55,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
     public GameState onTilePlaced(GameState state) {
         PlacedTile pt = state.getLastPlaced();
         if (pt.getTile().getTrigger() == TileTrigger.VOLCANO) {
-            state = state.setTilePack(
-                state.getTilePack().setGroupState(TILE_GROUP_DRAGON, TileGroupState.ACTIVE)
-            );
+            state = state.mapTilePack(pack -> pack.activateGroup(TILE_GROUP_DRAGON));
             state = (
                 new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), pt.getPosition())
             ).apply(state);

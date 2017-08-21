@@ -10,7 +10,6 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.AffineTransform;
-import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -21,15 +20,13 @@ import javax.swing.Timer;
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
-import com.jcloisterzone.action.BazaarSelectTileAction;
 import com.jcloisterzone.action.ConfirmAction;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.action.SelectPrisonerToExchangeAction;
 import com.jcloisterzone.action.TilePlacementAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePackState;
+import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.config.Config.ConfirmConfig;
 import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.GameChangedEvent;
@@ -47,13 +44,11 @@ import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.annotations.LinkedPanel;
-import com.jcloisterzone.ui.controls.action.ActionWrapper;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.message.CommitMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 import io.vavr.collection.Array;
-import io.vavr.collection.IndexedSeq;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Vector;
 import net.miginfocom.swing.MigLayout;
@@ -222,7 +217,7 @@ public class ControlPanel extends JPanel {
 
         paintBackgroundBody(g2);
 
-        TilePackState tilePack = game.getState().getTilePack();
+        TilePack tilePack = game.getState().getTilePack();
         g2.setFont(FONT_PACK_SIZE);
         g2.setColor(client.getTheme().getHeaderFontColor());
         int packSize = tilePack.totalSize();

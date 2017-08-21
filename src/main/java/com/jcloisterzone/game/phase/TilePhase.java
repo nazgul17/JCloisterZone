@@ -9,7 +9,7 @@ import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.TilePackState;
+import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -58,14 +58,14 @@ public class TilePhase extends ServerAwarePhase {
     }
 
     public GameState drawTile(GameState state, int index) {
-        TilePackState tps = state.getTilePack();
-        Tuple2<TileDefinition, TilePackState> t = tps.drawTile(index);
+        TilePack tps = state.getTilePack();
+        Tuple2<TileDefinition, TilePack> t = tps.drawTile(index);
         return state.setTilePack(t._2).setDrawnTile(t._1);
     }
 
     public GameState drawTile(GameState state, String tileId) {
-        TilePackState tps = state.getTilePack();
-        Tuple2<TileDefinition, TilePackState> t = tps.drawTile(tileId);
+        TilePack tps = state.getTilePack();
+        Tuple2<TileDefinition, TilePack> t = tps.drawTile(tileId);
         return state.setTilePack(t._2).setDrawnTile(t._1);
     }
 
@@ -110,7 +110,7 @@ public class TilePhase extends ServerAwarePhase {
 
             if (state.getDrawnTile() == null) {
                 // regular flow (not tile from Bazaar supply
-                TilePackState tilePack = state.getTilePack();
+                TilePack tilePack = state.getTilePack();
                 boolean packIsEmpty = tilePack.isEmpty() || isDebugForcedEnd();
 
                 if (packIsEmpty && bazaarSupply != null) {
