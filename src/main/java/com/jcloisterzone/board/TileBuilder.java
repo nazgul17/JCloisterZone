@@ -19,6 +19,7 @@ import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Farm;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.River;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.feature.Tower;
 import com.jcloisterzone.feature.TunnelEnd;
@@ -32,7 +33,7 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
 
-public class TileDefinitionBuilder {
+public class TileBuilder {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
@@ -77,6 +78,10 @@ public class TileDefinitionBuilder {
         nl = xml.getElementsByTagName("tower");
         for (int i = 0; i < nl.getLength(); i++) {
             processTowerElement((Element) nl.item(i));
+        }
+        nl = xml.getElementsByTagName("river");
+        for (int i = 0; i < nl.getLength(); i++) {
+            processRiverElement((Element) nl.item(i));
         }
 
         //IMMUTABLE TODO
@@ -133,7 +138,6 @@ public class TileDefinitionBuilder {
         features.put(Location.TOWER, tower);
     }
 
-
     private void processRoadElement(Element e, boolean isTunnelActive) {
         //List<Location> sides = List.ofAll(contentAsLocations(e))
         Stream<Location> sides = contentAsLocations(e);
@@ -174,6 +178,18 @@ public class TileDefinitionBuilder {
 
         city = (City) initFeature(tileId, city, e);
         features.put(place.getLocation(), city);
+    }
+
+    private void processRiverElement(Element e) {
+        Stream<Location> sides = contentAsLocations(e);
+        FeaturePointer place = initPlaces(sides, River.class);
+
+        River river = new River(
+            List.of(place)
+        );
+
+        river = (River) initFeature(tileId, river, e);
+        features.put(place.getLocation(), river);
     }
 
     //TODO move expansion specific stuff

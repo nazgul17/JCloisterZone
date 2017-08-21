@@ -1,21 +1,18 @@
 package com.jcloisterzone.board;
 
 import java.io.Serializable;
-import java.util.Arrays;
 
 import com.google.common.base.Objects;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Immutable;
-import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Bridge;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
+import com.jcloisterzone.feature.River;
 import com.jcloisterzone.feature.Road;
 
 import io.vavr.Tuple2;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
-import io.vavr.collection.Stream;
 
 @Immutable
 public class TileDefinition implements Serializable {
@@ -33,26 +30,23 @@ public class TileDefinition implements Serializable {
 
     //expansions data - maybe some map instead ? but still it is only few tiles
     private final TileTrigger trigger;
-    private final Location river;
     private final Location flier;
     private final Location windRose;
     private final Class<? extends Feature> cornCircle;
 
     public TileDefinition(Expansion origin, String id, Map<Location, Feature> initialFeatures) {
-        this(origin, id, initialFeatures, null, null, null, null, null);
+        this(origin, id, initialFeatures, null, null, null, null);
     }
-
 
     public TileDefinition(Expansion origin, String id,
         Map<Location, Feature> initialFeatures,
-        TileTrigger trigger, Location river, Location flier, Location windRose,
+        TileTrigger trigger, Location flier, Location windRose,
         Class<? extends Feature> cornCircle) {
         this.origin = origin;
         this.id = id;
         this.initialFeatures = initialFeatures;
 
         this.trigger = trigger;
-        this.river = river;
         this.flier = flier;
         this.windRose = windRose;
         this.cornCircle = cornCircle;
@@ -62,27 +56,23 @@ public class TileDefinition implements Serializable {
     }
 
     public TileDefinition setTileTrigger(TileTrigger trigger) {
-        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
-    }
-
-    public TileDefinition setRiver(Location river) {
-        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+        return new TileDefinition(origin, id, initialFeatures, trigger, flier, windRose, cornCircle);
     }
 
     public TileDefinition setFlier(Location flier) {
-        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+        return new TileDefinition(origin, id, initialFeatures, trigger, flier, windRose, cornCircle);
     }
 
     public TileDefinition setWindRose(Location windRose) {
-        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+        return new TileDefinition(origin, id, initialFeatures, trigger, flier, windRose, cornCircle);
     }
 
     public TileDefinition setCornCircle(Class<? extends Feature> cornCircle) {
-        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+        return new TileDefinition(origin, id, initialFeatures, trigger, flier, windRose, cornCircle);
     }
 
     public TileDefinition setInitialFeatures(Map<Location, Feature> initialFeatures) {
-        return new TileDefinition(origin, id, initialFeatures, trigger, river, flier, windRose, cornCircle);
+        return new TileDefinition(origin, id, initialFeatures, trigger, flier, windRose, cornCircle);
     }
 
     public TileDefinition addBridge(Location bridgeLoc) {
@@ -108,41 +98,29 @@ public class TileDefinition implements Serializable {
         return id;
     }
 
-
     public EdgePattern getEdgePattern() {
         return edgePattern;
     }
-
 
     public TileSymmetry getSymmetry() {
         return symmetry;
     }
 
-
     public Map<Location, Feature> getInitialFeatures() {
         return initialFeatures;
     }
-
 
     public TileTrigger getTrigger() {
         return trigger;
     }
 
-
-    public Location getRiver() {
-        return river;
-    }
-
-
     public Location getFlier() {
         return flier;
     }
 
-
     public Location getWindRose() {
         return windRose;
     }
-
 
     public Class<? extends Feature> getCornCircle() {
         return cornCircle;
@@ -153,15 +131,12 @@ public class TileDefinition implements Serializable {
     }
 
     private EdgeType computeSideEdge(Location loc) {
-        if (river != null && loc.isPartOf(river)) {
-            return EdgeType.RIVER;
-        }
-
         Tuple2<Location, Feature> tuple = initialFeatures.find(item -> loc.isPartOf(item._1)).getOrNull();
 
         if (tuple == null) return EdgeType.FARM;
         if (tuple._2 instanceof Road) return EdgeType.ROAD;
         if (tuple._2 instanceof City) return EdgeType.CITY;
+        if (tuple._2 instanceof River) return EdgeType.RIVER;
 
         throw new IllegalArgumentException();
     }

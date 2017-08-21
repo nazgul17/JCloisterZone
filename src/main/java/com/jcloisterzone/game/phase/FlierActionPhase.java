@@ -38,7 +38,7 @@ public class FlierActionPhase extends Phase {
         Class<? extends Meeple> meepleType = flierCap.getMeepleType();
         Follower follower = (Follower) getActivePlayer().getMeepleFromSupply(meepleType);
 
-        if (target == null || !game.isDeployAllowed(target, meepleType)) {
+        if (target == null || !game.isMeepleDeploymentAllowed(target, meepleType)) {
             next();
             return;
         }

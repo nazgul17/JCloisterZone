@@ -97,7 +97,7 @@ public class BazaarPhase extends ServerAwarePhase {
         PlayerAction<?> action = state.getPlayerActions().getActions().get();
         boolean isTileSelection = action instanceof BazaarSelectTileAction;
 
-        state = state.updateCapabilityModel(BazaarCapability.class, model -> {
+        state = state.mapCapabilityModel(BazaarCapability.class, model -> {
             BazaarItem item = model.getAuctionedItem();
 
             if (isTileSelection) {

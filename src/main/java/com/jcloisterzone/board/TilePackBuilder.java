@@ -18,10 +18,10 @@ import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.capability.RiverCapability;
 import com.jcloisterzone.game.capability.TunnelCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.Array;
@@ -29,16 +29,17 @@ import io.vavr.collection.HashMap;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Map;
+import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 
 
-public class TilePackFactory {
+public class TilePackBuilder {
 
     public static class Tiles {
         private final TilePackState tilePack;
-        private List<Tuple2<TileDefinition, Position>> preplacedTiles;
+        private Seq<PlacedTile> preplacedTiles;
 
-        public Tiles(TilePackState tilePack, List<Tuple2<TileDefinition, Position>> preplacedTiles) {
+        public Tiles(TilePackState tilePack, Seq<PlacedTile> preplacedTiles) {
             super();
             this.tilePack = tilePack;
             this.preplacedTiles = preplacedTiles;
@@ -48,7 +49,7 @@ public class TilePackFactory {
             return tilePack;
         }
 
-        public List<Tuple2<TileDefinition, Position>> getPreplacedTiles() {
+        public Seq<PlacedTile> getPreplacedTiles() {
             return preplacedTiles;
         }
     }
@@ -57,7 +58,7 @@ public class TilePackFactory {
 
     public static final String DEFAULT_TILE_GROUP = "default";
 
-    private final TileDefinitionBuilder tileFactory = new TileDefinitionBuilder();
+    private final TileBuilder tileBuilder = new TileBuilder();
 
     protected GameState state;
     protected Set<Expansion> expansions;
@@ -67,7 +68,7 @@ public class TilePackFactory {
     private java.util.Set<String> usedIds = new java.util.HashSet<>(); //for assertion only
 
     private java.util.Map<String, java.util.List<TileDefinition>> tiles = new java.util.HashMap<>();
-    private java.util.List<Tuple2<TileDefinition, Position>> preplacedTiles = new java.util.ArrayList<>();
+    private Map<Position, PlacedTile> preplacedTiles = HashMap.empty();
 
     public static class TileCount {
         public String tileId;
@@ -82,7 +83,7 @@ public class TilePackFactory {
 
     public void setGameState(GameState state) {
         this.state = state;
-        tileFactory.setGameState(state);
+        tileBuilder.setGameState(state);
     }
 
     public void setConfig(Config config) {
@@ -95,8 +96,6 @@ public class TilePackFactory {
             exp -> new Tuple2<Expansion, Element>(exp, getExpansionDefinition(exp))
         ).collect(LinkedHashMap.collector());
     }
-
-
 
     public Stream<TileCount> getExpansionTiles(Expansion expansion) {
         Element el = getExpansionDefinition(expansion);
@@ -126,7 +125,7 @@ public class TilePackFactory {
 
     protected  URL getStandardCardsConfig(Expansion expansion) {
         String fileName = "tile-definitions/"+expansion.name().toLowerCase()+".xml";
-        return TilePackFactory.class.getClassLoader().getResource(fileName);
+        return TilePackBuilder.class.getClassLoader().getResource(fileName);
     }
 
     protected URL getCardsConfig(Expansion expansion) {
@@ -138,7 +137,7 @@ public class TilePackFactory {
         if (fileName == null) {
             return getStandardCardsConfig(expansion);
         } else {
-            return TilePackFactory.class.getClassLoader().getResource(fileName);
+            return TilePackBuilder.class.getClassLoader().getResource(fileName);
         }
     }
 
@@ -193,13 +192,13 @@ public class TilePackFactory {
         return tile;
     }
 
-    public TileDefinition createTileDefinition(Expansion expansion, String tileId, Element tileElement) {
+    public TileDefinition createTile(Expansion expansion, String tileId, Element tileElement) {
         if (usedIds.contains(tileId)) {
             throw new IllegalArgumentException("Multiple occurences of id " + tileId + " in tile definition xml.");
         }
         usedIds.add(tileId);
 
-        TileDefinition tileDef = tileFactory.createTile(expansion, tileId, tileElement, isTunnelActive(expansion));
+        TileDefinition tileDef = tileBuilder.createTile(expansion, tileId, tileElement, isTunnelActive(expansion));
         try {
             tileDef = initTile(tileDef, tileElement);
         } catch (RemoveTileException ex) {
@@ -240,8 +239,8 @@ public class TilePackFactory {
                     return;
                 }
 
-                TileDefinition tileDef = createTileDefinition(expansion, tileId, tileElement);
-                if (tileDef == null) {
+                TileDefinition tile = createTile(expansion, tileId, tileElement);
+                if (tile == null) {
                     return;
                 }
 
@@ -274,14 +273,13 @@ public class TilePackFactory {
                     if (pos != null) {
                         //TODO groups need to be applied
                         //some preplaced are not used?
-                        //IMMUTABLE TODO
-                        preplacedTiles.add(new Tuple2<>(tileDef, pos));
+                        preplacedTiles = preplacedTiles.put(pos, new PlacedTile(tile, pos, Rotation.R0));
                     } else {
-                        String group = getTileGroup(tileDef, tileElement);
+                        String group = getTileGroup(tile, tileElement);
                         if (!tiles.containsKey(group)) {
                             tiles.put(group, new java.util.ArrayList<>());
                         }
-                        tiles.get(group).add(tileDef);
+                        tiles.get(group).add(tile);
                     }
                 }
             });
@@ -290,7 +288,7 @@ public class TilePackFactory {
         Map<String, Array<TileDefinition>> groups = HashMap.ofAll(tiles).mapValues(l -> Array.ofAll(l));
         return new Tiles(
             new TilePackState(groups),
-            List.ofAll(preplacedTiles)
+            preplacedTiles.values()
         );
     }
 }

@@ -24,6 +24,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
     private static final long serialVersionUID = 1L;
 
     public static final int DRAGON_MOVES = 6;
+    public static final String TILE_GROUP_DRAGON = "dragon";
 
     @Override
     public TileDefinition initTile(TileDefinition tile, Element xml) {
@@ -38,7 +39,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
 
     @Override
     public String getTileGroup(TileDefinition tile) {
-        return tile.getTrigger() == TileTrigger.DRAGON ? "dragon" : null;
+        return tile.getTrigger() == TileTrigger.DRAGON ? TILE_GROUP_DRAGON : null;
     }
 
 
@@ -54,7 +55,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
         PlacedTile pt = state.getLastPlaced();
         if (pt.getTile().getTrigger() == TileTrigger.VOLCANO) {
             state = state.setTilePack(
-                state.getTilePack().setGroupState("dragon", TileGroupState.ACTIVE)
+                state.getTilePack().setGroupState(TILE_GROUP_DRAGON, TileGroupState.ACTIVE)
             );
             state = (
                 new MoveNeutralFigure<>(state.getNeutralFigures().getDragon(), pt.getPosition())
@@ -64,7 +65,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
     }
 
     @Override
-    public boolean isDeployAllowed(GameState state, Position pos) {
+    public boolean isMeepleDeploymentAllowed(GameState state, Position pos) {
         return !pos.equals(state.getNeutralFigures().getDragonDeployment());
     }
 }

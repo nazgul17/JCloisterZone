@@ -222,14 +222,14 @@ public class TilePhase extends ServerAwarePhase {
             state = state.mapPlayers(ps ->
                 ps.addTokenCount(player.getIndex(), Token.BRIDGE, -1)
             );
-            state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
+            state = state.mapCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
 
             Position bridgePos = mandatoryBridge.getPosition();
             Location bridgeLoc = mandatoryBridge.getLocation();
             if (bridgePos.equals(pos)) {
                 //bridge on just placed tile -> just update tile definition
                 tile = tile.addBridge(bridgeLoc.rotateCCW(rot));
-                state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
+                state = state.mapCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
             } else {
                 state = (new PlaceBridge(mandatoryBridge, true)).apply(state);
             }

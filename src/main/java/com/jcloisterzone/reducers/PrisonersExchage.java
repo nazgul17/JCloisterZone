@@ -19,7 +19,7 @@ public class PrisonersExchage implements Reducer {
 
     @Override
     public GameState apply(GameState state) {
-        state = state.updateCapabilityModel(TowerCapability.class, model -> {
+        state = state.mapCapabilityModel(TowerCapability.class, model -> {
             model = model.update(b.getPlayer().getIndex(), l -> l.remove(a));
             model = model.update(a.getPlayer().getIndex(), l -> l.remove(b));
             return model;

@@ -101,8 +101,6 @@ public class TilePackState implements Serializable {
         throw new IllegalArgumentException();
     }
 
-
-
     public Tuple2<TileDefinition, TilePackState> drawTile(String groupId, String tileId) {
         Predicate<TileDefinition> matchesId = t -> t.getId().equals(tileId);
         Array<TileDefinition> tiles = groups.get(groupId)
@@ -116,13 +114,14 @@ public class TilePackState implements Serializable {
 
     public Tuple2<TileDefinition, TilePackState> drawTile(String tileId) {
         for (String groupId: getGroups()) {
+            if (getGroupState(groupId) != TileGroupState.ACTIVE) continue;
             try {
                 return drawTile(groupId, tileId);
             } catch (IllegalArgumentException e) {
                 //pass
             }
         }
-        throw new IllegalArgumentException("Tile pack does not contain " + tileId);
+        throw new IllegalArgumentException("Tile pack does not contain active " + tileId);
     }
 
     public TilePackState setGroupState(String groupId, TileGroupState state) {
@@ -155,17 +154,6 @@ public class TilePackState implements Serializable {
         }
         return Option.none();
     }
-
-    /* special Abbey related methods - TODO refactor it is here only for client */
-    /*@Override
-    public Tile getAbbeyTile() {
-        for (Tile tile : groups.get(INACTIVE_GROUP).tiles) {
-            if (tile.getId().equals(Tile.ABBEY_TILE_ID)) {
-                return tile;
-            }
-        }
-        return null;
-    }*/
 
     @Override
     public String toString() {

@@ -11,6 +11,7 @@ import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TileDefinition;
+import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
@@ -39,7 +40,7 @@ public abstract class Capability<T> implements Serializable {
     }
 
     public final GameState updateModel(GameState state, Function<T, T> fn) {
-        return state.updateCapabilityModel(narrowClass(), fn);
+        return state.mapCapabilityModel(narrowClass(), fn);
     }
 
     public final GameState setModel(GameState state, T model) {
@@ -77,10 +78,6 @@ public abstract class Capability<T> implements Serializable {
         return locations;
     }
 
-    public boolean isDeployAllowed(GameState state, Position pos) {
-        return true;
-    }
-
     public GameState onStartGame(GameState state) {
         return state;
     }
@@ -109,7 +106,11 @@ public abstract class Capability<T> implements Serializable {
         return state;
     }
 
-    public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
+    public boolean isTilePlacementAllowed(GameState state, TileDefinition tile, TilePlacement placement) {
+        return true;
+    }
+
+    public boolean isMeepleDeploymentAllowed(GameState state, Position pos) {
         return true;
     }
 

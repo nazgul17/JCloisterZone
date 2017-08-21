@@ -8,8 +8,10 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
 import com.jcloisterzone.board.pointer.FeaturePointer;
+import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.BridgeCapability;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 
 import io.vavr.Predicates;
@@ -122,7 +124,13 @@ public interface PlacementsMixin extends BoardMixin, PlayersStsteMixin, Capabili
                     }
                     return null;
                 })
-                .filter(Predicates.isNotNull());
+                .filter(Predicates.isNotNull())
+                .filter(tp -> {
+                    for (Capability<?> cap : getCapabilities().toSeq()) {
+                        if (!cap.isTilePlacementAllowed((GameState) this, tile, tp)) return false;
+                    }
+                    return true;
+                });
         });
     }
 

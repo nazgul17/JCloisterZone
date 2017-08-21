@@ -13,12 +13,9 @@ import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.ai.AiPlayer;
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileGroupState;
-import com.jcloisterzone.board.TilePackFactory;
-import com.jcloisterzone.board.TilePackFactory.Tiles;
+import com.jcloisterzone.board.TilePackBuilder;
+import com.jcloisterzone.board.TilePackBuilder.Tiles;
 import com.jcloisterzone.board.TilePackState;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
@@ -36,6 +33,7 @@ import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.PigHerdCapability;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
@@ -176,8 +174,8 @@ public class CreateGamePhase extends ServerAwarePhase {
         return null;
     }
 
-    protected Tuple2<io.vavr.collection.List<Tuple2<TileDefinition, Position>>, GameState> prepareTilePack(Set<Expansion> expansions, GameState state) {
-        TilePackFactory tilePackFactory = new TilePackFactory();
+    protected Tuple2<Seq<PlacedTile>, GameState> prepareTilePack(Set<Expansion> expansions, GameState state) {
+        TilePackBuilder tilePackFactory = new TilePackBuilder();
         tilePackFactory.setGameState(state);
         tilePackFactory.setConfig(getGameController().getConfig());
         tilePackFactory.setExpansions(game.getExpansions());
@@ -193,9 +191,9 @@ public class CreateGamePhase extends ServerAwarePhase {
         return new Tuple2<>(tiles.getPreplacedTiles(), state);
     }
 
-    protected void preplaceTiles(Iterable<Tuple2<TileDefinition, Position>> preplacedTiles) {
-        for (Tuple2<TileDefinition, Position> t : preplacedTiles) {
-            game.replaceState(new PlaceTile(t._1, t._2, Rotation.R0));
+    protected void preplaceTiles(Seq<PlacedTile> preplacedTiles) {
+        for (PlacedTile pt : preplacedTiles) {
+            game.replaceState(new PlaceTile(pt.getTile(), pt.getPosition(), pt.getRotation()));
         }
     }
 
@@ -301,10 +299,10 @@ public class CreateGamePhase extends ServerAwarePhase {
             )
         );
 
-        Tuple2<io.vavr.collection.List<Tuple2<TileDefinition, Position>>, GameState> t =
+        Tuple2<Seq<PlacedTile>, GameState> t =
                 prepareTilePack(game.getExpansions(), state);
 
-        Iterable<Tuple2<TileDefinition, Position>> preplacedTiles = t._1;
+        Seq<PlacedTile> preplacedTiles = t._1;
         state = t._2;
 
         for (Capability<?> cap : capabilities) {

@@ -46,7 +46,7 @@ public class CountCapability extends Capability<Void> {
     }
 
     @Override
-    public boolean isDeployAllowed(GameState state, Position pos) {
+    public boolean isMeepleDeploymentAllowed(GameState state, Position pos) {
         Tuple2<TileDefinition, Rotation> t = state.getPlacedTiles().get(pos).getOrNull();
         return t == null || !isTileForbidden(t._1);
     }

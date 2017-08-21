@@ -433,7 +433,7 @@ public class ClientMessageListener implements MessageListener {
         Array<Player> players = game.getState().getPlayers().getPlayers();
         Player runningClockPlayer = msg.getRunning() == null ? null : players.get(msg.getRunning());
 
-        game.replaceState(state -> state.updatePlayers(ps -> ps.setClocks(
+        game.replaceState(state -> state.mapPlayers(ps -> ps.setClocks(
           players.map(p -> new PlayerClock(
             msg.getClocks()[p.getIndex()],
             p.equals(runningClockPlayer)

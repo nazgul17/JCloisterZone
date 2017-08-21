@@ -16,7 +16,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Snapshot;
 
 
-public class LoadGameTilePackFactory extends TilePackFactory {
+public class LoadGameTilePackFactory extends TilePackBuilder {
 
     public static final String PLACED_GROUP = "placed";
 

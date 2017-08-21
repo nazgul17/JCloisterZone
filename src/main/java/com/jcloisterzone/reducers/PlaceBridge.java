@@ -46,7 +46,7 @@ public class PlaceBridge implements Reducer {
         state = state.setFeatureMap(
             state.getFeatureMap().put(ptr, bridgeRoad)
         );
-        state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(ptr));
+        state = state.mapCapabilityModel(BridgeCapability.class, model -> model.add(ptr));
         if (!silent) {
             state = state.appendEvent(
                 new BridgePlaced(PlayEventMeta.createWithActivePlayer(state), ptr)

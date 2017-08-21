@@ -25,7 +25,7 @@ public class CaptureMeeple extends UndeployMeeple {
         } else {
             LinkedHashMap<Meeple, FeaturePointer> deployedMeeples = state.getDeployedMeeples();
             state = state.setDeployedMeeples(deployedMeeples.remove(follower));
-            state = state.updateCapabilityModel(TowerCapability.class, model -> {
+            state = state.mapCapabilityModel(TowerCapability.class, model -> {
                 return model.update(p.getIndex(), l -> l.append(follower));
             });
             state = state.appendEvent(

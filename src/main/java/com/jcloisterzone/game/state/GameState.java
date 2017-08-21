@@ -156,6 +156,10 @@ public class GameState implements ActionsStateMixin, BoardMixin,
         );
     }
 
+    public GameState mapTilePack(Function<TilePackState, TilePackState> fn) {
+        return setTilePack(fn.apply(tilePack));
+    }
+
     public GameState setDrawnTile(TileDefinition drawnTile) {
         if (drawnTile == this.drawnTile) return this;
         return new GameState(

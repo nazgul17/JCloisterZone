@@ -89,7 +89,7 @@ public class ActionPhase extends Phase {
 
             boolean placementAllowed = true;
             for (Capability<?> cap : state.getCapabilities().toSeq()) {
-                if (!cap.isDeployAllowed(state, pos)) {
+                if (!cap.isMeepleDeploymentAllowed(state, pos)) {
                     placementAllowed = false;
                     break;
                 }

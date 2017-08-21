@@ -34,14 +34,12 @@ import javax.swing.text.BadLocationException;
 import javax.swing.text.Document;
 import javax.swing.text.JTextComponent;
 
-import net.miginfocom.swing.MigLayout;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.Expansion;
-import com.jcloisterzone.board.TilePackFactory;
+import com.jcloisterzone.board.TilePackBuilder;
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.PresetConfig;
 import com.jcloisterzone.event.setup.ExpansionChangedEvent;
@@ -62,6 +60,8 @@ import com.jcloisterzone.ui.gtk.ThemedJPanel;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
 import com.jcloisterzone.wsio.message.StartGameMessage;
+
+import net.miginfocom.swing.MigLayout;
 
 public class CreateGamePanel extends ThemedJPanel {
 
@@ -209,13 +209,13 @@ public class CreateGamePanel extends ThemedJPanel {
                 TitledBorder.LEADING, TitledBorder.TOP, null, null));
         }
 
-        TilePackFactory tilePackFactory = new TilePackFactory();
-        tilePackFactory.setConfig(client.getConfig());
+        TilePackBuilder tilePackBuilder = new TilePackBuilder();
+        tilePackBuilder.setConfig(client.getConfig());
 
         expansionPanel.setLayout(new MigLayout("gapy 1", "[][right]", "[]"));
         for (Expansion exp : Expansion.values()) {
             if (!exp.isImplemented()) continue;
-            createExpansionLine(exp, tilePackFactory.getExpansionSize(exp));
+            createExpansionLine(exp, tilePackBuilder.getExpansionSize(exp));
         }
         scrolled.add(expansionPanel, "cell 1 0,grow");
 

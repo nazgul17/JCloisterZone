@@ -23,7 +23,7 @@ public interface CapabilitiesMixin {
         return setCapabilities(getCapabilities().setModel(cls, model));
     }
 
-    default <M> GameState updateCapabilityModel(Class<? extends Capability<M>> cls, Function<M, M> fn) {
+    default <M> GameState mapCapabilityModel(Class<? extends Capability<M>> cls, Function<M, M> fn) {
         return setCapabilities(getCapabilities().updateModel(cls, fn));
     }
 }

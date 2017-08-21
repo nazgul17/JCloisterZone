@@ -117,7 +117,7 @@ public class DragonMovePhase extends ServerAwarePhase {
         state = (
             new MoveNeutralFigure<>((Dragon) fig, pos, state.getActivePlayer())
         ).apply(state);
-        state = state.updateCapabilityModel(DragonCapability.class, moves -> moves.append(dragonPosition));
+        state = state.mapCapabilityModel(DragonCapability.class, moves -> moves.append(dragonPosition));
 
         for (Tuple2<Meeple, FeaturePointer> t: state.getDeployedMeeples()) {
             Meeple m = t._1;

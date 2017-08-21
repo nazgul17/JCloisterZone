@@ -49,7 +49,7 @@ public class PayRansom implements Reducer {
 
         Player _jailer = jailer;
         Follower _follower = follower;
-        state = state.updateCapabilityModel(TowerCapability.class, m ->
+        state = state.mapCapabilityModel(TowerCapability.class, m ->
             m.update(_jailer.getIndex(), l -> l.remove(_follower))
         );
         state = (new AddPoints(player, -TowerCapability.RANSOM_POINTS, PointCategory.TOWER_RANSOM)).apply(state);
