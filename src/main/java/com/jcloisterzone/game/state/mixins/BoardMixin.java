@@ -1,5 +1,7 @@
 package com.jcloisterzone.game.state.mixins;
 
+import java.awt.Rectangle;
+
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
@@ -50,19 +52,19 @@ public interface BoardMixin {
     }
 
 
-//    default Rectangle getBoardBounds() {
-//        int minX = 0;
-//        int maxX = 0;
-//        int minY = 0;
-//        int maxY = 0;
-//        for (Position pos : getPlacedTiles().keySet()) {
-//            if (minX > pos.x) minX = pos.x;
-//            if (maxX < pos.x) maxX = pos.x;
-//            if (minY > pos.y) minY = pos.y;
-//            if (maxY < pos.y) maxY = pos.y;
-//        };
-//        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-//    }
+    default Rectangle getBoardBounds() {
+        int minX = 0;
+        int maxX = 0;
+        int minY = 0;
+        int maxY = 0;
+        for (Position pos : getPlacedTiles().keySet()) {
+            if (minX > pos.x) minX = pos.x;
+            if (maxX < pos.x) maxX = pos.x;
+            if (minY > pos.y) minY = pos.y;
+            if (maxY < pos.y) maxY = pos.y;
+        };
+        return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+    }
 
     // Features
 

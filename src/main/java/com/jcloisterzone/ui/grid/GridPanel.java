@@ -6,6 +6,7 @@ import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Rectangle;
 import java.awt.RenderingHints;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -303,24 +304,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     @Subscribe
     public void handleGameChanged(GameChangedEvent ev) {
         GameState state = ev.getCurrentState();
-        ActionsState as = state.getPlayerActions();
-        PlayerAction<?> first = as == null ? null : as.getActions().getOrNull();
-
-        /*
-        JUST FOR DEBUG AND STYLING TODO delete
-        if (prisonersExchangePanel == null) {
-            first = new SelectPrisonerToExchangeAction(
-                new SmallFollower("x", state.getPlayers().getPlayer(0)),
-                HashSet.of(
-                    new SmallFollower("a", state.getPlayers().getPlayer(1)),
-                    new BigFollower("x", state.getPlayers().getPlayer(1))
-                )
-            );
-            prisonersExchangePanel = new PrisonersExchangePanel(gc, (SelectPrisonerToExchangeAction) first);
-            add(prisonersExchangePanel, "pos (100%-525) 0 (100%-275) 100%"); //TODO more robust layouting
-            revalidate();
-        }
-        */
+        PlayerAction<?> first = state.getAction();
 
         LinkedPanel panelAnnotation = first == null ? null : first.getClass().getAnnotation(LinkedPanel.class);
         if (panelAnnotation == null) {
@@ -342,9 +326,16 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
             revalidate();
         }
 
+        if (ev.hasPlacedTilesChanged()) {
+            Rectangle rect = state.getBoardBounds();
+            left = rect.x;
+            right = rect.x + rect.width;
+            top = rect.y;
+            bottom = rect.y + rect.height;
+        }
+
         repaint();
     }
-
 
     public void moveCenter(int xSteps, int ySteps) {
         //step should be 30px
@@ -488,21 +479,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     }
 
     // delegated UI methods
-
-//    public void tileEvent(/*TileEvent ev*/) {
-//        hideLayer(AbstractTilePlacementLayer.class);
-//
-//        if (ev.getType() == TileEvent.PLACEMENT) {
-//            Position p = ev.getPosition();
-//
-//            if (p.x == left) --left;
-//            if (p.x == right) ++right;
-//            if (p.y == top) --top;
-//            if (p.y == bottom) ++bottom;
-//
-//        }
-//        repaint();
-//    }
 
     private int calculateCenterX() {
         return (getWidth() - ControlPanel.PANEL_WIDTH - tileWidth)/2;
