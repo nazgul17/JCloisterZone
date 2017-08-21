@@ -21,7 +21,7 @@ public interface PlayersStsteMixin extends ActionsStateMixin {
         return as == null ? null : as.getPlayer();
     }
 
-    default GameState updatePlayers(Function<PlayersState, PlayersState> fn) {
+    default GameState mapPlayers(Function<PlayersState, PlayersState> fn) {
         return setPlayers(fn.apply(getPlayers()));
     }
 

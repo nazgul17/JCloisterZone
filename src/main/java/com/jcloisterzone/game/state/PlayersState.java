@@ -77,7 +77,7 @@ public class PlayersState implements Serializable {
         );
     }
 
-    public PlayersState setPlayerTokenCount(int index, Token token, int count) {
+    public PlayersState setTokenCount(int index, Token token, int count) {
         if (count < 0) {
             throw new IllegalArgumentException(String.format("Token %s count can't be %s", token, count));
         }
@@ -92,10 +92,18 @@ public class PlayersState implements Serializable {
         }
     }
 
-    public PlayersState addPlayerTokenCount(int index, Token token, int count) {
+    public PlayersState setTokenCountForAllPlayers(Token token, int count) {
+        PlayersState ps = this;
+        for (Player p : getPlayers()) {
+           ps = ps.setTokenCount(p.getIndex(), token, 1);
+        }
+        return ps;
+    }
+
+    public PlayersState addTokenCount(int index, Token token, int count) {
         if (count == 0) return this;
         int newValue = getPlayerTokenCount(index, token) + count;
-        return setPlayerTokenCount(index, token, newValue);
+        return setTokenCount(index, token, newValue);
     }
 
     public PlayersState setTurnPlayerIndex(int turnPlayerIndex) {

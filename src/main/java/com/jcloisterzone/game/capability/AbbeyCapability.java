@@ -22,13 +22,7 @@ public class AbbeyCapability extends Capability<Integer> {
 
     @Override
     public GameState onStartGame(GameState state) {
-        state = state.updatePlayers(ps -> {
-            for (Player p : ps.getPlayers()) {
-                ps = ps.addPlayerTokenCount(p.getIndex(), Token.ABBEY_TILE, 1);
-            }
-            return ps;
-        });
-        return super.onStartGame(state);
+        return state.mapPlayers(ps -> ps.setTokenCountForAllPlayers(Token.ABBEY_TILE, 1));
     }
 
     @Override

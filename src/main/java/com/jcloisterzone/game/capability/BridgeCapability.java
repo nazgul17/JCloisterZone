@@ -23,12 +23,7 @@ public class BridgeCapability extends Capability<Set<FeaturePointer>> {
     @Override
     public GameState onStartGame(GameState state) {
         int tokens = state.getPlayers().length() < 5 ? 3 : 2;
-        state = state.updatePlayers(ps -> {
-            for (Player p : ps.getPlayers()) {
-                ps = ps.addPlayerTokenCount(p.getIndex(), Token.BRIDGE, tokens);
-            }
-            return ps;
-        });
+        state = state.mapPlayers(ps -> ps.setTokenCountForAllPlayers(Token.BRIDGE, tokens));
         state = setModel(state, HashSet.empty());
         return state;
     }

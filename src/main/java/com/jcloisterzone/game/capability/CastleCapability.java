@@ -28,13 +28,7 @@ public class CastleCapability extends Capability<Void> {
     @Override
     public GameState onStartGame(GameState state) {
         int tokens = state.getPlayers().length() < 5 ? 3 : 2;
-        state = state.updatePlayers(ps -> {
-            for (Player p : ps.getPlayers()) {
-                ps = ps.addPlayerTokenCount(p.getIndex(), Token.CASTLE, tokens);
-            }
-            return ps;
-        });
-        return state;
+        return state.mapPlayers(ps -> ps.setTokenCountForAllPlayers(Token.CASTLE, tokens));
     }
 
     @Override

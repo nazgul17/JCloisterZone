@@ -15,10 +15,6 @@ public interface CapabilitiesMixin {
         return getCapabilities().contains(cls);
     }
 
-    default GameState updateCapabilities(Function<CapabilitiesState, CapabilitiesState> fn) {
-        return setCapabilities(fn.apply(getCapabilities()));
-    }
-
     default <M> M getCapabilityModel(Class<? extends Capability<M>> cls) {
         return getCapabilities().getModel(cls);
     }

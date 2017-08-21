@@ -82,8 +82,8 @@ public class AbbeyPhase extends ServerAwarePhase {
 
         GameState state = game.getState();
         Player player = state.getActivePlayer();
-        state = state.updatePlayers(ps ->
-            ps.addPlayerTokenCount(player.getIndex(), Token.ABBEY_TILE, -1)
+        state = state.mapPlayers(ps ->
+            ps.addTokenCount(player.getIndex(), Token.ABBEY_TILE, -1)
         );
 
         TileDefinition abbey = state.getTilePack().findTile(TileDefinition.ABBEY_TILE_ID).get();

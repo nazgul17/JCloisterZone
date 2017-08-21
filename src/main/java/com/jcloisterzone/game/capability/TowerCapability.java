@@ -47,12 +47,7 @@ public final class TowerCapability extends Capability<Array<List<Follower>>> {
     @Override
     public GameState onStartGame(GameState state) {
         int pieces = getInitialPiecesCount(state);
-        state = state.updatePlayers(ps -> {
-            for (Player p : ps.getPlayers()) {
-                ps = ps.addPlayerTokenCount(p.getIndex(), Token.TOWER_PIECE, pieces);
-            }
-            return ps;
-        });
+        state = state.mapPlayers(ps -> ps.setTokenCountForAllPlayers(Token.TOWER_PIECE, pieces));
         state = setModel(state, Array.fill(state.getPlayers().length(), () -> List.empty()));
         return state;
     }

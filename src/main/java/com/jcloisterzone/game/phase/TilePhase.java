@@ -219,8 +219,8 @@ public class TilePhase extends ServerAwarePhase {
         FeaturePointer mandatoryBridge = placement.getMandatoryBridge();
 
         if (mandatoryBridge != null) {
-            state = state.updatePlayers(ps ->
-                ps.addPlayerTokenCount(player.getIndex(), Token.BRIDGE, -1)
+            state = state.mapPlayers(ps ->
+                ps.addTokenCount(player.getIndex(), Token.BRIDGE, -1)
             );
             state = state.updateCapabilityModel(BridgeCapability.class, model -> model.add(mandatoryBridge));
 

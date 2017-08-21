@@ -291,7 +291,7 @@ public class CreateGamePhase extends ServerAwarePhase {
             0
         );
 
-        state = state.updatePlayers(ps ->
+        state = state.mapPlayers(ps ->
             ps.setFollowers(
                 players.map(p -> createPlayerFollowers(p, capabilities))
             ).setSpecialMeeples(

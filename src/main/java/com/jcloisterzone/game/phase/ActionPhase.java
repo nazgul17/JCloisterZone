@@ -246,8 +246,8 @@ public class ActionPhase extends Phase {
         FeaturePointer ptr = msg.getPointer();
         Token token = msg.getToken();
 
-        state = state.updatePlayers(ps ->
-            ps.addPlayerTokenCount(player.getIndex(), token, -1)
+        state = state.mapPlayers(ps ->
+            ps.addTokenCount(player.getIndex(), token, -1)
         );
 
         switch (token) {

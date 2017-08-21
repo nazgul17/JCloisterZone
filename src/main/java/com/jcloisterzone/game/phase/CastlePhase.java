@@ -93,8 +93,8 @@ public class CastlePhase extends Phase {
 
         Map<FeaturePointer, Feature> update = city.getPlaces().toMap(ptr -> new Tuple2<>(ptr, castle));
 
-        state = state.updatePlayers(ps ->
-           ps.addPlayerTokenCount(player.getIndex(), Token.CASTLE, -1)
+        state = state.mapPlayers(ps ->
+           ps.addTokenCount(player.getIndex(), Token.CASTLE, -1)
         );
         state = state.setFeatureMap(update.merge(state.getFeatureMap()));
         state = state.appendEvent(new CastleCreated(

@@ -35,9 +35,9 @@ public class TradeGoodsCapability extends Capability<Void> {
             }
 
             int playerIdx = state.getPlayers().getTurnPlayerIndex();
-            state = state.updatePlayers(ps -> {
+            state = state.mapPlayers(ps -> {
                 for (Tuple2<TradeGoods, Integer> t : cityTradeGoods) {
-                    ps = ps.addPlayerTokenCount(playerIdx, t._1.getToken(), t._2);
+                    ps = ps.addTokenCount(playerIdx, t._1.getToken(), t._2);
                 }
                 return ps;
             });

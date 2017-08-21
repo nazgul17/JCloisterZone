@@ -39,12 +39,12 @@ public final class KingAndRobberBaronCapability extends Capability<Void> {
         PlayersState ps = state.getPlayers();
         if (biggestCityCompleted) {
             for (Player p : ps.getPlayers()) {
-                ps = ps.setPlayerTokenCount(p.getIndex(), Token.KING, p.equals(turnPlayer) ? 1 : 0);
+                ps = ps.setTokenCount(p.getIndex(), Token.KING, p.equals(turnPlayer) ? 1 : 0);
             }
         }
         if (longestRoadCompleted) {
             for (Player p : ps.getPlayers()) {
-                ps = ps.setPlayerTokenCount(p.getIndex(), Token.ROBBER, p.equals(turnPlayer) ? 1 : 0);
+                ps = ps.setTokenCount(p.getIndex(), Token.ROBBER, p.equals(turnPlayer) ? 1 : 0);
             }
         }
         return state.setPlayers(ps);
