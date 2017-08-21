@@ -43,17 +43,17 @@ public final class BarnCapability extends Capability<FeaturePointer> {
         Position pos = state.getLastPlaced().getPosition();
 
         // By convention barn action contains feature pointer which points to
-        // right bottom corner of tile intersection
+        // left top corner of tile intersection
         //      |
         //      |
         //  ----+----
         //      | XX
         //      | XX
         Set<FeaturePointer> options = Stream.of(
-            new Position(pos.x - 1, pos.y - 1),
-            new Position(pos.x, pos.y - 1),
             pos,
-            new Position(pos.x -1, pos.y)
+            new Position(pos.x + 1, pos.y),
+            new Position(pos.x, pos.y + 1),
+            new Position(pos.x + 1, pos.y + 1)
         )
             .map(p -> getCornerFeature(state, p))
             .filter(Predicates.isNotNull())
@@ -91,15 +91,15 @@ public final class BarnCapability extends Capability<FeaturePointer> {
     }
 
     private Tuple2<FeaturePointer, Feature> getCornerFeature(GameState state, Position pos) {
-        Tuple2<FeaturePointer, Feature> t =
-            getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x + 1, pos.y), Location.SR));
-        if (!containsCorner(t, Corner.SW)) return null;
-        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x + 1, pos.y + 1), Location.WR));
-        if (!containsCorner(t, Corner.NW)) return null;
-        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x, pos.y + 1), Location.NR));
-        if (!containsCorner(t, Corner.NE)) return null;
-        t = getFarmLocationPartOf(state, new FeaturePointer(pos, Location.ER));
+        Tuple2<FeaturePointer, Feature> t;
+        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x - 1, pos.y - 1), Location.SL));
         if (!containsCorner(t, Corner.SE)) return null;
+        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x, pos.y - 1), Location.WL));
+        if (!containsCorner(t, Corner.SW)) return null;
+        t = getFarmLocationPartOf(state, new FeaturePointer(new Position(pos.x - 1, pos.y), Location.EL));
+        if (!containsCorner(t, Corner.NE)) return null;
+        t = getFarmLocationPartOf(state, new FeaturePointer(pos, Location.NL));
+        if (!containsCorner(t, Corner.NW)) return null;
         return t;
     }
 }

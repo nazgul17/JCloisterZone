@@ -85,7 +85,7 @@ public class DefaultResourceManager implements ResourceManager {
     public FeatureArea getBarnArea() {
         int rx = NORMALIZED_SIZE / 2;
         int ry = NORMALIZED_SIZE / 2;
-        Area a = new Area(new Ellipse2D.Double(NORMALIZED_SIZE - rx, NORMALIZED_SIZE - ry, NORMALIZED_SIZE, NORMALIZED_SIZE));
+        Area a = new Area(new Ellipse2D.Double(-rx, -ry, NORMALIZED_SIZE, NORMALIZED_SIZE));
         return (new FeatureArea(a, FeatureArea.DEFAULT_FARM_ZINDEX)).setFixed(true);
     }
 

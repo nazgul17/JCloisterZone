@@ -40,8 +40,6 @@ and get it by one one instead of all per tile
 * add function for applying reducer on state (reverse apply)
 * rename updateXYZ to mapXYX, add it for everything and move it from mixins to state
 
-* test if works if barn are contain multiple spots
-
 * implement zoom by single affine transrom on grid layer? probably no - problems with area checking
 
 * remove feature/meeple methods with state arg, eg isOccupied(state), put them rather on state
