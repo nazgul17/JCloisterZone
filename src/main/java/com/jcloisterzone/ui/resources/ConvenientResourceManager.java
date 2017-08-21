@@ -10,9 +10,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.ui.ImmutablePoint;
 
-/** extends resource manager with convenient methods
- * and add tile image caching
- */
+// move caching on PluggableResourceManager ? or rename to cached manager
 public class ConvenientResourceManager implements ResourceManager {
 
     private final ResourceManager manager;
@@ -73,8 +71,13 @@ public class ConvenientResourceManager implements ResourceManager {
     }
 
     @Override
-    public ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Meeple> type, Location loc) {
-        return manager.getMeeplePlacement(tile, type, loc);
+    public ImmutablePoint getMeeplePlacement(TileDefinition tile, Rotation rot, Location loc) {
+        return manager.getMeeplePlacement(tile, rot, loc);
+    }
+
+    @Override
+    public ImmutablePoint getBarnPlacement() {
+        return manager.getBarnPlacement();
     }
 
     @Override

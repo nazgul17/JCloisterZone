@@ -11,7 +11,9 @@ import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.event.play.TilePlacedEvent;
+import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.animation.Animation;
@@ -89,8 +91,14 @@ public class AnimationLayer extends AbstractGridLayer {
 
     private void scored(FeaturePointer fp, Player player, String points, Class<? extends Meeple> meepleType, boolean finalScoring) {
         Position pos = fp.getPosition();
+        ImmutablePoint offset;
         //IMMUTABLE TODO (low priority probably) coupled with game by gc.getGame().getBoard().get(pos)
-        ImmutablePoint offset = rm.getMeeplePlacement(gc.getGame().getBoard().get(pos), meepleType, fp.getLocation());
+        if (Barn.class.equals(meepleType)) {
+            offset = rm.getBarnPlacement();
+        } else {
+            PlacedTile pt = gc.getGame().getState().getPlacedTile(fp.getPosition());
+            offset = rm.getMeeplePlacement(pt.getTile(), pt.getRotation(), fp.getLocation());
+        }
         service.registerAnimation(new ScoreAnimation(
             pos,
             points,

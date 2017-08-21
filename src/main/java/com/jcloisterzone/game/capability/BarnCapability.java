@@ -45,6 +45,13 @@ public final class BarnCapability extends Capability<FeaturePointer> {
 
         Position pos = state.getLastPlaced().getPosition();
 
+        // By convention barn action contains feature pointer which points to
+        // right bottom corner of tile intersection
+        //      |
+        //      |
+        //  ----+----
+        //      | XX
+        //      | XX
         Set<FeaturePointer> options = Stream.of(
             new Position(pos.x - 1, pos.y - 1),
             new Position(pos.x, pos.y - 1),

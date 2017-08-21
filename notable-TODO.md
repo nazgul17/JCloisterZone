@@ -29,24 +29,21 @@ and get it by one one instead of all per tile
 * save game -> use history of messages
     undo -> send how many messages should be stripped ?
 
-* fix auction
-* pass when only placement with bridge exists during auction
-
-* there is still some bug probably related to bridges / or putting road piece inside
+* there is still some bug probably related to bridges / or putting road piece inside ?
+-> impplement save as list of messages (state transformations)
 
 * do not challenge yaga hut with shrine - separate feature for yaga's hut? probably not
 * + yaga scoring
 
-* move stuff from Board to GameStateHelper
-* Location.sides() -> SIDES
 * add debug optiom to limit tile pack size
 
 * add function for applying reducer on state (reverse apply)
 * rename updateXYZ to mapXYX, add it for everything and move it from mixins to state
 
-* remove GridPanel.getTile
-
-
 * test if works if barn are contain multiple spots
 
-* implement zoom by single affinetransrom on grid layer
+* implement zoom by single affine transrom on grid layer
+
+* remove Tile, remove Board (in favor of BoardMixin)
+
+* Tower, place tile, use same circular ares as for selecting follower

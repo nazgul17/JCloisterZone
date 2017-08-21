@@ -77,9 +77,18 @@ public class PlugableResourceManager implements ResourceManager {
 
 
     @Override
-    public ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Meeple> type, Location loc) {
+    public ImmutablePoint getMeeplePlacement(TileDefinition tile, Rotation rot, Location loc) {
         for (ResourceManager manager : managers) {
-            ImmutablePoint result = manager.getMeeplePlacement(tile, type, loc);
+            ImmutablePoint result = manager.getMeeplePlacement(tile, rot, loc);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
+    @Override
+    public ImmutablePoint getBarnPlacement() {
+        for (ResourceManager manager : managers) {
+            ImmutablePoint result = manager.getBarnPlacement();
             if (result != null) return result;
         }
         return null;

@@ -6,22 +6,19 @@ import java.awt.Composite;
 import java.awt.Graphics2D;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
-import java.awt.geom.AffineTransform;
-import java.awt.geom.Area;
 import java.awt.geom.Point2D;
 
 import javax.swing.ImageIcon;
 import javax.swing.event.MouseInputAdapter;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.controls.action.ActionWrapper;
@@ -31,7 +28,6 @@ import com.jcloisterzone.ui.resources.FeatureArea;
 import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 
 import io.vavr.Tuple2;
-import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
 
 
@@ -183,8 +179,8 @@ public abstract class AbstractAreaLayer extends AbstractGridLayer implements Act
         Position pos = fp.getPosition();
         //ugly copy pasted code from Meeple but uncached here
         g2.setComposite(FIGURE_HIGHLIGHT_AREA_ALPHA_COMPOSITE);
-        Tile tile = state.getBoard().get(pos);
-        ImmutablePoint point = rm.getMeeplePlacement(tile, SmallFollower.class, fp.getLocation());
+        PlacedTile placedTile = state.getPlacedTile(pos);
+        ImmutablePoint point = rm.getMeeplePlacement(placedTile.getTile(), placedTile.getRotation(), fp.getLocation());
         Player p = state.getActivePlayer();
         Image unscaled = rm.getLayeredImage(
             new LayeredImageDescriptor(SmallFollower.class, p.getColors().getMeepleColor())

@@ -6,6 +6,8 @@ import com.jcloisterzone.board.Rotation;
 @Immutable
 public class ImmutablePoint {
 
+    public static final ImmutablePoint ZERO = new ImmutablePoint(0, 0);
+
     private final int x;
     private final int y;
 

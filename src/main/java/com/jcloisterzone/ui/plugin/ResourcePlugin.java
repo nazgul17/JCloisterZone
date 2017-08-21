@@ -187,21 +187,26 @@ public class ResourcePlugin extends Plugin implements ResourceManager {
     }
 
     @Override
-    public ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Meeple> type, Location loc) {
+    public ImmutablePoint getMeeplePlacement(TileDefinition tile, Rotation rot, Location loc) {
         if (!containsTile(tile.getId())) return null;
-        if (type.equals(Barn.class)) return null;
-        Feature feature = tile.getFeature(loc);
 
-        Location normLoc = loc.rotateCCW(tile.getRotation());
-        ImmutablePoint point = pluginGeometry.getMeeplePlacement(tile.getTileDefinition(), feature.getClass(), normLoc);
+        Location iniLoc = loc.rotateCCW(rot);
+        Feature feature = tile.getInitialFeatures().get(iniLoc).get();
+
+        ImmutablePoint point = pluginGeometry.getMeeplePlacement(tile, feature.getClass(), iniLoc);
         if (point == null) {
-            point = defaultGeometry.getMeeplePlacement(tile.getTileDefinition(), feature.getClass(), normLoc);
+            point = defaultGeometry.getMeeplePlacement(tile, feature.getClass(), iniLoc);
         }
         if (point == null) {
             logger.warn("No point defined for <" + (new FeatureDescriptor(tile.getId(), feature.getClass(), loc)) + ">");
-            point = new ImmutablePoint(0, 0);
+            point = ImmutablePoint.ZERO;
         }
-        return point.rotate100(tile.getRotation());
+        return point.rotate100(rot);
+    }
+
+    @Override
+    public ImmutablePoint getBarnPlacement() {
+        return null;
     }
 
     private FeatureArea applyRotationScaling(Tile tile, ThemeGeometry geom, FeatureArea area) {

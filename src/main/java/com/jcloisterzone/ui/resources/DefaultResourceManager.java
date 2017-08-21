@@ -11,19 +11,13 @@ import java.net.URLClassLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.ImmutableMap;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Rotation;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.figure.Barn;
-import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.ui.ImmutablePoint;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.Map;
-import io.vavr.collection.Set;
 
 public class DefaultResourceManager implements ResourceManager {
 
@@ -77,15 +71,13 @@ public class DefaultResourceManager implements ResourceManager {
         return imgLoader.getLayeredImage(lid);
     }
 
-    private ImmutablePoint getBarnPlacement(Location loc) {
-        return new ImmutablePoint(100, 100);
+    @Override
+    public ImmutablePoint getBarnPlacement() {
+        return ImmutablePoint.ZERO;
     }
 
     @Override
-    public ImmutablePoint getMeeplePlacement(Tile tile, Class<? extends Meeple> type, Location loc) {
-        if (type.equals(Barn.class)) {
-            return getBarnPlacement(loc);
-        }
+    public ImmutablePoint getMeeplePlacement(TileDefinition tile, Rotation rot, Location loc) {
         return null;
     }
 
@@ -106,7 +98,6 @@ public class DefaultResourceManager implements ResourceManager {
     @Override
     public FeatureArea getFeatureArea(TileDefinition tile, Rotation rotation, Location loc) {
         if (loc.isCityOfCarcassonneQuarter()) {
-            Map<Location, FeatureArea> areas = HashMap.empty();
             double rx = NORMALIZED_SIZE * 0.6;
             double ry = NORMALIZED_SIZE * 0.6;
             ImmutablePoint offset = COUNT_OFFSETS.get(loc).get();

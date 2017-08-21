@@ -17,6 +17,7 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.feature.Bridge;
+import com.jcloisterzone.figure.Barn;
 import com.jcloisterzone.figure.BigFollower;
 import com.jcloisterzone.figure.Figure;
 import com.jcloisterzone.figure.Follower;
@@ -153,14 +154,11 @@ public class MeepleLayer extends AbstractGridLayer {
                 return new ImmutablePoint(50, 50);
             }
         }
-        if (fig instanceof Fairy) {
-            //fairy next to follower
-            FeaturePointer fp = (FeaturePointer) ptr; // MeeplePointer has been converted to FeaturePointer during group by!
-            return rm.getMeeplePlacement(tile, SmallFollower.class, fp.getLocation());
+        if (fig instanceof Barn) {
+            return rm.getBarnPlacement();
         } else {
-            Meeple m = (Meeple) fig;
-            FeaturePointer fp = (FeaturePointer) ptr;
-            return rm.getMeeplePlacement(tile, m.getClass(), fp.getLocation());
+            FeaturePointer fp = ptr.asFeaturePointer();
+            return rm.getMeeplePlacement(tile.getTileDefinition(), tile.getRotation(), fp.getLocation());
         }
     }
 
