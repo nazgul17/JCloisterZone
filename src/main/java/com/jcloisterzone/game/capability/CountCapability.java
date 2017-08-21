@@ -22,7 +22,7 @@ public class CountCapability extends Capability<Void> {
 
     @Override
     public GameState onStartGame(GameState state) {
-        return state.updateNeutralFigures(nf -> nf.setCount(new Count("count.1")));
+        return state.mapNeutralFigures(nf -> nf.setCount(new Count("count.1")));
     }
 
 //    @Override

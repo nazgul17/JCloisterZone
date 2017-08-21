@@ -44,7 +44,7 @@ public class DragonCapability extends Capability<Vector<Position>> {
 
     @Override
     public GameState onStartGame(GameState state) {
-        state = state.updateNeutralFigures(nf -> nf.setDragon(new Dragon("dragon.1")));
+        state = state.mapNeutralFigures(nf -> nf.setDragon(new Dragon("dragon.1")));
         state = setModel(state, Vector.empty());
         return state;
     }

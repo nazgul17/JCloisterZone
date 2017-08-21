@@ -5,8 +5,6 @@ import java.util.function.Function;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 import com.google.common.collect.ClassToInstanceMap;
 import com.google.common.collect.MutableClassToInstanceMap;
@@ -14,48 +12,23 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.hash.HashCode;
 import com.jcloisterzone.EventBusExceptionHandler;
 import com.jcloisterzone.EventProxy;
-import com.jcloisterzone.Player;
 import com.jcloisterzone.action.PlayerAction;
-import com.jcloisterzone.board.Board;
-import com.jcloisterzone.board.Location;
-import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
-import com.jcloisterzone.board.TileDefinition;
-import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.PlayEvent;
-import com.jcloisterzone.event.play.PlayerTurnEvent;
-import com.jcloisterzone.feature.City;
-import com.jcloisterzone.feature.Completable;
-import com.jcloisterzone.feature.Farm;
-import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.Scoreable;
-import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.figure.SmallFollower;
-import com.jcloisterzone.figure.Special;
-import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.reducers.Reducer;
 
 import io.vavr.Tuple2;
-import io.vavr.collection.Array;
-import io.vavr.collection.HashSet;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Queue;
-import io.vavr.collection.Seq;
-import io.vavr.collection.Set;
-import io.vavr.collection.Stream;
-import io.vavr.collection.Vector;
 
 
 /**

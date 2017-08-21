@@ -1,7 +1,6 @@
 package com.jcloisterzone.game;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.function.Function;
 
 import org.slf4j.Logger;
@@ -10,8 +9,6 @@ import org.w3c.dom.Element;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.action.MeepleAction;
-import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.pointer.FeaturePointer;
@@ -21,7 +18,6 @@ import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.MeepleIdProvider;
 import com.jcloisterzone.figure.Special;
 import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.GameStateHelpers;
 
 import io.vavr.collection.HashMap;
 import io.vavr.collection.List;

@@ -218,7 +218,7 @@ public class GameState implements ActionsStateMixin, BoardMixin,
         );
     }
 
-    public GameState updateNeutralFigures(Function<NeutralFiguresState, NeutralFiguresState> fn) {
+    public GameState mapNeutralFigures(Function<NeutralFiguresState, NeutralFiguresState> fn) {
         return setNeutralFigures(fn.apply(neutralFigures));
     }
 
