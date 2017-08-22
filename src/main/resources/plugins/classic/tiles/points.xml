@@ -355,6 +355,7 @@
         <apply>TO.F NL.NR.EL.ER.SL.SR.WL.WR</apply>
         <apply>FL.Rr.d NL.NR.WL.WR.SR.EL</apply>
         <apply>R1.I.e NL.NR.EL.ER.SL.SR.WL.WR</apply>
+        <apply>R2.I.v NL.NR.EL.ER.SL.SR.WL.WR</apply>
     </point>
     <point feature="FARM" cx="250" cy="160" baseLocation="NL.NR">
         <apply>DG.CRcr.d NL.NR</apply>

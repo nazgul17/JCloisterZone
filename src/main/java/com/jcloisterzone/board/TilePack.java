@@ -124,6 +124,12 @@ public class TilePack implements Serializable {
         throw new IllegalArgumentException("Tile pack does not contain active " + tileId);
     }
 
+    public TilePack removeTilesById(String tileId) {
+        return setGroups(groups.mapValues(g ->
+            g.mapTiles(tiles -> tiles.filter(tile -> !tile.getId().equals(tileId)))
+        ));
+    }
+
     public TilePack activateGroup(String groupName) {
         TileGroup group = groups.get(groupName).get();
         if (group.isActive()) return this;
