@@ -86,13 +86,13 @@ public class Cloister extends ScoreableFeature implements Completable {
     @Override
     public boolean isOpen(GameState state) {
         Position p = places.get().getPosition();
-        return state.getAdjacentAndDiagonalTiles(p).size() < 8;
+        return state.getAdjacentAndDiagonalTiles2(p).size() < 8;
     }
 
     @Override
     public int getPoints(GameState state) {
         Position p = places.get().getPosition();
-        return state.getAdjacentAndDiagonalTiles(p).size() + 1;
+        return state.getAdjacentAndDiagonalTiles2(p).size() + 1;
     }
 
     @Override

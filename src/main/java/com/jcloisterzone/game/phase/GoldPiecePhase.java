@@ -38,7 +38,7 @@ public class GoldPiecePhase extends Phase {
         if (getTile().hasTrigger(TileTrigger.GOLDMINE)) {
             Position pos = getTile().getPosition();
             GoldPieceAction action = new GoldPieceAction();
-            action.addAll(Lists.transform(getBoard().getAdjacentAndDiagonalTiles(pos), new Function<Tile, Position>() {
+            action.addAll(Lists.transform(getBoard().getAdjacentAndDiagonalTiles2(pos), new Function<Tile, Position>() {
                 @Override
                 public Position apply(Tile t) {
                     return t.getPosition();

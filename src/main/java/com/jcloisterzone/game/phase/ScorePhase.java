@@ -53,7 +53,7 @@ public class ScorePhase extends ServerAwarePhase {
     }
 
     private GameState scoreCompletedNearAbbey(GameState state, Position pos) {
-        for (Tuple2<Location, PlacedTile> t : state.getAdjacentTiles(pos)) {
+        for (Tuple2<Location, PlacedTile> t : state.getAdjacentTiles2(pos)) {
             PlacedTile pt = t._2;
             Feature feature = state.getFeaturePartOf(new FeaturePointer(pt.getPosition(), t._1.rev()));
             if (feature instanceof Completable) {
@@ -106,7 +106,7 @@ public class ScorePhase extends ServerAwarePhase {
 //            }
         }
 
-        Set<Position> neighbourPositions = state.getAdjacentAndDiagonalTiles(pos)
+        Set<Position> neighbourPositions = state.getAdjacentAndDiagonalTiles2(pos)
             .map(pt -> pt._2.getPosition()).toSet();
 
         for (Cloister cloister : state.getFeatures(Cloister.class)) {

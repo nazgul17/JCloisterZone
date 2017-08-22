@@ -1,23 +1,32 @@
 package com.jcloisterzone.game.phase;
 
-import com.jcloisterzone.action.UndeployAction;
+import java.util.function.Function;
+import java.util.function.Predicate;
+
+import com.jcloisterzone.Player;
+import com.jcloisterzone.action.EscapeAction;
+import com.jcloisterzone.action.PrincessAction;
+import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
+import com.jcloisterzone.board.TileTrigger;
+import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.feature.City;
-import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.visitor.FeatureVisitor;
-import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.SiegeCapability;
+import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.PlacedTile;
+import com.jcloisterzone.reducers.UndeployMeeple;
 import com.jcloisterzone.wsio.WsSubscribe;
-import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
+
+import io.vavr.Predicates;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
 
 public class EscapePhase extends Phase {
@@ -31,105 +40,81 @@ public class EscapePhase extends Phase {
         return capabilities.contains(SiegeCapability.class);
     }
 
+
     @Override
-    public void enter() {
-        UndeployAction action = prepareEscapeAction();
-        if (prepareEscapeAction() != null) {
-            game.post(new SelectActionEvent(getActivePlayer(), action, true));
-        } else {
-            next();
-        }
-    }
+    public void enter(GameState state) {
+        Player player = state.getTurnPlayer();
+        Stream<City> cities = state.getFeatures(City.class)
+            .filter(c -> c.isBesieged())
+            .filter(c -> c.isOccupiedBy(state, player));
 
-    @WsSubscribe
-    public void handlePass(PassMessage msg) {
-        GameState state = game.getState();
-        state = clearActions(state);
-        next(state);
-    }
+        Function<City, Stream<MeeplePointer>> getCityFollowers = city -> {
+            return city.getFollowers2(state)
+                .filter(t -> t._1.getPlayer().equals(player))
+                .map(t -> new MeeplePointer(t._2, t._1.getId()));
+        };
 
-    private class FindNearbyCloister implements FeatureVisitor<Boolean> {
+        Predicate<Position> cloisterExists = pos -> {
+            return state.getFeature(new FeaturePointer(pos, Location.CLOISTER)) != null;
+        };
 
-        private boolean result;
+        Set<MeeplePointer> options;
 
-        @Override
-        public Boolean getResult() {
-            return result;
-        }
+        options = cities
+            .filter(c -> {
+                Stream<PlacedTile> cityTiles = Stream.ofAll(c.getTilePositions()).map(state::getPlacedTile);
 
-        @Override
-        public VisitResult visit(Feature feature) {
-            City city = (City) feature;
-            if (city.isBesieged()) { //cloister must border Cathar tile
-                Position p = city.getTile().getPosition();
-                for (Tile tile : getBoard().getAdjacentAndDiagonalTiles(p)) {
-                    if (tile.hasCloister()) {
-                        result = true;
-                        return VisitResult.STOP; //do not continue, besieged cloister exists
-                    }
+                if (!state.getBooleanValue(CustomRule.ESCAPE_RGG)) {
+                    cityTiles = cityTiles.filter(pt ->
+                        pt.getTile().getTrigger() == TileTrigger.BESIEGED
+                    );
                 }
-            }
-            return VisitResult.CONTINUE;
+
+                Stream<PlacedTile> adjacent = cityTiles
+                    .map(PlacedTile::getPosition)
+                    .flatMap(state::getAdjacentAndDiagonalTiles);
+
+                return Stream.concat(cityTiles, adjacent)
+                    .distinct()
+                    .map(PlacedTile::getPosition)
+                    .find(cloisterExists)
+                    .isDefined();
+            })
+            .flatMap(getCityFollowers)
+            .toSet();
+
+        if (options.isEmpty()) {
+            next(state);
+            return;
         }
+
+        promote(state.setPlayerActions(
+            new ActionsState(player, new EscapeAction(options), true)
+        ));
     }
-
-    private class FindNearbyCloisterRgg implements FeatureVisitor<Boolean> {
-        private boolean isBesieged;
-        private boolean cloisterExists;
-
-        @Override
-        public Boolean getResult() {
-            return isBesieged && cloisterExists;
-        }
-
-        @Override
-        public VisitResult visit(Feature feature) {
-            City city = (City) feature;
-            if (city.isBesieged()) {
-                isBesieged = true;
-            }
-
-            Position p = city.getTile().getPosition();
-            for (Tile tile : getBoard().getAdjacentAndDiagonalTiles(p)) {
-                if (tile.hasCloister()) {
-                    cloisterExists = true;
-                    break;
-                }
-            }
-            return VisitResult.CONTINUE;
-        }
-    }
-
-
-    public UndeployAction prepareEscapeAction() {
-        UndeployAction escapeAction = null;
-        for (Meeple m : game.getDeployedMeeples()) {
-            if (!(m instanceof Follower)) continue;
-            if (m.getPlayer() != getActivePlayer()) continue;
-            if (!(m.getFeature() instanceof City)) continue;
-
-            FeatureVisitor<Boolean> visitor = game.getBooleanValue(CustomRule.ESCAPE_RGG) ? new FindNearbyCloisterRgg() : new FindNearbyCloister();
-            if (m.getFeature().walk(visitor)) {
-                if (escapeAction == null) {
-                    escapeAction = new UndeployAction(SiegeCapability.UNDEPLOY_ESCAPE);
-                }
-                escapeAction.add(new MeeplePointer(m));
-            }
-        }
-        return escapeAction;
-    }
-
 
     @WsSubscribe
     public void handleReturnMeeple(ReturnMeepleMessage msg) {
-        Meeple m = game.getMeeple(mp);
-        assert m.getPlayer().equals(getActivePlayer());
-        if (!(m.getFeature() instanceof City)) {
-            logger.error("Feature for escape action must be a city");
-            return;
-        }
-        m.undeploy();
-        next();
-    }
+        game.markUndo();
+        GameState state = game.getState();
+        MeeplePointer ptr = msg.getPointer();
 
+        Meeple meeple = state.getDeployedMeeples().find(m -> ptr.match(m._1)).map(t -> t._1)
+            .getOrElseThrow(() -> new IllegalArgumentException("Pointer doesn't match any meeple"));
+
+        switch (msg.getSource()) {
+        case SIEGE_ESCAPE:
+            EscapeAction princessAction = (EscapeAction) state.getAction();
+            if (!princessAction.getOptions().contains(ptr)) {
+                throw new IllegalArgumentException("Pointer doesn't match action");
+            }
+            break;
+        default:
+            throw new IllegalArgumentException("Return meeple is not allowed");
+        }
+
+        state = (new UndeployMeeple(meeple)).apply(state);
+        state = clearActions(state);
+        next(state);
+    }
 }

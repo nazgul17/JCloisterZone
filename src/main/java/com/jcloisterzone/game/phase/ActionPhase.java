@@ -209,7 +209,6 @@ public class ActionPhase extends Phase {
 
     @WsSubscribe
     public void handleReturnMeeple(ReturnMeepleMessage msg) {
-        //TOOD use different messages for undeploy actions?
         game.markUndo();
         GameState state = game.getState();
         MeeplePointer ptr = msg.getPointer();

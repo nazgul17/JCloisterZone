@@ -39,7 +39,7 @@ public final class ShrineCapability extends Capability<Void> {
 
     public void resolveChallengedCloisters(Cloister cloister) {
         Position p = cloister.getTile().getPosition();
-        for (Tile nt : game.getBoard().getAdjacentAndDiagonalTiles(p)) {
+        for (Tile nt : game.getBoard().getAdjacentAndDiagonalTiles2(p)) {
             if (nt.hasCloister()) {
                 Cloister nextCloister = nt.getCloister();
                 if (cloister.isShrine() ^ nextCloister.isShrine()) {
@@ -63,7 +63,7 @@ public final class ShrineCapability extends Capability<Void> {
     public boolean isTilePlacementAllowed(Tile tile, Position p) {
         if (tile.hasCloister()) {
             Cloister opposite = null;
-            for (Tile nt: getBoard().getAdjacentAndDiagonalTiles(p)) {
+            for (Tile nt: getBoard().getAdjacentAndDiagonalTiles2(p)) {
                 if (nt.hasCloister()) {
                     if  (tile.getCloister().isShrine() ^ nt.getCloister().isShrine()) {
                         if (opposite == null) {
@@ -77,7 +77,7 @@ public final class ShrineCapability extends Capability<Void> {
             }
             if (opposite != null) {
                 //we must also check if second "same" feature is not place next to "oposite"
-                for (Tile nt: getBoard().getAdjacentAndDiagonalTiles(opposite.getTile().getPosition())) {
+                for (Tile nt: getBoard().getAdjacentAndDiagonalTiles2(opposite.getTile().getPosition())) {
                     if (nt.hasCloister()) {
                         if  (!(tile.getCloister().isShrine() ^ nt.getCloister().isShrine())) {
                             return false;

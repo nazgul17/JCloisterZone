@@ -69,7 +69,7 @@ public class GoldminesCapability  extends Capability<Void> {
             positions = new HashSet<>();
             Position cloisterPos = ((CloisterScoreContext) ctx).getMasterFeature().getTile().getPosition();
             positions.add(cloisterPos);
-            positions.addAll(Lists.transform(getBoard().getAdjacentAndDiagonalTiles(cloisterPos), new Function<Tile, Position>() {
+            positions.addAll(Lists.transform(getBoard().getAdjacentAndDiagonalTiles2(cloisterPos), new Function<Tile, Position>() {
                 @Override
                 public Position apply(Tile t) {
                     return t.getPosition();

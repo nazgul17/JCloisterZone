@@ -35,7 +35,7 @@ public interface BoardMixin {
         return getPlacedTiles().takeRight(1).map(Tuple2::_2).getOrNull();
     }
 
-    default Stream<Tuple2<Location, PlacedTile>> getAdjacentTiles(Position pos) {
+    default Stream<Tuple2<Location, PlacedTile>> getAdjacentTiles2(Position pos) {
         return Stream.ofAll(Position.ADJACENT)
             .map(locPos-> locPos.map2(
                 offset -> getPlacedTile(pos.add(offset))
@@ -43,12 +43,20 @@ public interface BoardMixin {
             .filter(locTile -> locTile._2 != null);
     }
 
-    default  Stream<Tuple2<Location, PlacedTile>> getAdjacentAndDiagonalTiles(Position pos) {
+    default Stream<PlacedTile> getAdjacentTiles(Position pos) {
+        return getAdjacentTiles2(pos).map(Tuple2::_2);
+    }
+
+    default  Stream<Tuple2<Location, PlacedTile>> getAdjacentAndDiagonalTiles2(Position pos) {
         return Stream.ofAll(Position.ADJACENT_AND_DIAGONAL)
             .map(locPos-> locPos.map2(
                 offset -> getPlacedTile(pos.add(offset))
             ))
             .filter(locTile -> locTile._2 != null);
+    }
+
+    default Stream<PlacedTile> getAdjacentAndDiagonalTiles(Position pos) {
+        return getAdjacentAndDiagonalTiles2(pos).map(Tuple2::_2);
     }
 
 

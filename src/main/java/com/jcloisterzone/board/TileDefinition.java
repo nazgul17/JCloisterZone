@@ -56,6 +56,7 @@ public class TileDefinition implements Serializable {
     }
 
     public TileDefinition setTileTrigger(TileTrigger trigger) {
+        assert this.trigger == null;
         return new TileDefinition(origin, id, initialFeatures, trigger, flier, windRose, cornCircle);
     }
 
