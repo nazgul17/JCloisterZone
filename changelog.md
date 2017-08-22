@@ -15,6 +15,9 @@
     - When tile can place only with bridge, player is allowed to pass and let the tile to be discarded.
     - fix: When there is no legal placement for auctioned tile, tile is discarded and random tile is drawn instead.
     - Display bridge preview if bridge placement is mandatory (and bridge must be placed as part of tile placement).
+* River
+    - Rule change: Lake is drawn by player as common tile (changed according to New Carcassonne (C II) rules and
+      also make it consistent with River2 lakes)
 * technical notes:
     - Grand rewrite in favor of functional programming and immutable data structure.
     - vavr.io library is awesome!

@@ -1,6 +1,7 @@
 package com.jcloisterzone.board;
 
 import java.io.Serializable;
+import java.util.function.Function;
 import java.util.function.Predicate;
 
 import org.slf4j.Logger;
@@ -29,6 +30,15 @@ public class TilePack implements Serializable {
         this.groups = groups;
     }
 
+    public LinkedHashMap<String, TileGroup> getGroups() {
+        return groups;
+    }
+
+    public TilePack setGroups(LinkedHashMap<String, TileGroup> groups) {
+        if (this.groups == groups) return this;
+        return new TilePack(groups);
+    }
+
     private Stream<TileGroup> getActiveGroups() {
         return Stream.ofAll(groups.values()).filter(TileGroup::isActive);
     }
@@ -49,6 +59,10 @@ public class TilePack implements Serializable {
         return size() == 0;
     }
 
+    public boolean hasGroup(String name) {
+        return groups.containsKey(name);
+    }
+
     public TileGroup getGroup(String name) {
         return groups.get(name).getOrNull();
     }
@@ -57,11 +71,20 @@ public class TilePack implements Serializable {
         return groups.get(groupId).map(g -> g.size()).getOrElse(0);
     }
 
-    private TilePack replaceGroup(TileGroup group) {
+    public TilePack mapGroup(String name, Function<TileGroup, TileGroup> mapper) {
+        return updateGroup(mapper.apply(getGroup(name)));
+    }
+
+    private TilePack updateGroup(TileGroup group) {
         if (group.isEmpty()) {
-            return new TilePack(groups.remove(group.getName()));
+            TilePack pack = setGroups(groups.remove(group.getName()));
+            String succ = group.getSuccessiveGroup();
+            if (succ != null && pack.hasGroup(succ)) {
+                pack = pack.activateGroup(succ);
+            }
+            return pack;
         } else {
-            return new TilePack(groups.put(group.getName(), group));
+            return setGroups(groups.put(group.getName(), group));
         }
     }
 
@@ -71,7 +94,7 @@ public class TilePack implements Serializable {
                 Vector<TileDefinition> tiles = group.getTiles();
                 TileDefinition tile = tiles.get(index);
                 group = group.setTiles(tiles.removeAt(index));
-                return new Tuple2<>(tile, replaceGroup(group));
+                return new Tuple2<>(tile, updateGroup(group));
             } else {
                 index -= group.size();
             }
@@ -85,7 +108,7 @@ public class TilePack implements Serializable {
             .getOrElseThrow(() -> new IllegalArgumentException());
         TileDefinition tile = group.getTiles().find(matchesId)
             .getOrElseThrow(() -> new IllegalArgumentException());
-        TilePack pack = replaceGroup(group.mapTiles(tiles -> tiles.removeFirst(matchesId)));
+        TilePack pack = updateGroup(group.mapTiles(tiles -> tiles.removeFirst(matchesId)));
         return new Tuple2<>(tile, pack);
     }
 
@@ -103,12 +126,14 @@ public class TilePack implements Serializable {
 
     public TilePack activateGroup(String groupName) {
         TileGroup group = groups.get(groupName).get();
-        return new TilePack(groups.put(groupName, group.setActive(true)));
+        if (group.isActive()) return this;
+        return setGroups(groups.put(groupName, group.setActive(true)));
     }
 
     public TilePack deactivateGroup(String groupName) {
         TileGroup group = groups.get(groupName).get();
-        return new TilePack(groups.put(groupName, group.setActive(false)));
+        if (!group.isActive()) return this;
+        return setGroups(groups.put(groupName, group.setActive(false)));
     }
 
     public int getSizeForEdgePattern(EdgePattern edgePattern) {
