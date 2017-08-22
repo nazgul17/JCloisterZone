@@ -55,9 +55,9 @@ public class LoadGameTilePackFactory extends TilePackBuilder {
         }
     }
 
-    protected URL getCardsConfig(Expansion expansion) {
+    protected URL getTilesConfig(Expansion expansion) {
         //ignore config overrides
-        return getStandardCardsConfig(expansion);
+        return getStandardTilesConfig(expansion);
     }
 
 
