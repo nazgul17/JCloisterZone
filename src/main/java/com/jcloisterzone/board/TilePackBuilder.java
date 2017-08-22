@@ -248,6 +248,7 @@ public class TilePackBuilder {
                         priority = pp.priority;
                         positions = positions.pop();
                         //hard coded exceptions - should be declared in pack def
+                        // TODO add <remap> ... directive
                         if (expansions.contains(Expansion.COUNT)) {
                             if (tileId.equals("BA.RCr")) continue;
                             if (tileId.equals("R1.I.s") ||
@@ -259,7 +260,6 @@ public class TilePackBuilder {
                                 pos = new Position(-2, -2);
                             }
                         } else if (expansions.contains(Expansion.WIND_ROSE)) {
-                            if (tileId.equals("BA.RCr")) continue;
                             if (state.getCapabilities().contains(RiverCapability.class)) {
                                 if (tileId.equals("WR.CFR")) {
                                     pos = new Position(0, 1);

@@ -11,6 +11,7 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.event.play.TilePlacedEvent;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.ImmutablePoint;
 import com.jcloisterzone.ui.UiUtils;
@@ -30,27 +31,35 @@ public class PlacementHistory extends AbstractGridLayer {
         gc.register(this);
     }
 
+    private Player getTriggeringPlayer(GameState state, PlayEvent ev) {
+        Integer idx = ev.getMetadata().getTriggeringPlayerIndex();
+        return idx == null ? null : state.getPlayers().getPlayer(idx);
+    }
+
     @Override
     public void paint(Graphics2D g) {
         Composite oldComposite = g.getComposite();
         g.setComposite(ALPHA_COMPOSITE);
 
-        Player turnPlayer = getGame().getTurnPlayer();
+        GameState state = gc.getGame().getState();
+        Player turnPlayer = state.getTurnPlayer();
         int counter = 0;
 
         boolean breakOnTurnEvent = false;
         boolean turnEventSeen = false;
         Boolean placedCurrentTurn = null;
 
-        for (PlayEvent ev : gc.getGame().getState().getEvents().reverseIterator()) {
+        for (PlayEvent ev : state.getEvents().reverseIterator()) {
             if (ev instanceof PlayerTurnEvent) {
                 if (breakOnTurnEvent) break;
 
                 turnEventSeen = true;
-                if (placedCurrentTurn == null) placedCurrentTurn = false;
+                if (placedCurrentTurn == null) {
+                    placedCurrentTurn = false;
+                }
 
-                Player p = ev.getTriggeringPlayer();
-                if (p != null && getGame().getPrevPlayer(p).equals(turnPlayer)) {
+                Player player = getTriggeringPlayer(state, ev);
+                if (player != null && player.getPrevPlayer(state).equals(turnPlayer)) {
                     if (placedCurrentTurn) {
                         break;
                     } else {
@@ -60,6 +69,7 @@ public class PlacementHistory extends AbstractGridLayer {
             }
 
             if (!(ev instanceof TilePlacedEvent)) continue;
+
             TilePlacedEvent te = (TilePlacedEvent) ev;
 
             if (placedCurrentTurn == null && !turnEventSeen) {
@@ -67,7 +77,7 @@ public class PlacementHistory extends AbstractGridLayer {
             }
 
             Position pos = te.getPosition();
-            Player player = te.getTriggeringPlayer();
+            Player player = getTriggeringPlayer(state, te);
             String text = String.valueOf(++counter);
             Color color = player != null ?  player.getColors().getFontColor() : DEFAULT_COLOR;
 
