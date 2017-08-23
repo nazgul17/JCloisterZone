@@ -9,6 +9,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.capability.CornCircleCapability;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.state.ActionsState;
@@ -26,16 +27,11 @@ import io.vavr.collection.HashSet;
 import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
 
-
+@RequiredCapability(DragonCapability.class)
 public class DragonMovePhase extends ServerAwarePhase {
 
     public DragonMovePhase(Game game, GameController controller) {
         super(game, controller);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(DragonCapability.class);
     }
 
     private Vector<Position> getVisitedPositions(GameState state) {

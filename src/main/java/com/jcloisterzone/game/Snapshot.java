@@ -50,7 +50,7 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.phase.Phase;
 
-
+@Deprecated
 public class Snapshot implements Serializable {
 
     protected transient Logger logger = LoggerFactory.getLogger(getClass());
@@ -328,9 +328,9 @@ public class Snapshot implements Serializable {
                 String aiClassName = el.getAttribute("ai-class");
                 slot.setAiClassName(aiClassName);
             } else {
-            	if (el.hasAttribute("clientId")) {
-            		slot.setClientId(el.getAttribute("clientId"));
-            	}
+                if (el.hasAttribute("clientId")) {
+                    slot.setClientId(el.getAttribute("clientId"));
+                }
             }
             NodeList categories = el.getElementsByTagName("point-category");
             for (int j = 0; j < categories.getLength(); j++) {
@@ -394,22 +394,22 @@ public class Snapshot implements Serializable {
 
             Meeple meeple = null;
             if (el.hasAttribute("meeple-id")) {
-            	String meepleId = el.getAttribute("meeple-id");
-            	for (Meeple m : player.getMeeples()) {
-            		if (m.getId().equals(meepleId)) {
-            			meeple = m;
-            			break;
-            		}
-            	}
+                String meepleId = el.getAttribute("meeple-id");
+                for (Meeple m : player.getMeeples()) {
+                    if (m.getId().equals(meepleId)) {
+                        meeple = m;
+                        break;
+                    }
+                }
             } else {
-            	//compatibility with 3.2.0
-	            String meepleType = el.getAttribute("type");
-	            if (!meepleType.startsWith("com.")) { // 2.X snapshot compatibility
-	                meepleType = "com.jcloisterzone.figure." + meepleType;
-	            }
-	            Class<? extends Meeple> mt = (Class<? extends Meeple>) XMLUtils.classForName(meepleType);
+                //compatibility with 3.2.0
+                String meepleType = el.getAttribute("type");
+                if (!meepleType.startsWith("com.")) { // 2.X snapshot compatibility
+                    meepleType = "com.jcloisterzone.figure." + meepleType;
+                }
+                Class<? extends Meeple> mt = (Class<? extends Meeple>) XMLUtils.classForName(meepleType);
 
-	            meeple = player.getMeepleFromSupply(mt);
+                meeple = player.getMeepleFromSupply(mt);
             }
             meeple.setFeaturePointer(new FeaturePointer(pos, loc));
             //don't set feature here. Feature must be set after meeple deployment to correct replace ref during merge

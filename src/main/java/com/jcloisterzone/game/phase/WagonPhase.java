@@ -21,17 +21,11 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
 
-
+@RequiredCapability(WagonCapability.class)
 public class WagonPhase extends ServerAwarePhase {
 
     public WagonPhase(Game game, GameController controller) {
         super(game, controller);
-    }
-
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(WagonCapability.class);
     }
 
     @Override

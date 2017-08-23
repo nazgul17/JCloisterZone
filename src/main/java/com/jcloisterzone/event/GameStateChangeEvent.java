@@ -2,6 +2,7 @@ package com.jcloisterzone.event;
 
 import com.jcloisterzone.game.Snapshot;
 
+@Deprecated
 public class GameStateChangeEvent extends Event {
 
     public static final int GAME_START = 1;

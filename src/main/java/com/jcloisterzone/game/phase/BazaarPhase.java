@@ -10,6 +10,7 @@ import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BazaarItem;
@@ -28,17 +29,12 @@ import com.jcloisterzone.wsio.message.PassMessage;
 import io.vavr.Tuple2;
 import io.vavr.collection.Queue;
 
+@RequiredCapability(BazaarCapability.class)
 public class BazaarPhase extends ServerAwarePhase {
 
     public BazaarPhase(Game game, GameController controller) {
         super(game, controller);
     }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(BazaarCapability.class);
-    }
-
 
     @Override
     public void enter(GameState state) {

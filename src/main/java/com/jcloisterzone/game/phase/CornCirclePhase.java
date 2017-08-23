@@ -33,6 +33,7 @@ import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
+@RequiredCapability(CornCircleCapability.class)
 public class CornCirclePhase extends ServerAwarePhase {
 
     public CornCirclePhase(Game game, GameController controller) {

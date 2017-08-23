@@ -14,6 +14,7 @@ import com.jcloisterzone.figure.Phantom;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.FlierCapability;
 import com.jcloisterzone.game.capability.GermanMonasteriesCapability;
+import com.jcloisterzone.game.capability.MageAndWitchCapability;
 import com.jcloisterzone.game.capability.PhantomCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
 import com.jcloisterzone.game.capability.TowerCapability;
@@ -23,6 +24,7 @@ import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
+@RequiredCapability(PhantomCapability.class)
 public class PhantomPhase extends Phase {
 
 //    private final TowerCapability towerCap;
@@ -38,10 +40,6 @@ public class PhantomPhase extends Phase {
 //        gmCap = game.getCapability(GermanMonasteriesCapability.class);
     }
 
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(PhantomCapability.class);
-    }
 
     @Override
     public void notifyRansomPaid() {

@@ -1,5 +1,7 @@
 package com.jcloisterzone.game;
 
+import java.util.Collections;
+import java.util.EnumSet;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -12,18 +14,49 @@ import com.google.common.eventbus.EventBus;
 import com.google.common.hash.HashCode;
 import com.jcloisterzone.EventBusExceptionHandler;
 import com.jcloisterzone.EventProxy;
+import com.jcloisterzone.Expansion;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
+import com.jcloisterzone.config.Config;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
+import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.play.PlayEvent;
+import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
 import com.jcloisterzone.figure.Meeple;
+import com.jcloisterzone.game.phase.AbbeyPhase;
+import com.jcloisterzone.game.phase.ActionPhase;
+import com.jcloisterzone.game.phase.BazaarPhase;
+import com.jcloisterzone.game.phase.CastlePhase;
+import com.jcloisterzone.game.phase.CleanUpTurnPartPhase;
+import com.jcloisterzone.game.phase.CleanUpTurnPhase;
+import com.jcloisterzone.game.phase.CocCountPhase;
+import com.jcloisterzone.game.phase.CocFollowerPhase;
+import com.jcloisterzone.game.phase.CocPreScorePhase;
+import com.jcloisterzone.game.phase.CommitActionPhase;
+import com.jcloisterzone.game.phase.CornCirclePhase;
+import com.jcloisterzone.game.phase.DragonMovePhase;
+import com.jcloisterzone.game.phase.DragonPhase;
+import com.jcloisterzone.game.phase.EscapePhase;
+import com.jcloisterzone.game.phase.FairyPhase;
+import com.jcloisterzone.game.phase.FlierActionPhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
+import com.jcloisterzone.game.phase.GoldPiecePhase;
+import com.jcloisterzone.game.phase.MageAndWitchPhase;
+import com.jcloisterzone.game.phase.PhantomPhase;
 import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.game.phase.RequiredCapability;
+import com.jcloisterzone.game.phase.ScorePhase;
+import com.jcloisterzone.game.phase.TilePhase;
+import com.jcloisterzone.game.phase.TowerCapturePhase;
+import com.jcloisterzone.game.phase.WagonPhase;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameStateBuilder;
+import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.SlotMessage;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
@@ -36,24 +69,30 @@ import io.vavr.collection.Queue;
  * points, followers ... and game rules of current game.
  */
 //TODO remove extends from GameSettings
-public class Game extends GameSettings implements EventProxy {
+public class Game implements EventProxy {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     // -- new --
 
-    private GameState state;
+    private final String gameId;
 
+    private GameSetup setup;
+    private GameState state;
+    private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
+
+    protected PlayerSlot[] slots;
+    protected Expansion[][] slotSupportedExpansions = new Expansion[PlayerSlot.COUNT][];
 
     // -- temporary dev --
 
-    private GameStateBuilder stateBuilder;
+    //private GameStateBuilder stateBuilder;
 
     // -- old --
 
 //    private final List<NeutralFigure> neutralFigures = new ArrayList<>();
 //
-    private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
+
 
     private List<GameState> undoState = List.empty();
 
@@ -74,13 +113,22 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public Game(String gameId, long randomSeed) {
-        super(gameId);
+        this.gameId = gameId;
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
+        this.setup = new GameSetup();
+    }
+
+    public String getGameId() {
+        return gameId;
     }
 
     public GameState getState() {
         return state;
+    }
+
+    public GameSetup getSetup() {
+        return setup;
     }
 
     @Deprecated
@@ -168,16 +216,112 @@ public class Game extends GameSettings implements EventProxy {
         replaceState(head._1);
     }
 
+    @WsSubscribe
+    public void handleSlotMessage(SlotMessage msg) {
+        slotSupportedExpansions[msg.getNumber()] = msg.getSupportedExpansions();
+        post(new SupportedExpansionsChangeEvent(mergeSupportedExpansions()));
+    }
+
+    private EnumSet<Expansion> mergeSupportedExpansions() {
+        EnumSet<Expansion> merged = null;
+        for (int i = 0; i < slotSupportedExpansions.length; i++) {
+            Expansion[] supported = slotSupportedExpansions[i];
+            if (supported == null) continue;
+            if (merged == null) {
+                merged = EnumSet.allOf(Expansion.class);
+            }
+            EnumSet<Expansion> supp = EnumSet.noneOf(Expansion.class);
+            Collections.addAll(supp, supported);
+            merged.retainAll(supp);
+        }
+        return merged;
+    }
+
     @Override
     public void post(Event event) {
         eventBus.post(event);
     }
 
+    //TODO decouple from GameController
+    public void start(GameController gc) {
+        Phase firstPhase = createPhases(gc);
+        GameStateBuilder builder = new GameStateBuilder(setup, slots, gc.getConfig());
+        GameState initialState = builder.build(firstPhase);
+
+        post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, null));
+
+        replaceState(initialState);
+        firstPhase.enter(initialState);
+    }
+
+    private Phase addPhase(Phase next, Phase phase) {
+        RequiredCapability req = phase.getClass().getAnnotation(RequiredCapability.class);
+
+        if (req != null && setup.getCapabilityClasses().contains(req.value())) {
+            return next;
+        }
+
+        phases.put(phase.getClass(), phase);
+        if (next != null) {
+            phase.setDefaultNext(next);
+        }
+        return phase;
+    }
+
+    protected Phase createPhases(GameController gc) {
+        Phase last, next = null;
+        //if there isn't assignment - phase is out of standard flow
+               addPhase(next, new GameOverPhase(this, gc));
+        next = last = addPhase(next, new CleanUpTurnPhase(this));
+        next = addPhase(next, new BazaarPhase(this, gc));
+        next = addPhase(next, new EscapePhase(this));
+        next = addPhase(next, new CleanUpTurnPartPhase(this));
+        next = addPhase(next, new CornCirclePhase(this, gc));
+
+        if (setup.getBooleanValue(CustomRule.DRAGON_MOVE_AFTER_SCORING)) {
+            addPhase(next, new DragonMovePhase(this, gc));
+            next = addPhase(next, new DragonPhase(this));
+        }
+
+               addPhase(next, new CocCountPhase(this));
+        next = addPhase(next, new CocFollowerPhase(this));
+        next = addPhase(next, new WagonPhase(this, gc));
+        next = addPhase(next, new ScorePhase(this, gc));
+        next = addPhase(next, new CocPreScorePhase(this, gc));
+        next = addPhase(next, new CommitActionPhase(this));
+        next = addPhase(next, new CastlePhase(this));
+
+        if (!setup.getBooleanValue(CustomRule.DRAGON_MOVE_AFTER_SCORING)) {
+               addPhase(next, new DragonMovePhase(this, gc));
+               next = addPhase(next, new DragonPhase(this));
+        }
+
+        next = addPhase(next, new PhantomPhase(this));
+               addPhase(next, new TowerCapturePhase(this));
+               addPhase(next, new FlierActionPhase(this));
+        next = addPhase(next, new ActionPhase(this));
+        next = addPhase(next, new MageAndWitchPhase(this));
+        next = addPhase(next, new GoldPiecePhase(this));
+        next = addPhase(next, new TilePhase(this, gc));
+        next = addPhase(next, new AbbeyPhase(this, gc));
+        next = addPhase(next, new FairyPhase(this));
+        last.setDefaultNext(next); //after last phase, the first is default
+
+        return next;
+    }
+
+    public void setSlots(PlayerSlot[] slots) {
+        this.slots = slots;
+    }
+
     public PlayerSlot[] getPlayerSlots() {
-        return stateBuilder.getPlayerSlots();
+        return slots;
     }
 
     public Phase getPhase() {
+        if (state == null) {
+            return null;
+        }
         return phases.get(state.getPhase());
     }
 
@@ -221,36 +365,4 @@ public class Game extends GameSettings implements EventProxy {
     public int idSequnceNextVal() {
         return ++idSequenceCurrVal;
     }
-
-    // delegation to capabilities
-
-
-//    public boolean isTilePlacementAllowed(TileDefinition tile, Position p) {
-//        for (Capability cap: getCapabilities()) {
-//            if (!cap.isTilePlacementAllowed(tile, p)) return false;
-//        }
-//        return true;
-//    }
-
-//    public void saveTileToSnapshot(Tile tile, Document doc, Element tileNode) {
-//        for (Capability cap: getCapabilities()) {
-//            cap.saveTileToSnapshot(tile, doc, tileNode);
-//        }
-//    }
-//
-//    public void loadTileFromSnapshot(Tile tile, Element tileNode) {
-//        for (Capability cap: getCapabilities()) {
-//            cap.loadTileFromSnapshot(tile, tileNode);
-//        }
-//    }
-
-    public GameStateBuilder getStateBuilder() {
-        return stateBuilder;
-    }
-
-    public void setStateBuilder(GameStateBuilder createGamePhase) {
-        this.stateBuilder = createGamePhase;
-    }
-
-
 }

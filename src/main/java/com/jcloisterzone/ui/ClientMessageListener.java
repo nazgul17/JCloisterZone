@@ -36,16 +36,13 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.PlayerSlot.SlotState;
 import com.jcloisterzone.game.Snapshot;
-import com.jcloisterzone.game.state.GameStateBuilder;
+import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.online.Channel;
-import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.view.ChannelView;
 import com.jcloisterzone.ui.view.GameSetupView;
-import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.MessageDispatcher;
 import com.jcloisterzone.wsio.MessageListener;
-import com.jcloisterzone.wsio.MutedConnection;
 import com.jcloisterzone.wsio.WebSocketConnection;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.ChannelMessage;
@@ -137,12 +134,8 @@ public class ClientMessageListener implements MessageListener {
         EventProxyUiController<?> controller = getController(msg);
         if (controller instanceof GameController) {
             GameController gc = (GameController) controller;
-            // TODO IMMUTABLE temp hack
-            if (gc.getGame().getStateBuilder() != null) {
-                dispatcher.dispatch(msg, conn, this, gc.getGame().getStateBuilder());
-            } else {
-                dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
-            }
+            Game game = gc.getGame();
+            dispatcher.dispatch(msg, conn, this, game, game.getPhase());
         } else {
             dispatcher.dispatch(msg, conn, this);
         }
@@ -198,7 +191,7 @@ public class ClientMessageListener implements MessageListener {
             slots[number] = slot;
             updateSlot(slots, slotMsg);
         }
-        gc.getGame().getStateBuilder().setSlots(slots);
+        gc.getGame().setSlots(slots);
     }
 
     private GameController createGameController(GameMessage msg) {
@@ -213,12 +206,12 @@ public class ClientMessageListener implements MessageListener {
 
         Game game;
         GameController gc;
-        GameStateBuilder phase;
+ //       GameStateBuilder phase;
  //       if (snapshot == null) {
             game = new Game(msg.getGameId());
-            game.setName(msg.getName());
+            game.getSetup().setName(msg.getName());
             gc = new GameController(client, game);
-            phase = new GameStateBuilder(game, gc);
+//            phase = new GameStateBuilder(game, gc);
 //        } else {
 //            game = snapshot.asGame(msg.getGameId());
 //            gc = new GameController(client, game);
@@ -233,7 +226,6 @@ public class ClientMessageListener implements MessageListener {
                 gc.getRemoteClients().add(client);
             }
         }
-        game.setStateBuilder(phase);
         if (msg.getSlots() != null) {
             createGameSlots(gc, msg);
         }
@@ -242,38 +234,39 @@ public class ClientMessageListener implements MessageListener {
 
     private void handleGameStarted(final GameController gc, String[] replay) throws InvocationTargetException, InterruptedException {
         conn.getReportingTool().setGame(gc.getGame());
-        GameStateBuilder phase = gc.getGame().getStateBuilder();
-        phase.startGame(replay != null);
+//        GameStateBuilder phase = gc.getGame().getStateBuilder();
+//        phase.startGame(replay != null);
+        gc.getGame().start(gc);
 
-        if (replay != null) {
-            //TODO IMMUTABLE
-            gc.setConnection(new MutedConnection(conn));
-
-            SwingUtilities.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    GameView view = new GameView(client, gc);
-                    view.setChatPanel(new GameChatPanel(client, gc.getGame()));
-                    client.mountView(view);
-                }
-            });
-
-            //gc.phaseLoop();
-            for (int i = 0; i < replay.length; i++) {
-                if (i == replay.length - 1) {
-                    for (PlayerSlot slot : phase.getPlayerSlots()) {
-                        if (slot != null && slot.getAiPlayer() != null) {
-                            slot.getAiPlayer().setMuted(false);
-                        }
-                    }
-                }
-
-                WsMessage msg = conn.getParser().fromJson(replay[i]);
-                dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
-                //gc.phaseLoop();
-            }
-            gc.setConnection(conn);
-        }
+//        if (replay != null) {
+//            //TODO IMMUTABLE
+//            gc.setConnection(new MutedConnection(conn));
+//
+//            SwingUtilities.invokeAndWait(new Runnable() {
+//                @Override
+//                public void run() {
+//                    GameView view = new GameView(client, gc);
+//                    view.setChatPanel(new GameChatPanel(client, gc.getGame()));
+//                    client.mountView(view);
+//                }
+//            });
+//
+//            //gc.phaseLoop();
+//            for (int i = 0; i < replay.length; i++) {
+//                if (i == replay.length - 1) {
+//                    for (PlayerSlot slot : phase.getPlayerSlots()) {
+//                        if (slot != null && slot.getAiPlayer() != null) {
+//                            slot.getAiPlayer().setMuted(false);
+//                        }
+//                    }
+//                }
+//
+//                WsMessage msg = conn.getParser().fromJson(replay[i]);
+//                dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
+//                //gc.phaseLoop();
+//            }
+//            gc.setConnection(conn);
+//        }
     }
 
     private void openGameSetup(final GameController gc, final GameMessage msg) throws InvocationTargetException, InterruptedException {
@@ -315,12 +308,9 @@ public class ClientMessageListener implements MessageListener {
         handleGameSetup(msg.getGameSetup());
         if (msg.getSlots() != null) {
             createGameSlots(gc, msg);
-            GameStateBuilder phase = gc.getGame().getStateBuilder();
             for (SlotMessage slotMsg : msg.getSlots()) {
                 handleSlot(slotMsg);
-                if (phase != null) {
-                    phase.handleSlotMessage(slotMsg);
-                }
+                gc.getGame().handleSlotMessage(slotMsg);
             }
         }
 
@@ -453,17 +443,17 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleGameSetup(GameSetupMessage msg) {
         Game game = getGame(msg);
-        game.getExpansions().clear();
-        game.getExpansions().addAll(msg.getExpansions());
-        game.getCustomRules().clear();
-        game.getCustomRules().putAll(msg.getRules());
+        game.getSetup().getExpansions().clear();
+        game.getSetup().getExpansions().addAll(msg.getExpansions());
+        game.getSetup().getCustomRules().clear();
+        game.getSetup().getCustomRules().putAll(msg.getRules());
 
         for (Expansion exp : Expansion.values()) {
             if (!exp.isImplemented()) continue;
-            game.post(new ExpansionChangedEvent(exp, game.getExpansions().contains(exp)));
+            game.post(new ExpansionChangedEvent(exp, game.getSetup().getExpansions().contains(exp)));
         }
         for (CustomRule rule : CustomRule.values()) {
-            Object value = game.getCustomRules().get(rule);
+            Object value = game.getSetup().getCustomRules().get(rule);
             game.post(new RuleChangeEvent(rule, value));
         }
     }
@@ -474,9 +464,9 @@ public class ClientMessageListener implements MessageListener {
         Game game = getGame(msg);
         Expansion expansion = msg.getExpansion();
         if (msg.isEnabled()) {
-            game.getExpansions().add(expansion);
+            game.getSetup().getExpansions().add(expansion);
         } else {
-            game.getExpansions().remove(expansion);
+            game.getSetup().getExpansions().remove(expansion);
         }
         game.post(new ExpansionChangedEvent(expansion, msg.isEnabled()));
     }
@@ -486,9 +476,9 @@ public class ClientMessageListener implements MessageListener {
         Game game = getGame(msg);
         CustomRule rule = msg.getRule();
         if (msg.getValue() == null) {
-            game.getCustomRules().remove(rule);
+            game.getSetup().getCustomRules().remove(rule);
         } else {
-            game.getCustomRules().put(rule, msg.getValue());
+            game.getSetup().getCustomRules().put(rule, msg.getValue());
         }
         game.post(new RuleChangeEvent(rule, msg.getValue()));
     }
@@ -543,7 +533,7 @@ public class ClientMessageListener implements MessageListener {
           int i = 0;
           for (String name: players) {
               Class<?> clazz = null;;
-              PlayerSlot slot = game.getStateBuilder().getPlayerSlots()[i];
+              PlayerSlot slot = game.getPlayerSlots()[i];
               try {
                   clazz = Class.forName(name);
                   slot.setAiClassName(name);

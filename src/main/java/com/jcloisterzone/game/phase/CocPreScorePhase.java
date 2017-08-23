@@ -24,15 +24,11 @@ import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
+@RequiredCapability(CountCapability.class)
 public class CocPreScorePhase extends ServerAwarePhase {
 
     public CocPreScorePhase(Game game, GameController gc) {
         super(game, gc);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(CountCapability.class);
     }
 
     @Override

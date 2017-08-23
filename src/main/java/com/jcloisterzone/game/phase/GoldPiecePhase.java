@@ -12,6 +12,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 
+@RequiredCapability(GoldminesCapability.class)
 public class GoldPiecePhase extends Phase {
 
     public GoldPiecePhase(Game game) {

@@ -17,7 +17,9 @@ public class MessageDispatcher {
             throw new IllegalArgumentException("No targets");
         }
         for (Object target : targets) {
-            dispatchOn(msg, context, target);
+            if (target != null) {
+                dispatchOn(msg, context, target);
+            }
         }
     }
 

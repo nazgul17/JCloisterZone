@@ -3,13 +3,10 @@ package com.jcloisterzone.game.phase;
 import com.jcloisterzone.action.MeepleAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.pointer.FeaturePointer;
-import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.feature.Cloister;
 import com.jcloisterzone.feature.Completable;
 import com.jcloisterzone.feature.Feature;
-import com.jcloisterzone.feature.visitor.IsCompleted;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
@@ -18,6 +15,8 @@ import com.jcloisterzone.game.capability.FlierCapability;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 
+
+@RequiredCapability(FlierCapability.class)
 public class FlierActionPhase extends Phase {
 
     public FlierActionPhase(Game game) {

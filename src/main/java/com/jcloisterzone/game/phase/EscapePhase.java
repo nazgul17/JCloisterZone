@@ -15,6 +15,7 @@ import com.jcloisterzone.feature.City;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.capability.SiegeCapability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.CapabilitiesState;
@@ -29,17 +30,12 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Stream;
 
 
+@RequiredCapability(SiegeCapability.class)
 public class EscapePhase extends Phase {
 
     public EscapePhase(Game game) {
         super(game);
     }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(SiegeCapability.class);
-    }
-
 
     @Override
     public void enter(GameState state) {

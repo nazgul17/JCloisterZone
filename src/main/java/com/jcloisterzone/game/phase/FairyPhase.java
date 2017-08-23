@@ -9,6 +9,7 @@ import com.jcloisterzone.event.play.ScoreEvent;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.FairyCapability;
+import com.jcloisterzone.game.capability.SiegeCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.AddPoints;
@@ -16,15 +17,11 @@ import com.jcloisterzone.reducers.AddPoints;
 import io.vavr.Tuple2;
 
 
+@RequiredCapability(FairyCapability.class)
 public class FairyPhase extends Phase {
 
     public FairyPhase(Game game) {
         super(game);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(FairyCapability.class);
     }
 
     @Override

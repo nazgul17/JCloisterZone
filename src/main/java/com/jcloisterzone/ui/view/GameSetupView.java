@@ -9,14 +9,11 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JPanel;
 
-import net.miginfocom.swing.MigLayout;
-
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.event.ClientListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
-import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.MenuBar;
@@ -26,6 +23,8 @@ import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.panel.BackgroundPanel;
 import com.jcloisterzone.ui.panel.ConnectedClientsPanel;
 import com.jcloisterzone.ui.panel.CreateGamePanel;
+
+import net.miginfocom.swing.MigLayout;
 
 public class GameSetupView extends AbstractUiView {
 
@@ -55,13 +54,12 @@ public class GameSetupView extends AbstractUiView {
     @Override
     public void show(Container pane, Object ctx) {
         Game game = gc.getGame();
-        GameStateBuilder phase = game.getStateBuilder();
 
         BackgroundPanel bg = new BackgroundPanel();
         bg.setLayout(new BorderLayout());
         pane.add(bg);
 
-        showCreateGamePanel(bg, mutableSlots, phase.getPlayerSlots());
+        showCreateGamePanel(bg, mutableSlots, game.getPlayerSlots());
 
         MenuBar menu = client.getJMenuBar();
         menu.setItemActionListener(MenuItem.LEAVE_GAME, new ActionListener() {
@@ -89,7 +87,7 @@ public class GameSetupView extends AbstractUiView {
         chatColumn.setPreferredSize(new Dimension(250, panel.getHeight()));
         panel.add(chatColumn, BorderLayout.WEST);
 
-        chatColumn.add(connectedClientsPanel = new ConnectedClientsPanel(client, game.getName()), "cell 0 0, grow");
+        chatColumn.add(connectedClientsPanel = new ConnectedClientsPanel(client, game.getSetup().getName()), "cell 0 0, grow");
 
         chatPanel = new GameChatPanel(client, game);
         chatColumn.add(chatPanel, "cell 0 1, grow");

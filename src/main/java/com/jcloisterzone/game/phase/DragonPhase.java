@@ -8,15 +8,11 @@ import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 
+@RequiredCapability(DragonCapability.class)
 public class DragonPhase extends Phase {
 
     public DragonPhase(Game game) {
         super(game);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(DragonCapability.class);
     }
 
     @Override

@@ -17,7 +17,6 @@ import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.BuilderState;
 import com.jcloisterzone.game.state.ActionsState;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.ui.GameController;
@@ -28,15 +27,11 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Array;
 import io.vavr.collection.Stream;
 
+@RequiredCapability(AbbeyCapability.class)
 public class AbbeyPhase extends ServerAwarePhase {
 
     public AbbeyPhase(Game game, GameController controller) {
         super(game, controller);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(AbbeyCapability.class);
     }
 
     @Override

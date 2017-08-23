@@ -26,15 +26,11 @@ import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
+@RequiredCapability(CountCapability.class)
 public class CocFollowerPhase extends Phase {
 
     public CocFollowerPhase(Game game) {
         super(game);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(CountCapability.class);
     }
 
     @Override

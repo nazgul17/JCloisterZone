@@ -63,10 +63,6 @@ public abstract class Phase {
         //do nothing by default
     }
 
-    public boolean isActive(CapabilitiesState capabilities) {
-        return true;
-    }
-
     @WsSubscribe
     public void handlePass(PassMessage msg) {
         GameState state = game.getState();

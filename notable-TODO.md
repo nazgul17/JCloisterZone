@@ -46,5 +46,6 @@ and get it by one one instead of all per tile
 
 * Tower, place tile, use same circular ares as for selecting follower
 
-* play lake as common case - add note to release notes
-* Refactor groups in tile pack, use object for group
+* extract config to global singleton repository, eg Client or Application
+
+* don't male instance of unused phases, now there is annotation which can be handled before

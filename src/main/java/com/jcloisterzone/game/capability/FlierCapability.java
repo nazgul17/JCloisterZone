@@ -22,7 +22,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.SnapshotCorruptedException;
 
-public class FlierCapability extends Capability {
+public class FlierCapability extends Capability<Void> {
 
     boolean flierUsed = false; //prevent phantom use flier if flier used this turn
     private int flierDistance;

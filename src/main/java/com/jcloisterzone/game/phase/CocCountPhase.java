@@ -8,11 +8,9 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.action.SelectFeatureAction;
 import com.jcloisterzone.board.Location;
 import com.jcloisterzone.board.Position;
-import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.figure.neutral.Count;
-import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
@@ -23,15 +21,11 @@ import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
+@RequiredCapability(CountCapability.class)
 public class CocCountPhase extends Phase {
 
     public CocCountPhase(Game game) {
         super(game);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(CountCapability.class);
     }
 
     @Override
