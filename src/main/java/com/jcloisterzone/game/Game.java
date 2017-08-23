@@ -19,11 +19,11 @@ import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.phase.GameOverPhase;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameStateBuilder;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
@@ -47,7 +47,7 @@ public class Game extends GameSettings implements EventProxy {
 
     // -- temporary dev --
 
-    private CreateGamePhase createGamePhase;
+    private GameStateBuilder stateBuilder;
 
     // -- old --
 
@@ -83,20 +83,23 @@ public class Game extends GameSettings implements EventProxy {
         return state;
     }
 
-
+    @Deprecated
     public void replaceState(Function<GameState, GameState> f1) {
         replaceState(f1.apply(this.state));
     }
 
+    @Deprecated
     public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2) {
         replaceState(f2.apply(f1.apply(this.state)));
     }
 
+    @Deprecated
     public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2,
         Function<GameState, GameState> f3) {
         replaceState(f3.apply(f2.apply(f1.apply(this.state))));
     }
 
+    @Deprecated
     public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2,
         Function<GameState, GameState> f3, Function<GameState, GameState> f4) {
         replaceState(f4.apply(f3.apply(f2.apply(f1.apply(this.state)))));
@@ -171,13 +174,7 @@ public class Game extends GameSettings implements EventProxy {
     }
 
     public PlayerSlot[] getPlayerSlots() {
-        // need to match subtypes, can't use getInstance on phases
-        for (Phase phase : phases.values()) {
-            if (phase instanceof CreateGamePhase) {
-                return ((CreateGamePhase)phase).getPlayerSlots();
-            }
-        }
-        return null;
+        return stateBuilder.getPlayerSlots();
     }
 
     public Phase getPhase() {
@@ -213,7 +210,7 @@ public class Game extends GameSettings implements EventProxy {
 
     @Deprecated
     public boolean isStarted() {
-        return !(getPhase() instanceof CreateGamePhase);
+        return state != null;
     }
 
     @Deprecated
@@ -247,12 +244,12 @@ public class Game extends GameSettings implements EventProxy {
 //        }
 //    }
 
-    public CreateGamePhase getCreateGamePhase() {
-        return createGamePhase;
+    public GameStateBuilder getStateBuilder() {
+        return stateBuilder;
     }
 
-    public void setCreateGamePhase(CreateGamePhase createGamePhase) {
-        this.createGamePhase = createGamePhase;
+    public void setStateBuilder(GameStateBuilder createGamePhase) {
+        this.stateBuilder = createGamePhase;
     }
 
 

@@ -1,4 +1,4 @@
-package com.jcloisterzone.game.phase;
+package com.jcloisterzone.game.state;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -8,15 +8,18 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.ClassToInstanceMap;
 import com.jcloisterzone.Expansion;
 import com.jcloisterzone.Player;
 import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.ai.AiPlayer;
-import com.jcloisterzone.board.TileGroupState;
+import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePackBuilder;
 import com.jcloisterzone.board.TilePackBuilder.Tiles;
-import com.jcloisterzone.board.TilePack;
+import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
@@ -32,8 +35,31 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Snapshot;
 import com.jcloisterzone.game.capability.PigHerdCapability;
-import com.jcloisterzone.game.state.GameState;
-import com.jcloisterzone.game.state.PlacedTile;
+import com.jcloisterzone.game.phase.AbbeyPhase;
+import com.jcloisterzone.game.phase.ActionPhase;
+import com.jcloisterzone.game.phase.BazaarPhase;
+import com.jcloisterzone.game.phase.CastlePhase;
+import com.jcloisterzone.game.phase.CleanUpTurnPartPhase;
+import com.jcloisterzone.game.phase.CleanUpTurnPhase;
+import com.jcloisterzone.game.phase.CocCountPhase;
+import com.jcloisterzone.game.phase.CocFollowerPhase;
+import com.jcloisterzone.game.phase.CocPreScorePhase;
+import com.jcloisterzone.game.phase.CommitActionPhase;
+import com.jcloisterzone.game.phase.CornCirclePhase;
+import com.jcloisterzone.game.phase.DragonMovePhase;
+import com.jcloisterzone.game.phase.DragonPhase;
+import com.jcloisterzone.game.phase.EscapePhase;
+import com.jcloisterzone.game.phase.FairyPhase;
+import com.jcloisterzone.game.phase.FlierActionPhase;
+import com.jcloisterzone.game.phase.GameOverPhase;
+import com.jcloisterzone.game.phase.GoldPiecePhase;
+import com.jcloisterzone.game.phase.MageAndWitchPhase;
+import com.jcloisterzone.game.phase.PhantomPhase;
+import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.game.phase.ScorePhase;
+import com.jcloisterzone.game.phase.TilePhase;
+import com.jcloisterzone.game.phase.TowerCapturePhase;
+import com.jcloisterzone.game.phase.WagonPhase;
 import com.jcloisterzone.reducers.PlaceTile;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
@@ -46,7 +72,7 @@ import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 
 
-public class CreateGamePhase extends ServerAwarePhase {
+public class GameStateBuilder {
 
     private final static class PlayerSlotComparator implements Comparator<PlayerSlot> {
         @Override
@@ -61,11 +87,17 @@ public class CreateGamePhase extends ServerAwarePhase {
         }
     }
 
+    protected final transient Logger logger = LoggerFactory.getLogger(getClass());
+
+    private final Game game;
+    private final GameController gc;
+
     protected PlayerSlot[] slots;
     protected Expansion[][] slotSupportedExpansions = new Expansion[PlayerSlot.COUNT][];
 
-    public CreateGamePhase(Game game, GameController controller) {
-        super(game, controller);
+    public GameStateBuilder(Game game, GameController gc) {
+        this.game = game;
+        this.gc = gc;
     }
 
     public void setSlots(PlayerSlot[] slots) {
@@ -111,7 +143,6 @@ public class CreateGamePhase extends ServerAwarePhase {
     }
 
     protected Phase preparePhases() {
-        GameController gc = getGameController();
         Phase last, next = null;
         //if there isn't assignment - phase is out of standard flow
                addPhase(next, new GameOverPhase(game, gc));
@@ -177,7 +208,7 @@ public class CreateGamePhase extends ServerAwarePhase {
     protected Tuple2<Seq<PlacedTile>, GameState> prepareTilePack(Set<Expansion> expansions, GameState state) {
         TilePackBuilder tilePackFactory = new TilePackBuilder();
         tilePackFactory.setGameState(state);
-        tilePackFactory.setConfig(getGameController().getConfig());
+        tilePackFactory.setConfig(gc.getConfig());
         tilePackFactory.setExpansions(game.getExpansions());
 
         Tiles tiles = tilePackFactory.createTilePack();
@@ -199,7 +230,7 @@ public class CreateGamePhase extends ServerAwarePhase {
                     AiPlayer ai = (AiPlayer) Class.forName(slot.getAiClassName()).newInstance();
                     ai.setMuted(muteAi);
                     ai.setGame(game);
-                    ai.setGameController(getGameController());
+                    ai.setGameController(gc);
                     for (Player player : game.getState().getPlayers().getPlayers()) {
                         if (player.getSlot().getNumber() == slot.getNumber()) {
                             ai.setPlayer(player);
@@ -214,6 +245,11 @@ public class CreateGamePhase extends ServerAwarePhase {
                 }
             }
         }
+    }
+
+    private DebugConfig getDebugConfig() {
+        Config config = gc.getConfig();
+        return config == null ? null : config.getDebug();
     }
 
     protected io.vavr.collection.Set<Class<? extends Capability<?>>> getCapabilityClasses() {
@@ -316,8 +352,7 @@ public class CreateGamePhase extends ServerAwarePhase {
             s -> s.appendEvent(new PlayerTurnEvent(PlayEventMeta.createWithoutPlayer(), player)),
             s -> s.setPhase(first.getClass())
         );
-        toggleClock(player);
-        game.setCreateGamePhase(null);
+        game.setStateBuilder(null);
         first.enter(game.getState());
     }
 

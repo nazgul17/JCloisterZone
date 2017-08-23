@@ -16,7 +16,7 @@ import com.jcloisterzone.event.ClientListChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
-import com.jcloisterzone.game.phase.CreateGamePhase;
+import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.MenuBar;
@@ -55,7 +55,7 @@ public class GameSetupView extends AbstractUiView {
     @Override
     public void show(Container pane, Object ctx) {
         Game game = gc.getGame();
-        CreateGamePhase phase = game.getCreateGamePhase();
+        GameStateBuilder phase = game.getStateBuilder();
 
         BackgroundPanel bg = new BackgroundPanel();
         bg.setLayout(new BorderLayout());

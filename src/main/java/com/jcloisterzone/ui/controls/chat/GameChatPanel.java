@@ -6,8 +6,8 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.event.ChatEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
-import com.jcloisterzone.game.phase.CreateGamePhase;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.wsio.message.PostChatMessage;
 
@@ -65,7 +65,7 @@ public class GameChatPanel extends ChatPanel {
                 color = selected.getColors().getFontColor();
             }
         } else {
-             PlayerSlot[] slots = ((CreateGamePhase) game.getPhase()).getPlayerSlots();
+             PlayerSlot[] slots = game.getPlayerSlots();
              for (PlayerSlot slot: slots) {
                  if (! ev.getRemoteClient().getSessionId().equals(slot.getSessionId())) continue;
                  if (slot != null && !slot.isAi() && !slot.getNickname().equals("")) {

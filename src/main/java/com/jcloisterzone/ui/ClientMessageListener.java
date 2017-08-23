@@ -36,7 +36,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.PlayerSlot.SlotState;
 import com.jcloisterzone.game.Snapshot;
-import com.jcloisterzone.game.phase.CreateGamePhase;
+import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.online.Channel;
 import com.jcloisterzone.ui.controls.chat.GameChatPanel;
 import com.jcloisterzone.ui.view.ChannelView;
@@ -138,8 +138,8 @@ public class ClientMessageListener implements MessageListener {
         if (controller instanceof GameController) {
             GameController gc = (GameController) controller;
             // TODO IMMUTABLE temp hack
-            if (gc.getGame().getCreateGamePhase() != null) {
-                dispatcher.dispatch(msg, conn, this, gc.getGame().getCreateGamePhase());
+            if (gc.getGame().getStateBuilder() != null) {
+                dispatcher.dispatch(msg, conn, this, gc.getGame().getStateBuilder());
             } else {
                 dispatcher.dispatch(msg, conn, this, gc.getGame().getPhase());
             }
@@ -198,7 +198,7 @@ public class ClientMessageListener implements MessageListener {
             slots[number] = slot;
             updateSlot(slots, slotMsg);
         }
-        gc.getGame().getCreateGamePhase().setSlots(slots);
+        gc.getGame().getStateBuilder().setSlots(slots);
     }
 
     private GameController createGameController(GameMessage msg) {
@@ -213,12 +213,12 @@ public class ClientMessageListener implements MessageListener {
 
         Game game;
         GameController gc;
-        CreateGamePhase phase;
+        GameStateBuilder phase;
  //       if (snapshot == null) {
             game = new Game(msg.getGameId());
             game.setName(msg.getName());
             gc = new GameController(client, game);
-            phase = new CreateGamePhase(game, gc);
+            phase = new GameStateBuilder(game, gc);
 //        } else {
 //            game = snapshot.asGame(msg.getGameId());
 //            gc = new GameController(client, game);
@@ -233,8 +233,7 @@ public class ClientMessageListener implements MessageListener {
                 gc.getRemoteClients().add(client);
             }
         }
-        game.getPhases().put(phase.getClass(), phase);
-        game.setCreateGamePhase(phase);
+        game.setStateBuilder(phase);
         if (msg.getSlots() != null) {
             createGameSlots(gc, msg);
         }
@@ -243,7 +242,7 @@ public class ClientMessageListener implements MessageListener {
 
     private void handleGameStarted(final GameController gc, String[] replay) throws InvocationTargetException, InterruptedException {
         conn.getReportingTool().setGame(gc.getGame());
-        CreateGamePhase phase = gc.getGame().getCreateGamePhase();
+        GameStateBuilder phase = gc.getGame().getStateBuilder();
         phase.startGame(replay != null);
 
         if (replay != null) {
@@ -316,7 +315,7 @@ public class ClientMessageListener implements MessageListener {
         handleGameSetup(msg.getGameSetup());
         if (msg.getSlots() != null) {
             createGameSlots(gc, msg);
-            CreateGamePhase phase = gc.getGame().getCreateGamePhase();
+            GameStateBuilder phase = gc.getGame().getStateBuilder();
             for (SlotMessage slotMsg : msg.getSlots()) {
                 handleSlot(slotMsg);
                 if (phase != null) {
@@ -544,7 +543,7 @@ public class ClientMessageListener implements MessageListener {
           int i = 0;
           for (String name: players) {
               Class<?> clazz = null;;
-              PlayerSlot slot = game.getCreateGamePhase().getPlayerSlots()[i];
+              PlayerSlot slot = game.getStateBuilder().getPlayerSlots()[i];
               try {
                   clazz = Class.forName(name);
                   slot.setAiClassName(name);
