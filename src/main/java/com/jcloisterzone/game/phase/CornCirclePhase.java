@@ -34,15 +34,10 @@ import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
 
 @RequiredCapability(CornCircleCapability.class)
-public class CornCirclePhase extends ServerAwarePhase {
+public class CornCirclePhase extends Phase {
 
-    public CornCirclePhase(Game game, GameController controller) {
-        super(game, controller);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(CornCircleCapability.class);
+    public CornCirclePhase(GameController gc) {
+        super(gc);
     }
 
     @Override
@@ -206,15 +201,5 @@ public class CornCirclePhase extends ServerAwarePhase {
             return;
         }
         nextCornPlayer();
-    }
-
-    @Override
-    public void loadGame(Snapshot snapshot) {
-        setEntered(true); //avoid call enter on load phase to this phase switch
-        if (cornCircleCap.getCornCircleOption() == null) {
-            game.post(new CornCircleSelectOptionEvent(game.getActivePlayer(), getTile().getPosition()));
-        } else {
-            prepareCornAction();
-        }
     }
 }

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import com.google.common.eventbus.Subscribe;
 import com.jcloisterzone.event.ClientListChangedEvent;
-import com.jcloisterzone.event.GameStateChangeEvent;
+import com.jcloisterzone.event.GameStartedEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.ui.Client;
@@ -130,13 +130,10 @@ public class GameSetupView extends AbstractUiView {
     }
 
     @Subscribe
-    public void started(GameStateChangeEvent ev) {
-        if (GameStateChangeEvent.GAME_START == ev.getType()) {
-            GameView view = new GameView(client, gc);
-            view.setChatPanel(chatPanel);
-            view.setSnapshot(ev.getSnapshot());
-            client.mountView(view, this);
-        }
+    public void onGameStarted(GameStartedEvent ev) {
+        GameView view = new GameView(client, gc);
+        view.setChatPanel(chatPanel);
+        client.mountView(view, this);
     }
 
     @Subscribe

@@ -3,16 +3,15 @@ package com.jcloisterzone.game.phase;
 import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TileTrigger;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.DragonCapability;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
+import com.jcloisterzone.ui.GameController;
 
 @RequiredCapability(DragonCapability.class)
 public class DragonPhase extends Phase {
 
-    public DragonPhase(Game game) {
-        super(game);
+    public DragonPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

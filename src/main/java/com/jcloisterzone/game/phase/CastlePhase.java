@@ -10,12 +10,12 @@ import com.jcloisterzone.feature.Castle;
 import com.jcloisterzone.feature.City;
 import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.CastleCapability;
 import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PlaceTokenMessage;
 
@@ -28,8 +28,8 @@ import io.vavr.collection.Set;
 @RequiredCapability(CastleCapability.class)
 public class CastlePhase extends Phase {
 
-    public CastlePhase(Game game) {
-        super(game);
+    public CastlePhase(GameController gc) {
+        super(gc);
     }
 
     private Set<FeaturePointer> getPlayerOptions(GameState state, Player player) {

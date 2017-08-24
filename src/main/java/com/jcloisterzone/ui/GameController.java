@@ -16,7 +16,7 @@ import com.jcloisterzone.Player;
 import com.jcloisterzone.bugreport.ReportingTool;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.GameListChangedEvent;
-import com.jcloisterzone.event.GameStateChangeEvent;
+import com.jcloisterzone.event.GameOverEvent;
 import com.jcloisterzone.event.play.PlayerTurnEvent;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.game.Game;
@@ -93,20 +93,17 @@ public class GameController extends EventProxyUiController<Game> {
     }
 
     @Subscribe
-    public void handleGameStateChange(GameStateChangeEvent ev) {
-        if (ev.getType() == GameStateChangeEvent.GAME_OVER) {
-            boolean showPlayAgain = client.getLocalServer() != null;
-            gameView.setGameRunning(false);
-            //TODO allow chat after game also for standalone server
-            if (getChannel() == null && gameView.getChatPanel() != null) {
-                gameView.getGridPanel().remove(gameView.getChatPanel());
-            }
-            client.closeGame(true);
-            GameOverPanel panel = new GameOverPanel(client, this, showPlayAgain);
-            gameView.getGridPanel().add(panel, "pos 0 0");
-            gameView.getGridPanel().revalidate();
-
+    public void handleGameStateChange(GameOverEvent ev) {
+        boolean showPlayAgain = client.getLocalServer() != null;
+        gameView.setGameRunning(false);
+        //TODO allow chat after game also for standalone server
+        if (getChannel() == null && gameView.getChatPanel() != null) {
+            gameView.getGridPanel().remove(gameView.getChatPanel());
         }
+        client.closeGame(true);
+        GameOverPanel panel = new GameOverPanel(client, this, showPlayAgain);
+        gameView.getGridPanel().add(panel, "pos 0 0");
+        gameView.getGridPanel().revalidate();
     }
 
 

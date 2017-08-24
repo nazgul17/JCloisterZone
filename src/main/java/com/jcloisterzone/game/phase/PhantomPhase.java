@@ -11,14 +11,8 @@ import com.jcloisterzone.feature.visitor.IsOccupied;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.FlierCapability;
-import com.jcloisterzone.game.capability.GermanMonasteriesCapability;
-import com.jcloisterzone.game.capability.MageAndWitchCapability;
 import com.jcloisterzone.game.capability.PhantomCapability;
-import com.jcloisterzone.game.capability.PrincessCapability;
-import com.jcloisterzone.game.capability.TowerCapability;
-import com.jcloisterzone.game.state.CapabilitiesState;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployFlierMessage;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
@@ -27,19 +21,9 @@ import com.jcloisterzone.wsio.message.PassMessage;
 @RequiredCapability(PhantomCapability.class)
 public class PhantomPhase extends Phase {
 
-//    private final TowerCapability towerCap;
-//    private final FlierCapability flierCap;
-//    private final PrincessCapability princessCap;
-//    private final GermanMonasteriesCapability gmCap;
-
-    public PhantomPhase(Game game) {
-        super(game);
-//        towerCap = game.getCapability(TowerCapability.class);
-//        flierCap = game.getCapability(FlierCapability.class);
-//        princessCap = game.getCapability(PrincessCapability.class);
-//        gmCap = game.getCapability(GermanMonasteriesCapability.class);
+    public PhantomPhase(GameController gc) {
+        super(gc);
     }
-
 
     @Override
     public void notifyRansomPaid() {

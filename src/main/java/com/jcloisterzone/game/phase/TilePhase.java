@@ -17,7 +17,6 @@ import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.play.BridgePlaced;
 import com.jcloisterzone.event.play.PlayEvent.PlayEventMeta;
 import com.jcloisterzone.event.play.TileDiscardedEvent;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
@@ -40,14 +39,14 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
 
 
-public class TilePhase extends ServerAwarePhase {
+public class TilePhase extends Phase {
 
     private static final String DEBUG_END_OF_PACK = ".";
 
     private List<String> debugTiles;
 
-    public TilePhase(Game game, GameController controller) {
-        super(game, controller);
+    public TilePhase(GameController gc) {
+        super(gc);
         DebugConfig debugConfig = getDebugConfig();
         if (debugConfig != null) {
             List<String> draw = debugConfig.getDraw();

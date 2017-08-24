@@ -1,22 +1,20 @@
 package com.jcloisterzone.game.phase;
 
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.BuilderState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
-
-import io.vavr.collection.HashSet;
+import com.jcloisterzone.ui.GameController;
 
 /**
  *  End of turn part. For builder double repeat turn otherwise proceed to real end of turn.
  */
 public class CleanUpTurnPartPhase extends Phase {
 
-    public CleanUpTurnPartPhase(Game game) {
-        super(game);
+    public CleanUpTurnPartPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

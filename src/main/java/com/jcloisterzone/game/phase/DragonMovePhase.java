@@ -8,12 +8,9 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.neutral.Dragon;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.CornCircleCapability;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.game.capability.DragonCapability;
 import com.jcloisterzone.game.state.ActionsState;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.PlacedTile;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
@@ -28,10 +25,10 @@ import io.vavr.collection.Set;
 import io.vavr.collection.Vector;
 
 @RequiredCapability(DragonCapability.class)
-public class DragonMovePhase extends ServerAwarePhase {
+public class DragonMovePhase extends Phase {
 
-    public DragonMovePhase(Game game, GameController controller) {
-        super(game, controller);
+    public DragonMovePhase(GameController gc) {
+        super(gc);
     }
 
     private Vector<Position> getVisitedPositions(GameState state) {

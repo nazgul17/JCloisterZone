@@ -22,6 +22,7 @@ import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
 import com.jcloisterzone.game.state.CapabilitiesState;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
@@ -29,8 +30,8 @@ import com.jcloisterzone.wsio.message.PassMessage;
 @RequiredCapability(CountCapability.class)
 public class CocFollowerPhase extends Phase {
 
-    public CocFollowerPhase(Game game) {
-        super(game);
+    public CocFollowerPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

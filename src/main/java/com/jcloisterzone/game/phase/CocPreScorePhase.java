@@ -16,19 +16,17 @@ import com.jcloisterzone.feature.Quarter;
 import com.jcloisterzone.feature.visitor.IsCompleted;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.PassMessage;
 
 @RequiredCapability(CountCapability.class)
-public class CocPreScorePhase extends ServerAwarePhase {
+public class CocPreScorePhase extends Phase {
 
-    public CocPreScorePhase(Game game, GameController gc) {
-        super(game, gc);
+    public CocPreScorePhase(GameController gc) {
+        super(gc);
     }
 
     @Override

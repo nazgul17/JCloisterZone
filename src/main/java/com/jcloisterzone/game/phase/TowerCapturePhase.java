@@ -19,6 +19,7 @@ import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.CaptureMeeple;
 import com.jcloisterzone.reducers.PrisonersExchage;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
 import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
@@ -31,8 +32,8 @@ import io.vavr.collection.Stream;
 @RequiredCapability(TowerCapability.class)
 public class TowerCapturePhase extends Phase {
 
-    public TowerCapturePhase(Game game) {
-        super(game);
+    public TowerCapturePhase(GameController gc) {
+        super(gc);
     }
 
     @Override

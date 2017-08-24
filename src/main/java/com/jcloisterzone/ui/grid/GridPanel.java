@@ -89,7 +89,7 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
     private List<GridLayer> layers = new ArrayList<GridLayer>();
     private ErrorMessagePanel errorMsg;
 
-    public GridPanel(Client client, GameView gameView, ControlPanel controlPanel, ChatPanel chatPanel, Snapshot snapshot) {
+    public GridPanel(Client client, GameView gameView, ControlPanel controlPanel, ChatPanel chatPanel) {
         setDoubleBuffered(true);
         setOpaque(false);
         setLayout(new MigLayout());
@@ -118,18 +118,6 @@ public class GridPanel extends JPanel implements ForwardBackwardListener {
 
         updateTileSize((int)(INITIAL_TILE_WIDTH / rp.getImageSizeRatio()));
 
-
-        if (snapshot != null) {
-            NodeList nl = snapshot.getTileElements();
-            for (int i = 0; i < nl.getLength(); i++) {
-                Element el = (Element) nl.item(i);
-                Position pos = XMLUtils.extractPosition(el);
-                if (pos.x <= left) left = pos.x - 1;
-                if (pos.x >= right) right = pos.x + 1;
-                if (pos.y <= top) top = pos.y - 1;
-                if (pos.y >= bottom) bottom = pos.y + 1;
-            }
-        }
         registerMouseListeners();
         add(controlPanel, "pos (100%-255) 0 100% 100%");
         if (chatPanel != null) {

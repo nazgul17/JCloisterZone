@@ -4,27 +4,24 @@ import java.util.List;
 
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.TileTrigger;
-import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.MageWitchSelectRemoval;
 import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.figure.neutral.Mage;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.figure.neutral.Witch;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.GoldminesCapability;
 import com.jcloisterzone.game.capability.MageAndWitchCapability;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 
 @RequiredCapability(MageAndWitchCapability.class)
 public class MageAndWitchPhase extends Phase {
 
-    public MageAndWitchPhase(Game game) {
-        super(game);
+    public MageAndWitchPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

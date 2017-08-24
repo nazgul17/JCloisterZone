@@ -8,20 +8,14 @@ import com.jcloisterzone.board.Tile;
 import com.jcloisterzone.board.TileTrigger;
 import com.jcloisterzone.event.GoldChangeEvent;
 import com.jcloisterzone.event.SelectActionEvent;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.GoldminesCapability;
-import com.jcloisterzone.game.state.CapabilitiesState;
+import com.jcloisterzone.ui.GameController;
 
 @RequiredCapability(GoldminesCapability.class)
 public class GoldPiecePhase extends Phase {
 
-    public GoldPiecePhase(Game game) {
-        super(game);
-    }
-
-    @Override
-    public boolean isActive(CapabilitiesState capabilities) {
-        return capabilities.contains(GoldminesCapability.class);
+    public GoldPiecePhase(GameController gc) {
+        super(gc);
     }
 
     @Override

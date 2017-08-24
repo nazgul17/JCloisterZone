@@ -68,7 +68,7 @@ public class GameStateBuilder {
         this.config = config;
     }
 
-    public GameState build(Phase firstPhase) {
+    public GameState createInitialState() {
         //temporary code should be configured by player as rules
         io.vavr.collection.List<Capability<?>> capabilities = createCapabilities(setup.getCapabilities());
         createPlayers();
@@ -93,11 +93,15 @@ public class GameStateBuilder {
             state = cap.onStartGame(state);
         }
 
+         //prepareAiPlayers(muteAi);
+
+        return state;
+    }
+
+    public GameState createFirstRoundState(Phase firstPhase) {
         for (PlacedTile pt : preplacedTiles) {
             state = (new PlaceTile(pt.getTile(), pt.getPosition(), pt.getRotation())).apply(state);
         }
-
-        //prepareAiPlayers(muteAi);
 
         state = state.setPhase(firstPhase.getClass());
         state = state.appendEvent(new PlayerTurnEvent(PlayEventMeta.createWithoutPlayer(), state.getTurnPlayer()));

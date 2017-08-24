@@ -66,4 +66,9 @@ public class PlacedTile implements Serializable {
             .map(t -> t._2)
             .getOrNull();
     }
+
+    @Override
+    public String toString() {
+        return tile + "," + position + "," + rotation;
+    }
 }

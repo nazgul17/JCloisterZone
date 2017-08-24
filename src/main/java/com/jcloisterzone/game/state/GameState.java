@@ -67,25 +67,6 @@ public class GameState implements ActionsStateMixin, BoardMixin,
 
     private final Class<? extends Phase> phase;
 
-    public static GameState createEmpty() {
-        return new GameState(
-            HashMap.empty(), //rules
-            null, // CapabilitiesState
-            null, // PlayersState
-            null, // tilePack
-            null, // drawnTile
-            LinkedHashMap.empty(),
-            List.empty(),
-            HashMap.empty(),
-            new NeutralFiguresState(),
-            LinkedHashMap.empty(),
-            null,
-            HashSet.empty(),
-            Queue.empty(),
-            null
-        );
-    }
-
     public static GameState createInitial(
             Map<CustomRule, Object> rules,
             Seq<Capability<?>> capabilities,

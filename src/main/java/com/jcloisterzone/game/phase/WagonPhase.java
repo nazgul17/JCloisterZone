@@ -22,10 +22,10 @@ import io.vavr.collection.Queue;
 import io.vavr.collection.Set;
 
 @RequiredCapability(WagonCapability.class)
-public class WagonPhase extends ServerAwarePhase {
+public class WagonPhase extends Phase {
 
-    public WagonPhase(Game game, GameController controller) {
-        super(game, controller);
+    public WagonPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

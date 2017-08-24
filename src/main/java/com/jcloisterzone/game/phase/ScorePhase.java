@@ -13,7 +13,6 @@ import com.jcloisterzone.figure.Builder;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Wagon;
 import com.jcloisterzone.game.Capability;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.BuilderCapability;
 import com.jcloisterzone.game.capability.GoldminesCapability;
@@ -37,12 +36,12 @@ import io.vavr.collection.Set;
 import io.vavr.control.Option;
 
 
-public class ScorePhase extends ServerAwarePhase {
+public class ScorePhase extends Phase {
 
     private java.util.Map<Completable, Integer> completedMutable = new java.util.HashMap<>();
 
-    public ScorePhase(Game game, GameController gc) {
-        super(game, gc);
+    public ScorePhase(GameController gc) {
+        super(gc);
     }
 
     private GameState scoreCompletedOnTile(GameState state, PlacedTile tile) {

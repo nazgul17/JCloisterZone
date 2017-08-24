@@ -1,7 +1,6 @@
 package com.jcloisterzone.game.phase;
 
-import com.jcloisterzone.event.GameStateChangeEvent;
-import com.jcloisterzone.game.Game;
+import com.jcloisterzone.event.GameOverEvent;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.FinalScoring;
 import com.jcloisterzone.ui.GameController;
@@ -9,10 +8,10 @@ import com.jcloisterzone.wsio.message.GameOverMessage;
 import com.jcloisterzone.wsio.message.ToggleClockMessage;
 
 
-public class GameOverPhase extends ServerAwarePhase {
+public class GameOverPhase extends Phase {
 
-    public GameOverPhase(Game game, GameController controller) {
-        super(game, controller);
+    public GameOverPhase(GameController gc) {
+        super(gc);
     }
 
     @Override
@@ -27,6 +26,7 @@ public class GameOverPhase extends ServerAwarePhase {
         state = (new FinalScoring()).apply(state);
         promote(state);
 
-        game.post(new GameStateChangeEvent(GameStateChangeEvent.GAME_OVER));
+        //TODO trigger event from game object ?
+        game.post(new GameOverEvent());
     }
 }

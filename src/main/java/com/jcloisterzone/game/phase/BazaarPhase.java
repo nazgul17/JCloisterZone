@@ -9,13 +9,10 @@ import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
 import com.jcloisterzone.game.capability.BazaarCapabilityModel;
 import com.jcloisterzone.game.capability.BazaarItem;
 import com.jcloisterzone.game.state.ActionsState;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.Flag;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.AddPoints;
@@ -30,10 +27,10 @@ import io.vavr.Tuple2;
 import io.vavr.collection.Queue;
 
 @RequiredCapability(BazaarCapability.class)
-public class BazaarPhase extends ServerAwarePhase {
+public class BazaarPhase extends Phase {
 
-    public BazaarPhase(Game game, GameController controller) {
-        super(game, controller);
+    public BazaarPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

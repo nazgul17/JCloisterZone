@@ -1,5 +1,6 @@
 package com.jcloisterzone.game;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.EnumSet;
 import java.util.Random;
@@ -20,7 +21,8 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
-import com.jcloisterzone.event.GameStateChangeEvent;
+import com.jcloisterzone.event.GameStartedEvent;
+import com.jcloisterzone.event.GameOverEvent;
 import com.jcloisterzone.event.play.PlayEvent;
 import com.jcloisterzone.event.setup.SupportedExpansionsChangeEvent;
 import com.jcloisterzone.figure.Meeple;
@@ -76,18 +78,13 @@ public class Game implements EventProxy {
     private String name;
 
     private GameSetup setup;
-    private GameState state = GameState.createEmpty();
+    private GameState state;
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
 
     protected PlayerSlot[] slots;
     protected Expansion[][] slotSupportedExpansions = new Expansion[PlayerSlot.COUNT][];
 
-    // -- old --
-
-//    private final List<NeutralFigure> neutralFigures = new ArrayList<>();
-//
     private List<GameState> undoState = List.empty();
-
 
     private final EventBus eventBus = new EventBus(new EventBusExceptionHandler("game event bus"));
     //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before switch is done
@@ -229,22 +226,30 @@ public class Game implements EventProxy {
     public void start(GameController gc) {
         Phase firstPhase = createPhases(gc);
         GameStateBuilder builder = new GameStateBuilder(setup, slots, gc.getConfig());
-        GameState initialState = builder.build(firstPhase);
-
-        post(new GameStateChangeEvent(GameStateChangeEvent.GAME_START, null));
-
-        replaceState(initialState);
-        firstPhase.enter(initialState);
+        // 1. create state with basic config
+        replaceState(builder.createInitialState());
+        // 2. notify started game - it requires initial state with game config
+        post(new GameStartedEvent());
+        // 3. trigger initial board changes - make it after started event to propagate all event correctly to GameView
+        replaceState(builder.createFirstRoundState(firstPhase));
+        firstPhase.enter(this.state);
     }
 
-    private Phase addPhase(Phase next, Phase phase) {
-        RequiredCapability req = phase.getClass().getAnnotation(RequiredCapability.class);
+    private Phase addPhase(GameController gc, Phase next, Class<? extends Phase> phaseClass) {
+        RequiredCapability req = phaseClass.getAnnotation(RequiredCapability.class);
 
         if (req != null && !setup.getCapabilities().contains(req.value())) {
             return next;
         }
 
-        phases.put(phase.getClass(), phase);
+        Phase phase;
+        try {
+            phase = phaseClass.getConstructor(GameController.class).newInstance(gc);
+        } catch (InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException
+                | NoSuchMethodException | SecurityException e) {
+            throw new RuntimeException(e);
+        }
+        phases.put(phaseClass, phase);
         if (next != null) {
             phase.setDefaultNext(next);
         }
@@ -254,40 +259,40 @@ public class Game implements EventProxy {
     protected Phase createPhases(GameController gc) {
         Phase last, next = null;
         //if there isn't assignment - phase is out of standard flow
-               addPhase(next, new GameOverPhase(this, gc));
-        next = last = addPhase(next, new CleanUpTurnPhase(this));
-        next = addPhase(next, new BazaarPhase(this, gc));
-        next = addPhase(next, new EscapePhase(this));
-        next = addPhase(next, new CleanUpTurnPartPhase(this));
-        next = addPhase(next, new CornCirclePhase(this, gc));
+               addPhase(gc, next, GameOverPhase.class);
+        next = last = addPhase(gc, next, CleanUpTurnPhase.class);
+        next = addPhase(gc, next, BazaarPhase.class);
+        next = addPhase(gc, next, EscapePhase.class);
+        next = addPhase(gc, next, CleanUpTurnPartPhase.class);
+        next = addPhase(gc, next, CornCirclePhase.class);
 
         if (setup.getBooleanValue(CustomRule.DRAGON_MOVE_AFTER_SCORING)) {
-            addPhase(next, new DragonMovePhase(this, gc));
-            next = addPhase(next, new DragonPhase(this));
+            addPhase(gc, next, DragonMovePhase.class);
+            next = addPhase(gc, next, DragonPhase.class);
         }
 
-               addPhase(next, new CocCountPhase(this));
-        next = addPhase(next, new CocFollowerPhase(this));
-        next = addPhase(next, new WagonPhase(this, gc));
-        next = addPhase(next, new ScorePhase(this, gc));
-        next = addPhase(next, new CocPreScorePhase(this, gc));
-        next = addPhase(next, new CommitActionPhase(this));
-        next = addPhase(next, new CastlePhase(this));
+               addPhase(gc, next, CocCountPhase.class);
+        next = addPhase(gc, next, CocFollowerPhase.class);
+        next = addPhase(gc, next, WagonPhase.class);
+        next = addPhase(gc, next, ScorePhase.class);
+        next = addPhase(gc, next, CocPreScorePhase.class);
+        next = addPhase(gc, next, CommitActionPhase.class);
+        next = addPhase(gc, next, CastlePhase.class);
 
         if (!setup.getBooleanValue(CustomRule.DRAGON_MOVE_AFTER_SCORING)) {
-               addPhase(next, new DragonMovePhase(this, gc));
-               next = addPhase(next, new DragonPhase(this));
+               addPhase(gc, next, DragonMovePhase.class);
+               next = addPhase(gc, next, DragonPhase.class);
         }
 
-        next = addPhase(next, new PhantomPhase(this));
-               addPhase(next, new TowerCapturePhase(this));
-               addPhase(next, new FlierActionPhase(this));
-        next = addPhase(next, new ActionPhase(this));
-        next = addPhase(next, new MageAndWitchPhase(this));
-        next = addPhase(next, new GoldPiecePhase(this));
-        next = addPhase(next, new TilePhase(this, gc));
-        next = addPhase(next, new AbbeyPhase(this, gc));
-        next = addPhase(next, new FairyPhase(this));
+        next = addPhase(gc, next, PhantomPhase.class);
+               addPhase(gc, next, TowerCapturePhase.class);
+               addPhase(gc, next, FlierActionPhase.class);
+        next = addPhase(gc, next, ActionPhase.class);
+        next = addPhase(gc, next, MageAndWitchPhase.class);
+        next = addPhase(gc, next, GoldPiecePhase.class);
+        next = addPhase(gc, next, TilePhase.class);
+        next = addPhase(gc, next, AbbeyPhase.class);
+        next = addPhase(gc, next, FairyPhase.class);
         last.setDefaultNext(next); //after last phase, the first is default
 
         return next;
@@ -335,12 +340,10 @@ public class Game implements EventProxy {
         return match == null ? null : match._1;
     }
 
-    @Deprecated
     public boolean isStarted() {
         return state != null;
     }
 
-    @Deprecated
     public boolean isOver() {
         return getPhase() instanceof GameOverPhase;
     }

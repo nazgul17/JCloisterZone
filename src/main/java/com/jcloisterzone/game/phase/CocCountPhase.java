@@ -12,11 +12,10 @@ import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.event.SelectActionEvent;
 import com.jcloisterzone.figure.neutral.Count;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.CountCapability;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.MoveNeutralFigure;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.RmiProxy;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
@@ -24,8 +23,8 @@ import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
 @RequiredCapability(CountCapability.class)
 public class CocCountPhase extends Phase {
 
-    public CocCountPhase(Game game) {
-        super(game);
+    public CocCountPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

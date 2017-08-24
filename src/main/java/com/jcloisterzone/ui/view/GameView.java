@@ -55,7 +55,6 @@ public class GameView extends AbstractUiView implements WindowStateListener {
     private boolean gameRunning = true; //is it needed, what about use game state (but force close don't change it)
 
     private ChatPanel chatPanel;
-    private Snapshot snapshot;
 
     private MainPanel mainPanel;
 
@@ -95,7 +94,7 @@ public class GameView extends AbstractUiView implements WindowStateListener {
         pane.add(mainPanel);
 
         gc.getReportingTool().setContainer(mainPanel);
-        mainPanel.started(snapshot);
+        mainPanel.started();
 
         gc.register(chatPanel);
         gc.register(this);
@@ -383,14 +382,6 @@ public class GameView extends AbstractUiView implements WindowStateListener {
 
     public void setChatPanel(ChatPanel chatPanel) {
         this.chatPanel = chatPanel;
-    }
-
-    public Snapshot getSnapshot() {
-        return snapshot;
-    }
-
-    public void setSnapshot(Snapshot snapshot) {
-        this.snapshot = snapshot;
     }
 
     //helpers

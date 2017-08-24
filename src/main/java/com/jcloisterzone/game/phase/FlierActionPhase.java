@@ -10,8 +10,8 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.figure.Phantom;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.capability.FlierCapability;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 
@@ -19,8 +19,8 @@ import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 @RequiredCapability(FlierCapability.class)
 public class FlierActionPhase extends Phase {
 
-    public FlierActionPhase(Game game) {
-        super(game);
+    public FlierActionPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

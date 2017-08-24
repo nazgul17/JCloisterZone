@@ -30,7 +30,6 @@ import com.jcloisterzone.figure.neutral.Fairy;
 import com.jcloisterzone.figure.neutral.NeutralFigure;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.BarnCapability;
 import com.jcloisterzone.game.capability.PrincessCapability;
@@ -43,6 +42,7 @@ import com.jcloisterzone.reducers.MoveNeutralFigure;
 import com.jcloisterzone.reducers.PayRansom;
 import com.jcloisterzone.reducers.PlaceBridge;
 import com.jcloisterzone.reducers.UndeployMeeple;
+import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.DeployMeepleMessage;
 import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
@@ -59,8 +59,8 @@ import io.vavr.collection.Vector;
 
 public class ActionPhase extends Phase {
 
-    public ActionPhase(Game game) {
-        super(game);
+    public ActionPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

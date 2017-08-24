@@ -81,9 +81,9 @@ public class MainPanel extends JPanel {
         }
     }
 
-    public void started(Snapshot snapshot) {
+    public void started() {
         controlPanel = new ControlPanel(gameView);
-        gridPanel = new GridPanel(client, gameView, controlPanel, chatPanel, snapshot);
+        gridPanel = new GridPanel(client, gameView, controlPanel, chatPanel);
         MeepleLayer meepleLayer = new MeepleLayer(gridPanel, gc);
         TilePlacementLayer tilePlacementLayer = new TilePlacementLayer(gridPanel, gc);
         TileLayer tileLayer = new TileLayer(gridPanel, gc);

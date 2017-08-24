@@ -9,7 +9,6 @@ import com.jcloisterzone.board.Position;
 import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.board.TileDefinition;
 import com.jcloisterzone.board.TilePlacement;
-import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Token;
 import com.jcloisterzone.game.capability.AbbeyCapability;
 import com.jcloisterzone.game.capability.BazaarCapability;
@@ -28,10 +27,10 @@ import io.vavr.collection.Array;
 import io.vavr.collection.Stream;
 
 @RequiredCapability(AbbeyCapability.class)
-public class AbbeyPhase extends ServerAwarePhase {
+public class AbbeyPhase extends Phase {
 
-    public AbbeyPhase(Game game, GameController controller) {
-        super(game, controller);
+    public AbbeyPhase(GameController gc) {
+        super(gc);
     }
 
     @Override

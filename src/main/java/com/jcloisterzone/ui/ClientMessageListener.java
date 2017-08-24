@@ -483,7 +483,7 @@ public class ClientMessageListener implements MessageListener {
         game.mapSetup(setup ->  setup.mapRules(rules ->
             msg.getValue() == null ? rules.remove(rule) : rules.put(rule, value)
         ));
-        game.post(new RuleChangeEvent(rule, value));
+        game.post(new RuleChangeEvent(rule, msg.getValue()));
     }
 
     @WsSubscribe
