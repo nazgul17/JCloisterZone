@@ -400,7 +400,7 @@ public class ControlPanel extends JPanel {
     @Subscribe
     public void handleClockUpdateEvent(ClockUpdateEvent ev) {
         timer.stop();
-        if (ev.isClockRunning() && game.getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME) != null) {
+        if (ev.isClockRunning() && game.getState().getRules().get(CustomRule.CLOCK_PLAYER_TIME).isDefined()) {
             PlayerClock runningClock = ev.getRunningClockPlayer().getClock(game.getState());
             //this solution is not much accurate - TODO fix
             //+clean time from round trip!!!

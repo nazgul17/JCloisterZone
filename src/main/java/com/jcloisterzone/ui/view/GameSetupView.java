@@ -87,7 +87,7 @@ public class GameSetupView extends AbstractUiView {
         chatColumn.setPreferredSize(new Dimension(250, panel.getHeight()));
         panel.add(chatColumn, BorderLayout.WEST);
 
-        chatColumn.add(connectedClientsPanel = new ConnectedClientsPanel(client, game.getSetup().getName()), "cell 0 0, grow");
+        chatColumn.add(connectedClientsPanel = new ConnectedClientsPanel(client, game.getName()), "cell 0 0, grow");
 
         chatPanel = new GameChatPanel(client, game);
         chatColumn.add(chatPanel, "cell 0 1, grow");

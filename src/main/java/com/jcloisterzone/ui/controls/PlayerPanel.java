@@ -78,7 +78,7 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
 
         Game game = gc.getGame();
 
-        timeLimit = (Integer) game.getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME);
+        timeLimit = (Integer) game.getState().getRules().get(CustomRule.CLOCK_PLAYER_TIME).getOrNull();
     }
 
     private void drawDelimiter(int y) {

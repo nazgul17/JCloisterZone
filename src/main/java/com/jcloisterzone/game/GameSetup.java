@@ -1,63 +1,77 @@
 package com.jcloisterzone.game;
 
+import java.io.Serializable;
 import java.util.Arrays;
-import java.util.EnumMap;
-import java.util.EnumSet;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.function.Function;
 
 import com.jcloisterzone.Expansion;
+import com.jcloisterzone.Immutable;
 import com.jcloisterzone.game.capability.PigHerdCapability;
+import com.jcloisterzone.game.state.mixins.RulesMixin;
 
-//TODO rename to GameSetup
-//TODO change to immutable object and use it togeter
-public class GameSetup {
+import io.vavr.collection.Map;
+import io.vavr.collection.Set;
+import io.vavr.collection.Stream;
 
-    private String name;
-    private final EnumMap<CustomRule, Object> customRules = new EnumMap<>(CustomRule.class);
-    private final Set<Expansion> expansions = EnumSet.noneOf(Expansion.class);
+@Immutable
+public class GameSetup implements Serializable, RulesMixin {
 
+    private static final long serialVersionUID = 1L;
 
-    public String getName() {
-        return name;
-    }
+    private final Set<Expansion> expansions;
+    private final Map<CustomRule, Object> rules;
 
-    public void setName(String name) {
-        this.name = name;
+    // for now just cached value derived from expansions
+    private Set<Class<? extends Capability<?>>> capabilities;
+
+    public GameSetup(Set<Expansion> expansions, /*Set<Class<? extends Capability<?>>> capabilities,*/ Map<CustomRule, Object> rules) {
+        this.expansions = expansions;
+        //this.capabilities = capabilities;
+        this.rules = rules;
     }
 
     public boolean hasExpansion(Expansion expansion) {
         return expansions.contains(expansion);
     }
 
-    @Deprecated //in favor of rules on GameState
-    public boolean getBooleanValue(CustomRule rule) {
-        assert rule.getType().equals(Boolean.class);
-        if (!customRules.containsKey(rule)) return false;
-        return (Boolean) customRules.get(rule);
-    }
-
-    @Deprecated //in favor of capabilities on GameState
-    public boolean hasCapability(Class<? extends Capability<?>> c) {
-        return false;
-    }
-
     public Set<Expansion> getExpansions() {
         return expansions;
     }
 
-    public EnumMap<CustomRule, Object> getCustomRules() {
-        return customRules;
+    public GameSetup setExpansions(Set<Expansion> expansions) {
+        if (this.expansions == expansions) return this;
+        return new GameSetup(expansions, rules);
     }
 
-    public Set<Class<? extends Capability<?>>> getCapabilityClasses() {
-        Set<Class<? extends Capability<?>>> classes = new HashSet<>();
-        for (Expansion exp : expansions) {
-            classes.addAll(Arrays.asList(exp.getCapabilities()));
+    public GameSetup mapExpansions(Function<Set<Expansion>, Set<Expansion>> mapper) {
+        return setExpansions(mapper.apply(expansions));
+    }
+
+    @Override
+    public Map<CustomRule, Object> getRules() {
+        return rules;
+    }
+
+    public GameSetup setRules(Map<CustomRule, Object> rules) {
+        if (this.rules == rules) return this;
+        return new GameSetup(expansions, rules);
+    }
+
+    public GameSetup mapRules(Function<Map<CustomRule, Object>, Map<CustomRule, Object>> mapper) {
+        return setRules(mapper.apply(rules));
+    }
+
+    public Set<Class<? extends Capability<?>>> getCapabilities() {
+        if (capabilities != null) {
+             return capabilities;
         }
 
+        Set<Class<? extends Capability<?>>> capabilities = Stream.ofAll(expansions)
+            .flatMap(exp -> Arrays.asList(exp.getCapabilities()))
+            .toSet();
+
         if (getBooleanValue(CustomRule.USE_PIG_HERDS_INDEPENDENTLY)) {
-            classes.add(PigHerdCapability.class);
+            capabilities.add(PigHerdCapability.class);
         }
 
 //        DebugConfig debugConfig = getDebugConfig();
@@ -75,6 +89,6 @@ public class GameSetup {
 //                }
 //            }
 //        }
-        return classes;
+        return capabilities;
     }
 }

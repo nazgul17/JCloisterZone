@@ -257,7 +257,7 @@ public class CreateGamePanel extends ThemedJPanel {
         }
         clockPanel.setLayout(new MigLayout("", "[][][]", ""));
 
-        Integer value = (Integer) game.getSetup().getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME);
+        Integer value = (Integer) game.getSetup().getRules().get(CustomRule.CLOCK_PLAYER_TIME).getOrNull();
         timeLimitChbox = new ThemedJCheckBox(_("player time limit"), value != null);
         timeLimitChbox.setEnabled(mutableSlots);
         timeLimitSpinner = new JSpinner();
@@ -283,7 +283,7 @@ public class CreateGamePanel extends ThemedJPanel {
                 public void stateChanged(ChangeEvent e) {
                     if (timeLimitChbox.isSelected()) {
                         Integer value = timeLimitModel.getNumber().intValue() * 60;
-                        if (value != game.getSetup().getCustomRules().get(CustomRule.CLOCK_PLAYER_TIME)) {
+                        if (value != game.getSetup().getRules().get(CustomRule.CLOCK_PLAYER_TIME).getOrNull()) {
                             client.getConnection().send(new SetRuleMessage(game.getGameId(), CustomRule.CLOCK_PLAYER_TIME, value));
                         }
                     }
@@ -462,7 +462,7 @@ public class CreateGamePanel extends ThemedJPanel {
         }
         PresetConfig config = new PresetConfig();
         config.setExpansions(expansions);
-        config.setRules(game.getSetup().getCustomRules());
+        config.setRules(game.getSetup().getRules().toJavaMap());
         return config;
     }
 

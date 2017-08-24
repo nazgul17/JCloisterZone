@@ -4,7 +4,7 @@ import com.jcloisterzone.game.CustomRule;
 
 import io.vavr.collection.Map;
 
-public interface SettingsStateMixin {
+public interface RulesMixin {
 
     Map<CustomRule, Object> getRules();
 

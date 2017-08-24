@@ -18,7 +18,6 @@ import com.jcloisterzone.Expansion;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
-import com.jcloisterzone.config.Config;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.GameStateChangeEvent;
@@ -73,31 +72,22 @@ public class Game implements EventProxy {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
-    // -- new --
-
     private final String gameId;
+    private String name;
 
     private GameSetup setup;
-    private GameState state;
+    private GameState state = GameState.createEmpty();
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
 
     protected PlayerSlot[] slots;
     protected Expansion[][] slotSupportedExpansions = new Expansion[PlayerSlot.COUNT][];
 
-    // -- temporary dev --
-
-    //private GameStateBuilder stateBuilder;
-
     // -- old --
 
 //    private final List<NeutralFigure> neutralFigures = new ArrayList<>();
 //
-
-
     private List<GameState> undoState = List.empty();
 
-//    private ArrayList<Undoable> lastUndoable = new ArrayList<>();
-//    private Phase lastUndoablePhase;
 
     private final EventBus eventBus = new EventBus(new EventBusExceptionHandler("game event bus"));
     //events are delayed and fired after phase is handled (and eventually switched to the new one) - important especially for AI handlers to not start before switch is done
@@ -116,41 +106,34 @@ public class Game implements EventProxy {
         this.gameId = gameId;
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
-        this.setup = new GameSetup();
     }
 
     public String getGameId() {
         return gameId;
     }
 
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public GameState getState() {
         return state;
+    }
+
+    public void setSetup(GameSetup setup) {
+        this.setup = setup;
     }
 
     public GameSetup getSetup() {
         return setup;
     }
 
-    @Deprecated
-    public void replaceState(Function<GameState, GameState> f1) {
-        replaceState(f1.apply(this.state));
-    }
-
-    @Deprecated
-    public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2) {
-        replaceState(f2.apply(f1.apply(this.state)));
-    }
-
-    @Deprecated
-    public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2,
-        Function<GameState, GameState> f3) {
-        replaceState(f3.apply(f2.apply(f1.apply(this.state))));
-    }
-
-    @Deprecated
-    public void replaceState(Function<GameState, GameState> f1, Function<GameState, GameState> f2,
-        Function<GameState, GameState> f3, Function<GameState, GameState> f4) {
-        replaceState(f4.apply(f3.apply(f2.apply(f1.apply(this.state)))));
+    public void mapSetup(Function<GameSetup, GameSetup> mapper) {
+        setSetup(mapper.apply(setup));
     }
 
     public void replaceState(GameState state) {
@@ -242,7 +225,7 @@ public class Game implements EventProxy {
         eventBus.post(event);
     }
 
-    //TODO decouple from GameController
+    //TODO decouple from GameController ?
     public void start(GameController gc) {
         Phase firstPhase = createPhases(gc);
         GameStateBuilder builder = new GameStateBuilder(setup, slots, gc.getConfig());
@@ -257,7 +240,7 @@ public class Game implements EventProxy {
     private Phase addPhase(Phase next, Phase phase) {
         RequiredCapability req = phase.getClass().getAnnotation(RequiredCapability.class);
 
-        if (req != null && setup.getCapabilityClasses().contains(req.value())) {
+        if (req != null && !setup.getCapabilities().contains(req.value())) {
             return next;
         }
 

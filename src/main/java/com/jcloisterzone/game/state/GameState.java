@@ -1,6 +1,7 @@
 package com.jcloisterzone.game.state;
 
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.function.Function;
 
 import com.jcloisterzone.Immutable;
@@ -22,7 +23,7 @@ import com.jcloisterzone.game.state.mixins.EventsStateMixin;
 import com.jcloisterzone.game.state.mixins.FlagsStateMixin;
 import com.jcloisterzone.game.state.mixins.PlacementsMixin;
 import com.jcloisterzone.game.state.mixins.PlayersStsteMixin;
-import com.jcloisterzone.game.state.mixins.SettingsStateMixin;
+import com.jcloisterzone.game.state.mixins.RulesMixin;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
@@ -36,14 +37,14 @@ import io.vavr.collection.Set;
 
 @Immutable
 public class GameState implements ActionsStateMixin, BoardMixin,
-        SettingsStateMixin, CapabilitiesMixin, PlayersStsteMixin, EventsStateMixin,
+        RulesMixin, CapabilitiesMixin, PlayersStsteMixin, EventsStateMixin,
         FlagsStateMixin, PlacementsMixin, Serializable {
 
     private static final long serialVersionUID = 1L;
 
     //TODO group some fields into sub states
 
-    private final HashMap<CustomRule, Object> rules;
+    private final Map<CustomRule, Object> rules;
 
     private final CapabilitiesState capabilities;
     private final PlayersState players;
@@ -66,8 +67,27 @@ public class GameState implements ActionsStateMixin, BoardMixin,
 
     private final Class<? extends Phase> phase;
 
+    public static GameState createEmpty() {
+        return new GameState(
+            HashMap.empty(), //rules
+            null, // CapabilitiesState
+            null, // PlayersState
+            null, // tilePack
+            null, // drawnTile
+            LinkedHashMap.empty(),
+            List.empty(),
+            HashMap.empty(),
+            new NeutralFiguresState(),
+            LinkedHashMap.empty(),
+            null,
+            HashSet.empty(),
+            Queue.empty(),
+            null
+        );
+    }
+
     public static GameState createInitial(
-            HashMap<CustomRule, Object> rules,
+            Map<CustomRule, Object> rules,
             Seq<Capability<?>> capabilities,
             Array<Player> players,
             int turnPlayerIndex) {
@@ -89,8 +109,10 @@ public class GameState implements ActionsStateMixin, BoardMixin,
         );
     }
 
+
+
     public GameState(
-            HashMap<CustomRule, Object> rules,
+            Map<CustomRule, Object> rules,
             CapabilitiesState capabilities,
             PlayersState players,
             TilePack tilePack, TileDefinition drawnTile,

@@ -33,6 +33,7 @@ import com.jcloisterzone.event.setup.PlayerSlotChangeEvent;
 import com.jcloisterzone.event.setup.RuleChangeEvent;
 import com.jcloisterzone.game.CustomRule;
 import com.jcloisterzone.game.Game;
+import com.jcloisterzone.game.GameSetup;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.PlayerSlot.SlotState;
 import com.jcloisterzone.game.Snapshot;
@@ -68,6 +69,7 @@ import com.jcloisterzone.wsio.message.WsMessage;
 import com.jcloisterzone.wsio.server.RemoteClient;
 
 import io.vavr.collection.Array;
+import io.vavr.collection.HashSet;
 
 
 public class ClientMessageListener implements MessageListener {
@@ -195,21 +197,21 @@ public class ClientMessageListener implements MessageListener {
     }
 
     private GameController createGameController(GameMessage msg) {
-        Snapshot snapshot = null;
-        if (msg.getSnapshot() != null) {
-            try {
-                snapshot = new Snapshot(msg.getSnapshot());
-            } catch (IOException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
+//        Snapshot snapshot = null;
+//        if (msg.getSnapshot() != null) {
+//            try {
+//                snapshot = new Snapshot(msg.getSnapshot());
+//            } catch (IOException e) {
+//                logger.error(e.getMessage(), e);
+//            }
+//        }
 
         Game game;
         GameController gc;
  //       GameStateBuilder phase;
  //       if (snapshot == null) {
             game = new Game(msg.getGameId());
-            game.getSetup().setName(msg.getName());
+            game.setName(msg.getName());
             gc = new GameController(client, game);
 //            phase = new GameStateBuilder(game, gc);
 //        } else {
@@ -419,15 +421,17 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleClockMessage(ClockMessage msg) {
         Game game = getGame(msg);
-        Array<Player> players = game.getState().getPlayers().getPlayers();
+        com.jcloisterzone.game.state.GameState state = game.getState();
+        Array<Player> players = state.getPlayers().getPlayers();
         Player runningClockPlayer = msg.getRunning() == null ? null : players.get(msg.getRunning());
 
-        game.replaceState(state -> state.mapPlayers(ps -> ps.setClocks(
+        state = state.mapPlayers(ps -> ps.setClocks(
           players.map(p -> new PlayerClock(
             msg.getClocks()[p.getIndex()],
             p.equals(runningClockPlayer)
           ))
-        )));
+        ));
+        game.replaceState(state);
         game.post(new ClockUpdateEvent(runningClockPlayer));
     }
 
@@ -443,17 +447,19 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleGameSetup(GameSetupMessage msg) {
         Game game = getGame(msg);
-        game.getSetup().getExpansions().clear();
-        game.getSetup().getExpansions().addAll(msg.getExpansions());
-        game.getSetup().getCustomRules().clear();
-        game.getSetup().getCustomRules().putAll(msg.getRules());
+        game.setSetup(
+            new GameSetup(
+                HashSet.ofAll(msg.getExpansions()),
+                io.vavr.collection.HashMap.ofAll(msg.getRules())
+            )
+        );
 
         for (Expansion exp : Expansion.values()) {
             if (!exp.isImplemented()) continue;
             game.post(new ExpansionChangedEvent(exp, game.getSetup().getExpansions().contains(exp)));
         }
         for (CustomRule rule : CustomRule.values()) {
-            Object value = game.getSetup().getCustomRules().get(rule);
+            Object value = game.getSetup().getRules().get(rule).getOrNull();
             game.post(new RuleChangeEvent(rule, value));
         }
     }
@@ -463,11 +469,9 @@ public class ClientMessageListener implements MessageListener {
     public void handleSetExpansion(SetExpansionMessage msg) {
         Game game = getGame(msg);
         Expansion expansion = msg.getExpansion();
-        if (msg.isEnabled()) {
-            game.getSetup().getExpansions().add(expansion);
-        } else {
-            game.getSetup().getExpansions().remove(expansion);
-        }
+        game.mapSetup(setup ->  setup.mapExpansions(expansions ->
+            msg.isEnabled() ? expansions.add(expansion) : expansions.remove(expansion)
+        ));
         game.post(new ExpansionChangedEvent(expansion, msg.isEnabled()));
     }
 
@@ -475,12 +479,11 @@ public class ClientMessageListener implements MessageListener {
     public void handleSetRule(SetRuleMessage msg) {
         Game game = getGame(msg);
         CustomRule rule = msg.getRule();
-        if (msg.getValue() == null) {
-            game.getSetup().getCustomRules().remove(rule);
-        } else {
-            game.getSetup().getCustomRules().put(rule, msg.getValue());
-        }
-        game.post(new RuleChangeEvent(rule, msg.getValue()));
+        Object value = msg.getValue();
+        game.mapSetup(setup ->  setup.mapRules(rules ->
+            msg.getValue() == null ? rules.remove(rule) : rules.put(rule, value)
+        ));
+        game.post(new RuleChangeEvent(rule, value));
     }
 
     @WsSubscribe

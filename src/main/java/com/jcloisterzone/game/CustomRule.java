@@ -1,10 +1,11 @@
 package com.jcloisterzone.game;
 
-import java.util.EnumMap;
+import static com.jcloisterzone.ui.I18nUtils._;
 
 import com.jcloisterzone.Expansion;
 
-import static com.jcloisterzone.ui.I18nUtils._;
+import io.vavr.collection.HashMap;
+import io.vavr.collection.Map;
 
 public enum CustomRule {
     RANDOM_SEATING_ORDER(null, Boolean.class,  _("Randomize seating order")),
@@ -66,11 +67,11 @@ public enum CustomRule {
         }
     }
 
-    public static EnumMap<CustomRule, Object> getDefaultRules() {
-        EnumMap<CustomRule, Object> defaultRules = new EnumMap<>(CustomRule.class);
-        defaultRules.put(PIG_HERD_ON_GQ_FARM, true);
-        defaultRules.put(TUNNELIZE_ALL_EXPANSIONS, true);
-        return defaultRules;
+    public static Map<CustomRule, Object> getDefaultRules() {
+        return HashMap.of(
+            PIG_HERD_ON_GQ_FARM, true,
+            TUNNELIZE_ALL_EXPANSIONS, true
+        );
     }
 
 }

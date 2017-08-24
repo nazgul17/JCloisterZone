@@ -70,6 +70,8 @@ import com.jcloisterzone.wsio.message.WelcomeMessage;
 import com.jcloisterzone.wsio.message.WsInGameMessage;
 import com.jcloisterzone.wsio.message.WsMessage;
 
+import io.vavr.collection.HashSet;
+
 public class SimpleServer extends WebSocketServer  {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
@@ -115,7 +117,7 @@ public class SimpleServer extends WebSocketServer  {
         this.snapshot = null;
         this.hostClientId = hostClientId;
         gameId = KeyUtils.createRandomId();
-        gameSetup = new GameSetup();
+//        gameSetup = new GameSetup();
 //        if (snapshot != null) {
 //            this.snapshot =  snapshot;
 //            game.getExpansions().addAll(snapshot.getExpansions());
@@ -126,8 +128,10 @@ public class SimpleServer extends WebSocketServer  {
 //            game.getCustomRules().putAll(settings.getCustomRules());
 //            loadSlotsFromGame(settings);
 //        } else {
-            gameSetup.getExpansions().add(Expansion.BASIC);
-            gameSetup.getCustomRules().putAll(CustomRule.getDefaultRules());
+            gameSetup = new GameSetup(
+                HashSet.of(Expansion.BASIC),
+                CustomRule.getDefaultRules()
+            );
             for (int i = 0; i < slots.length; i++) {
                 slots[i] = new ServerPlayerSlot(i);
             }
@@ -230,7 +234,11 @@ public class SimpleServer extends WebSocketServer  {
     }
 
     private GameMessage newGameMessage(boolean includeReplay) {
-        GameSetupMessage gsm = new GameSetupMessage(gameId, gameSetup.getCustomRules(), gameSetup.getExpansions());
+        GameSetupMessage gsm = new GameSetupMessage(
+            gameId,
+            gameSetup.getRules().toJavaMap(),
+            gameSetup.getExpansions().toJavaSet()
+        );
         GameMessage gm = new GameMessage(gameId, "", gameStarted ? GameState.RUNNING : GameState.OPEN, gsm);
         List<SlotMessage> slotMsgs = new ArrayList<>();
         for (ServerPlayerSlot slot : slots) {
@@ -338,10 +346,10 @@ public class SimpleServer extends WebSocketServer  {
     public void handleGameSetupMessage(WebSocket ws, GameSetupMessage msg) {
         if (!msg.getGameId().equals(gameId)) throw new IllegalArgumentException("Invalid game id.");
         if (gameStarted) throw new IllegalArgumentException("Game is already started.");
-        gameSetup.getExpansions().clear();
-        gameSetup.getExpansions().addAll(msg.getExpansions());
-        gameSetup.getCustomRules().clear();
-        gameSetup.getCustomRules().putAll(msg.getRules());
+        gameSetup = new GameSetup(
+            HashSet.ofAll(msg.getExpansions()),
+            io.vavr.collection.HashMap.ofAll(msg.getRules())
+        );
         broadcast(msg, false);
     }
 
@@ -406,11 +414,9 @@ public class SimpleServer extends WebSocketServer  {
             logger.error("Invalid expansion {}", expansion);
             return;
         }
-        if (msg.isEnabled()) {
-            gameSetup.getExpansions().add(msg.getExpansion());
-        } else {
-            gameSetup.getExpansions().remove(msg.getExpansion());
-        }
+        gameSetup = gameSetup.mapExpansions(expansions ->
+            msg.isEnabled() ? expansions.add(expansion) : expansions.remove(expansion)
+        );
         broadcast(msg, false);
     }
 
@@ -419,7 +425,9 @@ public class SimpleServer extends WebSocketServer  {
         if (!msg.getGameId().equals(gameId)) throw new IllegalArgumentException("Invalid game id.");
         if (gameStarted) throw new IllegalArgumentException("Game is already started.");
         CustomRule rule = msg.getRule();
-        gameSetup.getCustomRules().put(rule, msg.getValue());
+        gameSetup = gameSetup.mapRules(rules ->
+            msg.getValue() == null ? rules.remove(rule) : rules.put(rule, msg.getValue())
+        );
         broadcast(msg, false);
     }
 

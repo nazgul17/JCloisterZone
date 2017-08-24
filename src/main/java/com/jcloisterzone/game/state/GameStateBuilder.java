@@ -58,7 +58,6 @@ public class GameStateBuilder {
 
     private Array<Player> players;
     private Seq<PlacedTile> preplacedTiles;
-    private Phase firstPhase;
 
     private GameState state;
 
@@ -71,11 +70,11 @@ public class GameStateBuilder {
 
     public GameState build(Phase firstPhase) {
         //temporary code should be configured by player as rules
-        io.vavr.collection.List<Capability<?>> capabilities = createCapabilities(HashSet.ofAll(setup.getCapabilityClasses()));
+        io.vavr.collection.List<Capability<?>> capabilities = createCapabilities(setup.getCapabilities());
         createPlayers();
 
         state = GameState.createInitial(
-            HashMap.ofAll(setup.getCustomRules()), capabilities, players, 0
+            setup.getRules(), capabilities, players, 0
         );
 
         state = state.mapPlayers(ps ->
