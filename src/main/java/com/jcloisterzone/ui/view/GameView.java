@@ -11,7 +11,10 @@ import java.awt.event.WindowStateListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.Writer;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Timer;
@@ -33,6 +36,8 @@ import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.event.ClientListChangedEvent;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
+import com.jcloisterzone.game.save.SavedGame;
+import com.jcloisterzone.game.save.SavedGameParser;
 import com.jcloisterzone.ui.Client;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.ui.MenuBar;
@@ -412,6 +417,14 @@ public class GameView extends AbstractUiView implements WindowStateListener {
     }
 
     public void handleSave() {
+//        SavedGame save = new SavedGame(game);
+//        SavedGameParser parser = new SavedGameParser();
+//        String content = parser.toJson(save);
+//
+//        System.err.println(content);
+//
+//        save = parser.fromJson(content);
+//
         JFileChooser fc = new JFileChooser(client.getSavesDirectory());
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
         fc.setDialogTitle(_("Save game"));
@@ -425,14 +438,18 @@ public class GameView extends AbstractUiView implements WindowStateListener {
                 if (!file.getName().endsWith(".jcz")) {
                     file = new File(file.getAbsolutePath() + ".jcz");
                 }
-                try {
-                    Snapshot snapshot = new Snapshot(game);
-                    DebugConfig debugConfig = client.getConfig().getDebug();
-                    if (debugConfig != null && "plain".equals(debugConfig.getSave_format())) {
-                        snapshot.setGzipOutput(false);
-                    }
-                    snapshot.save(new FileOutputStream(file));
-                } catch (IOException | TransformerException ex) {
+                try (Writer writer = new FileWriter(file)) {
+                    SavedGame save = new SavedGame(game);
+                    SavedGameParser parser = new SavedGameParser();
+                    parser.toJson(save, writer);
+
+//                    Snapshot snapshot = new Snapshot(game);
+//                    DebugConfig debugConfig = client.getConfig().getDebug();
+//                    if (debugConfig != null && "plain".equals(debugConfig.getSave_format())) {
+//                        snapshot.setGzipOutput(false);
+//                    }
+//                    snapshot.save(new FileOutputStream(file));
+                } catch (IOException ex) {
                     logger.error(ex.getMessage(), ex);
                     JOptionPane.showMessageDialog(client, ex.getLocalizedMessage(), _("Error"), JOptionPane.ERROR_MESSAGE);
                 }

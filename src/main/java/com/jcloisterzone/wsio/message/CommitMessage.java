@@ -3,7 +3,7 @@ package com.jcloisterzone.wsio.message;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("COMMIT")
-public class CommitMessage implements WsInGameMessage {
+public class CommitMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
     private long currentTime;

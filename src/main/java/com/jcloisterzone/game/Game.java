@@ -57,7 +57,11 @@ import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.ui.GameController;
 import com.jcloisterzone.wsio.WsSubscribe;
+import com.jcloisterzone.wsio.message.ChatMessage;
 import com.jcloisterzone.wsio.message.SlotMessage;
+import com.jcloisterzone.wsio.message.UndoMessage;
+import com.jcloisterzone.wsio.message.WsInGameMessage;
+import com.jcloisterzone.wsio.message.WsReplayableMessage;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
@@ -79,6 +83,7 @@ public class Game implements EventProxy {
 
     private GameSetup setup;
     private GameState state;
+    private List<WsReplayableMessage> replay; // game messages (in reversed order because of List performance)
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
 
     protected PlayerSlot[] slots;
@@ -131,6 +136,10 @@ public class Game implements EventProxy {
 
     public void mapSetup(Function<GameSetup, GameSetup> mapper) {
         setSetup(mapper.apply(setup));
+    }
+
+    public List<WsReplayableMessage> getReplay() {
+        return replay;
     }
 
     public void replaceState(GameState state) {
@@ -202,6 +211,11 @@ public class Game implements EventProxy {
         post(new SupportedExpansionsChangeEvent(mergeSupportedExpansions()));
     }
 
+    @WsSubscribe
+    public void handleInGameMessage(WsReplayableMessage msg) {
+        replay = replay.prepend(msg);
+    }
+
     private EnumSet<Expansion> mergeSupportedExpansions() {
         EnumSet<Expansion> merged = null;
         for (int i = 0; i < slotSupportedExpansions.length; i++) {
@@ -224,6 +238,7 @@ public class Game implements EventProxy {
 
     //TODO decouple from GameController ?
     public void start(GameController gc) {
+        replay = List.empty();
         Phase firstPhase = createPhases(gc);
         GameStateBuilder builder = new GameStateBuilder(setup, slots, gc.getConfig());
         // 1. create state with basic config
@@ -324,6 +339,8 @@ public class Game implements EventProxy {
     public Random getRandom() {
         return random;
     }
+
+
 
     public long getRandomSeed() {
         return randomSeed;

@@ -4,7 +4,7 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("CAPTURE_FOLLOWER")
-public class CaptureFollowerMessage implements WsInGameMessage {
+public class CaptureFollowerMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
     private MeeplePointer pointer;

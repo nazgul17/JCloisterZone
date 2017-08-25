@@ -3,7 +3,7 @@ package com.jcloisterzone.wsio.message;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("BAZAAR_BID")
-public class BazaarBidMessage implements WsInGameMessage {
+public class BazaarBidMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
     int supplyIndex;

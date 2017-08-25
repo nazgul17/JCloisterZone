@@ -3,7 +3,7 @@ package com.jcloisterzone.wsio.message;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("PAY_RANSOM")
-public class PayRansomMessage implements WsInGameMessage {
+public class PayRansomMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
     private String meepleId;

@@ -24,7 +24,7 @@ import io.vavr.collection.Vector;
 @Immutable
 public class Location implements Serializable {
 
-    private static final long serialVersionUID = -8348910171518350353L;
+    private static final long serialVersionUID = 1L;
 
     transient private String name;
     private int mask;

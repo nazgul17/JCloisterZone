@@ -5,7 +5,7 @@ import com.jcloisterzone.board.Rotation;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("PLACE_TILE")
-public class PlaceTileMessage implements WsInGameMessage {
+public class PlaceTileMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
 

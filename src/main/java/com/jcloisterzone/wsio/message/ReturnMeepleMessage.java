@@ -4,7 +4,7 @@ import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("RETURN_MEEPLE")
-public class ReturnMeepleMessage implements WsInGameMessage {
+public class ReturnMeepleMessage implements WsInGameMessage, WsReplayableMessage {
 
     public enum ReturnMeepleSource {
         PRINCESS, SIEGE_ESCAPE, FESTIVAL, CORN_CIRCLE;

@@ -69,9 +69,8 @@ public final class MessageParser {
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Gson gson;
-    private final Map<String, Class<? extends WsMessage>> types = new HashMap<>();
 
-    public MessageParser() {
+    public static GsonBuilder createGsonBuilder() {
         GsonBuilder builder = new GsonBuilder().disableHtmlEscaping();
 
         builder.registerTypeAdapter(SetRuleMessage.class, new JsonDeserializer<SetRuleMessage>() {
@@ -118,61 +117,20 @@ public final class MessageParser {
                 return context.deserialize(json, Position.class);
             }
         });
+        return builder;
+    }
 
-        gson = builder.create();
-
-        registerMsgType(ErrorMessage.class);
-        registerMsgType(HelloMessage.class);
-        registerMsgType(WelcomeMessage.class);
-        registerMsgType(CreateGameMessage.class);
-        registerMsgType(JoinGameMessage.class);
-        registerMsgType(LeaveGameMessage.class);
-        registerMsgType(AbandonGameMessage.class);
-        registerMsgType(GameMessage.class);
-        registerMsgType(GameSetupMessage.class);
-        registerMsgType(TakeSlotMessage.class);
-        registerMsgType(LeaveSlotMessage.class);
-        registerMsgType(SlotMessage.class);
-        registerMsgType(SetExpansionMessage.class);
-        registerMsgType(SetRuleMessage.class);
-        registerMsgType(StartGameMessage.class);
-        registerMsgType(DeployFlierMessage.class);
-        registerMsgType(UndoMessage.class);
-        registerMsgType(ClientUpdateMessage.class);
-        registerMsgType(GameUpdateMessage.class);
-        registerMsgType(PostChatMessage.class);
-        registerMsgType(ChatMessage.class);
-        registerMsgType(ChannelMessage.class);
-        registerMsgType(GameOverMessage.class);
-        registerMsgType(PingMessage.class);
-        registerMsgType(PongMessage.class);
-        registerMsgType(ToggleClockMessage.class);
-        registerMsgType(ClockMessage.class);
-        registerMsgType(CommitMessage.class);
-        registerMsgType(PassMessage.class);
-        registerMsgType(PlaceTileMessage.class);
-        registerMsgType(DeployMeepleMessage.class);
-        registerMsgType(ReturnMeepleMessage.class);
-        registerMsgType(MoveNeutralFigureMessage.class);
-        registerMsgType(PlaceTokenMessage.class);
-        registerMsgType(CaptureFollowerMessage.class);
-        registerMsgType(PayRansomMessage.class);
-        registerMsgType(ExchangeFollowerChoiceMessage.class);
-        registerMsgType(BazaarBidMessage.class);
-        registerMsgType(BazaarBuyOrSellMessage.class);
+    public MessageParser() {
+        gson = createGsonBuilder().create();
     }
 
     protected String getCmdName(Class<? extends WsMessage> msgType) {
         return msgType.getAnnotation(WsMessageCommand.class).value();
     }
 
-    private void registerMsgType(Class<? extends WsMessage> type) {
-        types.put(getCmdName(type), type);
-    }
-
     public WsMessage fromJson(String payload) {
         String s[] = payload.split(" ", 2); //command, arg
-        Class<? extends WsMessage> type = types.get(s[0]);
+        Class<? extends WsMessage> type = WsCommandRegistry.TYPES.get(s[0]).get();
         if (type == null) {
             throw new IllegalArgumentException("Mapping type is not declared for "+s[0]);
         }
@@ -181,5 +139,9 @@ public final class MessageParser {
 
     public String toJson(WsMessage arg) {
         return getCmdName(arg.getClass()) + " " + gson.toJson(arg);
+    }
+
+    public Gson getGson() {
+        return gson;
     }
 }

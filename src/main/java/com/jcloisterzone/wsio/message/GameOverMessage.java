@@ -5,7 +5,7 @@ import com.jcloisterzone.wsio.WsMessageCommand;
 @WsMessageCommand("GAME_OVER")
 public class GameOverMessage implements WsInGameMessage {
 
-	private String gameId;
+    private String gameId;
 
     public GameOverMessage(String gameId) {
         super();
@@ -13,7 +13,7 @@ public class GameOverMessage implements WsInGameMessage {
     }
 
     @Override
-	public String getGameId() {
+    public String getGameId() {
         return gameId;
     }
 

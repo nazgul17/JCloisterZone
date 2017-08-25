@@ -4,7 +4,7 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("MOVE_NEUTRAL_FIGURE")
-public class MoveNeutralFigureMessage implements WsInGameMessage {
+public class MoveNeutralFigureMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
     private String figureId;

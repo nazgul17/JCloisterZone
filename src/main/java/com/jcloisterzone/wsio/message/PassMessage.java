@@ -3,7 +3,7 @@ package com.jcloisterzone.wsio.message;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("PASS")
-public class PassMessage implements WsInGameMessage {
+public class PassMessage implements WsInGameMessage, WsReplayableMessage {
 
     private String gameId;
 

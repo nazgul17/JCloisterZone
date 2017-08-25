@@ -32,7 +32,7 @@ public class MessageDispatcher {
                 Class<?> params[] = m.getParameterTypes();
                 @SuppressWarnings("unchecked")
                 Class<? extends WsMessage> cls = (Class<? extends WsMessage>) params[params.length-1];
-                if (cls.equals(msg.getClass())) {
+                if (cls.isInstance(msg)) {
                     try {
                         if (params.length == 1) {
                             m.invoke(target, msg);

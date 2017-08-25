@@ -7,7 +7,7 @@ import com.jcloisterzone.figure.Meeple;
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("DEPLOY_FLIER")
-public class DeployFlierMessage implements WsInGameMessage {
+public class DeployFlierMessage implements WsInGameMessage, WsReplayableMessage {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
