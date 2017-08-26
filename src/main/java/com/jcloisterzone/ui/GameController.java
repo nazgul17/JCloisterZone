@@ -28,6 +28,7 @@ import com.jcloisterzone.ui.resources.LayeredImageDescriptor;
 import com.jcloisterzone.ui.view.ChannelView;
 import com.jcloisterzone.ui.view.GameView;
 import com.jcloisterzone.ui.view.StartView;
+import com.jcloisterzone.wsio.message.GameMessage.GameStatus;
 import com.jcloisterzone.wsio.message.LeaveGameMessage;
 
 public class GameController extends EventProxyUiController<Game> {
@@ -35,7 +36,7 @@ public class GameController extends EventProxyUiController<Game> {
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
     private final Game game;
-    private com.jcloisterzone.wsio.message.GameMessage.GameState gameState;
+    private GameStatus gameStatus;
     private String channel;
     private boolean passwordProtected;
 
@@ -57,12 +58,12 @@ public class GameController extends EventProxyUiController<Game> {
         return game.getGameId();
     }
 
-    public com.jcloisterzone.wsio.message.GameMessage.GameState getGameState() {
-        return gameState;
+    public GameStatus getGameStatus() {
+        return gameStatus;
     }
 
-    public void setGameState(com.jcloisterzone.wsio.message.GameMessage.GameState gameState) {
-        this.gameState = gameState;
+    public void setGameStatus(GameStatus gameStatus) {
+        this.gameStatus = gameStatus;
     }
 
     @Subscribe

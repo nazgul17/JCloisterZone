@@ -98,7 +98,7 @@ public final class MessageParser {
             }
         });
 
-        builder.registerTypeAdapter(WsMessage.class, new JsonSerializer<WsMessage>() {
+        JsonSerializer<WsMessage> msgSerializer = new JsonSerializer<WsMessage>() {
             @Override
             public JsonElement serialize(WsMessage src, Type typeOfSrc, JsonSerializationContext context) {
                 JsonObject obj = new JsonObject();
@@ -106,8 +106,8 @@ public final class MessageParser {
                 obj.add("payload", context.serialize(src));
                 return obj;
             }
-        });
-        builder.registerTypeAdapter(WsMessage.class, new JsonDeserializer<WsMessage>() {
+        };
+        JsonDeserializer<WsMessage> msgDeserializer = new JsonDeserializer<WsMessage>() {
             @Override
             public WsMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                     throws JsonParseException {
@@ -115,7 +115,12 @@ public final class MessageParser {
                 Class<? extends WsMessage> cls = WsCommandRegistry.TYPES.get(obj.get("type").getAsString()).get();
                 return context.deserialize(obj.get("payload"), cls);
             }
-        });
+        };
+
+        builder.registerTypeAdapter(WsMessage.class, msgSerializer);
+        builder.registerTypeAdapter(WsMessage.class, msgDeserializer);
+        builder.registerTypeAdapter(WsReplayableMessage.class, msgSerializer);
+        builder.registerTypeAdapter(WsReplayableMessage.class, msgDeserializer);
 
         return builder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }

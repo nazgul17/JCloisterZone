@@ -7,14 +7,14 @@ import com.jcloisterzone.wsio.WsMessageCommand;
 @WsMessageCommand("GAME")
 public class GameMessage implements WsMessage, WsInGameMessage {
 
-    public enum GameState {
+    public enum GameStatus {
         OPEN, RUNNING, REMOVED, PAUSED
     }
 
     private String gameId;
     private String channel;
     private String name;
-    private GameState state;
+    private GameStatus status;
     private boolean passwordProtected;
 
     private GameSetupMessage gameSetup;
@@ -27,10 +27,10 @@ public class GameMessage implements WsMessage, WsInGameMessage {
     public GameMessage() {
     }
 
-    public GameMessage(String id, String name, GameState state, GameSetupMessage gameSetup) {
+    public GameMessage(String id, String name, GameStatus status, GameSetupMessage gameSetup) {
         this.gameId = id;
         this.name = name;
-        this.state = state;
+        this.status = status;
         this.gameSetup = gameSetup;
     }
 
@@ -59,12 +59,12 @@ public class GameMessage implements WsMessage, WsInGameMessage {
         this.name = name;
     }
 
-    public GameState getState() {
-        return state;
+    public GameStatus getStatus() {
+        return status;
     }
 
-    public void setState(GameState state) {
-        this.state = state;
+    public void setStatus(GameStatus state) {
+        this.status = state;
     }
 
     public SlotMessage[] getSlots() {

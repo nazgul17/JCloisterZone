@@ -119,7 +119,7 @@ public class GameOverPanel extends JPanel {
             CapabilitiesState capabilities = state.getCapabilities();
 
             //setTitle(_("Game overview"));
-            boolean hasBazaars = capabilities.contains(BazaarCapability.class) && !game.getBooleanValue(CustomRule.BAZAAR_NO_AUCTION);
+            boolean hasBazaars = capabilities.contains(BazaarCapability.class) && !state.getBooleanValue(CustomRule.BAZAAR_NO_AUCTION);
 
             StringBuilder rowSpec = new StringBuilder("[][]10[]10[]20[][][][]");
             if (capabilities.contains(CastleCapability.class)) rowSpec.append("[]");

@@ -22,6 +22,7 @@ import com.jcloisterzone.feature.Feature;
 import com.jcloisterzone.feature.Road;
 import com.jcloisterzone.game.Capability;
 import com.jcloisterzone.game.PlayerSlot;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.ui.Client;
 
 

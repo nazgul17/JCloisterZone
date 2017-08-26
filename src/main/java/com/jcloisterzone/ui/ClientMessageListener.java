@@ -2,7 +2,6 @@ package com.jcloisterzone.ui;
 
 import static com.jcloisterzone.ui.I18nUtils._;
 
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.net.URI;
 import java.util.ArrayList;
@@ -36,8 +35,7 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameSetup;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.PlayerSlot.SlotState;
-import com.jcloisterzone.game.Snapshot;
-import com.jcloisterzone.game.phase.Phase;
+import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.online.Channel;
 import com.jcloisterzone.ui.view.ChannelView;
 import com.jcloisterzone.ui.view.GameSetupView;
@@ -54,7 +52,7 @@ import com.jcloisterzone.wsio.message.ClientUpdateMessage.ClientState;
 import com.jcloisterzone.wsio.message.ClockMessage;
 import com.jcloisterzone.wsio.message.ErrorMessage;
 import com.jcloisterzone.wsio.message.GameMessage;
-import com.jcloisterzone.wsio.message.GameMessage.GameState;
+import com.jcloisterzone.wsio.message.GameMessage.GameStatus;
 import com.jcloisterzone.wsio.message.GameSetupMessage;
 import com.jcloisterzone.wsio.message.GameUpdateMessage;
 import com.jcloisterzone.wsio.message.SetExpansionMessage;
@@ -66,6 +64,7 @@ import com.jcloisterzone.wsio.message.UndoMessage;
 import com.jcloisterzone.wsio.message.WsInChannelMessage;
 import com.jcloisterzone.wsio.message.WsInGameMessage;
 import com.jcloisterzone.wsio.message.WsMessage;
+import com.jcloisterzone.wsio.message.WsReplayableMessage;
 import com.jcloisterzone.wsio.server.RemoteClient;
 
 import io.vavr.collection.Array;
@@ -234,7 +233,7 @@ public class ClientMessageListener implements MessageListener {
         return gc;
     }
 
-    private void handleGameStarted(final GameController gc, String[] replay) throws InvocationTargetException, InterruptedException {
+    private void handleGameStarted(final GameController gc, List<WsReplayableMessage> replay) throws InvocationTargetException, InterruptedException {
         conn.getReportingTool().setGame(gc.getGame());
 //        GameStateBuilder phase = gc.getGame().getStateBuilder();
 //        phase.startGame(replay != null);
@@ -275,7 +274,7 @@ public class ClientMessageListener implements MessageListener {
         SwingUtilities.invokeAndWait(new Runnable() {
             @Override
             public void run() {
-                client.mountView(new GameSetupView(client, gc, msg.getSnapshot() == null));
+                client.mountView(new GameSetupView(client, gc, msg.getStatus() == GameStatus.OPEN));
                 performAutostart(gc.getGame()); //must wait for panel is created
             }
         });
@@ -316,9 +315,9 @@ public class ClientMessageListener implements MessageListener {
             }
         }
 
-        gc.setGameState(msg.getState());
+        gc.setGameStatus(msg.getStatus());
         if (!channelList) {
-            switch (msg.getState()) {
+            switch (msg.getStatus()) {
             case OPEN:
                 openGameSetup(gc, msg);
                 break;
@@ -355,21 +354,21 @@ public class ClientMessageListener implements MessageListener {
     @WsSubscribe
     public void handleGameUpdate(GameUpdateMessage msg) throws InvocationTargetException, InterruptedException {
         msg.getGame().setChannel(msg.getChannel()); //fill omitted channel
-        GameState state = msg.getGame().getState();
-        if (GameState.OPEN.equals(state) || GameState.PAUSED.equals(state)) {
+        GameStatus status = msg.getGame().getStatus();
+        if (GameStatus.OPEN.equals(status) || GameStatus.PAUSED.equals(status)) {
             GameController gc = (GameController) getController(msg.getGame());
             if (gc != null) {
-                gc.setGameState(msg.getGame().getState());
+                gc.setGameStatus(status);
                 logger.warn("Unexpected state - should never happen");
                 return; //can't happen now - but eq. rename etc is possible in future
             }
             handleGame(msg.getGame(), true);
         } else {
-            if (GameState.RUNNING.equals(state) &&
+            if (GameStatus.RUNNING.equals(status) &&
                     client.getView() instanceof GameSetupView) {
                 GameController gc = ((GameSetupView) client.getView()).getGameController();
                 if (gc.getGame().getGameId().equals(msg.getGame().getGameId())) {
-                    gc.setGameState(msg.getGame().getState());
+                    gc.setGameStatus(status);
                     return;
                 }
             }
