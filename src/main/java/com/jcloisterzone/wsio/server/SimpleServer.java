@@ -29,6 +29,8 @@ import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.GameSetup;
 import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.Snapshot;
+import com.jcloisterzone.game.save.SavedGame;
+import com.jcloisterzone.game.save.SavedGame.SavedGamePlayerSlot;
 import com.jcloisterzone.wsio.MessageDispatcher;
 import com.jcloisterzone.wsio.MessageParser;
 import com.jcloisterzone.wsio.WsSubscribe;
@@ -87,7 +89,7 @@ public class SimpleServer extends WebSocketServer  {
     protected int slotSerial;
     private final List<String> replay = new ArrayList<String>();
 
-    private Snapshot snapshot;
+    private SavedGame savedGame;
     private boolean gameStarted;
 
     private long[] clocks;
@@ -109,14 +111,30 @@ public class SimpleServer extends WebSocketServer  {
         slots = new ServerPlayerSlot[PlayerSlot.COUNT];
     }
 
-    public void createGame(Snapshot snapshot, Game settings, String hostClientId) {
+    public void createGame(SavedGame savedGame, Game game, String hostClientId) {
         slotSerial = 0;
         runningClock = -1;
         gameStarted = false;
         replay.clear();
-        this.snapshot = null;
+        this.savedGame = savedGame;
         this.hostClientId = hostClientId;
-        gameId = KeyUtils.createRandomId();
+
+        for (int i = 0; i < slots.length; i++) {
+            slots[i] = new ServerPlayerSlot(i);
+        }
+
+        if (savedGame != null) {
+            gameId = savedGame.getGameId();
+            gameSetup = savedGame.getSetup().asGameSetup();
+            loadSlotsFromSavedGame(savedGame);
+        } else {
+            gameId = KeyUtils.createRandomId();
+            gameSetup = new GameSetup(
+                HashSet.of(Expansion.BASIC),
+                CustomRule.getDefaultRules()
+            );
+        }
+
 //        gameSetup = new GameSetup();
 //        if (snapshot != null) {
 //            this.snapshot =  snapshot;
@@ -128,64 +146,58 @@ public class SimpleServer extends WebSocketServer  {
 //            game.getCustomRules().putAll(settings.getCustomRules());
 //            loadSlotsFromGame(settings);
 //        } else {
-            gameSetup = new GameSetup(
-                HashSet.of(Expansion.BASIC),
-                CustomRule.getDefaultRules()
-            );
-            for (int i = 0; i < slots.length; i++) {
-                slots[i] = new ServerPlayerSlot(i);
-            }
+
 //        }
     }
 
-    @SuppressWarnings("unchecked")
-    private void loadSlotsFromGame(Game settings) {
-        //Game is game from client since, so we can use isLocalHuman
+//    @SuppressWarnings("unchecked")
+//    private void loadSlotsFromGame(Game settings) {
+//        //Game is game from client since, so we can use isLocalHuman
+//        int maxSerial = 0;
+//        for (Player player : settings.getAllPlayers()) {
+//            int slotNumber = player.getSlot().getNumber();
+//            ServerPlayerSlot slot = new ServerPlayerSlot(slotNumber);
+//            slots[slotNumber] = slot;
+//            boolean isAi = player.getSlot().isAi();
+//            if (player.isLocalHuman() || isAi) {
+//                if (isAi) {
+//                    String className = player.getSlot().getAiClassName();
+//                    try {
+//                        EnumSet<Expansion> supported = (EnumSet<Expansion>) Class.forName(className).getMethod("supportedExpansions").invoke(null);
+//                        slot.setSupportedExpansions(supported.toArray(new Expansion[supported.size()]));
+//                        slot.setAiClassName(className);
+//                    } catch (Exception e) {
+//                        logger.warn("AI class is not present " + className);
+//                        continue;
+//                    }
+//                }
+//                slot.setNickname(player.getNick());
+//                slot.setAutoAssignClientId(player.getSlot().getClientId());
+//                int serial = player.getSlot().getSerial() == null ? player.getIndex() : player.getSlot().getSerial();
+//                maxSerial = Math.max(maxSerial, serial);
+//                slot.setSerial(serial);
+//            }
+//        }
+//        for (int i = 0; i < slots.length; i++) {
+//            if (slots[i] == null) {
+//                slots[i] = new ServerPlayerSlot(i);
+//            }
+//        }
+//        slotSerial = maxSerial + 1;
+//    }
+
+    private void loadSlotsFromSavedGame(SavedGame savedGame) {
         int maxSerial = 0;
-        for (Player player : settings.getAllPlayers()) {
-            int slotNumber = player.getSlot().getNumber();
-            ServerPlayerSlot slot = new ServerPlayerSlot(slotNumber);
-            slots[slotNumber] = slot;
-            boolean isAi = player.getSlot().isAi();
-            if (player.isLocalHuman() || isAi) {
-                if (isAi) {
-                    String className = player.getSlot().getAiClassName();
-                    try {
-                        EnumSet<Expansion> supported = (EnumSet<Expansion>) Class.forName(className).getMethod("supportedExpansions").invoke(null);
-                        slot.setSupportedExpansions(supported.toArray(new Expansion[supported.size()]));
-                        slot.setAiClassName(className);
-                    } catch (Exception e) {
-                        logger.warn("AI class is not present " + className);
-                        continue;
-                    }
-                }
-                slot.setNickname(player.getNick());
-                slot.setAutoAssignClientId(player.getSlot().getClientId());
-                int serial = player.getSlot().getSerial() == null ? player.getIndex() : player.getSlot().getSerial();
-                maxSerial = Math.max(maxSerial, serial);
-                slot.setSerial(serial);
-            }
-        }
-        for (int i = 0; i < slots.length; i++) {
-            if (slots[i] == null) {
-                slots[i] = new ServerPlayerSlot(i);
-            }
+        for (SavedGamePlayerSlot sgSlot : savedGame.getSlots()) {
+            int idx = sgSlot.getNumber();
+            slots[idx].setAutoAssignClientId(sgSlot.getClientId());
+            slots[idx].setNickname(sgSlot.getNickname());
+            slots[idx].setSerial(sgSlot.getSerial());
+            slots[idx].setAiClassName(sgSlot.getAiClassName());
+            maxSerial = Math.max(maxSerial, sgSlot.getSerial());
         }
         slotSerial = maxSerial + 1;
     }
-
-    private void loadSlotsFromSnapshot() {
-        List<Player> players = snapshot.getPlayers();
-        for (Player player : players) {
-            int slotNumber = player.getSlot().getNumber();
-            ServerPlayerSlot slot = new ServerPlayerSlot(slotNumber);
-            slot.setNickname(player.getNick());
-            slot.setAiClassName(player.getSlot().getAiClassName());
-            slot.setAutoAssignClientId(player.getSlot().getClientId());
-            slots[slotNumber] = slot;
-        }
-    }
-
 
     @Override
     public void onClose(WebSocket ws, int code, String reason, boolean remote) {
@@ -288,6 +300,10 @@ public class SimpleServer extends WebSocketServer  {
             boolean isHostClient = msg.getClientId().equals(hostClientId);
             return msg.getClientId().equals(slot.getAutoAssignClientId()) || (isHostClient && slot.getAiClassName() != null);
         }
+    }
+
+    private long getRandomSeed() {
+        return random.nextLong();
     }
 
     @WsSubscribe
@@ -488,7 +504,7 @@ public class SimpleServer extends WebSocketServer  {
     public void handleDeployFlier(WebSocket ws, DeployFlierMessage msg) {
         if (!msg.getGameId().equals(gameId)) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        msg.setCurrentTime(System.currentTimeMillis());
+        msg.setSeed(getRandomSeed());
         broadcast(msg, true);
     }
 
@@ -496,7 +512,7 @@ public class SimpleServer extends WebSocketServer  {
     public void handleCommit(WebSocket ws, CommitMessage msg) {
         if (!msg.getGameId().equals(gameId)) throw new IllegalArgumentException("Invalid game id.");
         if (!gameStarted) throw new IllegalArgumentException("Game is not started.");
-        msg.setCurrentTime(System.currentTimeMillis());
+        msg.setSeed(getRandomSeed());
         broadcast(msg, true);
     }
 

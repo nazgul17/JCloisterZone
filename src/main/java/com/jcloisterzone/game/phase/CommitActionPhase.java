@@ -26,7 +26,6 @@ public class CommitActionPhase extends Phase {
     @WsSubscribe
     public void handleCommit(CommitMessage msg) {
         game.clearUndo();
-        game.updateRandomSeed(msg.getCurrentTime());
 
         GameState state = game.getState();
         state = clearActions(state);

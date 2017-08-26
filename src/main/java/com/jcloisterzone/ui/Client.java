@@ -13,6 +13,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.BindException;
@@ -48,12 +49,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
+import com.google.gson.stream.JsonReader;
 import com.jcloisterzone.AppUpdate;
 import com.jcloisterzone.bugreport.ReportingTool;
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.ConfigLoader;
 import com.jcloisterzone.game.Game;
 import com.jcloisterzone.game.Snapshot;
+import com.jcloisterzone.game.save.SavedGame;
+import com.jcloisterzone.game.save.SavedGameParser;
 import com.jcloisterzone.ui.controls.ControlPanel;
 import com.jcloisterzone.ui.dialog.AboutDialog;
 import com.jcloisterzone.ui.dialog.DiscardedTilesDialog;
@@ -376,15 +380,15 @@ public class Client extends JFrame {
         createGame(null, null);
     }
 
-    public void createGame(Game settings) {
-        createGame(null, settings);
+    public void createGame(Game game) {
+        createGame(null, game);
     }
 
-    public void createGame(Snapshot snapshot) {
-        createGame(snapshot, null);
+    public void createGame(SavedGame savedGame) {
+        createGame(savedGame, null);
     }
 
-    private void createGame(Snapshot snapshot, Game settings) {
+    private void createGame(SavedGame savedGame, Game game) {
         if (closeGame()) {
             int port = config.getPort() == null ? ConfigLoader.DEFAULT_PORT : config.getPort();
             SimpleServer server = new SimpleServer(new InetSocketAddress(port), new SimpleServerErrorHandler() {
@@ -401,7 +405,7 @@ public class Client extends JFrame {
                 }
             });
             localServer.set(server);
-            server.createGame(snapshot, settings, config.getClient_id());
+            server.createGame(savedGame, game, config.getClient_id());
             server.start();
             try {
                 //HACK - there is not success handler in WebSocket server
@@ -462,10 +466,13 @@ public class Client extends JFrame {
             File file = fc.getSelectedFile();
             if (file != null) {
                 try {
-                    createGame(new Snapshot(file));
-                } catch (IOException | SAXException ex1) {
+                    SavedGameParser parser = new SavedGameParser();
+                    JsonReader reader = new JsonReader(new FileReader(file));
+                    SavedGame sg = parser.fromJson(reader);
+                    createGame(sg);
+                } catch (IOException ex) {
                     //do not create error.log
-                    JOptionPane.showMessageDialog(this, ex1.getLocalizedMessage(), _("Error"), JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, ex.getLocalizedMessage(), _("Error"), JOptionPane.ERROR_MESSAGE);
                 }
             }
         }

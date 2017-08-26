@@ -13,7 +13,7 @@ public class PlayerSlot implements Serializable {
     public static final int COUNT = 6;
 
     private final int number;
-    private Integer serial; //server assign sequence number whgen type is occupied
+    private Integer serial; //server assign sequence number when type is occupied
 
     private String sessionId;
     private String clientId;

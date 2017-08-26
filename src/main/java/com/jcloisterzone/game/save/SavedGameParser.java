@@ -15,6 +15,7 @@ import com.google.gson.JsonParseException;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
+import com.google.gson.stream.JsonReader;
 import com.jcloisterzone.wsio.MessageParser;
 import com.jcloisterzone.wsio.WsCommandRegistry;
 import com.jcloisterzone.wsio.WsMessageCommand;
@@ -27,25 +28,6 @@ public class SavedGameParser {
 
     public SavedGameParser() {
         GsonBuilder builder = MessageParser.createGsonBuilder();
-
-        builder.registerTypeAdapter(WsReplayableMessage.class, new JsonSerializer<WsReplayableMessage>() {
-            @Override
-            public JsonElement serialize(WsReplayableMessage src, Type typeOfSrc, JsonSerializationContext context) {
-                JsonObject obj = new JsonObject();
-                obj.add("type", new JsonPrimitive(src.getClass().getAnnotation(WsMessageCommand.class).value()));
-                obj.add("payload", context.serialize(src));
-                return obj;
-            }
-        });
-        builder.registerTypeAdapter(WsReplayableMessage.class, new JsonDeserializer<WsReplayableMessage>() {
-            @Override
-            public WsReplayableMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-                    throws JsonParseException {
-                JsonObject obj = (JsonObject) json;
-                Class<? extends WsMessage> cls = WsCommandRegistry.TYPES.get(obj.get("type").getAsString()).get();
-                return context.deserialize(obj.get("payload"), cls);
-            }
-        });
 
         gson = builder
             .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
@@ -62,8 +44,10 @@ public class SavedGameParser {
         gson.toJson(src, writer);
     }
 
-    public SavedGame fromJson(String json) {
-        return gson.fromJson(json, SavedGame.class);
+    public SavedGame fromJson(JsonReader reader) {
+        SavedGame sg = gson.fromJson(reader, SavedGame.class);
+        sg.getReplay().forEach(msg -> msg.setGameId(sg.getGameId()));
+        return sg;
     }
 
     public class SavedGameExclStrat implements ExclusionStrategy {

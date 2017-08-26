@@ -1,5 +1,5 @@
 package com.jcloisterzone.wsio.message;
 
-public interface WsReplayableMessage extends WsMessage {
+public interface WsReplayableMessage extends WsInGameMessage {
 
 }

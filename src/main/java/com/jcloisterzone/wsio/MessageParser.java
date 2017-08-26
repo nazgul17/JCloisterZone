@@ -1,19 +1,19 @@
 package com.jcloisterzone.wsio;
 
 import java.lang.reflect.Type;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonDeserializer;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
+import com.google.gson.JsonParser;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
@@ -23,46 +23,9 @@ import com.jcloisterzone.board.pointer.BoardPointer;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
 import com.jcloisterzone.game.CustomRule;
-import com.jcloisterzone.wsio.message.AbandonGameMessage;
-import com.jcloisterzone.wsio.message.BazaarBidMessage;
-import com.jcloisterzone.wsio.message.BazaarBuyOrSellMessage;
-import com.jcloisterzone.wsio.message.CaptureFollowerMessage;
-import com.jcloisterzone.wsio.message.ChannelMessage;
-import com.jcloisterzone.wsio.message.ChatMessage;
-import com.jcloisterzone.wsio.message.ClientUpdateMessage;
-import com.jcloisterzone.wsio.message.ClockMessage;
-import com.jcloisterzone.wsio.message.CommitMessage;
-import com.jcloisterzone.wsio.message.CreateGameMessage;
-import com.jcloisterzone.wsio.message.DeployFlierMessage;
-import com.jcloisterzone.wsio.message.DeployMeepleMessage;
-import com.jcloisterzone.wsio.message.ErrorMessage;
-import com.jcloisterzone.wsio.message.ExchangeFollowerChoiceMessage;
-import com.jcloisterzone.wsio.message.GameMessage;
-import com.jcloisterzone.wsio.message.GameOverMessage;
-import com.jcloisterzone.wsio.message.GameSetupMessage;
-import com.jcloisterzone.wsio.message.GameUpdateMessage;
-import com.jcloisterzone.wsio.message.HelloMessage;
-import com.jcloisterzone.wsio.message.JoinGameMessage;
-import com.jcloisterzone.wsio.message.LeaveGameMessage;
-import com.jcloisterzone.wsio.message.LeaveSlotMessage;
-import com.jcloisterzone.wsio.message.MoveNeutralFigureMessage;
-import com.jcloisterzone.wsio.message.PassMessage;
-import com.jcloisterzone.wsio.message.PayRansomMessage;
-import com.jcloisterzone.wsio.message.PingMessage;
-import com.jcloisterzone.wsio.message.PlaceTileMessage;
-import com.jcloisterzone.wsio.message.PlaceTokenMessage;
-import com.jcloisterzone.wsio.message.PongMessage;
-import com.jcloisterzone.wsio.message.PostChatMessage;
-import com.jcloisterzone.wsio.message.ReturnMeepleMessage;
-import com.jcloisterzone.wsio.message.SetExpansionMessage;
 import com.jcloisterzone.wsio.message.SetRuleMessage;
-import com.jcloisterzone.wsio.message.SlotMessage;
-import com.jcloisterzone.wsio.message.StartGameMessage;
-import com.jcloisterzone.wsio.message.TakeSlotMessage;
-import com.jcloisterzone.wsio.message.ToggleClockMessage;
-import com.jcloisterzone.wsio.message.UndoMessage;
-import com.jcloisterzone.wsio.message.WelcomeMessage;
 import com.jcloisterzone.wsio.message.WsMessage;
+import com.jcloisterzone.wsio.message.WsReplayableMessage;
 
 public final class MessageParser {
 
@@ -84,17 +47,34 @@ public final class MessageParser {
                 );
             }
         });
+        builder.registerTypeAdapter(Position.class, new JsonSerializer<Position>() {
+            @Override
+            public JsonElement serialize(Position src, Type typeOfSrc, JsonSerializationContext context) {
+                JsonArray arr = new JsonArray(2);
+                arr.add(src.x);
+                arr.add(src.y);
+                return arr;
+            }
+        });
+        builder.registerTypeAdapter(Position.class, new JsonDeserializer<Position>() {
+            @Override
+            public Position deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                    throws JsonParseException {
+                JsonArray arr = json.getAsJsonArray();
+                return new Position(arr.get(0).getAsInt(), arr.get(1).getAsInt());
+            }
+        });
         builder.registerTypeAdapter(Location.class, new JsonSerializer<Location>() {
             @Override
             public JsonElement serialize(Location src, Type typeOfSrc, JsonSerializationContext context) {
-                return new JsonPrimitive(src.getMask());
+                return new JsonPrimitive(src.toString());
             }
         });
         builder.registerTypeAdapter(Location.class, new JsonDeserializer<Location>() {
             @Override
             public Location deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
                     throws JsonParseException {
-                return Location.create(json.getAsInt());
+                return Location.valueOf(json.getAsString());
             }
         });
         builder.registerTypeAdapter(BoardPointer.class, new JsonSerializer<BoardPointer>() {
@@ -117,7 +97,27 @@ public final class MessageParser {
                 return context.deserialize(json, Position.class);
             }
         });
-        return builder;
+
+        builder.registerTypeAdapter(WsMessage.class, new JsonSerializer<WsMessage>() {
+            @Override
+            public JsonElement serialize(WsMessage src, Type typeOfSrc, JsonSerializationContext context) {
+                JsonObject obj = new JsonObject();
+                obj.add("type", new JsonPrimitive(src.getClass().getAnnotation(WsMessageCommand.class).value()));
+                obj.add("payload", context.serialize(src));
+                return obj;
+            }
+        });
+        builder.registerTypeAdapter(WsMessage.class, new JsonDeserializer<WsMessage>() {
+            @Override
+            public WsMessage deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
+                    throws JsonParseException {
+                JsonObject obj = (JsonObject) json;
+                Class<? extends WsMessage> cls = WsCommandRegistry.TYPES.get(obj.get("type").getAsString()).get();
+                return context.deserialize(obj.get("payload"), cls);
+            }
+        });
+
+        return builder.setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
     }
 
     public MessageParser() {
@@ -128,17 +128,18 @@ public final class MessageParser {
         return msgType.getAnnotation(WsMessageCommand.class).value();
     }
 
-    public WsMessage fromJson(String payload) {
-        String s[] = payload.split(" ", 2); //command, arg
-        Class<? extends WsMessage> type = WsCommandRegistry.TYPES.get(s[0]).get();
-        if (type == null) {
-            throw new IllegalArgumentException("Mapping type is not declared for "+s[0]);
-        }
-        return gson.fromJson(s[1], type);
+    public WsMessage fromJson(String src) {
+//        JsonParser parser = new JsonParser();
+//        JsonObject obj = parser.parse(src).getAsJsonObject();
+//        String typeName = obj.get("type").getAsString();
+//        Class<? extends WsMessage> type = WsCommandRegistry.TYPES.get(typeName).getOrElseThrow(
+//            () -> new IllegalArgumentException("Mapping type is not declared for " + typeName)
+//        );
+        return gson.fromJson(src, WsMessage.class);
     }
 
     public String toJson(WsMessage arg) {
-        return getCmdName(arg.getClass()) + " " + gson.toJson(arg);
+        return gson.toJson(arg, WsMessage.class);
     }
 
     public Gson getGson() {

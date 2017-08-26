@@ -62,6 +62,7 @@ import com.jcloisterzone.wsio.message.SlotMessage;
 import com.jcloisterzone.wsio.message.UndoMessage;
 import com.jcloisterzone.wsio.message.WsInGameMessage;
 import com.jcloisterzone.wsio.message.WsReplayableMessage;
+import com.jcloisterzone.wsio.message.WsSeedMeesage;
 
 import io.vavr.Tuple2;
 import io.vavr.collection.LinkedHashMap;
@@ -80,6 +81,7 @@ public class Game implements EventProxy {
 
     private final String gameId;
     private String name;
+    private long initialSeed;
 
     private GameSetup setup;
     private GameState state;
@@ -106,6 +108,7 @@ public class Game implements EventProxy {
 
     public Game(String gameId, long randomSeed) {
         this.gameId = gameId;
+        this.initialSeed = randomSeed;
         this.randomSeed = randomSeed;
         this.random = new Random(randomSeed);
     }
@@ -120,6 +123,10 @@ public class Game implements EventProxy {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public long getInitialSeed() {
+        return initialSeed;
     }
 
     public GameState getState() {
@@ -214,6 +221,9 @@ public class Game implements EventProxy {
     @WsSubscribe
     public void handleInGameMessage(WsReplayableMessage msg) {
         replay = replay.prepend(msg);
+        if (msg instanceof WsSeedMeesage) {
+            updateRandomSeed(((WsSeedMeesage)msg).getSeed());
+        }
     }
 
     private EnumSet<Expansion> mergeSupportedExpansions() {

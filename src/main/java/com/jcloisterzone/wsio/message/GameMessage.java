@@ -1,5 +1,7 @@
 package com.jcloisterzone.wsio.message;
 
+import java.util.List;
+
 import com.jcloisterzone.wsio.WsMessageCommand;
 
 @WsMessageCommand("GAME")
@@ -13,11 +15,14 @@ public class GameMessage implements WsMessage, WsInGameMessage {
     private String channel;
     private String name;
     private GameState state;
-    private String snapshot;
-    private SlotMessage[] slots;
-    private GameSetupMessage gameSetup;
-    private String[] replay;
     private boolean passwordProtected;
+
+    private GameSetupMessage gameSetup;
+    private SlotMessage[] slots;
+
+    private long initialSeed;
+    private List<WsReplayableMessage> replay;
+
 
     public GameMessage() {
     }
@@ -30,7 +35,7 @@ public class GameMessage implements WsMessage, WsInGameMessage {
     }
 
     @Override
-	public String getGameId() {
+    public String getGameId() {
         return gameId;
     }
 
@@ -39,14 +44,14 @@ public class GameMessage implements WsMessage, WsInGameMessage {
     }
 
     public String getChannel() {
-		return channel;
-	}
+        return channel;
+    }
 
-	public void setChannel(String channel) {
-		this.channel = channel;
-	}
+    public void setChannel(String channel) {
+        this.channel = channel;
+    }
 
-	public String getName() {
+    public String getName() {
         return name;
     }
 
@@ -60,14 +65,6 @@ public class GameMessage implements WsMessage, WsInGameMessage {
 
     public void setState(GameState state) {
         this.state = state;
-    }
-
-    public String getSnapshot() {
-        return snapshot;
-    }
-
-    public void setSnapshot(String snapshot) {
-        this.snapshot = snapshot;
     }
 
     public SlotMessage[] getSlots() {
@@ -86,19 +83,27 @@ public class GameMessage implements WsMessage, WsInGameMessage {
         this.gameSetup = gameSetup;
     }
 
-	public String[] getReplay() {
-		return replay;
-	}
+    public boolean isPasswordProtected() {
+        return passwordProtected;
+    }
 
-	public void setReplay(String[] replay) {
-		this.replay = replay;
-	}
+    public void setPasswordProtected(boolean passwordProtected) {
+        this.passwordProtected = passwordProtected;
+    }
 
-	public boolean isPasswordProtected() {
-		return passwordProtected;
-	}
+    public long getInitialSeed() {
+        return initialSeed;
+    }
 
-	public void setPasswordProtected(boolean passwordProtected) {
-		this.passwordProtected = passwordProtected;
-	}
+    public void setInitialSeed(long initialSeed) {
+        this.initialSeed = initialSeed;
+    }
+
+    public List<WsReplayableMessage> getReplay() {
+        return replay;
+    }
+
+    public void setReplay(List<WsReplayableMessage> replay) {
+        this.replay = replay;
+    }
 }
