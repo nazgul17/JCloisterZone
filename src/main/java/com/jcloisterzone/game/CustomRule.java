@@ -59,7 +59,7 @@ public enum CustomRule {
         if (type.equals(Boolean.class)) {
             return Boolean.valueOf(value);
         } else if (type.equals(Integer.class)) {
-            return Integer.valueOf(value);
+            return Double.valueOf(value).intValue();
         } else if (type.equals(String.class)) {
             return value;
         } else {

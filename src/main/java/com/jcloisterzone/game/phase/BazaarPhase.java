@@ -66,7 +66,6 @@ public class BazaarPhase extends Phase {
         state = state.setPlayerActions(
             new ActionsState(player, action, false)
         );
-        toggleClock(player);
         promote(state);
     }
 
@@ -135,10 +134,7 @@ public class BazaarPhase extends Phase {
                 } else {
                     BazaarSelectBuyOrSellAction action = new BazaarSelectBuyOrSellAction();
                     ActionsState as = new ActionsState(nextBidder, action, false);
-                    state = state.setPlayerActions(as);
-
-                    toggleClock(nextBidder);
-                    promote(state);
+                    promote(state.setPlayerActions(as));
                 }
                 return;
             }
@@ -146,10 +142,7 @@ public class BazaarPhase extends Phase {
 
         BazaarBidAction action = new BazaarBidAction();
         ActionsState as = new ActionsState(nextBidder, action, false);
-        state = state.setPlayerActions(as);
-
-        toggleClock(nextBidder);
-        promote(state);
+        promote(state.setPlayerActions(as));
     }
 
     private void nextSelectingPlayer(GameState state) {
@@ -170,7 +163,6 @@ public class BazaarPhase extends Phase {
                 state = state.setPlayerActions(
                     new ActionsState(player, action, false)
                 );
-                toggleClock(player);
                 promote(state);
                 return;
             }

@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.board.TilePack;
 import com.jcloisterzone.board.TilePackBuilder;
 import com.jcloisterzone.board.TilePackBuilder.Tiles;
@@ -25,9 +24,8 @@ import com.jcloisterzone.game.PlayerSlot;
 import com.jcloisterzone.game.phase.Phase;
 import com.jcloisterzone.reducers.PlaceTile;
 
+import io.vavr.Predicates;
 import io.vavr.collection.Array;
-import io.vavr.collection.HashMap;
-import io.vavr.collection.HashSet;
 import io.vavr.collection.Seq;
 import io.vavr.collection.Stream;
 
@@ -82,8 +80,6 @@ public class GameStateBuilder {
                 players.map(p -> createPlayerFollowers(p, capabilities))
             ).setSpecialMeeples(
                 players.map(p -> createPlayerSpecialMeeples(p, capabilities))
-            ).setClocks(
-                players.map(p -> new PlayerClock(0))
             )
         );
 
@@ -110,21 +106,17 @@ public class GameStateBuilder {
     }
 
     private void createPlayers() {
-        java.util.List<Player> players = new ArrayList<>();
-        PlayerSlot[] sorted = new PlayerSlot[slots.length];
-        System.arraycopy(slots, 0, sorted, 0, slots.length);
-        Arrays.sort(sorted, new PlayerSlotComparator());
-        for (int i = 0; i < sorted.length; i++) {
-            PlayerSlot slot = sorted[i];
-            if (slot.isOccupied()) {
-                Player player = new Player(slot.getNickname(), i, slot);
-                players.add(player);
-            }
-        }
-        if (players.isEmpty()) {
+        this.players = Stream.ofAll(Arrays.asList(slots))
+            .filter(Predicates.isNotNull())
+            .filter(slot -> slot.isOccupied())
+            .sortBy(slot -> slot.getSerial())
+            .foldLeft(Array.empty(), (arr, slot) ->
+               arr.append(new Player(slot.getNickname(), arr.size(), slot))
+            );
+
+        if (this.players.isEmpty()) {
             throw new IllegalStateException("No players in game");
         }
-        this.players = Array.ofAll(players);
     }
 
     private void createTilePack() {

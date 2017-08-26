@@ -114,10 +114,6 @@ public class SimpleServer extends WebSocketServer  {
         this.savedGame = savedGame;
         this.hostClientId = hostClientId;
 
-        for (int i = 0; i < slots.length; i++) {
-            slots[i] = new ServerPlayerSlot(i);
-        }
-
         if (savedGame != null) {
             gameId = savedGame.getGameId();
             gameSetup = savedGame.getSetup().asGameSetup();
@@ -130,6 +126,9 @@ public class SimpleServer extends WebSocketServer  {
                 CustomRule.getDefaultRules()
             );
             replay = new ArrayList<>();
+            for (int i = 0; i < slots.length; i++) {
+                slots[i] = new ServerPlayerSlot(i);
+            }
         }
 
 //        gameSetup = new GameSetup();
@@ -187,6 +186,7 @@ public class SimpleServer extends WebSocketServer  {
         int maxSerial = 0;
         for (SavedGamePlayerSlot sgSlot : savedGame.getSlots()) {
             int idx = sgSlot.getNumber();
+            slots[idx] = new ServerPlayerSlot(idx);
             slots[idx].setAutoAssignClientId(sgSlot.getClientId());
             slots[idx].setNickname(sgSlot.getNickname());
             slots[idx].setSerial(sgSlot.getSerial());
@@ -243,12 +243,20 @@ public class SimpleServer extends WebSocketServer  {
     }
 
     private GameMessage newGameMessage(boolean includeReplay) {
-        GameSetupMessage gsm = new GameSetupMessage(
+        GameSetupMessage setupMessage = new GameSetupMessage(
             gameId,
             gameSetup.getRules().toJavaMap(),
             gameSetup.getExpansions().toJavaSet()
         );
-        GameMessage gm = new GameMessage(gameId, "", gameStarted ? GameStatus.RUNNING : GameStatus.OPEN, gsm);
+        GameStatus status;
+        if (gameStarted) {
+            status = GameStatus.RUNNING;
+        } else if (savedGame == null) {
+            status = GameStatus.OPEN;
+        } else {
+            status = GameStatus.PAUSED;
+        }
+        GameMessage gm = new GameMessage(gameId, "", status, setupMessage);
         List<SlotMessage> slotMsgs = new ArrayList<>();
         for (ServerPlayerSlot slot : slots) {
             if (slot != null) {
@@ -456,6 +464,7 @@ public class SimpleServer extends WebSocketServer  {
             }
             clocks = new long[playerCount];
         } else {
+            clocks = savedGame.getClocks();
 //            List<Player> players = snapshot.getPlayers();
 //            clocks = new long[players.size()];
 //            for (int i = 0; i < clocks.length; i++) {
@@ -561,6 +570,11 @@ public class SimpleServer extends WebSocketServer  {
 
     @WsSubscribe
     public void handleBazaarBuyOrSellMessage(WebSocket ws, BazaarBuyOrSellMessage msg) {
+        handleInGameMessage(msg);
+    }
+
+    @WsSubscribe
+    public void handleGameOverMessage(WebSocket ws, GameOverMessage msg) {
         handleInGameMessage(msg);
     }
 

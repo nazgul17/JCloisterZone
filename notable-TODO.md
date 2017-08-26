@@ -48,4 +48,6 @@ and get it by one one instead of all per tile
 
 * extract config to global singleton repository, eg Client or Application
 
-* don't male instance of unused phases, now there is annotation which can be handled before
+* is GameController needed for phases? could be game sufficient? Or should be gc placed on Game?
+
+* put capabilities and number of tile sets into saved game

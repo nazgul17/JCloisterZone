@@ -17,6 +17,7 @@ public class GameMessage implements WsMessage, WsInGameMessage {
     private GameStatus status;
     private boolean passwordProtected;
 
+    //TODO use structures instead of message?
     private GameSetupMessage gameSetup;
     private SlotMessage[] slots;
 

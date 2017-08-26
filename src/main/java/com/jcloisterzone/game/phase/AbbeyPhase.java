@@ -43,8 +43,6 @@ public class AbbeyPhase extends Phase {
         if (hasAbbey && (builderSecondTurnPart || !baazaarInProgress)) {
             Stream<Tuple2<Position, EdgePattern>> holes = state.getHoles();
             if (!holes.isEmpty()) {
-                toggleClock(state.getTurnPlayer());
-
                 TileDefinition abbey = state.getTilePack().findTile(TileDefinition.ABBEY_TILE_ID).get();
 
                 TilePlacementAction action = new TilePlacementAction(

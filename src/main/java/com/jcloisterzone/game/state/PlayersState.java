@@ -5,7 +5,6 @@ import java.util.function.Predicate;
 
 import com.jcloisterzone.Immutable;
 import com.jcloisterzone.Player;
-import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.PlayerScore;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.Special;
@@ -13,7 +12,6 @@ import com.jcloisterzone.game.Token;
 
 import io.vavr.collection.Array;
 import io.vavr.collection.HashMap;
-import io.vavr.collection.List;
 import io.vavr.collection.Map;
 import io.vavr.collection.Seq;
 import io.vavr.control.Option;
@@ -30,7 +28,6 @@ public class PlayersState implements Serializable {
 
     private final Array<Seq<Follower>> followers;
     private final Array<Seq<Special>> specialMeeples;
-    private final Array<PlayerClock> clocks;
 
     public static PlayersState createInitial(Array<Player> players, int turnPlayerIndex) {
         return new PlayersState(
@@ -38,7 +35,6 @@ public class PlayersState implements Serializable {
             players.map(p -> new PlayerScore()),
             players.map(p -> HashMap.empty()),
             turnPlayerIndex,
-            null,
             null,
             null
         );
@@ -50,22 +46,21 @@ public class PlayersState implements Serializable {
             Array<Map<Token, Integer>> tokens,
             int turnPlayerIndex,
             Array<Seq<Follower>> followers,
-            Array<Seq<Special>> specialMeeples,
-            Array<PlayerClock> clocks) {
+            Array<Seq<Special>> specialMeeples
+    ) {
         this.players = players;
         this.score = score;
         this.tokens = tokens;
         this.turnPlayerIndex = turnPlayerIndex;
         this.followers = followers;
         this.specialMeeples = specialMeeples;
-        this.clocks = clocks;
     }
 
     public PlayersState setScore(Array<PlayerScore> score) {
         if (this.score == score) return this;
         return new PlayersState(
             players, score, tokens, turnPlayerIndex,
-            followers, specialMeeples, clocks
+            followers, specialMeeples
         );
     }
 
@@ -73,7 +68,7 @@ public class PlayersState implements Serializable {
         if (this.tokens == tokens) return this;
         return new PlayersState(
             players, score, tokens, turnPlayerIndex,
-            followers, specialMeeples, clocks
+            followers, specialMeeples
         );
     }
 
@@ -110,7 +105,7 @@ public class PlayersState implements Serializable {
         if (this.turnPlayerIndex == turnPlayerIndex) return this;
         return new PlayersState(
             players, score, tokens, turnPlayerIndex,
-            followers, specialMeeples, clocks
+            followers, specialMeeples
         );
     }
 
@@ -118,7 +113,7 @@ public class PlayersState implements Serializable {
         if (this.followers == followers) return this;
         return new PlayersState(
             players, score, tokens, turnPlayerIndex,
-            followers, specialMeeples, clocks
+            followers, specialMeeples
         );
     }
 
@@ -126,15 +121,7 @@ public class PlayersState implements Serializable {
         if (this.specialMeeples == specialMeeples) return this;
         return new PlayersState(
             players, score, tokens, turnPlayerIndex,
-            followers, specialMeeples, clocks
-        );
-    }
-
-    public PlayersState setClocks(Array<PlayerClock> clocks) {
-        if (this.clocks == clocks) return this;
-        return new PlayersState(
-            players, score, tokens, turnPlayerIndex,
-            followers, specialMeeples, clocks
+            followers, specialMeeples
         );
     }
 
@@ -189,11 +176,6 @@ public class PlayersState implements Serializable {
             }
         }
         return Option.none();
-    }
-
-
-    public Array<PlayerClock> getClocks() {
-        return clocks;
     }
 
     public Player getTurnPlayer() {

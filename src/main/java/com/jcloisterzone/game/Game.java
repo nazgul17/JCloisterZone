@@ -16,9 +16,12 @@ import com.google.common.hash.HashCode;
 import com.jcloisterzone.EventBusExceptionHandler;
 import com.jcloisterzone.EventProxy;
 import com.jcloisterzone.Expansion;
+import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.action.PlayerAction;
 import com.jcloisterzone.board.pointer.FeaturePointer;
 import com.jcloisterzone.board.pointer.MeeplePointer;
+import com.jcloisterzone.event.ClockUpdateEvent;
 import com.jcloisterzone.event.Event;
 import com.jcloisterzone.event.GameChangedEvent;
 import com.jcloisterzone.event.GameStartedEvent;
@@ -56,15 +59,20 @@ import com.jcloisterzone.game.state.ActionsState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.game.state.GameStateBuilder;
 import com.jcloisterzone.ui.GameController;
+import com.jcloisterzone.wsio.WebSocketConnection;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.ChatMessage;
+import com.jcloisterzone.wsio.message.ClockMessage;
+import com.jcloisterzone.wsio.message.GameOverMessage;
 import com.jcloisterzone.wsio.message.SlotMessage;
+import com.jcloisterzone.wsio.message.ToggleClockMessage;
 import com.jcloisterzone.wsio.message.UndoMessage;
 import com.jcloisterzone.wsio.message.WsInGameMessage;
 import com.jcloisterzone.wsio.message.WsReplayableMessage;
 import com.jcloisterzone.wsio.message.WsSeedMeesage;
 
 import io.vavr.Tuple2;
+import io.vavr.collection.Array;
 import io.vavr.collection.LinkedHashMap;
 import io.vavr.collection.List;
 import io.vavr.collection.Queue;
@@ -79,12 +87,15 @@ public class Game implements EventProxy {
 
     protected final transient Logger logger = LoggerFactory.getLogger(getClass());
 
+    private WebSocketConnection connection;
+
     private final String gameId;
     private String name;
     private long initialSeed;
 
     private GameSetup setup;
     private GameState state;
+    private Array<PlayerClock> clocks;
     private List<WsReplayableMessage> replay; // game messages (in reversed order because of List performance)
     private final ClassToInstanceMap<Phase> phases = MutableClassToInstanceMap.create();
 
@@ -117,6 +128,14 @@ public class Game implements EventProxy {
         return gameId;
     }
 
+    public WebSocketConnection getConnection() {
+        return connection;
+    }
+
+    public void setConnection(WebSocketConnection connection) {
+        this.connection = connection;
+    }
+
     public String getName() {
         return name;
     }
@@ -141,6 +160,10 @@ public class Game implements EventProxy {
         return setup;
     }
 
+    public Array<PlayerClock> getClocks() {
+        return clocks;
+    }
+
     public void mapSetup(Function<GameSetup, GameSetup> mapper) {
         setSetup(mapper.apply(setup));
     }
@@ -152,8 +175,26 @@ public class Game implements EventProxy {
     public void replaceState(GameState state) {
         GameState prev = this.state;
         this.state = state;
+
+        Player player = state.getActivePlayer();
+        if (player != null && !player.equals(prev.getActivePlayer()) && player.getSlot().isOwn()) {
+            connection.send(new ToggleClockMessage(gameId, player.getIndex()));
+        }
+
+        boolean gameIsOver = isOver();
+        if (gameIsOver) {
+            if (state.getTurnPlayer().getSlot().isOwn()) { // send messages only from one client
+                connection.send(new ToggleClockMessage(gameId, null));
+                connection.send(new GameOverMessage(gameId));
+            }
+        }
+
         GameChangedEvent ev = new GameChangedEvent(prev, state);
         post(ev);
+
+        if (gameIsOver) {
+            post(new GameOverEvent());
+        }
 
         if (logger.isInfoEnabled()) {
             StringBuilder sb;
@@ -226,6 +267,21 @@ public class Game implements EventProxy {
         }
     }
 
+    @WsSubscribe
+    public void handleClockMessage(ClockMessage msg) {
+        int idx = clocks.indexWhere(c -> c.isRunning());
+        if (idx != -1) {
+            clocks = clocks.update(idx, new PlayerClock(msg.getClocks()[idx], false));
+        }
+        if (msg.getRunning() != null) {
+            idx = msg.getRunning();
+            clocks = clocks.update(idx, new PlayerClock(msg.getClocks()[idx], true));
+        }
+
+        post(new ClockUpdateEvent(clocks, msg.getRunning()));
+    }
+
+
     private EnumSet<Expansion> mergeSupportedExpansions() {
         EnumSet<Expansion> merged = null;
         for (int i = 0; i < slotSupportedExpansions.length; i++) {
@@ -247,17 +303,23 @@ public class Game implements EventProxy {
     }
 
     //TODO decouple from GameController ?
-    public void start(GameController gc) {
+    public void start(GameController gc, List<WsReplayableMessage> replay) {
         replay = List.empty();
+
         Phase firstPhase = createPhases(gc);
         GameStateBuilder builder = new GameStateBuilder(setup, slots, gc.getConfig());
         // 1. create state with basic config
         replaceState(builder.createInitialState());
+        clocks = state.getPlayers().getPlayers().map(p -> new PlayerClock(0));
         // 2. notify started game - it requires initial state with game config
         post(new GameStartedEvent());
         // 3. trigger initial board changes - make it after started event to propagate all event correctly to GameView
-        replaceState(builder.createFirstRoundState(firstPhase));
-        firstPhase.enter(this.state);
+        GameState state = builder.createFirstRoundState(firstPhase);
+        for (WsReplayableMessage msg : replay) {
+            // TODO apply messages on state
+        }
+        replaceState(state);
+        getPhase().enter(state);
     }
 
     private Phase addPhase(GameController gc, Phase next, Class<? extends Phase> phaseClass) {
@@ -349,8 +411,6 @@ public class Game implements EventProxy {
     public Random getRandom() {
         return random;
     }
-
-
 
     public long getRandomSeed() {
         return randomSeed;

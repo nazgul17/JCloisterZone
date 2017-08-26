@@ -177,7 +177,6 @@ public class TilePhase extends Phase {
                     canPass
                 ));
 
-                toggleClock(state.getTurnPlayer());
                 promote(state);
                 return;
             }

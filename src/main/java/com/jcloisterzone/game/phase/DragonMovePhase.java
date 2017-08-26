@@ -55,7 +55,6 @@ public class DragonMovePhase extends Phase {
         Player p = state.getTurnPlayer();
         p = state.getPlayers().getPlayer((p.getIndex() + visited.length()) % state.getPlayers().getPlayers().length());
 
-        toggleClock(p);
         promote(state.setPlayerActions(
             new ActionsState(p, new MoveDragonAction(dragon.getId(), availMoves), false)
         ));

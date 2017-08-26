@@ -218,6 +218,7 @@ public class ClientMessageListener implements MessageListener {
 //            gc = new GameController(client, game);
 //            phase = new LoadGamePhase(game, snapshot, gc);
 //        }
+        game.setConnection(conn);
         gc.setReportingTool(conn.getReportingTool());
         gc.setChannel(msg.getChannel());
         gc.setPasswordProtected(msg.isPasswordProtected());
@@ -233,11 +234,11 @@ public class ClientMessageListener implements MessageListener {
         return gc;
     }
 
-    private void handleGameStarted(final GameController gc, List<WsReplayableMessage> replay) throws InvocationTargetException, InterruptedException {
+    private void handleGameStarted(final GameController gc, io.vavr.collection.List<WsReplayableMessage> replay) throws InvocationTargetException, InterruptedException {
         conn.getReportingTool().setGame(gc.getGame());
 //        GameStateBuilder phase = gc.getGame().getStateBuilder();
 //        phase.startGame(replay != null);
-        gc.getGame().start(gc);
+        gc.getGame().start(gc, replay);
 
 //        if (replay != null) {
 //            //TODO IMMUTABLE
@@ -319,10 +320,11 @@ public class ClientMessageListener implements MessageListener {
         if (!channelList) {
             switch (msg.getStatus()) {
             case OPEN:
+            case PAUSED:
                 openGameSetup(gc, msg);
                 break;
             case RUNNING:
-                handleGameStarted(gc, msg.getReplay());
+                handleGameStarted(gc, io.vavr.collection.List.ofAll(msg.getReplay()));
                 break;
             }
         }
@@ -415,23 +417,6 @@ public class ClientMessageListener implements MessageListener {
         } else {
             logger.warn("No controller for message {}", msg);
         }
-    }
-
-    @WsSubscribe
-    public void handleClockMessage(ClockMessage msg) {
-        Game game = getGame(msg);
-        com.jcloisterzone.game.state.GameState state = game.getState();
-        Array<Player> players = state.getPlayers().getPlayers();
-        Player runningClockPlayer = msg.getRunning() == null ? null : players.get(msg.getRunning());
-
-        state = state.mapPlayers(ps -> ps.setClocks(
-          players.map(p -> new PlayerClock(
-            msg.getClocks()[p.getIndex()],
-            p.equals(runningClockPlayer)
-          ))
-        ));
-        game.replaceState(state);
-        game.post(new ClockUpdateEvent(runningClockPlayer));
     }
 
     @WsSubscribe

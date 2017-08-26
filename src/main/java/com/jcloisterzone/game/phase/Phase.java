@@ -3,19 +3,15 @@ package com.jcloisterzone.game.phase;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.jcloisterzone.Player;
 import com.jcloisterzone.config.Config;
 import com.jcloisterzone.config.Config.DebugConfig;
 import com.jcloisterzone.game.Game;
-import com.jcloisterzone.game.state.CapabilitiesState;
 import com.jcloisterzone.game.state.GameState;
 import com.jcloisterzone.reducers.PayRansom;
 import com.jcloisterzone.ui.GameController;
-import com.jcloisterzone.wsio.Connection;
 import com.jcloisterzone.wsio.WsSubscribe;
 import com.jcloisterzone.wsio.message.PassMessage;
 import com.jcloisterzone.wsio.message.PayRansomMessage;
-import com.jcloisterzone.wsio.message.ToggleClockMessage;
 
 
 public abstract class Phase {
@@ -63,14 +59,6 @@ public abstract class Phase {
         return state.setPlayerActions(null);
     }
 
-    /**
-     * Method is invoked on active phase when user buy back inprisoned follower
-     */
-    @Deprecated //generic approach to refresh actions
-    public void notifyRansomPaid() {
-        //do nothing by default
-    }
-
     @WsSubscribe
     public void handlePass(PassMessage msg) {
         GameState state = game.getState();
@@ -96,33 +84,13 @@ public abstract class Phase {
         promote(state);
     }
 
-    public Connection getConnection() {
-        return gc.getConnection();
-    }
-
-    public GameController getGameController() {
-        return gc;
-    }
-
     public DebugConfig getDebugConfig() {
         Config config = gc.getConfig();
         return config == null ? null : config.getDebug();
-    }
-
-    public boolean isLocalPlayer(Player player) {
-        return player.getSlot().isOwn();
-    }
-
-    //IMMUTABLE TODO - toggle can be derived from players action !!!
-    public void toggleClock(Player player) {
-        if (isLocalPlayer(player)) {
-            getConnection().send(new ToggleClockMessage(game.getGameId(), player.getIndex()));
-        }
     }
 
     @Override
     public String toString() {
         return getClass().getSimpleName();
     }
-
 }

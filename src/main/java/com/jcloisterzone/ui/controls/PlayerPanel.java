@@ -14,6 +14,7 @@ import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
 
 import com.jcloisterzone.Player;
+import com.jcloisterzone.PlayerClock;
 import com.jcloisterzone.figure.Follower;
 import com.jcloisterzone.figure.SmallFollower;
 import com.jcloisterzone.figure.Special;
@@ -209,7 +210,8 @@ public class PlayerPanel extends MouseTrackingComponent implements RegionMouseLi
         int index = player.getIndex();
 
         if (timeLimit != null) {
-            long remainingMs = timeLimit*1000 - player.getClock(state).getTime();
+            PlayerClock clock = game.getClocks().get(player.getIndex());
+            long remainingMs = timeLimit*1000 - clock.getTime();
             if (remainingMs <= 0) {
                 drawTimeTextBox("00.00", Color.RED);
             } else {

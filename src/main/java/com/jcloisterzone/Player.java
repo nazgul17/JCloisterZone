@@ -80,10 +80,6 @@ public class Player implements Serializable {
         return state.getPlayers().getScore().get(index).getPoints();
     }
 
-    public PlayerClock getClock(GameState state) {
-        return state.getPlayers().getClocks().get(index);
-    }
-
     public int getPointsInCategory(GameState state, PointCategory cat) {
         HashMap<PointCategory, Integer> pointStats = state.getPlayers().getScore().get(getIndex()).getStats();
         Option<Integer> points = pointStats.get(cat);

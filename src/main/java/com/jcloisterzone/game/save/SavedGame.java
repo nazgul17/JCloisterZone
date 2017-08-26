@@ -26,6 +26,7 @@ public class SavedGame implements Serializable {
     private long initialSeed;
     private Date created;
     private List<SavedGamePlayerSlot> slots;
+    private long[] clocks;
     private SavedGameSetup setup;
     private List<WsReplayableMessage> replay;
 
@@ -40,7 +41,7 @@ public class SavedGame implements Serializable {
         created = new Date();
         slots = new ArrayList<>();
         for (PlayerSlot slot : game.getPlayerSlots()) {
-            if (slot.isOccupied()) {
+            if (slot != null && slot.isOccupied()) {
                 slots.add(new SavedGamePlayerSlot(
                     slot.getNumber(),
                     slot.getSerial(),
@@ -50,6 +51,7 @@ public class SavedGame implements Serializable {
                 ));
             }
         }
+        clocks = game.getClocks().map(c -> c.getTime()).toJavaStream().mapToLong(Long::longValue).toArray();
         setup = new SavedGameSetup();
         setup.setExpansions(game.getSetup().getExpansions().toJavaSet());
         setup.setRules(game.getSetup().getRules().toJavaMap());
@@ -118,6 +120,15 @@ public class SavedGame implements Serializable {
 
     public void setSlots(List<SavedGamePlayerSlot> slots) {
         this.slots = slots;
+    }
+
+
+    public long[] getClocks() {
+        return clocks;
+    }
+
+    public void setClocks(long[] clocks) {
+        this.clocks = clocks;
     }
 
     public static class SavedGamePlayerSlot {
